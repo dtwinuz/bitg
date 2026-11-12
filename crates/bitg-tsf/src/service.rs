@@ -40,12 +40,13 @@ use windows::Win32::UI::TextServices::{
 use windows::Win32::UI::TextServices::{
     INSERT_TEXT_AT_SELECTION_FLAGS, ITfCompositionSink, ITfContext, ITfContextComposition,
     ITfDocumentMgr, ITfEditRecord, ITfEditSession, ITfEditSession_Impl, ITfInsertAtSelection,
-    ITfKeyEventSink, ITfKeyEventSink_Impl, ITfKeystrokeMgr, ITfRange, ITfSource, ITfTextEditSink,
-    ITfTextEditSink_Impl, ITfTextInputProcessor, ITfTextInputProcessor_Impl,
-    ITfTextInputProcessorEx, ITfTextInputProcessorEx_Impl, ITfThreadMgr, ITfThreadMgrEventSink,
-    ITfThreadMgrEventSink_Impl, TF_AE_END, TF_ANCHOR_END, TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS,
-    TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READWRITE, TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT,
-    TF_MOD_SHIFT, TF_PRESERVEDKEY, TF_SELECTION, TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
+    ITfKeyEventSink, ITfKeyEventSink_Impl, ITfKeystrokeMgr, ITfRange, ITfReadOnlyProperty,
+    ITfSource, ITfTextEditSink, ITfTextEditSink_Impl, ITfTextInputProcessor,
+    ITfTextInputProcessor_Impl, ITfTextInputProcessorEx, ITfTextInputProcessorEx_Impl,
+    ITfThreadMgr, ITfThreadMgrEventSink, ITfThreadMgrEventSink_Impl, TF_AE_END, TF_ANCHOR_END,
+    TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS, TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READWRITE,
+    TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT, TF_MOD_SHIFT, TF_PRESERVEDKEY, TF_SELECTION,
+    TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
 };
 use windows::Win32::UI::WindowsAndMessaging::GetMessageExtraInfo;
 use windows_core::{BOOL, GUID, IUnknown, IUnknownImpl, Interface, Ref, Result, implement};
@@ -535,30 +536,43 @@ impl TextService_Impl {
         }
     }
 
+    /// Maxfiy maydon: matn eslab qolinmaydi — Backspace/undo va zaxira yo'l ham shu maydonda ishlamaydi.
+    fn forget_sensitive(&self) -> Result<()> {
+        let mut st = self.state.borrow_mut();
+        st.last.clear();
+        st.session.reset();
+        st.undo = None;
+        Ok(())
+    }
+
     fn on_text_changed(&self, ctx: &ITfContext, ec: u32) -> Result<()> {
+        // Maxfiyligi ma'lum maydonda matn umuman o'qilmaydi.
+        if self.state.borrow().sensitive == Some(true) {
+            return self.forget_sensitive();
+        }
+        let Some((caret, before, reached_start)) = read_before_caret(ctx, ec)? else {
+            return Ok(());
+        };
         let known = self.state.borrow().sensitive;
         let sensitive = match known {
             Some(s) => s,
             None => {
-                let s = sensitive_scope(ctx, ec);
+                let (s, diag) = sensitive_scope(ctx, ec, &caret);
                 self.state.borrow_mut().sensitive = Some(s);
-                if s {
-                    log::write("sensitive field: input scope, off");
-                }
+                log::write(&format!(
+                    "input scope: {diag} -> {}",
+                    if s {
+                        "sensitive field, off"
+                    } else {
+                        "plain field"
+                    }
+                ));
                 s
             }
         };
         if sensitive {
-            // matn eslab qolinmaydi — Backspace/undo va zaxira yo'l ham shu maydonda ishlamaydi
-            let mut st = self.state.borrow_mut();
-            st.last.clear();
-            st.session.reset();
-            st.undo = None;
-            return Ok(());
+            return self.forget_sensitive();
         }
-        let Some((_, before, reached_start)) = read_before_caret(ctx, ec)? else {
-            return Ok(());
-        };
         let prev = std::mem::replace(&mut self.state.borrow_mut().last, before.clone());
         {
             // Asosiy yo'lga faqat kontekst bosilayotgan harflarni haqiqatan ko'rsatsa o'tamiz. Telegram fokusda
@@ -1306,33 +1320,74 @@ fn keyboard_disabled(ctx: &ITfContext) -> bool {
 }
 
 /// Maydonning input scope'i maxfiymi (parol, PIN, email) — `GUID_PROP_INPUTSCOPE` (#26).
-fn sensitive_scope(ctx: &ITfContext, ec: u32) -> bool {
-    unsafe {
-        let read = || -> Result<bool> {
-            let prop = ctx.GetProperty(&GUID_PROP_INPUTSCOPE)?;
-            let range = ctx.GetStart(ec)?;
-            let mut v = prop.GetValue(ec, &range)?;
-            let inner = &v.Anonymous.Anonymous;
-            let mut found = false;
-            if inner.vt == VT_UNKNOWN
-                && let Some(unk) = inner.Anonymous.punkVal.as_ref()
-                && let Ok(scope) = unk.cast::<ITfInputScope>()
-            {
-                let mut p: *mut InputScope = std::ptr::null_mut();
-                let mut n = 0u32;
-                if scope.GetInputScopes(&mut p, &mut n).is_ok() && !p.is_null() {
-                    let ids: Vec<i32> = std::slice::from_raw_parts(p, n as usize)
-                        .iter()
-                        .map(|s| s.0)
-                        .collect();
-                    CoTaskMemFree(Some(p as *const _));
-                    found = plan::sensitive_input_scope(&ids);
-                }
+/// Scope dastur atributi (`GetAppProperty`), ba'zi dasturlarda TIP xossasi (`GetProperty`) sifatida keladi.
+/// Ikkinchi qiymat — log uchun: qaysi yo'l, VARIANT turi va scope ro'yxati.
+fn sensitive_scope(ctx: &ITfContext, ec: u32, caret: &ITfRange) -> (bool, String) {
+    let mut diag = Vec::new();
+    for app in [true, false] {
+        let src = if app { "app" } else { "tip" };
+        let prop: Result<ITfReadOnlyProperty> = unsafe {
+            if app {
+                ctx.GetAppProperty(&GUID_PROP_INPUTSCOPE)
+            } else {
+                ctx.GetProperty(&GUID_PROP_INPUTSCOPE)
+                    .and_then(|p| p.cast())
             }
-            let _ = VariantClear(&mut v);
-            Ok(found)
         };
-        read().unwrap_or(false)
+        let prop = match prop {
+            Ok(p) => p,
+            Err(e) => {
+                diag.push(format!("{src}: no property 0x{:08x}", e.code().0));
+                continue;
+            }
+        };
+        let mut v = match unsafe { prop.GetValue(ec, caret) } {
+            Ok(v) => v,
+            Err(e) => {
+                diag.push(format!("{src}: GetValue 0x{:08x}", e.code().0));
+                continue;
+            }
+        };
+        let ids = unsafe { input_scopes(&v) };
+        let vt = unsafe { v.Anonymous.Anonymous.vt.0 };
+        let _ = unsafe { VariantClear(&mut v) };
+        match ids {
+            Some(ids) => {
+                let s = plan::sensitive_input_scope(&ids);
+                diag.push(format!("{src}: vt={vt} scopes={ids:?}"));
+                return (s, diag.join("; "));
+            }
+            None => diag.push(format!("{src}: vt={vt} no scopes")),
+        }
+    }
+    (false, diag.join("; "))
+}
+
+/// VARIANT ichidagi `ITfInputScope` dan scope ro'yxati.
+unsafe fn input_scopes(v: &windows::Win32::System::Variant::VARIANT) -> Option<Vec<i32>> {
+    unsafe {
+        let inner = &v.Anonymous.Anonymous;
+        if inner.vt != VT_UNKNOWN {
+            return None;
+        }
+        let scope = inner
+            .Anonymous
+            .punkVal
+            .as_ref()?
+            .cast::<ITfInputScope>()
+            .ok()?;
+        let mut p: *mut InputScope = std::ptr::null_mut();
+        let mut n = 0u32;
+        scope.GetInputScopes(&mut p, &mut n).ok()?;
+        if p.is_null() {
+            return Some(Vec::new());
+        }
+        let ids = std::slice::from_raw_parts(p, n as usize)
+            .iter()
+            .map(|s| s.0)
+            .collect();
+        CoTaskMemFree(Some(p as *const _));
+        Some(ids)
     }
 }
 

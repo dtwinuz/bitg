@@ -192,9 +192,9 @@ function NewBox([string]$scopeName) {
 if ($Ui -eq 'wpf') {
     $steps += @(
         { NewBox 'EmailSmtpAddress' }, $w, { Focus }, $w,
-        { TypeKeys 'shahar ' }, $w, { Check 'sensitive: email field untouched' 'shahar ' },
+        { TypeKeys 'choy ' }, $w, { Check 'sensitive: email field untouched' 'choy ' },
         { NewBox '' }, $w, { Focus }, $w,
-        { TypeKeys 'shahar ' }, $w, { Check 'sensitive: plain field converts again' 'şahar ' }
+        { TypeKeys 'choy ' }, $w, { Check 'sensitive: plain field converts again' 'çoy ' }
     )
 }
 
