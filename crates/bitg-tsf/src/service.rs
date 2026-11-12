@@ -379,7 +379,16 @@ impl ITfTextInputProcessor_Impl for TextService_Impl {
 }
 
 impl ITfTextInputProcessorEx_Impl for TextService_Impl {
-    fn ActivateEx(&self, ptim: Ref<'_, ITfThreadMgr>, tid: u32, _flags: u32) -> Result<()> {
+    /// Xato yoki panic TSF'ga chiqmaydi: `ActivateEx` muvaffaqiyatsiz bo'lsa, Windows bitg'ni tashlab oldingi
+    /// klaviaturaga qaytaradi (#13). Yarim ulangan holatni `Deactivate` tozalaydi.
+    fn ActivateEx(&self, ptim: Ref<'_, ITfThreadMgr>, tid: u32, flags: u32) -> Result<()> {
+        log::write(&format!("activate start flags={flags:#x}"));
+        guard("activate", || self.activate(ptim, tid))
+    }
+}
+
+impl TextService_Impl {
+    fn activate(&self, ptim: Ref<'_, ITfThreadMgr>, tid: u32) -> Result<()> {
         let tm = ptim.ok()?.clone();
         let stamp = config::stamp();
         let cfg = config::load();

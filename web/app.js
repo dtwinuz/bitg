@@ -105,7 +105,7 @@
       n.data = T(o);
     });
     doc.title = T(origTitle);
-    $$('[data-t]').forEach(function (e) { e.innerHTML = T(e.getAttribute('data-t')); });
+    if (hint && hintHtml) hint.innerHTML = T(hintHtml);
     if (animate && !reduced()) {
       var m = $('main');
       m.classList.remove('bg-abc-swap'); void m.offsetWidth; m.classList.add('bg-abc-swap');
@@ -717,7 +717,7 @@
     altgr: 'Hamma tugma joyida: <kbd>AltGr</kbd> + <kbd>o</kbd> → ö',
     kirill: 'Kirillcha yozing: so‘z oxirida lotinga o‘giriladi'
   };
-  var layKb = $('#bg-layout-kb'), layIn = $('#bg-layout-input'), hint = $('#bg-preset-hint'), preset = 'tilmoch';
+  var layKb = $('#bg-layout-kb'), layIn = $('#bg-layout-input'), hint = $('#bg-preset-hint'), hintHtml = '', preset = 'tilmoch';
   buildKb(layKb, true);
   function face(c) { return c.toUpperCase() !== c ? c.toUpperCase() : c; }
   function paintPreset(animate) {
@@ -739,8 +739,8 @@
         m.classList.remove('is-flip'); void m.offsetWidth; m.classList.add('is-flip');
       }
     });
-    hint.setAttribute('data-t', HINTS[preset]);
-    hint.innerHTML = T(HINTS[preset]);
+    hintHtml = HINTS[preset];
+    hint.innerHTML = T(hintHtml);
   }
   paintPreset(false);
   var presetBtns = $$('#bg-presets .bg-seg__b');
