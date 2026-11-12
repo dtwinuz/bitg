@@ -16,6 +16,13 @@
 O'RQ-1184 qonuni (2026-10-21) to'rtta harfni almashtirdi: **Oʻ → Ö, Gʻ → Ğ, Sh → Ş, Ch → Ç**. Qonun 2027-yil
 aprelida kuchga kiradi. bitg — shu o'tishni bir klaviatura bosishiga aylantiradigan ochiq kodli yadro va ilovalar.
 
+<p align="center">
+  <img src="docs/media/demo.gif" width="720" alt="bitg Windows'da: eskicha yozilgan «O'zbekiston shaharlari: Toshkent» probel bosilishi bilan «Özbekiston şaharlari: Toşkent» bo'ladi; «Please check the schedule» inglizcha qoladi, «keyin choy ichamiz» esa «keyin çoy içamiz» bo'ladi">
+</p>
+
+<sub>Haqiqiy yozuv: Release'dagi MSI toza Windows VM'ga o'rnatilgan, tugmalar odam tezligida bosilgan, natija yadro bilan
+solishtirilgan ([`tools/demo`](tools/demo), [`demo.yml`](.github/workflows/demo.yml)).</sub>
+
 ```text
 $ bitg "O'zbekiston shaharlari: Toshkent, Samarqand"
 Özbekiston şaharlari: Toşkent, Samarqand
