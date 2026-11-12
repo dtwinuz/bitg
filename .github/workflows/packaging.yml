@@ -44,4 +44,4 @@ jobs:
           $p = Start-Process msiexec.exe -ArgumentList "/x", $pc, "/qn", "/norestart" -Wait -PassThru
           if ($p.ExitCode -notin 0, 3010) { throw "uninstall: $($p.ExitCode)" }
           if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$pc") { throw "o'chirilmadi" }
-          "winget $ver: validate + install + uninstall OK"
+          "winget ${ver}: validate + install + uninstall OK"
