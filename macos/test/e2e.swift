@@ -32,18 +32,34 @@ func sourceID(_ s: TISInputSource) -> String {
     return Unmanaged<CFString>.fromOpaque(p).takeUnretainedValue() as String
 }
 
-func selectBitg() -> Bool {
-    let filter = [kTISPropertyInputSourceID as String: modeID] as CFDictionary
-    guard let list = TISCreateInputSourceList(filter, true)?.takeRetainedValue() as? [TISInputSource],
-          let s = list.first
-    else {
-        log("FAIL setup: \(modeID) topilmadi (o'rnatilganmi, --register qilinganmi?)")
+func flag(_ s: TISInputSource, _ key: CFString) -> String {
+    guard let p = TISGetInputSourceProperty(s, key) else { return "-" }
+    return CFBooleanGetValue(Unmanaged<CFBoolean>.fromOpaque(p).takeUnretainedValue()) ? "1" : "0"
+}
+
+func currentID() -> String {
+    sourceID(TISCopyCurrentKeyboardInputSource().takeRetainedValue())
+}
+
+/// bitg manbalarini (bundle va rejim) xossalari bilan chiqaradi, rejimni yoqib tanlaydi; tayyor bo'lsa true.
+func selectBitg(attempt: Int) -> Bool {
+    let all = TISCreateInputSourceList(nil, true)?.takeRetainedValue() as? [TISInputSource] ?? []
+    let ours = all.filter { sourceID($0).hasPrefix("uz.bitg") }
+    for s in ours where attempt == 0 {
+        log("setup: \(sourceID(s)) enabled=\(flag(s, kTISPropertyInputSourceIsEnabled))"
+            + " selectCapable=\(flag(s, kTISPropertyInputSourceIsSelectCapable))"
+            + " enableCapable=\(flag(s, kTISPropertyInputSourceIsEnableCapable))")
+    }
+    guard let mode = ours.first(where: { sourceID($0) == modeID }) else {
+        log("setup: \(modeID) topilmadi (o'rnatilganmi, --register qilinganmi?)")
         return false
     }
-    let en = TISEnableInputSource(s), sel = TISSelectInputSource(s)
-    let cur = sourceID(TISCopyCurrentKeyboardInputSource().takeRetainedValue())
-    log("setup: enable=\(en) select=\(sel) current=\(cur)")
-    return cur == modeID
+    for s in ours where flag(s, kTISPropertyInputSourceIsEnabled) == "0" {
+        _ = TISEnableInputSource(s)
+    }
+    let sel = TISSelectInputSource(mode)
+    log("setup[\(attempt)]: select=\(sel) current=\(currentID())")
+    return currentID() == modeID
 }
 
 final class Runner: NSObject, NSApplicationDelegate {
@@ -65,16 +81,33 @@ final class Runner: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
         window.makeFirstResponder(tv)
         NSApp.activate(ignoringOtherApps: true)
-        guard selectBitg() else { exit(2) }
-        tv.inputContext?.selectedKeyboardInputSource = modeID
-        let listed = tv.inputContext?.keyboardInputSources?.contains(modeID) ?? false
-        log("setup: inputContext=\(tv.inputContext?.selectedKeyboardInputSource ?? "nil") listed=\(listed)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 90) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 120) {
             log("FAIL timeout")
             exit(3)
         }
-        // IMK serveri birinchi marta ishga tushishi uchun vaqt
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { self.next() }
+        prepare(0)
+    }
+
+    /// Tizim manbasini tanlaydi (TIS keshi yangi o'rnatilgan IM'ni kechikib ko'radi, shuning uchun qayta urinadi),
+    /// so'ng shu maydonning NSTextInputContext'ida ham tanlaydi.
+    func prepare(_ attempt: Int) {
+        let system = selectBitg(attempt: attempt)
+        let ctx = tv.inputContext
+        ctx?.selectedKeyboardInputSource = modeID
+        let local = ctx?.selectedKeyboardInputSource == modeID
+        if attempt == 0 || system || local {
+            let listed = ctx?.keyboardInputSources?.contains(modeID) ?? false
+            log("setup[\(attempt)]: inputContext=\(ctx?.selectedKeyboardInputSource ?? "nil") listed=\(listed)")
+        }
+        if system || local {
+            // IMK serveri birinchi marta ishga tushishi uchun vaqt
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { self.next() }
+        } else if attempt < 20 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { self.prepare(attempt + 1) }
+        } else {
+            log("FAIL setup: bitg tanlanmadi")
+            exit(2)
+        }
     }
 
     func next() {
