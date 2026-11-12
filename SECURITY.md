@@ -34,3 +34,12 @@ gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg
 ```
 
 Har relizda `bitg-<versiya>.spdx.json` ham bor: unda bitg ichidagi barcha kutubxonalar va ularning versiyalari.
+
+Internetsiz (GitHub API'siz) tekshirish uchun relizdagi bundle fayli:
+
+```bash
+gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg --bundle bitg-0.3.1.intoto.jsonl
+```
+
+bitg kodi muntazam fuzz qilinadi (`fuzz/`, libFuzzer): ixtiyoriy matnda yadro panic bermasligi va IME tahriri
+so'zdan tashqariga chiqmasligi tekshiriladi.

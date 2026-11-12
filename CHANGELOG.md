@@ -7,6 +7,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ### Qo'shildi
 - **Reliz fayllarini tekshirish:** har MSI, `.deb` va `.pkg` uchun SLSA build provenance va SBOM attestation'i (`gh attestation verify <fayl> -R dtwinuz/bitg`), relizga `bitg-<versiya>.spdx.json` qo'shiladi.
 - OpenSSF Scorecard (haftalik, README belgisi), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
+- **Fuzzing:** `fuzz/` (cargo-fuzz, libFuzzer) — `convert` va `session` target'lari, boshlang'ich korpus `eval/` dan; `fuzz` workflow haftalik va yadro o'zgargan PR'da.
+- Reliz attestation bundle'lari (`bitg-<versiya>.intoto.jsonl`, `.sbom.sigstore.json`) relizga qo'shiladi.
 - **Homebrew:** `brew install --cask dtwinuz/tap/bitg` ([dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap);
   CI cask'ni haqiqiy macOS'da o'rnatib, o'chirib tekshiradi, har dushanba qayta).
 - **winget:** `dtwinuz.bitg` manifesti microsoft/winget-pkgs ga yuborildi. `packaging` workflow uni Windows runner'da
@@ -15,6 +17,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - `tools/release/packaging.py`: ikkala havola ham GitHub Release'ga, ProductCode MSI'ning o'zidan o'qiladi.
 
 ### Tuzatildi
+- Docker image'lari digest bilan, `rustup-init` versiya va SHA-256 bilan qotirildi; Dependabot Docker'ni ham kuzatadi. `osv-scanner.toml`: Linux'da hech qachon yig'ilmaydigan glib zanjiri uchun asoslangan istisno.
 - `SECURITY.md`: qo'llab-quvvatlanadigan versiya 0.3.x; `release.yml` umumiy ruxsati `contents: read` ga tushirildi.
 - **Windows: bitg ishga tushishda xato bersa ham tanlangan klaviatura o'zgarmaydi** ([#13](https://github.com/dtwinuz/bitg/issues/13)).
   Avval `ActivateEx` ichidagi xato yoki panic TSF'ga qaytardi, shunda Windows o'z-o'zidan oldingi klaviaturaga

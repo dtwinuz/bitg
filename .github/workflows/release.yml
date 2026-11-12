@@ -118,18 +118,27 @@ jobs:
           name: pkg
           path: dist/pkg
       - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        id: provenance
         with:
           subject-path: |
             dist/bitg-${{ env.VERSION }}-x64.msi
             dist/deb/*.deb
             dist/pkg/*.pkg
       - uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        id: sbom
         with:
           subject-path: |
             dist/bitg-${{ env.VERSION }}-x64.msi
             dist/deb/*.deb
             dist/pkg/*.pkg
           sbom-path: dist/deb/bitg-${{ env.VERSION }}.spdx.json
+      # Attestation bundle'lari relizga ham qo'yiladi: internetsiz tekshirish (`gh attestation verify --bundle`)
+      # va OpenSSF Scorecard (Signed-Releases: *.intoto.jsonl, *.sigstore.json) uchun.
+      - name: Attestation fayllari
+        shell: pwsh
+        run: |
+          Copy-Item "${{ steps.provenance.outputs.bundle-path }}" "dist/bitg-$env:VERSION.intoto.jsonl"
+          Copy-Item "${{ steps.sbom.outputs.bundle-path }}" "dist/bitg-$env:VERSION.sbom.sigstore.json"
       - name: Release
         shell: pwsh
         env:
@@ -140,4 +149,5 @@ jobs:
           $pkg = Get-ChildItem dist/pkg -File | ForEach-Object { $_.FullName }
           if ($pkg.Count -lt 2) { throw "pkg artefaktlari to'liq emas: $($pkg.Count)" }
           gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
+            "dist/bitg-$env:VERSION.intoto.jsonl" "dist/bitg-$env:VERSION.sbom.sigstore.json" `
             --title "bitg $env:VERSION" --generate-notes --verify-tag

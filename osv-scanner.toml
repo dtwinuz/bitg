@@ -1,0 +1,13 @@
+# OSV (OpenSSF Scorecard "Vulnerabilities") uchun asoslangan istisnolar. Har biri qayta ko'rib chiqiladi:
+# tray-icon gtk 0.18 dan voz kechsa yoki zaiflik bitg yig'adigan biror paketga kirsa — o'chiriladi.
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0429"
+reason = """glib 0.18 VariantStrIter unsoundness. glib is pulled only by tray-icon -> gtk on Linux, but tray-icon is a \
+[target.'cfg(windows)'] dependency of bitg-settings, so glib is never compiled into any shipped artifact \
+(Cargo.lock lists every target). bitg does not use glib::VariantStrIter."""
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0370"
+reason = """proc-macro-error is unmaintained (no vulnerability). Build-time only, via glib-macros on the same \
+Linux-only tray-icon -> gtk path that is never compiled for a shipped artifact."""

@@ -1,0 +1,47 @@
+name: fuzz
+
+# bitg-core'ni libFuzzer bilan sinash (fuzz/): panic yoki IME tahriri so'zdan uzun bo'lsa — xato.
+# Boshlang'ich korpus — eval/ dagi haqiqiy gaplar. Haftada bir marta, qo'lda va yadro yoki fuzz o'zgargan PR'da.
+on:
+  pull_request:
+    paths: ["fuzz/**", "crates/bitg-core/src/**", ".github/workflows/fuzz.yml"]
+  schedule:
+    - cron: "41 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [convert, session]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: nightly
+      - name: cargo-fuzz
+        run: cargo install cargo-fuzz --version 0.13.2 --locked
+      - name: Korpus (eval/)
+        run: |
+          d=fuzz/corpus/${{ matrix.target }}; mkdir -p "$d"
+          # birinchi bayt — Options bayroqlari (0x0f: hammasi yoqiq), keyin gap
+          cut -f1 eval/uz.tsv eval/en.tsv | grep -v '^#' | head -n 4000 | split -l 1 - "$d/eval-"
+          for f in "$d"/eval-*; do { printf '\x0f'; cat "$f"; } > "$f.seed" && rm "$f"; done
+          ls "$d" | wc -l
+      - name: Fuzz (3 daqiqa)
+        run: cargo +nightly fuzz run ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} -- -max_total_time=180 -max_len=4096 -timeout=10
+      - name: Topilgan xato
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fuzz-${{ matrix.target }}
+          path: fuzz/artifacts
+          if-no-files-found: ignore

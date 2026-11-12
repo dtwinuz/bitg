@@ -14,3 +14,11 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+  # Dockerfile'lardagi image digest'lari (linux/ — lokal sinov muhiti, bot/ — Telegram bot)
+  - package-ecosystem: docker
+    directories: ["/linux", "/bot"]
+    schedule:
+      interval: monthly
+    groups:
+      docker:
+        patterns: ["*"]

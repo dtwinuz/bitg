@@ -1,0 +1,32 @@
+# bitg-core uchun cargo-fuzz (libFuzzer): ixtiyoriy matnda panic va noto'g'ri tahrir qidiradi.
+#   cargo +nightly fuzz run convert -- -max_total_time=60
+#   cargo +nightly fuzz run session -- -max_total_time=60
+# Asosiy workspace'ga kirmaydi (nightly va libFuzzer kerak); CI: .github/workflows/fuzz.yml
+[package]
+name = "bitg-core-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4.13"
+bitg-core = { path = "../crates/bitg-core" }
+
+[workspace]
+
+[[bin]]
+name = "convert"
+path = "fuzz_targets/convert.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "session"
+path = "fuzz_targets/session.rs"
+test = false
+doc = false
+bench = false
