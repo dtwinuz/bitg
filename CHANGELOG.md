@@ -4,7 +4,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-11-13
+
+Asosiysi: Windows'da bitg o'z-o'zidan inglizcha klaviaturaga o'tib ketmaydi ([#13](https://github.com/dtwinuz/bitg/issues/13)),
+har reliz fayli imzolangan kelib chiqish (provenance) bilan tekshiriladi.
+
 ### Qo'shildi
+- **Takrorlanadigan `.deb`:** bir commit'dan istalgan papkada bayt-mayt bir xil paket (`SOURCE_DATE_EPOCH`, yo'l
+  prefikslari); `linux` workflow har PR'da ikki marta yig'ib solishtiradi.
 - **Reliz fayllarini tekshirish:** har MSI, `.deb` va `.pkg` uchun SLSA build provenance va SBOM attestation'i (`gh attestation verify <fayl> -R dtwinuz/bitg`), relizga `bitg-<versiya>.spdx.json` qo'shiladi.
 - OpenSSF Scorecard (haftalik, README belgisi), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
 - **Fuzzing:** `fuzz/` (cargo-fuzz, libFuzzer) — `convert` va `session` target'lari, boshlang'ich korpus `eval/` dan; `fuzz` workflow haftalik va yadro o'zgargan PR'da.
@@ -116,6 +123,7 @@ Birinchi ommaviy beta (Windows 10/11, x64).
 - MSI o'rnatuvchi (WiX 5): barcha foydalanuvchilar uchun, jim o'rnatish, `AUTOSTART` / `ADDKEYBOARD` xossalari.
 - O'lchov: o'zbekcha gaplar 98,87 %, inglizcha gaplar o'zgarmay qolishi 99,73 % (har biri 3 000 gap).
 
+[0.3.1]: https://github.com/dtwinuz/bitg/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dtwinuz/bitg/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dtwinuz/bitg/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dtwinuz/bitg/releases/tag/v0.1.0

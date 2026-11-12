@@ -16,6 +16,13 @@ NAME="bitg_${VER}_${ARCH}"
 OUT="$ROOT/target/deb"
 PKG="$OUT/$NAME"
 
+# Takrorlanadigan build: bir commit'dan har qanday papkada bir xil bayt (CI `Reproducible build` qadami tekshiradi).
+# Vaqt — commit vaqti (dpkg-deb ar/tar vaqtlarini shunga qisadi), yo'llar — doimiy prefiks.
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct)}"
+export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$ROOT=/build/bitg --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
+export CFLAGS="${CFLAGS:--O2 -g} -ffile-prefix-map=$ROOT=/build/bitg"
+export CXXFLAGS="${CXXFLAGS:--O2 -g} -ffile-prefix-map=$ROOT=/build/bitg"
+
 cargo build --release --locked -p bitg-ime -p bitg-cli
 make -C linux/ibus clean
 make -C linux/ibus VERSION="$VER"

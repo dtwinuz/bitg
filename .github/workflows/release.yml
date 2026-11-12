@@ -4,7 +4,7 @@
 
 name: release
 
-# Faqat versiya tegi (v0.3.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
+# Faqat versiya tegi (v0.3.1) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
 # imzolanadi va hammasi bitta GitHub Release'ga yuklanadi. Har fayl uchun SLSA build provenance va SBOM attestation'i
 # yoziladi: `gh attestation verify <fayl> -R dtwinuz/bitg` u shu repodagi shu teg'dan, GitHub Actions'da yig'ilganini tasdiqlaydi.
 on:

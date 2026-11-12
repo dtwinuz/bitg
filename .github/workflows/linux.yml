@@ -37,6 +37,28 @@ jobs:
       - run: cargo test --locked -p bitg-ime
       - name: .deb
         run: linux/build-deb.sh
+      # ikkinchi nusxa boshqa papkada, toza target bilan: ikkala .deb bayt-mayt bir xil bo'lishi kerak
+      - name: Reproducible build
+        shell: bash
+        run: |
+          b="$RUNNER_TEMP/second"
+          git worktree add --detach "$b" HEAD
+          (cd "$b" && linux/build-deb.sh >/dev/null)
+          fail=0
+          for f in target/deb/*.deb; do
+            n=$(basename "$f")
+            a=$(sha256sum < "$f" | cut -d' ' -f1); c=$(sha256sum < "$b/target/deb/$n" | cut -d' ' -f1)
+            echo "$n  $a  $c"
+            if [ "$a" != "$c" ]; then
+              fail=1
+              mkdir -p "$RUNNER_TEMP/x1" "$RUNNER_TEMP/x2"
+              dpkg-deb -R "$f" "$RUNNER_TEMP/x1/$n"; dpkg-deb -R "$b/target/deb/$n" "$RUNNER_TEMP/x2/$n"
+              diff <(cd "$RUNNER_TEMP/x1/$n" && find . -type f -exec sha256sum {} + | sort -k2) \
+                   <(cd "$RUNNER_TEMP/x2/$n" && find . -type f -exec sha256sum {} + | sort -k2) || true
+            fi
+          done
+          { echo '### Reproducible .deb'; echo '```'; (cd target/deb && sha256sum ./*.deb); echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $fail
       - name: lintian
         run: lintian --no-tag-display-limit --suppress-tags no-manual-page,initial-upload-closes-no-bugs target/deb/*.deb || true
       - name: O'rnatish
