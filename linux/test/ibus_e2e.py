@@ -68,7 +68,7 @@ class App:
 
     def typ(self, s):
         for ch in s:
-            keyval = KEYS.get(ch) or IBus.unicode_to_keyval(ord(ch))
+            keyval = KEYS.get(ch) or IBus.unicode_to_keyval(ch)  # GI: gunichar = str
             self.send_surrounding()
             pump(0.01)
             consumed = self.ctx.process_key_event(keyval, 0, 0)
