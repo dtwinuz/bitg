@@ -12,13 +12,19 @@
 #define BITG_VERSION "0.0.0"
 #endif
 
-#define BITG_TYPE_ENGINE (bitg_engine_get_type())
-G_DECLARE_FINAL_TYPE(BitgEngine, bitg_engine, BITG, ENGINE, IBusEngine)
-
-struct _BitgEngine {
+/* G_DECLARE_FINAL_TYPE emas: IBus 1.5.26 (Ubuntu 22.04) IBusEngine uchun g_autoptr e'lon qilmaydi */
+typedef struct {
     IBusEngine parent;
     BitgIme *ime;
-};
+} BitgEngine;
+
+typedef struct {
+    IBusEngineClass parent;
+} BitgEngineClass;
+
+GType bitg_engine_get_type(void);
+#define BITG_TYPE_ENGINE (bitg_engine_get_type())
+#define BITG_ENGINE(o) (G_TYPE_CHECK_INSTANCE_CAST((o), BITG_TYPE_ENGINE, BitgEngine))
 
 G_DEFINE_TYPE(BitgEngine, bitg_engine, IBUS_TYPE_ENGINE)
 
