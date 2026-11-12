@@ -16,6 +16,11 @@ services:
     env_file: .env
     environment:
       SITE_URL: ${SITE_URL:-https://bitg.uz}
+      STATE_DIR: /data
+    # /fikr kutish holati, admin suhbatlari (state.json) va tiriklik belgisi (alive). bitg-stats alive'ni
+    # faqat o'qiydi; papka egasi 65534 (deploy-bot.sh yaratadi).
+    volumes:
+      - ./data:/data
     read_only: true
     security_opt:
       - no-new-privileges:true

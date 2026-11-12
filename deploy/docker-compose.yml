@@ -36,7 +36,8 @@ services:
       DATA_DIR: /data
       PUBLIC_DIR: /public
     volumes:
-      - ./stats/stats.py:/app/stats.py:ro
+      - ./stats:/app:ro                  # stats.py + posts/ (rejali @bitguz postlari)
+      - /opt/bitg-bot/data:/bot:ro       # @bitguzbot tiriklik belgisi (alive)
       - ./logs:/logs:ro
       - ./stats-data:/data
       - ./stats-public:/public

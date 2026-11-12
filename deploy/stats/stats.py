@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
-"""bitg.uz statistikasi: Caddy kirish jurnalidan umumiy sonlar, Telegram xulosa, uptime kuzatuvi.
+"""bitg.uz statistikasi: Caddy kirish jurnalidan umumiy sonlar, Telegram xulosa, uptime kuzatuvi, rejali postlar.
 
 Faqat standart kutubxona. Serverda `bitg-stats` konteynerida ishlaydi (deploy/docker-compose.yml).
 
@@ -15,6 +15,10 @@ Chiqish:  DATA_DIR/state.json       — kunlik umumiy sonlar (IP va brauzer yo'q
 
 Muhit:    BOT_TOKEN, ADMIN_CHAT_ID  — bo'lmasa Telegram o'chiq (hisob baribir yuritiladi)
           SITE (https://bitg.uz), GITHUB_REPO (dtwinuz/bitg), DIGEST_HOUR (9), INTERVAL (300)
+          BOT_ALIVE (/bot/alive) — @bitguzbot tiriklik belgisi; fayl BOT_STALE (300) soniyadan eski bo'lsa ogohlantirish.
+                     Papka umuman yo'q bo'lsa (lokal sinov) tekshirilmaydi.
+          POSTS_DIR (skript yonidagi posts/), POSTS_CHANNEL (@bitguz), POST_HOUR (10) — rejali kanal postlari:
+                     posts/YYYY-MM-DD-nom.html o'sha kuni POST_HOUR dan keyin bir marta chiqadi (state.json "posted").
 
 Ishlatish:
   stats.py               — doimiy tsikl (konteyner)
@@ -33,6 +37,7 @@ import re
 import socket
 import ssl
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -54,6 +59,11 @@ ENV = {
     "INTERVAL": int(os.environ.get("INTERVAL", "300")),
     "BOT_TOKEN": os.environ.get("BOT_TOKEN", "").strip(),
     "ADMIN_CHAT_ID": os.environ.get("ADMIN_CHAT_ID", "").strip(),
+    "BOT_ALIVE": os.environ.get("BOT_ALIVE", "/bot/alive"),
+    "BOT_STALE": int(os.environ.get("BOT_STALE", "300")),
+    "POSTS_DIR": os.environ.get("POSTS_DIR", str(Path(__file__).resolve().parent / "posts")),
+    "POSTS_CHANNEL": os.environ.get("POSTS_CHANNEL", "@bitguz").strip(),
+    "POST_HOUR": int(os.environ.get("POST_HOUR", "10")),
 }
 
 KINDS = ("win", "mac", "linux", "fcitx")
@@ -441,9 +451,23 @@ def check_site():
     return out
 
 
+def check_bot(path=None, stale=None, now=None):
+    """@bitguzbot: bot har muvaffaqiyatli getUpdates'da (30 s da bir) STATE_DIR/alive ga unix vaqtni yozadi."""
+    f = Path(path or ENV["BOT_ALIVE"])
+    if not f.parent.is_dir():
+        return []
+    stale = stale or ENV["BOT_STALE"]
+    try:
+        age = int((now or time.time()) - int(f.read_text(encoding="utf-8").strip()))
+    except (OSError, ValueError):
+        return [("@bitguzbot", False, "tiriklik belgisi yo'q")]
+    note = f"oxirgi signal {age} s oldin" if age < 120 else f"oxirgi signal {age // 60} daqiqa oldin"
+    return [("@bitguzbot", age < stale, note)]
+
+
 def uptime(state):
     up = state.setdefault("uptime", {})
-    for name, ok, note in check_site():
+    for name, ok, note in check_site() + check_bot():
         s = up.setdefault(name, {"ok": True, "fails": 0})
         s["note"] = note
         if ok:
@@ -458,6 +482,67 @@ def uptime(state):
             s["ok"] = False
             tg("sendMessage", {"text": f"🔴 {name} ishlamayapti: {note}"})
             log(f"uptime: {name} xato: {note}")
+
+
+# ---------------------------------------------------------------- rejali postlar
+
+POST_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})-[a-z0-9-]+\.html$")
+POST_TAGS = re.compile(r"</?(b|i|u|s|a|code|pre|blockquote|tg-spoiler)(\s[^>]*)?>")
+POST_LATE = 3  # shuncha kundan eski post chiqmaydi (server uzoq to'xtab qolsa, navbat bir kunda to'kilmasin)
+
+
+def posts(folder=None):
+    """[(sana, fayl nomi, matn)] sana bo'yicha."""
+    d = Path(folder or ENV["POSTS_DIR"])
+    out = []
+    for f in sorted(d.glob("*.html")) if d.is_dir() else []:
+        m = POST_RE.match(f.name)
+        if m:
+            out.append((dt.date.fromisoformat(m.group(1)), f.name, f.read_text(encoding="utf-8").strip()))
+    return out
+
+
+def check_post(name, text):
+    """Telegram HTML cheklovlari: 4096 belgi, faqat ruxsat etilgan teglar, ochilgan teg yopilgan."""
+    errors = []
+    if not POST_RE.match(name):
+        errors.append("nom YYYY-MM-DD-nom.html emas")
+    if len(text) > 4096 or not text:
+        errors.append(f"uzunlik {len(text)}")
+    if re.search(r"<[a-zA-Z/]", POST_TAGS.sub("", text)):
+        errors.append("ruxsat etilmagan HTML teg")
+    for tag in ("b", "i", "a", "blockquote", "code"):
+        if len(re.findall(rf"<{tag}[\s>]", text)) != text.count(f"</{tag}>"):
+            errors.append(f"<{tag}> yopilmagan")
+    return errors
+
+
+def due_post(state, now, items=None):
+    """Bugun chiqishi kerak bo'lgan birinchi post yoki None. Bir aylanishda ko'pi bilan bitta."""
+    if now.hour < ENV["POST_HOUR"]:
+        return None
+    done = state.get("posted", {})
+    for day, name, text in posts() if items is None else items:
+        if name in done or day > now.date() or (now.date() - day).days > POST_LATE:
+            continue
+        return name, text
+    return None
+
+
+def publish_posts(state, now):
+    hit = due_post(state, now)
+    if not hit or not ENV["BOT_TOKEN"]:
+        return
+    name, text = hit
+    errors = check_post(name, text)
+    if errors:
+        log(f"post {name}: tekshiruvdan o'tmadi, chiqarilmaydi: {errors}")
+        state.setdefault("posted", {})[name] = "xato"
+        return
+    if tg_one("sendMessage", ENV["POSTS_CHANNEL"], {"text": text, "parse_mode": "HTML"}, None):
+        state.setdefault("posted", {})[name] = now.isoformat(timespec="minutes")
+        log(f"post chiqdi: {name} -> {ENV['POSTS_CHANNEL']}")
+        tg("sendMessage", {"text": f"📣 {ENV['POSTS_CHANNEL']} kanaliga rejali post chiqdi: {name}"})
 
 
 # ---------------------------------------------------------------- dashboard
@@ -625,6 +710,7 @@ def main():
         try:
             run_once(state, now)
             uptime(state)
+            publish_posts(state, now)
             today = now.date().isoformat()
             if now.hour >= ENV["DIGEST_HOUR"] and state.get("digest_sent") != today:
                 # dushanba — haftalik hisobot fayli ham
@@ -700,6 +786,28 @@ def selftest():
     page = dashboard(state, dt.datetime(2026, 11, 13, 9, 0, tzinfo=TZ))
     assert page.count("<svg") == 2 and "bitg.uz statistika" in page
     assert dl_kind("fcitx5-bitg_0.2.0_amd64.deb") == "fcitx" and dl_kind("x.sha256") is None
+
+    # bot tiriklik belgisi
+    with tempfile.TemporaryDirectory() as tmp:
+        alive = Path(tmp) / "alive"
+        assert check_bot(alive)[0][1] is False                                  # fayl yo'q
+        alive.write_text("1000\n", encoding="utf-8")
+        assert check_bot(alive, 300, 1100) == [("@bitguzbot", True, "oxirgi signal 100 s oldin")]
+        assert check_bot(alive, 300, 1000 + 900)[0][1:] == (False, "oxirgi signal 15 daqiqa oldin")
+    assert check_bot(Path(tmp) / "alive") == []                                 # papka yo'q: tekshirilmaydi
+
+    # rejali postlar: soat, takror, navbat va eskirgan post
+    items = [(dt.date(2026, 11, 14), "2026-11-14-a.html", "<b>A</b>"),
+             (dt.date(2026, 11, 16), "2026-11-16-b.html", "B")]
+    at = dt.datetime(2026, 11, 14, ENV["POST_HOUR"], 5, tzinfo=TZ)
+    assert due_post({}, at - dt.timedelta(hours=1), items) is None             # soat hali erta
+    assert due_post({}, at, items) == ("2026-11-14-a.html", "<b>A</b>")
+    assert due_post({"posted": {"2026-11-14-a.html": "x"}}, at, items) is None  # chiqqan; keyingisi 16-da
+    assert due_post({}, at + dt.timedelta(days=4), items)[0] == "2026-11-16-b.html"  # 4 kunlik eskisi tashlandi
+    assert check_post("2026-11-14-a.html", '<b>x</b> <a href="https://bitg.uz">y</a>') == []
+    assert check_post("a.html", "<div>x</div><b>") != []
+    for _, name, text in posts():                                              # repodagi haqiqiy postlar
+        assert not check_post(name, text), (name, check_post(name, text))
     print("selftest: OK")
     return 0
 
