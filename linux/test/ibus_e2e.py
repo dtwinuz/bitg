@@ -178,27 +178,29 @@ def main():
         daemon = subprocess.Popen(["ibus-daemon", "--panel=disable", "--emoji-extension=disable", "--replace",
                                    "--verbose", f"--address={address}"], stdout=log, stderr=subprocess.STDOUT)
     IBus.init()
-    bus = None
+    # IBus.Bus.new() singleton: daemon tayyor bo'lmasdan yaratilsa, keyin ham ulanmagan obyekt qaytadi.
+    # Shuning uchun avval manzil ulanishni qabul qilguncha kutamiz, keyin bus'ni bir marta yaratamiz.
+    from gi.repository import Gio
+    addr = os.environ.get("IBUS_ADDRESS") or IBus.get_address()
     for _ in range(100):
-        bus = IBus.Bus.new()
+        try:
+            c = Gio.DBusConnection.new_for_address_sync(
+                addr, Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,
+                None, None)
+            c.close_sync(None)
+            break
+        except Exception:  # daemon hali tinglamayapti
+            time.sleep(0.1)
+    bus = IBus.Bus.new()
+    for _ in range(50):
         if bus.is_connected():
             break
-        time.sleep(0.1)
+        pump(0.1)
     if bus is None or not bus.is_connected():
         log.close()
         with open(log_path, "rb") as f:
             print(f.read().decode(errors="replace")[-3000:])
-        addr = os.environ.get("IBUS_ADDRESS") or IBus.get_address()
         print("address:", addr, "| daemon alive:", daemon is not None and daemon.poll() is None)
-        print(subprocess.run(["sh", "-c", "ls -la /tmp | grep -i ibus; ibus address"], capture_output=True,
-                             text=True).stdout)
-        try:
-            from gi.repository import Gio
-            Gio.DBusConnection.new_for_address_sync(addr, Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
-                                                    | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION, None, None)
-            print("Gio: ulanish muvaffaqiyatli")
-        except Exception as e:  # diagnostika: aniq sabab ko'rinsin
-            print("Gio xato:", e)
         sys.exit("ibus-daemon'ga ulanib bo'lmadi")
     for _ in range(50):  # komponentlar ro'yxati yuklanguncha
         if any(e.get_name() == "bitg" for e in bus.list_engines()):
