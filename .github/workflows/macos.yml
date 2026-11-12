@@ -44,7 +44,7 @@ jobs:
           if [ "$a" != "$c" ]; then
             # ikki nusxa: xar TOC, xar ichidagi fayllar (siqilgan Payload ham), ochilgan Payload va stage binarlari
             for d in 1 2; do
-              t=.; [ $d = 2 ] && t="$b"
+              t="$PWD"; [ $d = 2 ] && t="$b"
               x="$RUNNER_TEMP/x$d"; mkdir -p "$x/raw"
               xar --dump-toc="$x/toc.xml" -f "$t/target/macos/$n"
               (cd "$x/raw" && xar -xf "$t/target/macos/$n")
