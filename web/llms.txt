@@ -4,13 +4,15 @@
 
 Yangi oʻzbek alifbosi: Oʻ→Ö, Gʻ→Ğ, Sh→Ş, Ch→Ç; tutuq belgisi (ʼ) qoladi.
 
+Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, yangi alifbo rejimida Ö, Ğ, Ş, Ç avtomatik qoʻyiladi — [App Store](https://apps.apple.com/uz/app/tilmoch/id6739621237), [Google Play](https://play.google.com/store/apps/details?id=com.tahrirchi.tilmoch). Qadamlar: https://bitg.uz/yangi-harflarni-yozish/#telefon
+
 ## Sahifalar
 - [Bosh sahifa](https://bitg.uz/): dastur nima qiladi, brauzerdagi sinov maydoni, Windows MSI yuklab olish
 - [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI va Linux .deb, SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
 - [Onlayn konvertor](https://bitg.uz/konvertor/): eski lotin/kirill → yangi alifbo va aksincha, brauzerning oʻzida
 - [Yangi oʻzbek alifbosi](https://bitg.uz/yangi-alifbo/): 28 harf + tutuq, nima oʻzgardi, Ng
 - [Alifbo qonuni OʻRQ-1184](https://bitg.uz/yangi-alifbo-qonuni/): sanalar, 4 modda, nima oʻzgarmaydi
-- [Ş, Ç, Ğ, Ö qanday yoziladi](https://bitg.uz/yangi-harflarni-yozish/): Windows, Linux, Mac, telefon
+- [Ş, Ç, Ğ, Ö qanday yoziladi](https://bitg.uz/yangi-harflarni-yozish/): Windows, Linux, Mac, telefon (Tilmoch klaviaturasi)
 - [Klaviatura tartiblari](https://bitg.uz/klaviatura/) va [Windows klaviaturasi](https://bitg.uz/klaviatura/windows/)
 - [Vositalarni taqqoslash](https://bitg.uz/qiyoslash/): tartib, konvertor va avtomatik oʻgirish farqi
 - [Savol-javob](https://bitg.uz/savollar/), [bitg haqida](https://bitg.uz/haqida/), [Maxfiylik](https://bitg.uz/maxfiylik/)

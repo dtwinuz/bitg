@@ -361,12 +361,14 @@ bitg-cli` va `bitg eval eval/uz.tsv` (shuningdek `uz_noapos.tsv`, `en.tsv`).
 
 ## Telefonda (Android, iOS)
 
-bitg'ning telefon versiyasi hali yo'q. Hozircha telefonda yangi alifbo bilan ishlash uchun **Tilmoch** ilovasi
-yaxshi tanlov: tarjimon (16 til, ovozli rejim), turkiy tillar uchun moslangan —
+Telefonda bitg **Tilmoch** klaviaturasini tavsiya qiladi. Ilova bepul, klaviaturasi eski lotin, kirill va yangi
+lotinni biladi. Yangi alifbo rejimida ö, ğ, ş, ç avtomatik qo'yiladi (sozlamada yoqiladi), takliflar internetsiz
+ishlaydi. Ichida turkiy tillar uchun tarjimon va ovozli kiritish ham bor —
 [App Store](https://apps.apple.com/uz/app/tilmoch/id6739621237) ·
 [Google Play](https://play.google.com/store/apps/details?id=com.tahrirchi.tilmoch) ·
-[tilmoch.ai](https://tilmoch.ai/ru/product/mobile). Tilmoch'ning yangi alifbo klaviatura tartibi (Windows, macOS)
-bitg'da `tilmoch` tartibi sifatida bor; ularning Android/iOS klaviaturasi «tez orada» deb e'lon qilingan.
+[tilmoch.ai](https://tilmoch.ai/ru/product/mobile). O'rnatish qadamlari:
+[bitg.uz/yangi-harflarni-yozish](https://bitg.uz/yangi-harflarni-yozish/#telefon). Tilmoch'ning kompyuter klaviatura
+tartibi (Windows, macOS) bitg'da `tilmoch` tartibi sifatida bor.
 
 ## Hissa qo'shish
 
