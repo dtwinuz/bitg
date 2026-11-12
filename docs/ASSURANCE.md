@@ -60,7 +60,9 @@ compromised operating system.
 - libFuzzer targets `convert` and `session` with a corpus from `eval/`; CodeQL (Rust, C/C++, Python,
   JavaScript, Actions) on every pull request; `cargo clippy -D warnings`.
 - Office files: only text nodes are rewritten into a new archive; entry names are never used as file-system paths,
-  so a crafted archive cannot write outside the output file.
+  so a crafted archive cannot write outside the output file. Only the text parts that are converted are
+  decompressed, each capped at 256 MiB (`ENTRY_LIMIT` in `crates/bitg-cli/src/ooxml.rs`); a larger entry
+  (zip bomb) stops the conversion with an error. Other entries are copied still compressed.
 
 ### R4 — no action in sensitive fields
 - Linux: IBus (`linux/ibus/engine.c`) turns bitg off for password and PIN input purposes and Fcitx5
@@ -113,7 +115,7 @@ compromised operating system.
 
 | # | Gap | Plan |
 |---|---|---|
-| G2 | `bitg file` has no size limit for decompressed Office entries (a "zip bomb" can use a lot of memory). Only affects files the user chooses to convert. | Cap the decompressed size per entry ([#27](https://github.com/dtwinuz/bitg/issues/27)). |
+| G2 | Closed: decompressed Office entries are capped at 256 MiB (R3, [#27](https://github.com/dtwinuz/bitg/issues/27)). | — |
 | G3 | The apt signing key and the web server are held by one maintainer. | Handover tracked in [GOVERNANCE.md](../GOVERNANCE.md#continuity). |
 
 ## 8. Review

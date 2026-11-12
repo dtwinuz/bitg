@@ -301,6 +301,13 @@ pub struct Located {
     pub new: String,
 }
 
+/// O'giriladigan bitta XML qismning ochilgandagi eng katta hajmi (zip-bombadan himoya). Haqiqiy hujjatlarda
+/// `document.xml` bir necha MiB bo'ladi. Qolgan yozuvlar ochilmaydi, siqilgan holida ko'chiriladi.
+#[cfg(not(test))]
+const ENTRY_LIMIT: u64 = 256 << 20;
+#[cfg(test)]
+const ENTRY_LIMIT: u64 = 1 << 20;
+
 /// Butun paketni o'giradi. Natija — yangi zip baytlari; tegilmagan yozuvlar siqilgan holida ko'chiriladi.
 pub fn convert_package(
     input: &[u8],
@@ -324,8 +331,15 @@ pub fn convert_package(
                 archive
                     .by_index(i)
                     .map_err(zerr)?
+                    .take(ENTRY_LIMIT + 1)
                     .read_to_string(&mut xml)
                     .map_err(|e| format!("{name}: {e}"))?;
+                if xml.len() as u64 > ENTRY_LIMIT {
+                    return Err(format!(
+                        "{name}: ochilgandagi hajmi {} MiB dan katta — fayl buzilgan yoki zip-bomba",
+                        ENTRY_LIMIT >> 20
+                    ));
+                }
                 let mut words = Vec::new();
                 let out =
                     convert_xml(&xml, spec, f, &mut words).map_err(|e| format!("{name}: {e}"))?;
@@ -542,6 +556,31 @@ mod tests {
         let entries = read_zip(&out);
         assert_eq!(entries[0].1, sst.replace("Choy", "Çoy"));
         assert_eq!(entries[1].1, sheet);
+    }
+
+    #[test]
+    fn zip_bomb_entry_is_rejected() {
+        // 2 MiB bo'sh joy deflate bilan bir necha KiB ga siqiladi; sinovda chegara 1 MiB
+        let body = format!(
+            "<w:document><w:t>{}</w:t></w:document>",
+            " ".repeat(2 << 20)
+        );
+        let input = make_zip(&[("word/document.xml", &body, CompressionMethod::Deflated)]);
+        assert!(input.len() < 64 << 10, "{}", input.len());
+        let err = convert_package(&input, Kind::Word, &conv, &mut Vec::new()).unwrap_err();
+        assert!(err.contains("zip-bomba"), "{err}");
+
+        // chegara faqat o'giriladigan qismlarga: katta rasm yoki styles.xml ochilmaydi, o'zgarmay ko'chadi
+        let ok = make_zip(&[
+            ("word/styles.xml", &body, CompressionMethod::Deflated),
+            (
+                "word/document.xml",
+                "<w:t>choy</w:t>",
+                CompressionMethod::Deflated,
+            ),
+        ]);
+        let out = convert_package(&ok, Kind::Word, &conv, &mut Vec::new()).unwrap();
+        assert_eq!(read_zip(&out)[0].1.len(), body.len());
     }
 
     #[test]

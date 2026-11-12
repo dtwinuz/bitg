@@ -4,6 +4,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+### Tuzatildi
+- **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML
+  qism ochilganda 256 MiB dan oshsa, o'girish xato bilan to'xtaydi (xotira to'lib qolmaydi). O'girilmaydigan
+  qismlar avvalgidek ochilmasdan ko'chiriladi.
+
 ## [0.3.1] — 2026-11-13
 
 Asosiysi: Windows'da bitg o'z-o'zidan inglizcha klaviaturaga o'tib ketmaydi ([#13](https://github.com/dtwinuz/bitg/issues/13)),
