@@ -187,7 +187,13 @@ Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linu
 
 ### O'rnatish (macOS 11+, Apple M va Intel) — sinov
 
-[bitg.uz/yuklab-olish](https://bitg.uz/yuklab-olish/#mac) dan `bitg-<versiya>-macos.pkg` ni oling (SHA-256 shu
+Homebrew bilan ([dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap)), `brew upgrade` bilan yangilanadi:
+
+```bash
+brew install --cask dtwinuz/tap/bitg
+```
+
+Yoki qo'lda: [bitg.uz/yuklab-olish](https://bitg.uz/yuklab-olish/#mac) dan `bitg-<versiya>-macos.pkg` ni oling (SHA-256 shu
 sahifada va [Releases](https://github.com/dtwinuz/bitg/releases) da): bitta universal fayl
 (arm64 + x86_64). O'rnatuvchi hozircha Apple imzosiz — ochilmasa **Tizim sozlamalari → Maxfiylik va xavfsizlik →
 Baribir ochish**, yoki terminalda:

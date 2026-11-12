@@ -4,6 +4,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+### Qo'shildi
+- **Homebrew:** `brew install --cask dtwinuz/tap/bitg` ([dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap);
+  CI cask'ni haqiqiy macOS'da o'rnatib, o'chirib tekshiradi, har dushanba qayta).
+- **winget:** `dtwinuz.bitg` manifesti microsoft/winget-pkgs ga yuborildi. `packaging` workflow uni Windows runner'da
+  o'rnatib, `bitg.exe` ni ishlatib, o'chirib tekshiradi. Manifest ProductCode va UpgradeCode bilan, shuning uchun
+  `winget upgrade` MSI'dan o'rnatilgan nusxani ham taniydi.
+- `tools/release/packaging.py`: ikkala havola ham GitHub Release'ga, ProductCode MSI'ning o'zidan o'qiladi.
+
 ## [0.3.0] — 2026-11-12
 
 ### Tuzatildi

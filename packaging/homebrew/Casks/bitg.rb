@@ -1,8 +1,9 @@
 cask "bitg" do
-  version "0.2.0"
-  sha256 "567c04804117ca8eb3993c19dabfe2198745591204cb15b908a76625c4db3f85"
+  version "0.3.0"
+  sha256 "e9e0046317ef9a83439fe3bf913556759054133f7fb393722238d2dafce6d9fd"
 
-  url "https://bitg.uz/download/bitg-#{version}-macos.pkg"
+  url "https://github.com/dtwinuz/bitg/releases/download/v#{version}/bitg-#{version}-macos.pkg",
+      verified: "github.com/dtwinuz/bitg/"
   name "bitg"
   desc "Uzbek input method for the new 2026 Latin alphabet"
   homepage "https://bitg.uz/"
@@ -12,7 +13,7 @@ cask "bitg" do
     strategy :github_latest
   end
 
-  depends_on macos: ">= :big_sur"
+  depends_on :macos
 
   pkg "bitg-#{version}-macos.pkg"
 

@@ -8,7 +8,7 @@ Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, y
 
 ## Sahifalar
 - [Bosh sahifa](https://bitg.uz/): dastur nima qiladi, brauzerdagi sinov maydoni, Windows MSI yuklab olish
-- [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI, Linux .deb va apt ombori (https://bitg.uz/apt), Mac .pkg (sinov), SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
+- [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI, Linux .deb va apt ombori (https://bitg.uz/apt), Mac .pkg (sinov) va Homebrew (`brew install --cask dtwinuz/tap/bitg`), SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
 - [Onlayn konvertor](https://bitg.uz/konvertor/): eski lotin/kirill → yangi alifbo va aksincha, brauzerning oʻzida
 - [Yangi oʻzbek alifbosi](https://bitg.uz/yangi-alifbo/): 28 harf + tutuq, nima oʻzgardi, Ng
 - [Alifbo qonuni OʻRQ-1184](https://bitg.uz/yangi-alifbo-qonuni/): sanalar, 4 modda, nima oʻzgarmaydi

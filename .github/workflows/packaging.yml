@@ -1,0 +1,47 @@
+name: packaging
+
+# winget manifesti microsoft/winget-pkgs ga yuborishdan oldin haqiqiy Windows'da o'rnatib, o'chirib tekshiriladi.
+# Homebrew cask'ni dtwinuz/homebrew-tap CI'si tekshiradi.
+on:
+  pull_request:
+    paths: ["packaging/winget/**", "tools/release/packaging.py", ".github/workflows/packaging.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  winget:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: winget
+        shell: pwsh
+        run: |
+          if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -Force | Out-Null
+            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
+            Repair-WinGetPackageManager -AllUsers -Latest
+          }
+          winget --version
+          winget settings --enable LocalManifestFiles
+      - name: Validate, install, uninstall
+        shell: pwsh
+        run: |
+          $dir = Get-ChildItem packaging/winget/manifests/d/dtwinuz/bitg -Directory |
+            Sort-Object { [version]$_.Name } | Select-Object -Last 1
+          $ver = $dir.Name
+          $pc = (Select-String -Path "$($dir.FullName)/dtwinuz.bitg.installer.yaml" -Pattern '^\s+ProductCode: "(.+)"$' |
+            Select-Object -First 1).Matches[0].Groups[1].Value
+          winget validate --manifest $dir.FullName --disable-interactivity
+          if ($LASTEXITCODE) { throw "validate: $LASTEXITCODE" }
+          winget install --manifest $dir.FullName --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
+          if ($LASTEXITCODE) { throw "install: $LASTEXITCODE" }
+          $entry = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$pc" -ErrorAction Stop
+          if ($entry.DisplayVersion -notlike "$ver*") { throw "o'rnatilgan versiya $($entry.DisplayVersion), kutilgan $ver" }
+          & "$env:ProgramFiles\bitg\bitg.exe" "O'zbekiston shaharlari"
+          if ($LASTEXITCODE) { throw "bitg.exe: $LASTEXITCODE" }
+          $p = Start-Process msiexec.exe -ArgumentList "/x", $pc, "/qn", "/norestart" -Wait -PassThru
+          if ($p.ExitCode -notin 0, 3010) { throw "uninstall: $($p.ExitCode)" }
+          if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$pc") { throw "o'chirilmadi" }
+          "winget $ver: validate + install + uninstall OK"
