@@ -102,7 +102,7 @@ final class Runner: NSObject, NSApplicationDelegate {
         if system || local {
             // IMK serveri birinchi marta ishga tushishi uchun vaqt
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { self.next() }
-        } else if attempt < 20 {
+        } else if attempt < 10 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { self.prepare(attempt + 1) }
         } else {
             log("FAIL setup: bitg tanlanmadi")

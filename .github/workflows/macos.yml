@@ -46,6 +46,12 @@ jobs:
       - name: Uchidan-uchiga (NSTextView + IMK + o'rnatilgan bitg.app)
         continue-on-error: true
         run: |
+          # Tizim sozlamalari "+" tugmasi yozadigan joy: yoqilgan va tanlangan manba sifatida
+          SRC='<dict><key>Bundle ID</key><string>uz.bitg.inputmethod.bitg</string><key>Input Mode</key><string>uz.bitg.inputmethod.bitg.latin</string><key>InputSourceKind</key><string>Input Mode</string></dict>'
+          defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add "$SRC"
+          defaults write com.apple.HIToolbox AppleSelectedInputSources -array "$SRC"
+          killall TextInputMenuAgent 2>/dev/null || true
+          sleep 2
           swiftc -O macos/test/e2e.swift -o target/macos/bitg-e2e
           target/macos/bitg-e2e || { log show --last 3m --predicate 'process == "bitg"' --style compact | tail -n 80; exit 1; }
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
