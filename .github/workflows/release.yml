@@ -1,6 +1,6 @@
 name: release
 
-# Faqat versiya tegi (v0.2.0) qo'yilganda: Linux .deb (IBus + Fcitx5) va MSI quriladi, (sertifikat bo'lsa) MSI
+# Faqat versiya tegi (v0.2.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
 # imzolanadi va hammasi bitta GitHub Release'ga yuklanadi.
 on:
   push:
@@ -45,8 +45,32 @@ jobs:
             target/deb/*.deb.sha256
           if-no-files-found: error
 
+  pkg:
+    # macOS o'rnatuvchisi (universal): yig'ish + sinov; release'ga MSI bilan birga qo'shiladi
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Versiya tegdan va Cargo.toml'dan bir xilmi
+        run: |
+          tag="${GITHUB_REF_NAME#v}"; cargo=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          [ "$tag" = "$cargo" ] || { echo "Teg $tag, Cargo.toml $cargo"; exit 1; }
+      - run: macos/build.sh
+      - run: target/macos/bitg-test
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pkg
+          path: target/macos/bitg-*-macos.pkg*
+          if-no-files-found: error
+
   msi:
-    needs: deb
+    needs: [deb, pkg]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,6 +97,10 @@ jobs:
         with:
           name: deb
           path: dist/deb
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pkg
+          path: dist/pkg
       - name: Release
         shell: pwsh
         env:
@@ -80,5 +108,7 @@ jobs:
         run: |
           $deb = Get-ChildItem dist/deb -File | ForEach-Object { $_.FullName }
           if ($deb.Count -lt 4) { throw "deb artefaktlari to'liq emas: $($deb.Count)" }
-          gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb `
+          $pkg = Get-ChildItem dist/pkg -File | ForEach-Object { $_.FullName }
+          if ($pkg.Count -lt 2) { throw "pkg artefaktlari to'liq emas: $($pkg.Count)" }
+          gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
             --title "bitg $env:VERSION" --generate-notes --verify-tag
