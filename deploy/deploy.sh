@@ -62,22 +62,18 @@ APT_GNUPG="${BITG_APT_GNUPG:-$HOME/.bitg-apt-gnupg}"
 "${PYTHON:-python}" -I "$STAGE/src/tools/apt/apt_repo.py" --out "$SITE/apt" --gnupg "$APT_GNUPG" \
   "dist/bitg_${VER}_amd64.deb" "dist/fcitx5-bitg_${VER}_amd64.deb" || fail "apt ombori yig'ilmadi"
 
-cp "$STAGE/src/deploy/docker-compose.yml" "$STAGE/src/deploy/Caddyfile" "$STAGE/src/deploy/set-stats-env.sh" "$STAGE/out/"
+cp "$STAGE/src/deploy/docker-compose.yml" "$STAGE/src/deploy/Caddyfile" "$STAGE/src/deploy/set-stats-env.sh" \
+  "$STAGE/src/deploy/remote.sh" "$STAGE/out/"
 mkdir -p "$STAGE/out/stats" && cp -r "$STAGE/src/deploy/stats/stats.py" "$STAGE/src/deploy/stats/posts" "$STAGE/out/stats/"
 "${PYTHON:-python}" -I "$STAGE/out/stats/stats.py" --selftest >/dev/null || fail "stats.py selftest"
 
-tar -czf - -C "$STAGE/out" site stats docker-compose.yml Caddyfile set-stats-env.sh \
+# uzilishsiz: reliz papkasi + symlink + caddy reload, konteyner qayta yaratilmaydi (deploy/remote.sh)
+tar -czf - -C "$STAGE/out" site stats docker-compose.yml Caddyfile set-stats-env.sh remote.sh \
   | ssh "$HOST" "set -e; mkdir -p '$REMOTE_DIR'; cd '$REMOTE_DIR'
 rm -rf new; mkdir new
 tar --no-same-owner -xzf - -C new
-mv new/docker-compose.yml new/Caddyfile .
-install -m 755 new/set-stats-env.sh set-stats-env.sh
-mkdir -p logs stats-data stats-public
-rm -rf stats; mv new/stats stats
-rm -rf site.prev; [ -d site ] && mv site site.prev
-mv new/site site; rm -rf new
-docker compose up -d --force-recreate --remove-orphans
-echo '$SHA' > REVISION"
+install -m 755 new/remote.sh remote.sh
+./remote.sh '$SHA'"
 
 # IndexNow: barcha URL'lar Bing va Yandex'ga (INDEXNOW=0 — o'tkazib yuborish). Xato deploy'ni to'xtatmaydi.
 indexnow() {
@@ -101,4 +97,4 @@ for _ in $(seq 1 20); do
   fi
   sleep 3
 done
-fail "bitg-site $SHA ni qaytarmadi (rollback: ssh $HOST 'cd $REMOTE_DIR && rm -rf site && mv site.prev site')"
+fail "bitg-site $SHA ni qaytarmadi (orqaga: ssh $HOST, cd $REMOTE_DIR, tail -n2 www/history, keyin ln -sfn releases/<oldingi> www/current.next && mv -T www/current.next www/current)"

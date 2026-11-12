@@ -3,8 +3,12 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 # Serverda: /opt/bitg-site (deploy/deploy.sh nusxalaydi).
-#   site/         — statik sayt (har deployda almashtiriladi)
-#   logs/         — Caddy kirish jurnali (IP qisqartirilgan, 30 kun)
+#   www/releases/<sha>/ — statik sayt, har deploy yangi papka (oxirgi 3 tasi saqlanadi)
+#   www/current   — joriy relizga symlink; deploy uni atomik almashtiradi (mv -T), konteyner qayta yaratilmaydi:
+#                   ochiq yuklashlar eski fayldan oxirigacha davom etadi, yangi so'rovlar yangi relizni oladi
+#   conf/Caddyfile — papka sifatida ulanadi (bitta fayl ulansa almashtirilgan fayl konteynerga ko'rinmaydi);
+#                   o'zgarsa `caddy reload` (uzilishsiz)
+#   logs/        — Caddy kirish jurnali (IP qisqartirilgan, 30 kun)
 #   stats-data/   — state.json (kunlik umumiy sonlar) va dashboard.html
 #   stats-public/ — stats.json (bosh sahifa hisoblagichi, bitg.uz/stats.json)
 #   stats.env     — ixtiyoriy: BOT_TOKEN=..., ADMIN_CHAT_ID=... (repoda yo'q; deploy/set-stats-env.sh)
@@ -13,9 +17,11 @@ services:
     image: caddy:2-alpine
     container_name: bitg-site
     restart: unless-stopped
+    # konteyner faqat shu fayl o'zgarganda qayta yaratiladi; Caddy grace_period (Caddyfile) dan biroz uzoq
+    stop_grace_period: 15s
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./site:/srv:ro
+      - ./conf:/etc/caddy:ro
+      - ./www:/www:ro
       - ./logs:/var/log/caddy
       - ./stats-public:/stats-public:ro
     networks:
