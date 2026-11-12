@@ -1,6 +1,6 @@
 [package]
 name = "bitg-ime"
-description = "Platform-neutral typing engine for bitg input methods (IBus, Fcitx5): word tracking, replacement, Backspace undo"
+description = "Platform-neutral typing engine for bitg input methods (IBus, Fcitx5, macOS InputMethodKit): word tracking, replacement, Backspace undo"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,7 +11,7 @@ authors.workspace = true
 publish = false
 
 [lib]
-# staticlib: linux/ibus (C) va linux/fcitx5 (C++) dvigatellari shu kutubxonaga statik bog'lanadi
+# staticlib: linux/ibus (C), linux/fcitx5 (C++) va macos/ (Swift) dvigatellari shu kutubxonaga statik bog'lanadi
 crate-type = ["rlib", "staticlib"]
 
 [dependencies]

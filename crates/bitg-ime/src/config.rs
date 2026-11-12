@@ -1,5 +1,5 @@
 //! Sozlamalar: Windows bilan bir xil format (`settings.ini` key=value, `exceptions.txt` — har qatorda so'z).
-//! Linux'da joyi: `$XDG_CONFIG_HOME/bitg/` (bo'lmasa `~/.config/bitg/`).
+//! Linux'da joyi: `$XDG_CONFIG_HOME/bitg/` (bo'lmasa `~/.config/bitg/`); macOS'da `~/Library/Application Support/bitg/`.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -115,7 +115,15 @@ pub fn parse_exceptions(text: &str) -> Vec<String> {
     out
 }
 
+/// Sozlamalar papkasi: macOS'da `~/Library/Application Support/bitg`.
+#[cfg(target_os = "macos")]
+pub fn config_dir() -> Option<PathBuf> {
+    let home = std::env::var_os("HOME").filter(|v| !v.is_empty())?;
+    Some(PathBuf::from(home).join("Library/Application Support/bitg"))
+}
+
 /// Sozlamalar papkasi: `$XDG_CONFIG_HOME/bitg` yoki `$HOME/.config/bitg`.
+#[cfg(not(target_os = "macos"))]
 pub fn config_dir() -> Option<PathBuf> {
     let base = std::env::var_os("XDG_CONFIG_HOME")
         .filter(|v| !v.is_empty())

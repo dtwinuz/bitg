@@ -31,7 +31,8 @@ typedef struct {
     const char *preedit;
 } BitgImeOut;
 
-/* Sozlamalar $XDG_CONFIG_HOME/bitg/ (settings.ini, exceptions.txt) dan; xato bo'lsa NULL. */
+/* Sozlamalar (settings.ini, exceptions.txt): Linux — $XDG_CONFIG_HOME/bitg/, macOS — ~/Library/Application Support/bitg/.
+ * Xato bo'lsa NULL. */
 BitgIme *bitg_ime_new(void);
 void bitg_ime_free(BitgIme *ime);
 
