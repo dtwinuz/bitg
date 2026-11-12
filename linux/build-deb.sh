@@ -18,12 +18,16 @@ make -C linux/ibus VERSION="$VER"
 rm -rf "$PKG"
 install -d "$PKG/DEBIAN" "$PKG/usr/bin" "$PKG/usr/libexec" "$PKG/usr/share/ibus/component" \
   "$PKG/usr/share/icons/hicolor/scalable/apps" "$PKG/usr/share/doc/bitg"
-install -m 755 linux/ibus/ibus-engine-bitg "$PKG/usr/libexec/ibus-engine-bitg"
-install -m 755 target/release/bitg "$PKG/usr/bin/bitg"
+install -m 755 -s linux/ibus/ibus-engine-bitg "$PKG/usr/libexec/ibus-engine-bitg"
+install -m 755 -s target/release/bitg "$PKG/usr/bin/bitg"
 sed "s/@VERSION@/$VER/" linux/ibus/bitg.xml > "$PKG/usr/share/ibus/component/bitg.xml"
 chmod 644 "$PKG/usr/share/ibus/component/bitg.xml"
 install -m 644 web/icon.svg "$PKG/usr/share/icons/hicolor/scalable/apps/bitg.svg"
 install -m 644 linux/copyright "$PKG/usr/share/doc/bitg/copyright"
+# native paket: changelog git tarixidan emas — release sahifasiga havola
+printf 'bitg (%s) stable; urgency=medium\n\n  * Release %s: https://github.com/dtwinuz/bitg/releases\n\n -- dtwinuz <info@dtwin.uz>  %s\n' \
+  "$VER" "$VER" "$(date -R -d "@$(git log -1 --format=%ct)")" | gzip -9n > "$PKG/usr/share/doc/bitg/changelog.gz"
+chmod 644 "$PKG/usr/share/doc/bitg/changelog.gz"
 
 # bog'liqliklar binarning o'zidan (libc6, libglib2.0-0, libibus-1.0-5 ...)
 SH="$(mktemp -d)"

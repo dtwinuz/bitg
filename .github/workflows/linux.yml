@@ -33,7 +33,7 @@ jobs:
       - name: .deb
         run: linux/build-deb.sh
       - name: lintian
-        run: lintian --no-tag-display-limit --suppress-tags no-manual-page,binary-without-manpage,initial-upload-closes-no-bugs target/deb/*.deb || true
+        run: lintian --no-tag-display-limit --suppress-tags no-manual-page,initial-upload-closes-no-bugs target/deb/*.deb || true
       - name: O'rnatish
         run: |
           sudo apt-get install -y -q ./target/deb/bitg_*.deb
@@ -50,3 +50,20 @@ jobs:
           name: bitg-deb
           path: target/deb/*.deb*
           if-no-files-found: error
+
+  fcitx5:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Paketlar
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev pkg-config
+      - run: cargo build --release --locked -p bitg-ime
+      - run: make -C linux/fcitx5
+      - name: Eksport qilingan belgilar
+        run: nm -D --defined-only linux/fcitx5/bitg.so | grep -v " fcitx_addon_factory_instance$" | grep -c " T " || true

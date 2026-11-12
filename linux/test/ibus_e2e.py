@@ -172,17 +172,27 @@ def main():
     log = open(log_path, "wb")
     daemon = None
     if "--no-daemon" not in sys.argv:
+        # X display yo'q: manzil fayldan emas, aniq beriladi (daemon dvigatelga ham shuni uzatadi)
+        address = f"unix:path=/tmp/bitg-ibus-{os.getpid()}"
+        os.environ["IBUS_ADDRESS"] = address
         daemon = subprocess.Popen(["ibus-daemon", "--panel=disable", "--emoji-extension=disable", "--replace",
-                                   "--verbose"], stdout=log, stderr=subprocess.STDOUT)
+                                   "--verbose", f"--address={address}"], stdout=log, stderr=subprocess.STDOUT)
     IBus.init()
-    bus = IBus.Bus()
+    bus = None
     for _ in range(100):
+        bus = IBus.Bus.new()
         if bus.is_connected():
             break
         time.sleep(0.1)
-        bus = IBus.Bus()
-    if not bus.is_connected():
+    if bus is None or not bus.is_connected():
+        log.close()
+        with open(log_path, "rb") as f:
+            print(f.read().decode(errors="replace")[-3000:])
         sys.exit("ibus-daemon'ga ulanib bo'lmadi")
+    for _ in range(50):  # komponentlar ro'yxati yuklanguncha
+        if any(e.get_name() == "bitg" for e in bus.list_engines()):
+            break
+        time.sleep(0.1)
     names = [e.get_name() for e in bus.list_engines()]
     if "bitg" not in names:
         sys.exit(f"bitg dvigateli ro'yxatda yo'q (component o'rnatilmaganmi?): {len(names)} ta dvigatel")
