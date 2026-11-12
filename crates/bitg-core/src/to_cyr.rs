@@ -82,7 +82,8 @@ fn token_to_cyr(tok: &str, opts: &Options, own: f32, ctx: f32, quote_open: &mut 
         }
         tok.to_string()
     } else {
-        let (l, reason) = crate::convert_token(tok, opts, own, ctx, false, quote_open);
+        let (l, reason) =
+            crate::convert_token(tok, opts, own, ctx, crate::Hints::default(), quote_open);
         if matches!(
             reason,
             crate::Reason::Protected | crate::Reason::English | crate::Reason::Exception

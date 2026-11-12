@@ -35,8 +35,9 @@ pub extern "C" fn bitg_out() -> *const u8 {
     OUT.with(|o| o.borrow().as_ptr())
 }
 
-/// `mode` 0 — yangi alifboga: `{"out":"…","toks":[["so'z","c"],…]}`
-/// (c o'girildi, u o'zgarmadi, p himoyalangan, x istisno, e inglizcha);
+/// `mode` 0 — yangi alifboga: `{"out":"…","toks":[["so'z","c"],["ochmaydi","c","öçmaydi"],…]}`
+/// (c o'girildi, u o'zgarmadi, p himoyalangan, x istisno, e inglizcha; 3-element — ikki ma'noli so'zning
+/// natijaga kirmagan o'qilishi, "tekshiring");
 /// 1 — eski lotinga (rasmiy oʻ), 2 — eski lotinga (o'), 3 — kirillga: `{"out":"…"}`.
 /// `flags` — `ffi::BITG_*`. Qaytadi: JSON uzunligi, UTF-8 bo'lmasa 0.
 ///
@@ -53,22 +54,27 @@ pub unsafe extern "C" fn bitg_run(p: *const u8, len: usize, mode: u32, flags: u3
     json.push_str("{\"out\":");
     match mode {
         0 => {
-            let (out, toks) = crate::convert_explained(text, &ffi::options(flags));
+            let (out, toks) = crate::convert_words(text, &ffi::options(flags));
             push_str(&mut json, &out);
             json.push_str(",\"toks\":[");
-            for (i, (tok, reason, _)) in toks.iter().enumerate() {
+            for (i, w) in toks.iter().enumerate() {
                 if i > 0 {
                     json.push(',');
                 }
                 json.push('[');
-                push_str(&mut json, tok);
-                json.push_str(match reason {
-                    Reason::Converted => ",\"c\"]",
-                    Reason::Unchanged => ",\"u\"]",
-                    Reason::Protected => ",\"p\"]",
-                    Reason::Exception => ",\"x\"]",
-                    Reason::English => ",\"e\"]",
+                push_str(&mut json, &w.token);
+                json.push_str(match w.reason {
+                    Reason::Converted => ",\"c\"",
+                    Reason::Unchanged => ",\"u\"",
+                    Reason::Protected => ",\"p\"",
+                    Reason::Exception => ",\"x\"",
+                    Reason::English => ",\"e\"",
                 });
+                if let Some(alt) = &w.alt {
+                    json.push(',');
+                    push_str(&mut json, alt);
+                }
+                json.push(']');
             }
             json.push(']');
         }

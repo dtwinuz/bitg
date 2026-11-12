@@ -72,9 +72,98 @@ pub fn is_brand(word: &str) -> bool {
     })
 }
 
+static FOREIGN_NAMES_TXT: &str = include_str!("data/foreign_names.txt");
+
+fn foreign_names() -> &'static std::collections::HashSet<&'static str> {
+    static S: OnceLock<std::collections::HashSet<&'static str>> = OnceLock::new();
+    S.get_or_init(|| {
+        FOREIGN_NAMES_TXT
+            .lines()
+            .map(str::trim)
+            .filter(|l| !l.is_empty() && !l.starts_with('#'))
+            .collect()
+    })
+}
+
+/// Bosh harfli so'z ism sifatida: xorijiy imloda (Michelle, Chicago), ikki xil o'qiladigan (Richard, Chaplin —
+/// o'zbek korpusida ham, inglizchada ham bor) yoki bog'lovchi ("va", "and").
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum NameKind {
+    #[default]
+    Other,
+    /// Faqat xorijiy imloda uchraydi — o'girilmaydi.
+    Foreign,
+    /// O'zbek imlosida ham shunday yoziladi (Richard → Riçard), lekin yonida xorijiy nom bo'lsa o'shaning bir qismi:
+    /// "Charlie Chaplin", "Richard va Michelle".
+    Maybe,
+    Link,
+}
+
+/// Inglizcha imlo belgisi (o'zbek lotinida bo'lmaydi): yolg'iz c (Chicago), w, th, ph, ck, ee, oo,
+/// qo'sh undosh + e bilan tugash (Michelle, Babette).
+fn foreign_orthography(key: &str) -> bool {
+    let b = key.as_bytes();
+    let lone_c = b
+        .iter()
+        .enumerate()
+        .any(|(i, &c)| c == b'c' && b.get(i + 1) != Some(&b'h'));
+    lone_c
+        || key.contains('w')
+        || ["th", "ph", "ck", "ee", "oo"]
+            .iter()
+            .any(|p| key.contains(p))
+        || ["lle", "tte", "nne", "sse", "ffe"]
+            .iter()
+            .any(|p| key.len() >= 5 && key.ends_with(p))
+}
+
+/// Nomga qo'shilgan o'zbek qo'shimchasi: Chicagoda, Michelleni, Sanchezning.
+const NAME_SUFFIXES: &[&str] = &[
+    "larning", "larni", "larga", "larda", "lardan", "dagi", "ning", "dan", "lar", "da", "ga", "ni",
+    "ka", "dek", "ham",
+];
+
+/// Ism turi. Faqat bosh harfli, sh/ch li, o'zbek lug'atida yo'q so'z xorijiy bo'la oladi: o'zbek ismi va joy nomi
+/// (Shohruh, Chorsu, Pushkin) korpusda bor va o'giriladi.
+pub fn name_kind(word: &str) -> NameKind {
+    let key = fold_key(word);
+    if matches!(key.as_str(), "va" | "and" | "&") {
+        return NameKind::Link;
+    }
+    if !word.starts_with(|c: char| c.is_uppercase()) {
+        return NameKind::Other;
+    }
+    // Apostrofli qo'shimcha (Washington'ga) — asosi bo'yicha. Boshqa apostrof — o'zbekcha tutuq (Mash'al).
+    let base = match key.split_once('\'') {
+        None => key.as_str(),
+        Some((b, suf)) if NAME_SUFFIXES.contains(&suf) => b,
+        Some(_) => return NameKind::Other,
+    };
+    if !(base.contains("ch") || base.contains("sh")) {
+        return NameKind::Other;
+    }
+    let foreign_stem = |s: &str| {
+        uz_weight(s).is_none()
+            && (foreign_names().contains(s) || en().contains_key(s) || foreign_orthography(s))
+    };
+    if foreign_stem(base)
+        || NAME_SUFFIXES.iter().any(|suf| {
+            base.strip_suffix(suf).is_some_and(|stem| {
+                stem.len() >= 4 && uz_weight(base).is_none() && foreign_stem(stem)
+            })
+        })
+    {
+        return NameKind::Foreign;
+    }
+    if en().contains_key(base) {
+        return NameKind::Maybe;
+    }
+    NameKind::Other
+}
+
 /// Lug'atlarni oldindan yuklash (IME ishga tushganda, birinchi so'z kutib qolmasin).
 pub fn warm_up() {
-    let _ = uz().len() + en().len() + split().len() + names().len();
+    let _ = uz().len() + en().len() + split().len() + names().len() + foreign_names().len();
 }
 
 // Eski lotin yozuvidagi qo'shimchalar — uzunidan qisqasiga. Lug'atda yo'q so'zning o'zagini topish uchun.
@@ -284,6 +373,68 @@ const RESTORE_MAX_SLOTS: usize = 6;
 /// `loose` — matn muallifi o'/g' apostrofini umuman qo'ymaydi (shu matnda boshqa so'z ham tiklandi): ikkala
 /// shakli ham haqiqiy so'z bo'lsa (oz / o'z, yoq / yo'q) ham chastota nisbati hal qiladi.
 pub fn restore_apostrophes(word: &str, uz_context: bool, loose: bool) -> Option<String> {
+    restore_impl(word, uz_context, loose, false).map(|(r, _)| r)
+}
+
+/// Ikki ma'noli so'zning apostrofli muqobili: "ochmaydi" → "o'chmaydi", "otdim" → "o'tdim", "oz" → "o'z".
+/// Konvertor bunday so'zni o'zi hal qilmaydi (yoki chastota bilan hal qiladi) — UI "tekshiring" deb ko'rsatadi.
+pub fn alternative(word: &str) -> Option<String> {
+    if word.contains('-') {
+        return None;
+    }
+    restore_impl(word, false, true, true).and_then(|(r, ambiguous)| ambiguous.then_some(r))
+}
+
+/// Ikki ma'noli o'zak: ikkala o'zak ham keng tarqalgan so'z (och / o'ch, ot / o't) va chastotasi yaqin.
+/// kor / ko'r (2.5), soz / so'z (2.44) emas: apostrofsiz o'zak — kirill korpusidagi imlo xatosi.
+const AMBIG_ROOT_MIN: f32 = 2.9;
+const AMBIG_ROOT_GAP: f32 = 1.2;
+/// Apostrofsiz shakli korpusda yo'q ikki ma'noli so'z nomzodi shundan kam uchrasa (log10 shkala, ~100 marta)
+/// tiklanmaydi. `eval/uz_noapos.tsv` bo'yicha: 3.0 → 2434, 3.2 → 2430, 3.4 → 2428, 3.6 → 2424, 4.0 → 2402.
+const AMBIG_UNSEEN_MIN: f32 = 3.0;
+/// Fe'l shaxs-son va zamon qo'shimchalari (`SUFFIXES` da yo'qlari): ot|dim, och|maydi, och|asan.
+const VERB_ENDINGS: &[&str] = &[
+    "dim", "ding", "dik", "dingiz", "dilar", "adi", "aman", "asan", "amiz", "asiz", "ar", "ay",
+    "ma", "mang", "gin", "ganman", "ganmiz", "moqchi", "masdan",
+];
+/// Shaxs qo'shimchasi — faqat so'z oxirida: och|di|m, lekin o't|m|ish emas (o'tmish — ot).
+const FINAL_ENDINGS: &[&str] = &["m", "ng", "k"];
+
+/// `s` faqat qo'shimchalardan iborat (ko'pi bilan 3 qatlam): "maydi" = may|di, "kazdi" emas.
+fn is_suffix_chain(s: &str, depth: u8) -> bool {
+    s.is_empty()
+        || FINAL_ENDINGS.contains(&s)
+        || depth < 3
+            && SUFFIXES.iter().chain(VERB_ENDINGS).any(|x| {
+                s.strip_prefix(x)
+                    .is_some_and(|rest| is_suffix_chain(rest, depth + 1))
+            })
+}
+
+/// `key` (apostrofsiz) va `cand` (apostrofli) bir xil qo'shimcha bilan ikki haqiqiy o'zakdan yasalgan:
+/// och|maydi / o'ch|maydi. o't|kazdi esa yo'q — "kazdi" qo'shimcha emas.
+fn ambiguous_roots(key: &str, cand: &str) -> bool {
+    key.char_indices()
+        .map(|(i, _)| i)
+        .chain(std::iter::once(key.len()))
+        .filter(|&i| i >= 2)
+        .any(|i| {
+            let (r0, suf) = key.split_at(i);
+            let Some(r1) = cand.strip_suffix(suf) else {
+                return false;
+            };
+            r1 != r0
+                && is_suffix_chain(suf, 0)
+                && matches!(
+                    (uz().get(r0), uz().get(r1)),
+                    (Some(a), Some(b)) if a >= AMBIG_ROOT_MIN && b >= AMBIG_ROOT_MIN && (a - b).abs() <= AMBIG_ROOT_GAP
+                )
+        })
+}
+
+/// `probe` — `alternative` uchun: ikki ma'nolilik to'xtatmaydi, faqat belgilanadi.
+/// Qaytadi: (tiklangan so'z, ikki ma'noli-mi).
+fn restore_impl(word: &str, uz_context: bool, loose: bool, probe: bool) -> Option<(String, bool)> {
     // Chiziqchali so'z qism-qism: qollab-quvvatlash → qo'llab-quvvatlash, togridan-togri → to'g'ridan-to'g'ri.
     // Bir bo'lagida o'/g' yozilgan bo'lsa (ozmi-ko'pmi) — muallif apostrof qo'yadi, qolganiga tegilmaydi.
     if word.contains('-') {
@@ -302,7 +453,7 @@ pub fn restore_apostrophes(word: &str, uz_context: bool, loose: bool) -> Option<
                 None => p.to_string(),
             })
             .collect();
-        return changed.then(|| parts.join("-"));
+        return changed.then(|| (parts.join("-"), false));
     }
     let key = fold_key(word);
     let kc: Vec<char> = key.chars().collect();
@@ -377,9 +528,27 @@ pub fn restore_apostrophes(word: &str, uz_context: bool, loose: bool) -> Option<
     if w < min || w < w0 + margin {
         return None;
     }
-    let mut out = String::with_capacity(word.len() + slots.len());
+    let cand_key = with_apostrophes(&kc, &slots, mask);
+    let ambiguous = NEVER_RESTORE.contains(&key.as_str()) || ambiguous_roots(&key, &cand_key);
+    // Ikki haqiqiy o'zakdan yasalgan, apostrofsiz shakli korpusda o'zi uchramaydi, nomzod ham siyrak (ochmaydi /
+    // o'chmaydi 2.15, otdim / o'tdim 2.75): yo'qlik hech narsa demaydi — muallif yozganicha qoladi. Nomzod keng
+    // tarqalgan bo'lsa (oqish / o'qish, boyicha / bo'yicha) yo'qlikning o'zi dalil; ikkalasi ham uchrasa (otgan /
+    // o'tgan) yuqoridagi nisbat hal qiladi.
+    if !probe
+        && ambiguous
+        && !NEVER_RESTORE.contains(&key.as_str())
+        && !uz().get(&key).is_some_and(|w| w > 0.0)
+        && w < AMBIG_UNSEEN_MIN
+    {
+        return None;
+    }
+    Some((with_apostrophes(&wc, &slots, mask), ambiguous))
+}
+
+fn with_apostrophes(chars: &[char], slots: &[usize], mask: u32) -> String {
+    let mut out = String::with_capacity(chars.len() + slots.len());
     let mut si = 0;
-    for (i, &c) in wc.iter().enumerate() {
+    for (i, &c) in chars.iter().enumerate() {
         out.push(c);
         if si < slots.len() && slots[si] == i {
             if mask & (1 << si) != 0 {
@@ -388,7 +557,7 @@ pub fn restore_apostrophes(word: &str, uz_context: bool, loose: bool) -> Option<
             si += 1;
         }
     }
-    Some(out)
+    out
 }
 
 /// Lug'atda bormi (test va CLI uchun).

@@ -112,6 +112,13 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px; font: 600 13px/1
 .dc-cv__opts label { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
 .dc-cv__opts input { accent-color: var(--accent); width: 16px; height: 16px; }
 .dc-cv__state { font-weight: 500; text-transform: none; letter-spacing: 0; }
+.dc-cv__out mark { background: var(--accent-soft); color: var(--accent-ink); border-radius: 4px; padding: 0 1px; }
+.dc-cv__amb { font: inherit; color: inherit; margin: 0; padding: 0 2px; border: 0; border-radius: 4px; background: var(--warn-soft); text-decoration: underline dotted var(--warn) 2px; text-underline-offset: 4px; cursor: pointer; transition: background-color .15s var(--soft); }
+.dc-cv__amb:hover { background: color-mix(in srgb, var(--warn) 22%, transparent); }
+.dc-cv__amb:focus-visible { outline: 2px solid var(--warn); outline-offset: 1px; }
+.dc-cv__amb.is-swapped { text-decoration-style: solid; }
+.dc-cv__note { margin: 0; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.5; color: var(--muted); }
+.dc-cv__note b { color: var(--warn); font-weight: 600; }
 
 /* kunlar */
 .dc-count { margin: 22px 0 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 14px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--r3); background: var(--surface); }

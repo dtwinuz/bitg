@@ -115,7 +115,7 @@
   if (cv) {
     var inp = $('#dc-cv-in', cv), out = $('#dc-cv-out', cv), state = $('#dc-cv-state', cv);
     var dirBtns = $$('[data-dir]', cv), boxes = $$('input[data-flag]', cv), copy = $('#dc-cv-copy', cv);
-    var opts = $('#dc-cv-opts', cv);
+    var opts = $('#dc-cv-opts', cv), ambNote = $('#dc-cv-amb', cv);
     var msg = {
       load: cv.getAttribute('data-load') || '…', ready: cv.getAttribute('data-ready') || '',
       fail: cv.getAttribute('data-fail') || 'error', copied: cv.getAttribute('data-copied') || 'OK'
@@ -130,19 +130,52 @@
       if (!api2) return;
       var src = inp.value;
       out.textContent = '';
+      if (ambNote) ambNote.hidden = true;
       if (dir === 'old') { out.textContent = api2.toOld(src, false); return; }
       if (dir === 'cyr') { out.textContent = api2.toCyr(src); return; }
       var r = api2.toNew(src, flags());
-      // yangi harfli so'zlar belgilanadi (natija matni o'zgarmaydi, faqat ko'rinish)
-      var frag = doc.createDocumentFragment();
-      r.out.split(/(\s+)/).forEach(function (p) {
+      // yangi harfli so'zlar belgilanadi (natija matni o'zgarmaydi, faqat ko'rinish);
+      // ikki ma'noli so'z (yadro 3-element bilan beradi) — tugma: bosilsa ikkinchi o'qilishiga almashadi
+      var parts = r.out.split(/(\s+)/);
+      var words = parts.filter(function (p, i) { return i % 2 === 0 && p; }).length;
+      var toks = r.toks.length === words ? r.toks : null;
+      var frag = doc.createDocumentFragment(), w = 0, amb = 0;
+      parts.forEach(function (p, i) {
         if (!p) return;
-        if (/[öğşçÖĞŞÇʼ]/.test(p) && /\S/.test(p)) {
+        if (i % 2 === 1) { frag.appendChild(doc.createTextNode(p)); return; }
+        var alt = toks && toks[w] && toks[w][2];
+        w++;
+        if (alt) {
+          amb++;
+          var b = doc.createElement('button');
+          b.type = 'button'; b.className = 'dc-cv__amb'; b.textContent = p;
+          b.setAttribute('data-alt', alt);
+          b.title = ambNote ? ambNote.getAttribute('data-title').split('{alt}').join(alt) : alt;
+          frag.appendChild(b);
+        } else if (/[öğşçÖĞŞÇʼ]/.test(p)) {
           var m = doc.createElement('mark'); m.textContent = p; frag.appendChild(m);
         } else frag.appendChild(doc.createTextNode(p));
       });
       out.appendChild(frag);
+      if (ambNote) {
+        ambNote.hidden = !amb;
+        ambNote.textContent = '';
+        if (amb) {
+          var n = doc.createElement('b');
+          n.textContent = ambNote.getAttribute('data-count').replace('{n}', amb);
+          ambNote.append(n, ' ' + ambNote.getAttribute('data-hint'));
+        }
+      }
     };
+    if (ambNote) out.addEventListener('click', function (e) {
+      var b = e.target.closest('.dc-cv__amb');
+      if (!b) return;
+      var cur = b.textContent, alt = b.getAttribute('data-alt');
+      b.textContent = alt;
+      b.setAttribute('data-alt', cur);
+      b.classList.toggle('is-swapped');
+      b.title = ambNote.getAttribute('data-title').split('{alt}').join(cur);
+    });
     var schedule = function () { clearTimeout(timer); timer = setTimeout(render, 60); };
     dirBtns.forEach(function (b) {
       b.addEventListener('click', function () {

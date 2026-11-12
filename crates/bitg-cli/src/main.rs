@@ -86,16 +86,20 @@ fn main() -> ExitCode {
         }
         "cyr" => out(&bitg_core::to_cyrillic(&rest(1))),
         "explain" => {
-            let (converted, report) = bitg_core::convert_explained(&rest(1), &opts);
-            for (tok, reason, ev) in report {
-                let r = match reason {
+            let (converted, report) = bitg_core::convert_words(&rest(1), &opts);
+            for w in report {
+                let r = match w.reason {
                     Reason::Converted => "o'girildi",
                     Reason::Unchanged => "-",
                     Reason::Protected => "himoya (havola/kod)",
                     Reason::Exception => "istisno",
                     Reason::English => "inglizcha",
                 };
-                println!("{tok:<24} {ev:>6.2}  {r}");
+                let (tok, ev) = (&w.token, w.evidence);
+                match &w.alt {
+                    Some(a) => println!("{tok:<24} {ev:>6.2}  {r}  (ikki ma'noli: {a})"),
+                    None => println!("{tok:<24} {ev:>6.2}  {r}"),
+                }
             }
             println!("\n{converted}");
             ExitCode::SUCCESS

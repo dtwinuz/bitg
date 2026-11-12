@@ -338,3 +338,80 @@ fn sh_split_with_suffix() {
     assert_eq!(c("nushalari Ishoqqa Mushaf"), "nushalari Ishoqqa Mushaf");
     assert_eq!(c("Is'hoq va mas'ul shaxs"), "Ishoq va masʼul şaxs");
 }
+
+// #6: xorijiy imlodagi nom (o'zbek korpusida yo'q, inglizcha imlo belgisi bor) o'girilmaydi; yonidagi ikki xil
+// o'qiladigan nom (Richard, Chaplin) ham shu nomning bir qismi.
+#[test]
+fn foreign_spelled_names_are_kept() {
+    assert_eq!(
+        c("Richard va Michelle Washington'ga ketishdi."),
+        "Richard va Michelle Washington'ga ketişdi."
+    );
+    assert_eq!(
+        c("Charlie Chaplin va Chicago haqida."),
+        "Charlie Chaplin va Chicago haqida."
+    );
+    // nom gap tilini aytmaydi: qolgan so'zlar o'zbekcha
+    assert_eq!(c("Chicagoda yashaydi"), "Chicagoda yaşaydi");
+    assert_eq!(c("Michelleni kutdik"), "Michelleni kutdik");
+}
+
+#[test]
+fn uzbek_spelled_names_are_still_converted() {
+    // o'zbek imlosida ham shunday yoziladi (Ричард, Пушкин) — yonida xorijiy nom bo'lmasa o'giriladi
+    assert_eq!(c("Richard Gir filmi"), "Riçard Gir filmi");
+    assert_eq!(c("Pushkin va Shakira"), "Puşkin va Şakira");
+    // o'zbekcha nom xorijiy zanjirga qo'shilmaydi
+    assert_eq!(c("Shohruh va Michelle keldi"), "Şohruh va Michelle keldi");
+    // vergul zanjirni uzadi
+    assert_eq!(c("Michelle, Richard keldi"), "Michelle, Riçard keldi");
+    // apostrof o'zbekcha tutuq (Mash'al), inglizcha qo'shimcha emas
+    assert_eq!(c("Mash'al yondi"), "Maşʼal yondi");
+}
+
+// #5: ikki haqiqiy o'zakdan yasalgan so'z (och / o'ch, ot / o't), apostrofsiz shakli korpusda uchramaydi va
+// nomzod siyrak — chastota hech narsa demaydi, muallif yozganicha qoladi.
+#[test]
+fn ambiguous_words_are_not_restored_silently() {
+    assert_eq!(
+        c("boshliqdan sora, eshikni ochmaydi"),
+        "boşliqdan söra, eşikni oçmaydi"
+    );
+    assert_eq!(
+        c("telefonimni otdim, ot minib kelgan"),
+        "telefonimni otdim, ot minib kelgan"
+    );
+    // nomzod keng tarqalgan (o'qish, bo'yicha) — apostrofsiz shaklning yo'qligi o'zi dalil
+    assert_eq!(c("kitob oqish boyicha"), "kitob öqiş böyiça");
+    // o't|kazdi: "kazdi" qo'shimcha emas — ikki ma'noli emas
+    assert_eq!(c("majlis otkazdi"), "majlis ötkazdi");
+}
+
+#[test]
+fn ambiguous_words_carry_an_alternative() {
+    let (out, words) =
+        bitg_core::convert_words("boshliqdan sora, eshikni ochmaydi", &Options::default());
+    assert_eq!(out, "boşliqdan söra, eşikni oçmaydi");
+    let alt = |t: &str| {
+        words
+            .iter()
+            .find(|w| w.token == t)
+            .and_then(|w| w.alt.clone())
+    };
+    assert_eq!(alt("ochmaydi").as_deref(), Some("öçmaydi"));
+    assert_eq!(alt("sora,"), None);
+    // tiklangan ikki ma'noli so'z (loose): muqobili — apostrofsiz o'qilishi
+    let (out, words) = bitg_core::convert_words(
+        "Ozbekistonda ish yoq, otgan yili kop odam ketdi",
+        &Options::default(),
+    );
+    assert_eq!(out, "Özbekistonda iş yöq, ötgan yili köp odam ketdi");
+    let alt = words
+        .iter()
+        .find(|w| w.token == "otgan")
+        .and_then(|w| w.alt.clone());
+    assert_eq!(alt.as_deref(), Some("otgan"));
+    // muallif apostrof qo'yadi — muqobil ko'rsatilmaydi
+    let (_, words) = bitg_core::convert_words("O'zbekistonda oz qoldi", &Options::default());
+    assert!(words.iter().all(|w| w.alt.is_none()));
+}

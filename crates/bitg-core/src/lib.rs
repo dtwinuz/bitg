@@ -24,6 +24,7 @@ pub mod wasm;
 pub use reverse::OldStyle;
 
 use chars::{is_apostrophe, normalize};
+use lang::NameKind;
 
 /// O'girish sozlamalari.
 #[derive(Clone, Debug)]
@@ -80,6 +81,28 @@ struct Tok {
     sentence_end: bool,
     /// Vergul, nuqtali vergul, ikki nuqta bilan tugaydi — gap bo'lagi chegarasi ("..., keyin choy").
     clause_end: bool,
+    /// Ism sifatida (`resolve_names` dan keyin `Maybe` yonida xorijiy nom bo'lsa `Foreign` ga aylanadi).
+    name: NameKind,
+}
+
+/// So'z bo'yicha natija (`convert_words`): token, sabab, til dalili va ikki ma'noli so'zning muqobili.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Word {
+    pub token: String,
+    pub reason: Reason,
+    pub evidence: f32,
+    /// Ikki ma'noli so'z (ochmaydi / o'chmaydi, oz / o'z): natijaga kirmagan ikkinchi o'qilishi, yangi alifboda
+    /// ("öçmaydi"). UI uni "tekshiring" deb ko'rsatadi.
+    pub alt: Option<String>,
+}
+
+/// Matn bo'yicha oldindan aniqlangan belgilar (bitta tokenga).
+#[derive(Clone, Copy, Debug, Default)]
+struct Hints {
+    /// Muallif o'/g' apostrofini umuman qo'ymaydi — `writes_without_apostrophes`.
+    loose: bool,
+    /// Xorijiy imlodagi nom yoki uning bir qismi (Michelle, "Charlie Chaplin").
+    foreign_name: bool,
 }
 
 const SENTENCE_END: &[char] = &['.', '!', '?', '…'];
@@ -98,6 +121,7 @@ fn tokens(text: &str) -> Vec<Tok> {
                     evidence: 0.0,
                     sentence_end: false,
                     clause_end: false,
+                    name: NameKind::Other,
                 });
             }
             if (c == '\n' || c == '…')
@@ -116,6 +140,7 @@ fn tokens(text: &str) -> Vec<Tok> {
             evidence: 0.0,
             sentence_end: false,
             clause_end: false,
+            name: NameKind::Other,
         });
     }
     for t in &mut v {
@@ -140,7 +165,8 @@ fn context(toks: &[Tok], range: std::ops::Range<usize>, skip: usize) -> f32 {
     let mut sum = 0.0f32;
     let mut weights = 0.0f32;
     for (j, t) in slice.iter().enumerate() {
-        if j == skip || t.evidence == 0.0 {
+        // Xorijiy nom gap tilini aytmaydi: "Chicagoda yashaydi" — o'zbekcha gap.
+        if j == skip || t.evidence == 0.0 || t.name == NameKind::Foreign {
             continue;
         }
         let dist = j.abs_diff(skip) as f32;
@@ -182,9 +208,10 @@ fn convert_token(
     opts: &Options,
     own: f32,
     ctx: f32,
-    loose: bool,
+    hints: Hints,
     quote_open: &mut bool,
 ) -> (String, Reason) {
+    let loose = hints.loose;
     if opts.cyrillic && cyrillic::has_cyrillic(tok) {
         let out = cyrillic::to_new_latin(tok, opts.tutuq);
         let reason = if out == tok {
@@ -238,6 +265,10 @@ fn convert_token(
     // Brend nomi (Photoshop, Chevroletda) — savdo belgisi asl yozuvida qoladi.
     if opts.english_guard && lang::is_brand(core) {
         return (tok.to_string(), Reason::Protected);
+    }
+    // Xorijiy imlodagi nom (Michelle, Chicago, "Charlie Chaplin") — "Miçelle" hech bir imloda to'g'ri emas.
+    if opts.english_guard && hints.foreign_name && !opts.is_exception(core) {
+        return (tok.to_string(), Reason::English);
     }
 
     // Tushib qolgan apostrof (ozbek → o'zbek). Inglizcha gap ichida emas; istisno so'zlarga tegilmaydi.
@@ -311,7 +342,11 @@ fn convert_compound(
             0.0
         };
         // Qisqartmali birikma (C-uchli) atrofidagi lotin harflar gapni "inglizcha" qilib ko'rsatadi — e'tiborsiz.
-        let (conv, r) = convert_token(part, opts, own, ctx.max(0.0), loose, &mut false);
+        let hints = Hints {
+            loose,
+            ..Hints::default()
+        };
+        let (conv, r) = convert_token(part, opts, own, ctx.max(0.0), hints, &mut false);
         out.push_str(&conv);
         reason = match (reason, r) {
             (_, Reason::Converted) | (Reason::Converted, _) => Reason::Converted,
@@ -403,43 +438,122 @@ fn has_og_apostrophe(core: &str) -> bool {
 
 /// Muallif o'/g' apostrofini umuman qo'ymaydi: matnda o'/g' + apostrof yo'q, matn o'zbekcha, va kamida bitta
 /// so'z aniq tiklanadi (ozbek → o'zbek). Shunda ikki ma'noli so'zlar ham (oz / o'z, yoq / yo'q) tiklanadi.
-fn writes_without_apostrophes(text: &str, toks: &[Tok], opts: &Options) -> bool {
-    if !opts.restore_apostrophes || toks.iter().map(|t| t.evidence).sum::<f32>() <= 0.0 {
-        return false;
+/// Qaytadi: (`loose`, matnda o'/g' apostrofi umuman yo'q).
+fn writes_without_apostrophes(text: &str, toks: &[Tok], opts: &Options) -> (bool, bool) {
+    if !opts.restore_apostrophes {
+        return (false, false);
     }
     let cores = || {
         toks.iter()
             .map(|t| token::split_edges(&text[t.start..t.end]).core)
     };
     if cores().any(has_og_apostrophe) {
-        return false;
+        return (false, false);
     }
-    cores().any(|c| {
-        !token::is_protected(c)
-            && !opts.is_exception(c)
-            && lang::restore_apostrophes(c, false, false).is_some()
+    let loose = toks.iter().map(|t| t.evidence).sum::<f32>() > 0.0
+        && cores().any(|c| {
+            !token::is_protected(c)
+                && !opts.is_exception(c)
+                && lang::restore_apostrophes(c, false, false).is_some()
+        });
+    (loose, true)
+}
+
+/// Yonma-yon bosh harfli nomlar (bog'lovchi "va" / "and" orqali ham) bitta zanjir: zanjirda xorijiy imlodagi nom
+/// bo'lsa, ikki xil o'qiladigan qo'shnisi ham xorijiy ("Charlie Chaplin", "Richard va Michelle").
+/// Vergul, nuqta zanjirni uzadi; o'zbekcha nom (Shohruh, `Other`) zanjirga kirmaydi.
+fn resolve_names(toks: &mut [Tok]) {
+    let is_name = |t: &Tok| matches!(t.name, NameKind::Foreign | NameKind::Maybe);
+    let mut i = 0;
+    while i < toks.len() {
+        if !is_name(&toks[i]) {
+            i += 1;
+            continue;
+        }
+        let mut j = i;
+        while j + 1 < toks.len() && !toks[j].clause_end && !toks[j].sentence_end {
+            let next = &toks[j + 1];
+            let linked = next.name == NameKind::Link
+                && !next.clause_end
+                && !next.sentence_end
+                && toks.get(j + 2).is_some_and(is_name);
+            if !(is_name(next) || linked) {
+                break;
+            }
+            j += if linked { 2 } else { 1 };
+        }
+        if toks[i..=j].iter().any(|t| t.name == NameKind::Foreign) {
+            for t in &mut toks[i..=j] {
+                if t.name == NameKind::Maybe {
+                    t.name = NameKind::Foreign;
+                }
+            }
+        }
+        i = j + 1;
+    }
+}
+
+/// Ikki ma'noli so'zning natijaga kirmagan o'qilishi (yangi alifboda). `conv` — konvertor bergan natija.
+fn alternative_of(tok: &str, conv: &str, opts: &Options) -> Option<String> {
+    let parts = token::split_edges(tok);
+    let core = parts.core;
+    if opts.is_exception(core) || !core.contains(['o', 'O', 'g', 'G']) {
+        return None;
+    }
+    let alt = lang::alternative(core)?;
+    let render = |c: &str| {
+        format!(
+            "{}{}{}",
+            parts.lead,
+            latin::to_new(c, opts.tutuq),
+            parts.trail
+        )
+    };
+    let restored = render(&alt);
+    Some(if conv == restored {
+        render(core)
+    } else {
+        restored
     })
 }
 
 /// Matnni yangi alifboga o'giradi. Bo'shliqlar va qator tuzilishi aynan saqlanadi.
 pub fn convert(text: &str, opts: &Options) -> String {
-    convert_explained(text, opts).0
+    convert_impl(text, opts, false).0
 }
 
 /// O'girish va har bir token bo'yicha sabab (`bitg explain` uchun).
 pub fn convert_explained(text: &str, opts: &Options) -> (String, Vec<(String, Reason, f32)>) {
+    let (out, words) = convert_words(text, opts);
+    (
+        out,
+        words
+            .into_iter()
+            .map(|w| (w.token, w.reason, w.evidence))
+            .collect(),
+    )
+}
+
+/// O'girish va har bir token bo'yicha to'liq ma'lumot, ikki ma'noli so'zlarning muqobili bilan (sayt, CLI).
+pub fn convert_words(text: &str, opts: &Options) -> (String, Vec<Word>) {
+    convert_impl(text, opts, true)
+}
+
+fn convert_impl(text: &str, opts: &Options, want_alts: bool) -> (String, Vec<Word>) {
     let text = normalize(text);
     let text = text.as_ref();
     let mut toks = tokens(text);
     for t in &mut toks {
         let core = token::split_edges(&text[t.start..t.end]).core;
-        t.evidence = if opts.english_guard {
-            lang::evidence(core)
-        } else {
-            0.0
-        };
+        if opts.english_guard {
+            t.evidence = lang::evidence(core);
+            t.name = lang::name_kind(core);
+        }
     }
-    let loose = writes_without_apostrophes(text, &toks, opts);
+    if opts.english_guard {
+        resolve_names(&mut toks);
+    }
+    let (loose, no_og) = writes_without_apostrophes(text, &toks, opts);
     let mut out = String::with_capacity(text.len() + 16);
     let mut report = Vec::with_capacity(toks.len());
     let mut last = 0;
@@ -461,8 +575,28 @@ pub fn convert_explained(text: &str, opts: &Options) -> (String, Vec<(String, Re
         }
         let ctx = context(&toks, sent_start..sent_end + 1, i - sent_start);
         let tok = &text[t.start..t.end];
-        let (conv, reason) = convert_token(tok, opts, t.evidence, ctx, loose, &mut quote_open);
-        report.push((tok.to_string(), reason, t.evidence));
+        let hints = Hints {
+            loose,
+            foreign_name: t.name == NameKind::Foreign,
+        };
+        let (conv, reason) = convert_token(tok, opts, t.evidence, ctx, hints, &mut quote_open);
+        // Matnda o'/g' apostrofi yo'q: ikki ma'noli so'zning ikkinchi o'qilishi ko'rsatiladi.
+        let alt = if want_alts
+            && no_og
+            && ctx > RESTORE_CTX_MIN
+            && matches!(reason, Reason::Converted | Reason::Unchanged)
+            && !cyrillic::has_cyrillic(tok)
+        {
+            alternative_of(tok, &conv, opts)
+        } else {
+            None
+        };
+        report.push(Word {
+            token: tok.to_string(),
+            reason,
+            evidence: t.evidence,
+            alt,
+        });
         out.push_str(&conv);
         last = t.end;
     }
@@ -525,13 +659,34 @@ impl Session {
         };
         let trimmed = word_n
             .trim_end_matches(|c: char| matches!(c, '"' | '»' | '”' | ')') || is_apostrophe(c));
-        let me = Tok {
+        let mut me = Tok {
             start: 0,
             end: 0,
             evidence: own,
             sentence_end: trimmed.ends_with(SENTENCE_END),
             clause_end: trimmed.ends_with(CLAUSE_END),
+            name: if opts.english_guard {
+                lang::name_kind(core)
+            } else {
+                NameKind::Other
+            },
         };
+        // Yozish paytida faqat chap qo'shni ma'lum: "Charlie Chaplin" (Charlie oldin yozilgan) ushlanadi,
+        // "Richard va Michelle" dagi Richard esa Michelle yozilishidan oldin o'giriladi.
+        if me.name == NameKind::Maybe {
+            let n = self.recent.len();
+            let open = |t: &Tok| !t.clause_end && !t.sentence_end;
+            let prev = self.recent.last();
+            let chained = prev.is_some_and(|p| p.name == NameKind::Foreign && open(p))
+                || n >= 2
+                    && self.recent[n - 1].name == NameKind::Link
+                    && open(&self.recent[n - 1])
+                    && self.recent[n - 2].name == NameKind::Foreign
+                    && open(&self.recent[n - 2]);
+            if chained {
+                me.name = NameKind::Foreign;
+            }
+        }
         let mut window = self.recent.clone();
         window.push(me.clone());
         let mut ctx = context(&window, 0..window.len(), window.len() - 1);
@@ -541,7 +696,11 @@ impl Session {
         if uz && !en && own > 0.0 && core.starts_with(|c: char| c.is_lowercase()) {
             ctx = ctx.max(0.0);
         }
-        let (conv, _) = convert_token(word_n, opts, own, ctx, self.loose, &mut self.quote_open);
+        let hints = Hints {
+            loose: self.loose,
+            foreign_name: me.name == NameKind::Foreign,
+        };
+        let (conv, _) = convert_token(word_n, opts, own, ctx, hints, &mut self.quote_open);
         if has_og_apostrophe(core) {
             self.loose = false;
         } else if !self.loose && opts.restore_apostrophes && conv != word {

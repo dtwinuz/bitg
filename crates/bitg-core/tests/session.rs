@@ -69,3 +69,19 @@ fn english_words_and_brands_stay_while_typing() {
         assert_eq!(typed(&["men", w, "ochdim"])[1], w, "{w} in a sentence");
     }
 }
+
+#[test]
+fn foreign_names_while_typing() {
+    assert_eq!(typed(&["Michelle", "keldi"]), ["Michelle", "keldi"]);
+    // chap qo'shni xorijiy: Chaplin ham
+    assert_eq!(
+        typed(&["Charlie", "Chaplin", "va", "Chicago"]),
+        ["Charlie", "Chaplin", "va", "Chicago"]
+    );
+    assert_eq!(
+        typed(&["Michelle", "va", "Richard"]),
+        ["Michelle", "va", "Richard"]
+    );
+    assert_eq!(typed(&["Richard", "Gir"]), ["Riçard", "Gir"]);
+    assert_eq!(typed(&["eshikni", "ochmaydi"]), ["eşikni", "oçmaydi"]);
+}

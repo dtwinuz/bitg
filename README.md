@@ -41,7 +41,7 @@ O'zbekiston shaharlari
 | To'plam | Natija |
 |---|---|
 | O'zbekcha gaplar (3000 ta, kirill matndan: kirish = eski lotin, kutilgan = yangi lotin, apostrof turlari aralash) | **98.87%** (farqning ko'pi kirill korpus xatosi: maşğul, ğalaba) |
-| Apostrofsiz yozilgan o'zbekcha ("ozbek", "togri"; boshqa 3000 gap): butun gap to'g'ri | **81.30%** gap (2439/3000; lug'at kengaytirilgunga qadar 69.07%) |
+| Apostrofsiz yozilgan o'zbekcha ("ozbek", "togri"; boshqa 3000 gap): butun gap to'g'ri | **81.20%** gap (2436/3000; lug'at kengaytirilgunga qadar 69.07%). Ikki ma'noli so'z (`ochmaydi`, `otdim`) endi jim tiklanmaydi: 3 gap to'g'rilandi, 10 so'z (`otmoqchi`, `oqdan`) yozilganicha qoladi va "tekshiring" deb belgilanadi |
 | Inglizcha gaplar (sh/ch/apostrof bor, 3000 ta, Leipzig news + web) — o'zgarmasligi kerak | **99.73%** |
 | Tezlik | 2.7 µs/so'z o'zbekcha, 1.4 µs/so'z inglizcha matnda (release, x64) |
 
@@ -338,6 +338,22 @@ tayyor hash-jadval bo'lib kiradi (`crates/bitg-core/build.rs`).
 | `sh_split.tsv` | kirillda s+h alohida so'zlar (Исҳоқ, нусҳа, Мусҳаф): `sh` → ş bo'lmaydi | yuqoridagi kirill gaplar |
 | `en.tsv` | inglizcha so'z → SCOWL darajasi | [SCOWL 2020.12.07](http://wordlist.aspell.net/) (Kevin Atkinson, ruxsat beruvchi litsenziya) |
 | `names.txt` | brendlar (qo'lda) | — |
+| `foreign_names.txt` (1 394 nom) | faqat xorijiy imloda uchraydigan kishi/joy nomlari (ch/sh bor, `uz.tsv` da yo'q): `Michelle`, `Rachel`, `Sanchez` | SCOWL `*-proper-names` (daraja ≤ 80), `tools/build_foreign_names.py` |
+
+**Nomlar.** O'zbek imlosida ham shunday yoziladigan nom (Ричард → `Richard`, `Pushkin`, `Shohruh`) o'giriladi:
+`Riçard`, `Puşkin`. Xorijiy imlodagi nom (o'zbek korpusida yo'q, inglizcha nomlar ro'yxatida bor yoki o'zbek
+lotinida bo'lmaydigan belgi bor: yolg'iz `c`, `w`, `th`, `-lle`) o'girilmaydi — `Miçelle` hech bir imloda to'g'ri
+emas. Yonma-yon nomlar (bog'lovchi `va`/`and` orqali ham) bitta zanjir: zanjirda xorijiy nom bo'lsa, ikki xil
+o'qiladigan qo'shnisi ham asl yozuvida qoladi (`Charlie Chaplin`, `Richard va Michelle`). Vergul zanjirni uzadi;
+xorijiy nom gap tilini belgilamaydi (`Chicagoda yaşaydi`). Yozish paytida (IME) faqat chap qo'shni ma'lum:
+`Charlie Chaplin` ushlanadi, `Richard va Michelle` dagi `Richard` esa `Michelle` yozilishidan oldin o'giriladi.
+
+**Ikki ma'noli so'zlar.** Apostrofsiz so'z ikki haqiqiy o'zakdan yasalgan bo'lsa (`och|maydi` / `o'ch|maydi`,
+`ot|dim` / `o't|dim`), apostrofsiz shakli korpusda uchramasa va apostrofli nomzod ham siyrak bo'lsa (og'irlik < 3.0),
+chastota hech narsa demaydi — so'z yozilganicha qoladi. Nomzod keng tarqalgan bo'lsa (`oqish` → `o'qish`,
+`boyicha` → `bo'yicha`) shaklning yo'qligining o'zi dalil va tiklanadi. Matnda o'/g' apostrofi umuman bo'lmasa,
+bunday so'zlarning ikkinchi o'qilishi `convert_words` (`Word::alt`), `bitg explain` va saytdagi konvertorda
+ko'rsatiladi: so'z sariq belgilanadi, bosilsa boshqa o'qilishiga almashadi.
 
 Faqat CC0 / CC BY / ruxsat beruvchi manbalar. O'zbek Vikipediyasi dumpi (CC BY-SA) ataylab ishlatilmaydi:
 ShareAlike sharti MIT / Apache-2.0 binarga mos emas. Leipzig'ning yuklab olinadigan korpuslari CC BY 4.0
@@ -352,7 +368,8 @@ bilan: 98.87% / 68.50% / 99.73%.
 |---|---|---|---|---|---|
 | avvalgi (eval gaplari sanoqda bor edi) | 99.17% | 69.07% | 99.73% | 45 614 so'z, 736 KB | 2.78 MB |
 | avvalgi manbalar, eval chiqarilgan | 98.87% | 68.50% | 99.73% | 45 021 so'z | — |
-| **hozirgi** | **98.87%** | **81.30%** | **99.73%** | 71 933 so'z, 1.1 MB | 3.73 MB |
+| 0.2.0 | 98.87% | 81.30% | 99.73% | 71 933 so'z, 1.1 MB | 3.73 MB |
+| **hozirgi** (ikki ma'noli so'z tiklanmaydi, xorijiy nomlar) | **98.87%** | **81.20%** | **99.73%** | 71 933 so'z, 1.1 MB | — |
 
 Apostrofsiz matndagi o'sish manbalari: kengroq lug'at; kirillda uchramaydigan apostrofsiz shakl `0` og'irlik
 bilan yoziladi (aks holda `boladi` o'zak orqali `bola|di` deb hisoblanib, `bo'ladi` tiklanmasdi); chiziqchali so'z
