@@ -10,11 +10,11 @@ of v1.0 is to be ready before the new alphabet becomes mandatory (April 2027).
 - **v0.2.0** — Linux: IBus engine in a `.deb`, Fcitx5 add-on (testing), end-to-end tests with a real `ibus-daemon`.
 - **v0.3.0** — macOS beta (InputMethodKit, universal `.pkg`), ambiguous words are no longer guessed (#5), foreign
   names keep their spelling (#6), bitg.uz with the WebAssembly playground, a signed apt repository, Homebrew cask.
+- **v0.3.1** — Windows keeps bitg selected when activation fails (#13) and stays off in password, PIN and e-mail
+  fields (#26); every release ships SLSA build provenance and an SBOM (`gh attestation verify`); reproducible `.deb`.
 
 ## Next: v0.3.x (November–December 2026)
 
-- Windows: keep bitg selected when activation fails (#13), ships in v0.3.1.
-- Every release ships SLSA build provenance and an SBOM (`gh attestation verify`).
 - winget package `dtwinuz.bitg` accepted in microsoft/winget-pkgs.
 - OpenSSF Best Practices silver: governance, architecture and assurance documents, test coverage in CI.
 

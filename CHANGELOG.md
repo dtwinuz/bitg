@@ -7,6 +7,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [0.3.1] — 2026-11-13
 
 Asosiysi: Windows'da bitg o'z-o'zidan inglizcha klaviaturaga o'tib ketmaydi ([#13](https://github.com/dtwinuz/bitg/issues/13)),
+parol, PIN va email maydonlariga tegmaydi ([#26](https://github.com/dtwinuz/bitg/issues/26)),
 har reliz fayli imzolangan kelib chiqish (provenance) bilan tekshiriladi.
 
 ### Qo'shildi
