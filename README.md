@@ -156,7 +156,7 @@ O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bit
 [Releases](https://github.com/dtwinuz/bitg/releases) dan paketni oling. IBus (Ubuntu, Debian GNOME standarti):
 
 ```bash
-sudo apt install ./bitg_0.2.0_amd64.deb      # IBus dvigateli + bitg CLI
+sudo apt install ./bitg_0.3.0_amd64.deb      # IBus dvigateli + bitg CLI
 ibus restart                                  # yoki tizimdan chiqib qayta kiring
 ```
 
@@ -172,7 +172,7 @@ sudo apt update && sudo apt install bitg     # Fcitx5: fcitx5-bitg
 ```
 
 So'ng **Sozlamalar → Klaviatura → Kiritish manbasi qo'shish → O'zbek → bitg** va **Super + Probel** bilan tanlang.
-Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.2.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
+Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.3.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
 qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 
 | Nima | Qayerda |
@@ -188,12 +188,12 @@ Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linu
 ### O'rnatish (macOS 11+, Apple M va Intel) — sinov
 
 [bitg.uz/yuklab-olish](https://bitg.uz/yuklab-olish/#mac) dan `bitg-<versiya>-macos.pkg` ni oling (SHA-256 shu
-sahifada; v0.2.0 dan keyingi versiyalarda [Releases](https://github.com/dtwinuz/bitg/releases) da ham): bitta universal fayl
+sahifada va [Releases](https://github.com/dtwinuz/bitg/releases) da): bitta universal fayl
 (arm64 + x86_64). O'rnatuvchi hozircha Apple imzosiz — ochilmasa **Tizim sozlamalari → Maxfiylik va xavfsizlik →
 Baribir ochish**, yoki terminalda:
 
 ```bash
-sudo installer -pkg ~/Downloads/bitg-0.2.0-macos.pkg -target /
+sudo installer -pkg ~/Downloads/bitg-0.3.0-macos.pkg -target /
 ```
 
 bitg `/Library/Input Methods/bitg.app` ga yoziladi va kiritish manbalariga o'zi qo'shiladi (ko'rinmasa — tizimdan

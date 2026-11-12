@@ -1,6 +1,6 @@
 name: release
 
-# Faqat versiya tegi (v0.2.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
+# Faqat versiya tegi (v0.3.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
 # imzolanadi va hammasi bitta GitHub Release'ga yuklanadi.
 on:
   push:

@@ -37,7 +37,7 @@ body:
     id: version
     attributes:
       label: bitg versiyasi
-      placeholder: "0.2.0 (sozlamalar oynasida yoki `bitg --version`)"
+      placeholder: "0.3.0 (sozlamalar oynasida yoki `bitg --version`)"
     validations:
       required: true
   - type: textarea

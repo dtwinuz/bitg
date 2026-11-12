@@ -4,7 +4,7 @@
 
 .EXAMPLE
   pwsh installer/build.ps1                       # versiya Cargo.toml'dan, imzosiz
-  pwsh installer/build.ps1 -Version 0.2.0
+  pwsh installer/build.ps1 -Version 0.3.0
   pwsh installer/build.ps1 -CertThumbprint ABC…  # sertifikat do'konidagi kalit bilan imzolash
 
   CI: BITG_SIGN_PFX (base64) va BITG_SIGN_PFX_PASSWORD bo'lsa — PFX bilan imzolanadi.

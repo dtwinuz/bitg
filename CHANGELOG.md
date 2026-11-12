@@ -4,6 +4,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-11-12
+
 ### Tuzatildi
 - **Ikki ma'noli so'zlar jim o'girilmaydi** ([#5](https://github.com/dtwinuz/bitg/issues/5)). Apostrofsiz yozilgan
   so'z ikki haqiqiy o'zakdan yasalgan bo'lsa (`ochmaydi` / `o'chmaydi`, `otdim` / `o'tdim`) va chastota hal qila
@@ -13,6 +15,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   o'giriladi (`Riçard Gir`, `Puşkin`, `Şohruh`). Xorijiy nom gap tilini belgilamaydi: `Chicagoda yaşaydi`.
 
 ### Qo'shildi
+- **macOS 11+ (Apple M va Intel) — sinov.** InputMethodKit kiritish usuli, bitta universal `bitg-0.3.0-macos.pkg`
+  (Apple imzosiz). Terminallarda o'chiq; menyudan yoqish/o'chirish, dasturda o'chirish va istisnolar.
+  CI: arm64 va Intel Mac'da sinov va o'rnatish; haqiqiy IMK orqali `macos/test/e2e.swift` (qo'lda, real Mac'da).
 - Saytdagi konvertor ikki ma'noli so'zni sariq belgilaydi; bosilsa boshqa o'qilishiga almashadi.
   `bitg explain` ham ko'rsatadi, yadroda — `convert_words` / `Word::alt`.
 - `foreign_names.txt` (SCOWL proper names, 1 394 nom) va `tools/build_foreign_names.py`.
@@ -65,5 +70,6 @@ Birinchi ommaviy beta (Windows 10/11, x64).
 - MSI o'rnatuvchi (WiX 5): barcha foydalanuvchilar uchun, jim o'rnatish, `AUTOSTART` / `ADDKEYBOARD` xossalari.
 - O'lchov: o'zbekcha gaplar 98,87 %, inglizcha gaplar o'zgarmay qolishi 99,73 % (har biri 3 000 gap).
 
+[0.3.0]: https://github.com/dtwinuz/bitg/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dtwinuz/bitg/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dtwinuz/bitg/releases/tag/v0.1.0
