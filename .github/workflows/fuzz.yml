@@ -33,9 +33,10 @@ jobs:
         run: |
           d=fuzz/corpus/${{ matrix.target }}; mkdir -p "$d"
           # birinchi bayt — Options bayroqlari (0x0f: hammasi yoqiq), keyin gap
-          cut -f1 eval/uz.tsv eval/en.tsv | grep -v '^#' | head -n 4000 | split -l 1 - "$d/eval-"
+          # TSV: til <TAB> kirish <TAB> kutilgan — 2-ustun; ikkala tildan 2000 tadan
+          for t in uz en; do grep -v '^#' "eval/$t.tsv" | cut -f2 | head -n 2000; done | split -l 1 -a 4 - "$d/eval-"
           for f in "$d"/eval-*; do { printf '\x0f'; cat "$f"; } > "$f.seed" && rm "$f"; done
-          ls "$d" | wc -l
+          n=$(find "$d" -type f | wc -l); echo "korpus: $n"; [ "$n" -ge 3000 ] || { echo "korpus juda kichik"; exit 1; }
       - name: Fuzz (3 daqiqa)
         run: cargo +nightly fuzz run ${{ matrix.target }} fuzz/corpus/${{ matrix.target }} -- -max_total_time=180 -max_len=4096 -timeout=10
       - name: Topilgan xato
