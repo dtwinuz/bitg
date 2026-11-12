@@ -1,0 +1,94 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: demo
+
+# README'dagi docs/media/demo.gif: Release'dagi MSI haqiqiy Windows'ga o'rnatiladi, gaplar SendInput bilan
+# teriladi va oyna yozib olinadi (tools/demo). Matn yadro natijasiga mos kelmasa GIF chiqmaydi.
+# Natija artifact sifatida yuklanadi; uni ko'rib, PR bilan docs/media/demo.gif ga qo'yiladi.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release versiyasi (masalan 0.3.0); bo'sh = oxirgi"
+        required: false
+        default: ""
+  pull_request:
+    paths: ["tools/demo/**", ".github/workflows/demo.yml"]
+
+concurrency:
+  group: demo-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: MSI (Release, SHA-256 va provenance tekshiriladi)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          $tag = if ($env:VERSION) { "v$env:VERSION" } else { gh release view -R $env:GITHUB_REPOSITORY --json tagName -q .tagName }
+          gh release download $tag -R $env:GITHUB_REPOSITORY -p 'bitg-*-x64.msi' -p 'bitg-*-x64.msi.sha256' -D dist
+          $msi = (Get-ChildItem dist/*.msi | Select-Object -First 1)
+          $want = ((Get-Content "$($msi.FullName).sha256") -split '\s+')[0]
+          $got = (Get-FileHash $msi.FullName -Algorithm SHA256).Hash.ToLower()
+          if ($got -ne $want) { throw "SHA-256 mos emas: $got != $want" }
+          # provenance v0.3.1 dan beri bor (#16); undan eski relizlarda faqat SHA-256
+          gh attestation verify $msi.FullName -R $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE) { "::warning::$tag uchun provenance topilmadi, faqat SHA-256 tekshirildi"; $global:LASTEXITCODE = 0 }
+          "MSI=$($msi.FullName)" >> $env:GITHUB_ENV
+          "TAG=$tag" >> $env:GITHUB_ENV
+
+      - name: O'rnatish
+        shell: pwsh
+        run: |
+          $p = Start-Process msiexec.exe -Wait -PassThru -ArgumentList @(
+            '/i', "`"$env:MSI`"", '/qn', '/l*v', "`"$env:RUNNER_TEMP\msi.log`"", 'AUTOSTART=0', 'ADDKEYBOARD=0')
+          if ($p.ExitCode) { throw "msiexec $($p.ExitCode)" }
+          & "$env:ProgramFiles\bitg\bitg.exe" --version
+
+      - name: Klaviaturani foydalanuvchiga qo'shish
+        shell: powershell
+        run: |
+          $tip = '0443:{E37D4F70-F82A-435E-AF8B-82E264391062}{BED48FC8-8690-4712-BBE0-1FD3284CE7B7}'
+          $l = Get-WinUserLanguageList
+          if (-not ($l | Where-Object LanguageTag -like 'uz-Latn*')) { $l.Add('uz-Latn') }
+          $uz = $l | Where-Object LanguageTag -like 'uz-Latn*' | Select-Object -First 1
+          $uz.InputMethodTips.Clear()
+          $uz.InputMethodTips.Add($tip)
+          Set-WinUserLanguageList $l -Force
+
+      - name: Demo kadrlari
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tools/demo/demo.ps1 -Out "$env:RUNNER_TEMP\demo"
+
+      - name: GIF
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check -q pillow==11.3.0
+          python tools/demo/make_gif.py "$env:RUNNER_TEMP\demo" "$env:RUNNER_TEMP\out\demo.gif" | Tee-Object -Variable info
+          Copy-Item "$env:RUNNER_TEMP\demo\demo.txt", "$env:RUNNER_TEMP\demo\frames.tsv" "$env:RUNNER_TEMP\out"
+          "### demo.gif ($env:TAG)`n`n$info" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Log (xato bo'lsa)
+        if: ${{ failure() }}
+        shell: pwsh
+        run: |
+          Get-Content "$env:RUNNER_TEMP\demo\demo.txt" -ErrorAction SilentlyContinue
+          Get-Content "$env:LOCALAPPDATA\bitg\tsf.log" -Tail 60 -ErrorAction SilentlyContinue
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: demo-gif
+          path: ${{ runner.temp }}/out
+          if-no-files-found: error
