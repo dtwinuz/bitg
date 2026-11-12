@@ -12,7 +12,7 @@ pkgbase = bitg
 	makedepends = pkgconf
 	options = !lto
 	source = bitg-0.3.1.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v0.3.1.tar.gz
-	sha256sums = 2e91cd7ca579f8702fad0222c2655d9674614a09d4d82f57580669fcb2fb4ad0
+	sha256sums = 304dadba6b5b871ab7ebc2246733b1cb4e4fae629a54d966b857a63a4a19a166
 
 pkgname = bitg
 	depends = ibus
