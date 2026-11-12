@@ -7,6 +7,9 @@ contact_links:
   - name: Savol-javob
     url: https://bitg.uz/savollar/
     about: O'rnatish va ishlatish bo'yicha tez-tez beriladigan savollar
+  - name: Savol yoki g'oya (Discussions)
+    url: https://github.com/dtwinuz/bitg/discussions
+    about: Xato bo'lmagan savol, g'oya va tajriba almashish uchun ochiq forum
   - name: Telegram kanal
     url: https://t.me/bitguz
     about: Yangiliklar va qisqa savollar

@@ -16,6 +16,13 @@
 O'RQ-1184 qonuni (2026-10-21) to'rtta harfni almashtirdi: **Oʻ → Ö, Gʻ → Ğ, Sh → Ş, Ch → Ç**. Qonun 2027-yil
 aprelida kuchga kiradi. bitg — shu o'tishni bir klaviatura bosishiga aylantiradigan ochiq kodli yadro va ilovalar.
 
+<p align="center">
+  <img src="docs/media/demo.gif" width="720" alt="bitg Windows'da: eskicha yozilgan «O'zbekiston shaharlari: Toshkent» probel bosilishi bilan «Özbekiston şaharlari: Toşkent» bo'ladi; «Please check the schedule» inglizcha qoladi, «keyin choy ichamiz» esa «keyin çoy içamiz» bo'ladi">
+</p>
+
+<sub>Haqiqiy yozuv: Release'dagi MSI toza Windows VM'ga o'rnatilgan, tugmalar odam tezligida bosilgan, natija yadro bilan
+solishtirilgan ([`tools/demo`](tools/demo), [`demo.yml`](.github/workflows/demo.yml)).</sub>
+
 ```text
 $ bitg "O'zbekiston shaharlari: Toshkent, Samarqand"
 Özbekiston şaharlari: Toşkent, Samarqand
@@ -115,6 +122,14 @@ foydalanuvchilar uchun ishlaydi. Oxirida bitg ochiladi va klaviaturani O'zbek (l
 **Win + Probel** bilan «bitg» ni tanlang. Yangilash ham shu fayl bilan qilinadi: ochiq dasturlarni (Chrome, Telegram)
 yopish va kompyuterni qayta yuklash shart emas.
 
+**winget** — paket Microsoft katalogida ko'rib chiqilmoqda
+([microsoft/winget-pkgs#478645](https://github.com/microsoft/winget-pkgs/pull/478645), avtomatik tekshiruvlar o'tgan).
+Qabul qilingach:
+
+```powershell
+winget install dtwinuz.bitg
+```
+
 | Nima | Qayerda |
 |---|---|
 | Ilova (tray + sozlamalar), CLI, litsenziyalar | `C:\Program Files\bitg\` (CLI PATH'ga qo'shiladi) |
@@ -126,9 +141,10 @@ yopish va kompyuterni qayta yuklash shart emas.
 **Korporativ tarqatish** (GPO, Intune, SCCM, PDQ):
 
 ```powershell
-msiexec /i bitg-0.1.0-x64.msi /qn /l*v bitg-install.log            # jim o'rnatish
-msiexec /i bitg-0.1.0-x64.msi /qn AUTOSTART=0 ADDKEYBOARD=0         # trayni va klaviaturani avtomatik qo'shmaslik
-msiexec /x bitg-0.1.0-x64.msi /qn                                   # o'chirish
+$msi = (Get-Item .\bitg-*-x64.msi).FullName                      # Release'dan olingan fayl
+msiexec /i $msi /qn /l*v bitg-install.log                         # jim o'rnatish
+msiexec /i $msi /qn AUTOSTART=0 ADDKEYBOARD=0                     # trayni va klaviaturani avtomatik qo'shmaslik
+msiexec /x $msi /qn                                               # o'chirish
 ```
 
 | Xossa | Standart | Ma'nosi |
@@ -146,7 +162,8 @@ SmartScreen notanish nashriyotchi haqida ogohlantiradi. **Batafsil → Baribir i
 tekshirish: Release sahifasidagi `.sha256` bilan solishtiring:
 
 ```powershell
-Get-FileHash .\bitg-0.1.0-x64.msi -Algorithm SHA256   # Release'dagi .sha256 bilan bir xil bo'lishi kerak
+Get-FileHash .\bitg-*-x64.msi -Algorithm SHA256        # Release'dagi .sha256 bilan bir xil bo'lishi kerak
+gh attestation verify .\bitg-*-x64.msi -R dtwinuz/bitg  # GitHub Actions'da shu repodan yig'ilganini isbotlaydi (v0.3.1+)
 ```
 
 O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bitg-<versiya>-x64.msi` + `.sha256`.
@@ -186,6 +203,10 @@ qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 Matnni bermaydigan dasturlarda so'z yozilayotganda tagi chizilgan (preedit) ko'rinadi va probelda o'girilib yoziladi.
 Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linux/build-deb.sh` (`libibus-1.0-dev`,
 `libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`.
+
+**Arch Linux** (Manjaro, EndeavourOS): [`packaging/aur/PKGBUILD`](packaging/aur) manbadan yig'adi va ikkita paket
+beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
+AUR'da e'lon qilingach: `yay -S bitg`.
 
 ### O'rnatish (macOS 11+, Apple M va Intel) — sinov
 
@@ -437,7 +458,8 @@ tartibi (Windows, macOS) bitg'da `tilmoch` tartibi sifatida bor.
 
 ## Hissa qo'shish
 
-Xato, noto'g'ri o'girilgan so'z yoki taklif — [issue](https://github.com/dtwinuz/bitg/issues/new/choose). Kod bilan
+Xato, noto'g'ri o'girilgan so'z yoki taklif — [issue](https://github.com/dtwinuz/bitg/issues/new/choose). Savol va
+g'oyalar — [Discussions](https://github.com/dtwinuz/bitg/discussions). Kod bilan
 yordam: [CONTRIBUTING.md](CONTRIBUTING.md). Zaiflik haqida yopiq xabar: [SECURITY.md](SECURITY.md). O'zgarishlar
 tarixi: [CHANGELOG.md](CHANGELOG.md).
 

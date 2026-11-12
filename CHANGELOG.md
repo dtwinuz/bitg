@@ -33,6 +33,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   har akkauntga logotipning o'z rangli varianti. @bitguz posti bitg'ning o'zi bilan yangi alifboga o'giriladi.
 - **@bitgapp** (mobil ilova kanali): "tez kunda" posti, telefonda hozir ishlaydigan yo'llar (@bitguzbot, Tilmoch),
   binafsha logotip; @bitguz tavsifidan havola.
+- **@bitguzbot qayta ishga tushsa ham `/fikr` yo'qolmaydi:** kutish holati va admin suhbatlari `STATE_DIR/state.json`
+  da saqlanadi. Bot har 30 soniyada tiriklik belgisini yozadi; `bitg-stats` u 5 daqiqadan eskirsa @bitgdevbot orqali
+  ogohlantiradi (kuzatuv jadvalida ham ko'rinadi).
+- **@bitguz rejali postlari:** `deploy/stats/posts/YYYY-MM-DD-nom.html` o'sha kuni 10:00 dan keyin bir marta chiqadi
+  (`bitg-stats`, @bitgdevbot). Birinchi seriya — sayt sahifalaridagi manbali faktlardan 8 ta post (alifbo, qonun
+  sanalari, hujjatlar, kompyuter va telefonda yozish, tutuq belgisi, maktab, inglizcha so'zlar).
 
 ### O'zgardi
 - Saytdagi "Telegram'da yozing" havolalari kanal (@bitguz, u yerga yozib bo'lmaydi) o'rniga @bitguzbot `/fikr` ga

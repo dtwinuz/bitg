@@ -63,7 +63,7 @@ APT_GNUPG="${BITG_APT_GNUPG:-$HOME/.bitg-apt-gnupg}"
   "dist/bitg_${VER}_amd64.deb" "dist/fcitx5-bitg_${VER}_amd64.deb" || fail "apt ombori yig'ilmadi"
 
 cp "$STAGE/src/deploy/docker-compose.yml" "$STAGE/src/deploy/Caddyfile" "$STAGE/src/deploy/set-stats-env.sh" "$STAGE/out/"
-mkdir -p "$STAGE/out/stats" && cp "$STAGE/src/deploy/stats/stats.py" "$STAGE/out/stats/"
+mkdir -p "$STAGE/out/stats" && cp -r "$STAGE/src/deploy/stats/stats.py" "$STAGE/src/deploy/stats/posts" "$STAGE/out/stats/"
 "${PYTHON:-python}" -I "$STAGE/out/stats/stats.py" --selftest >/dev/null || fail "stats.py selftest"
 
 tar -czf - -C "$STAGE/out" site stats docker-compose.yml Caddyfile set-stats-env.sh \

@@ -12,6 +12,7 @@
 /tools/make_brand_teaser.ps1
 __pycache__/
 /fuzz/target
+/bot/target
 /fuzz/corpus
 /fuzz/artifacts
 /fuzz/coverage

@@ -1,0 +1,72 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# Maintainer: dtwinuz <info@dtwin.uz>
+
+# Manbadan yig'iladi: IBus dvigateli + CLI (bitg) va Fcitx5 qo'shimchasi (fcitx5-bitg).
+# Yangi versiya: pkgver, sha256sums, keyin `makepkg --printsrcinfo > .SRCINFO` (packaging/aur/README.md).
+pkgbase=bitg
+pkgname=(bitg fcitx5-bitg)
+pkgver=0.3.0
+pkgrel=1
+pkgdesc='Uzbek input method for the new 2026 Latin alphabet'
+arch=(x86_64 aarch64)
+url='https://bitg.uz'
+license=('MIT OR Apache-2.0')
+makedepends=(cargo ibus fcitx5 pkgconf)
+# Rust staticlib (libbitg_ime.a, o'zi LTO bilan) C/C++ qobiqqa bog'lanadi: makepkg'ning -flto'si bilan aralashtirmaymiz
+options=(!lto)
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('58f86e7ae88dc4bc76bfe5a6fc84e5f0d2ffddf09983748e16add007c0e01bbd')
+
+prepare() {
+  cd "$pkgbase-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "$pkgbase-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable CARGO_TARGET_DIR=target
+  cargo build --frozen --release -p bitg-ime -p bitg-cli
+  make -C linux/ibus VERSION="$pkgver"
+  # Arch'dagi Fcitx5 sarlavhalari std::span ishlatadi (C++20); keyingi -std oldingisini bosadi
+  make -C linux/fcitx5 CXXFLAGS="$CXXFLAGS -std=c++20"
+}
+
+check() {
+  cd "$pkgbase-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable CARGO_TARGET_DIR=target
+  cargo test --frozen --release -p bitg-ime
+  test "$(target/release/bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+  test "$(target/release/bitg 'Please check the schedule')" = 'Please check the schedule'
+}
+
+package_bitg() {
+  depends=(ibus glib2 gcc-libs glibc)
+  optdepends=('fcitx5-bitg: the same input method for Fcitx5')
+  cd "$pkgbase-$pkgver"
+  install -Dm755 target/release/bitg "$pkgdir/usr/bin/bitg"
+  # Arch'da IBus dvigatellari /usr/lib/ibus ichida (Debian: /usr/libexec)
+  install -Dm755 linux/ibus/ibus-engine-bitg "$pkgdir/usr/lib/ibus/ibus-engine-bitg"
+  install -d "$pkgdir/usr/share/ibus/component"
+  sed -e "s/@VERSION@/$pkgver/" -e 's|/usr/libexec/ibus-engine-bitg|/usr/lib/ibus/ibus-engine-bitg|' \
+    linux/ibus/bitg.xml > "$pkgdir/usr/share/ibus/component/bitg.xml"
+  chmod 644 "$pkgdir/usr/share/ibus/component/bitg.xml"
+  install -Dm644 web/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/bitg.svg"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE-MIT LICENSE-APACHE
+}
+
+package_fcitx5-bitg() {
+  pkgdesc+=' (Fcitx5)'
+  depends=(fcitx5 gcc-libs glibc)
+  cd "$pkgbase-$pkgver"
+  install -Dm755 linux/fcitx5/bitg.so "$pkgdir/usr/lib/fcitx5/bitg.so"
+  install -d "$pkgdir/usr/share/fcitx5/addon" "$pkgdir/usr/share/fcitx5/inputmethod"
+  sed "s/@VERSION@/$pkgver/" linux/fcitx5/bitg-addon.conf > "$pkgdir/usr/share/fcitx5/addon/bitg.conf"
+  sed 's/^Icon=bitg$/Icon=fcitx-bitg/' linux/fcitx5/bitg-im.conf > "$pkgdir/usr/share/fcitx5/inputmethod/bitg.conf"
+  chmod 644 "$pkgdir/usr/share/fcitx5/addon/bitg.conf" "$pkgdir/usr/share/fcitx5/inputmethod/bitg.conf"
+  install -Dm644 web/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/fcitx-bitg.svg"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE-MIT LICENSE-APACHE
+}
