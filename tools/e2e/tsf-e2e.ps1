@@ -175,6 +175,28 @@ $steps = @(
     { TypeKeys 'a ' }, $w,
     { ClearBox }, { TypeKeys '[x]' }, $w, { Check 'keymap off: plain keys' '[x]' }
 )
+# 7) Maxfiy maydon (#26): email input scope'li yangi maydonda so'z o'zgarmaydi, oddiy maydonda yana o'giriladi.
+# Yangi TextBox — yangi TSF hujjati, IME maydon turini qaytadan o'qiydi.
+function NewBox([string]$scopeName) {
+    $script:tb = New-Object System.Windows.Controls.TextBox
+    $script:tb.FontSize = 20
+    if ($scopeName) {
+        $is = New-Object System.Windows.Input.InputScope
+        $n = New-Object System.Windows.Input.InputScopeName
+        $n.NameValue = $scopeName
+        $is.Names.Add($n)
+        $script:tb.InputScope = $is
+    }
+    $win.Content = $script:tb
+}
+if ($Ui -eq 'wpf') {
+    $steps += @(
+        { NewBox 'EmailSmtpAddress' }, $w, { Focus }, $w,
+        { TypeKeys 'shahar ' }, $w, { Check 'sensitive: email field untouched' 'shahar ' },
+        { NewBox '' }, $w, { Focus }, $w,
+        { TypeKeys 'shahar ' }, $w, { Check 'sensitive: plain field converts again' 'şahar ' }
+    )
+}
 
 $script:k = 0
 $tick = {

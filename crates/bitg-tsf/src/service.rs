@@ -22,6 +22,8 @@ use std::time::{Duration, Instant};
 use bitg_core::Session;
 use bitg_core::chars::fold_key;
 use windows::Win32::Foundation::{LPARAM, WPARAM};
+use windows::Win32::System::Com::CoTaskMemFree;
+use windows::Win32::System::Variant::{VT_I4, VT_UNKNOWN, VariantClear};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState, GetKeyState, GetKeyboardLayout, GetKeyboardState, INPUT, INPUT_0,
     INPUT_KEYBOARD, KEYBD_EVENT_FLAGS, KEYBDINPUT, KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP,
@@ -30,6 +32,10 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     VK_LBUTTON, VK_LCONTROL, VK_LEFT, VK_LMENU, VK_LSHIFT, VK_LWIN, VK_MENU, VK_NEXT, VK_PACKET,
     VK_PRIOR, VK_RBUTTON, VK_RCONTROL, VK_RETURN, VK_RIGHT, VK_RMENU, VK_RSHIFT, VK_RWIN, VK_SHIFT,
     VK_SPACE, VK_TAB, VK_UP,
+};
+use windows::Win32::UI::TextServices::{
+    GUID_COMPARTMENT_KEYBOARD_DISABLED, GUID_PROP_INPUTSCOPE, ITfCompartmentMgr, ITfInputScope,
+    InputScope,
 };
 use windows::Win32::UI::TextServices::{
     INSERT_TEXT_AT_SELECTION_FLAGS, ITfCompositionSink, ITfContext, ITfContextComposition,
@@ -101,6 +107,9 @@ struct State {
     checked: Option<Instant>,
     /// Shu dasturda ishlaydimi (enabled va disabled_apps bo'yicha).
     active: bool,
+    /// Fokusdagi maydon maxfiymi (parol, PIN, email; dastur IME'ni o'chirgan). `None` — hali bilinmaydi:
+    /// input scope faqat edit cookie bilan o'qiladi, birinchi matn o'zgarishida aniqlanadi (#26).
+    sensitive: Option<bool>,
     /// Kontekst matnni bermayapti — zaxira yo'l ishlaydi.
     blind: bool,
     key_sink: bool,
@@ -241,6 +250,7 @@ impl Default for State {
             stamp: Default::default(),
             checked: None,
             active: false,
+            sensitive: None,
             blind: true,
             key_sink: false,
             typed: Typed::default(),
@@ -319,9 +329,9 @@ impl State {
         self.active
     }
 
-    /// So'zni o'girish kerakmi: shu dasturda yoqilgan va avto o'girish o'chirilmagan.
+    /// So'zni o'girish kerakmi: shu dasturda yoqilgan, avto o'girish o'chirilmagan va maydon maxfiy emas.
     fn converting(&mut self) -> bool {
-        self.refresh() && self.cfg.auto_convert
+        self.sensitive != Some(true) && self.refresh() && self.cfg.auto_convert
     }
 }
 
@@ -501,10 +511,20 @@ impl TextService_Impl {
             st.typed.boundary();
             st.undo = None;
         }
-        let Some(dim) = dim else { return };
-        let Ok(ctx) = (unsafe { dim.GetTop() }) else {
+        let Some(dim) = dim else {
+            self.state.borrow_mut().sensitive = None;
             return;
         };
+        let Ok(ctx) = (unsafe { dim.GetTop() }) else {
+            self.state.borrow_mut().sensitive = None;
+            return;
+        };
+        // Dastur IME'ni o'chirgan (Win32 parol maydoni va h.k.) — darhol ma'lum; aks holda input scope kutiladi.
+        let off = keyboard_disabled(&ctx);
+        self.state.borrow_mut().sensitive = if off { Some(true) } else { None };
+        if off {
+            log::write("sensitive field: keyboard disabled, off");
+        }
         let me: IUnknown = self.to_object().to_interface();
         let Ok(src) = ctx.cast::<ITfSource>() else {
             return;
@@ -516,6 +536,26 @@ impl TextService_Impl {
     }
 
     fn on_text_changed(&self, ctx: &ITfContext, ec: u32) -> Result<()> {
+        let known = self.state.borrow().sensitive;
+        let sensitive = match known {
+            Some(s) => s,
+            None => {
+                let s = sensitive_scope(ctx, ec);
+                self.state.borrow_mut().sensitive = Some(s);
+                if s {
+                    log::write("sensitive field: input scope, off");
+                }
+                s
+            }
+        };
+        if sensitive {
+            // matn eslab qolinmaydi — Backspace/undo va zaxira yo'l ham shu maydonda ishlamaydi
+            let mut st = self.state.borrow_mut();
+            st.last.clear();
+            st.session.reset();
+            st.undo = None;
+            return Ok(());
+        }
         let Some((_, before, reached_start)) = read_before_caret(ctx, ec)? else {
             return Ok(());
         };
@@ -1243,6 +1283,56 @@ fn drop_and_retype(back: usize, insert: &str, space: bool) -> bool {
     } else {
         log::write(&format!("fallback: SendInput sent {sent}/{}", inputs.len()));
         false
+    }
+}
+
+/// Dastur maydonda klaviatura kiritishini o'chirib qo'yganmi (`GUID_COMPARTMENT_KEYBOARD_DISABLED`).
+fn keyboard_disabled(ctx: &ITfContext) -> bool {
+    let Ok(mgr) = ctx.cast::<ITfCompartmentMgr>() else {
+        return false;
+    };
+    unsafe {
+        let Ok(comp) = mgr.GetCompartment(&GUID_COMPARTMENT_KEYBOARD_DISABLED) else {
+            return false;
+        };
+        let Ok(mut v) = comp.GetValue() else {
+            return false;
+        };
+        let inner = &v.Anonymous.Anonymous;
+        let off = inner.vt == VT_I4 && inner.Anonymous.lVal != 0;
+        let _ = VariantClear(&mut v);
+        off
+    }
+}
+
+/// Maydonning input scope'i maxfiymi (parol, PIN, email) — `GUID_PROP_INPUTSCOPE` (#26).
+fn sensitive_scope(ctx: &ITfContext, ec: u32) -> bool {
+    unsafe {
+        let read = || -> Result<bool> {
+            let prop = ctx.GetProperty(&GUID_PROP_INPUTSCOPE)?;
+            let range = ctx.GetStart(ec)?;
+            let mut v = prop.GetValue(ec, &range)?;
+            let inner = &v.Anonymous.Anonymous;
+            let mut found = false;
+            if inner.vt == VT_UNKNOWN
+                && let Some(unk) = inner.Anonymous.punkVal.as_ref()
+                && let Ok(scope) = unk.cast::<ITfInputScope>()
+            {
+                let mut p: *mut InputScope = std::ptr::null_mut();
+                let mut n = 0u32;
+                if scope.GetInputScopes(&mut p, &mut n).is_ok() && !p.is_null() {
+                    let ids: Vec<i32> = std::slice::from_raw_parts(p, n as usize)
+                        .iter()
+                        .map(|s| s.0)
+                        .collect();
+                    CoTaskMemFree(Some(p as *const _));
+                    found = plan::sensitive_input_scope(&ids);
+                }
+            }
+            let _ = VariantClear(&mut v);
+            Ok(found)
+        };
+        read().unwrap_or(false)
     }
 }
 

@@ -41,6 +41,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   (`set-stats-env.sh` tokenni so'raydi; bir nechta admin chat — vergul bilan).
 
 ### Tuzatildi
+- **Windows maxfiy maydonlar ([#26](https://github.com/dtwinuz/bitg/issues/26)):** bitg maydon turini (`InputScope`) o'zi o'qiydi va parol, PIN, email maydonlarida, shuningdek dastur klaviatura kiritishini o'chirganda so'zlarni o'zgartirmaydi.
 - Docker image'lari digest bilan, `rustup-init` versiya va SHA-256 bilan qotirildi; Dependabot Docker'ni ham kuzatadi. `osv-scanner.toml`: Linux'da hech qachon yig'ilmaydigan glib zanjiri uchun asoslangan istisno.
 - `bot/Cargo.lock` bitg-core 0.3.0 ga yangilandi: eskisi bilan bot Docker'da (`--locked`) yig'ilmas edi.
 - `SECURITY.md`: qo'llab-quvvatlanadigan versiya 0.3.x; `release.yml` umumiy ruxsati `contents: read` ga tushirildi.
