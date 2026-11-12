@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 LOGO = ROOT / "web" / "logo-512.png"
 CONTACT = "@Xakimov_Nosirbek"
 
-BLUE, GREEN, AMBER = (143, 176, 234), (124, 207, 165), (232, 179, 90)
+BLUE, GREEN, AMBER, VIOLET = (143, 176, 234), (124, 207, 165), (232, 179, 90), (182, 156, 238)
 
 CHANNELS = {
     # Kanal ovozi yangi alifboda (egasining qadalgan posti shunday). Qadalgan post kanalning o'z posti bo'lsa,
@@ -39,7 +39,7 @@ CHANNELS = {
             "bitg yozayotganingizda sözni yangi özbek alifbosiga (ö ğ ş ç) özi ögiradi — istalgan dasturda, "
             "internetsiz. Windows, Mac, Linux, bepul.\n"
             "⬇️ bitg.uz\n"
-            "🤖 @bitguzbot · 🛠 @bitgtech\n"
+            "🤖 @bitguzbot · 🛠 @bitgtech · 📱 @bitgapp\n"
             f"✉️ {CONTACT}"
         ),
         "parse_mode": None,
@@ -83,6 +83,35 @@ CHANNELS = {
             "🐞 <b>Xato:</b> <a href=\"https://github.com/dtwinuz/bitg/issues/new/choose\">GitHub Issues</a> "
             "yoki @bitguzbot → /fikr\n\n"
             "Foydalanuvchilar uchun qisqa yangiliklar: @bitguz"
+        ),
+    },
+    # Mobil ilova uchun: hozircha "tez kunda". Ovoz @bitguz kabi yangi alifboda (matn bitg CLI bilan o'girilgan,
+    # ilova nomi "Tilmoch" brend sifatida o'zgarmaydi).
+    "@bitgapp": {
+        "title": "bitg app",
+        "accent": VIOLET,
+        "description": (
+            "bitg telefon ilovasi tayyorlanmoqda — çiqqanda birinçi bölib şu yerda xabar beramiz.\n"
+            "Hozirça: 🤖 @bitguzbot · 💻 bitg.uz\n"
+            "📣 @bitguz · 🛠 @bitgtech\n"
+            f"✉️ {CONTACT}"
+        ),
+        "parse_mode": None,
+        "welcome": (
+            "📱 bitg telefonga keladi\n"
+            "\n"
+            "Kompyuterda bitg yozayotganingizda sözni yangi alifboga özi ögiradi. Endi xuddi şu imkoniyatni telefonga olib kelyapmiz — iPhone va Android uçun.\n"
+            "\n"
+            "Ilova tayyor bölganda birinçi bölib şu kanalda eʼlon qilamiz: sinov versiyasi, yuklab oliş havolasi va qöllanma. Bildirişnomani yoqib qöying 🔔\n"
+            "\n"
+            "Hozirning özida telefonda:\n"
+            "🤖 @bitguzbot — matn yuboring yoki istalgan chatda @bitguzbot matn deb yozing\n"
+            "⌨️ Tilmoch klaviaturasi — yangi alifboda yoziş: bitg.uz/yangi-harflarni-yozish/#telefon\n"
+            "💻 Kompyuter uçun bitg: bitg.uz\n"
+            "\n"
+            "Telefon ilovasida nima bölişini xohlaysiz? Fikringizni yozing: @bitguzbot → /fikr\n"
+            "\n"
+            "#bitg #yangialifbo"
         ),
     },
 }
@@ -178,6 +207,11 @@ def check_limits():
         raise SystemExit("chegaradan oshdi:\n  " + "\n  ".join(errs))
 
 
+def norm(s):
+    """Telegram tavsifdagi "bitg.uz" ni "https://bitg.uz" qilib saqlaydi: taqqoslashda farq deb sanalmasin."""
+    return re.sub(r"https?://", "", s).strip()
+
+
 def ok(res, what):
     if res.get("ok") or "not modified" in str(res.get("description", "")):
         print(f"  ✓ {what}")
@@ -198,7 +232,7 @@ def setup_channel(api, chat, c, a):
         print(f"  nom: {cur.get('title')!r} -> {c['title']!r}")
         if a.apply:
             good &= ok(api("setChatTitle", {"chat_id": chat, "title": c["title"]}), "nom")
-    if (cur.get("description") or "") != c["description"]:
+    if norm(cur.get("description") or "") != norm(c["description"]):
         print(f"  tavsif yangilanadi ({len(c['description'])} belgi)")
         if a.apply:
             good &= ok(api("setChatDescription", {"chat_id": chat, "description": c["description"]}), "tavsif")
@@ -274,7 +308,7 @@ def main():
     if a.export_avatars:
         d = Path(a.export_avatars)
         d.mkdir(parents=True, exist_ok=True)
-        for name, acc in [("bitguz", BLUE), ("bitgtech", GREEN), ("bitgdevbot", AMBER)]:
+        for name, acc in [("bitguz", BLUE), ("bitgtech", GREEN), ("bitgdevbot", AMBER), ("bitgapp", VIOLET)]:
             (d / f"{name}.png").write_bytes(avatar(acc))
         print(f"rasmlar: {d}")
         return 0
