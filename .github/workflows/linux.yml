@@ -28,7 +28,8 @@ jobs:
       - name: Paketlar
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends libibus-1.0-dev ibus dbus python3-gi gir1.2-ibus-1.0 dpkg-dev lintian
+          sudo apt-get install -y -q --no-install-recommends libibus-1.0-dev ibus dbus python3-gi gir1.2-ibus-1.0 dpkg-dev lintian \
+            libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev pkg-config
       - run: cargo test --locked -p bitg-ime
       - name: .deb
         run: linux/build-deb.sh
@@ -45,25 +46,16 @@ jobs:
         run: dbus-run-session -- python3 -u linux/test/ibus_e2e.py
       - name: Paketni o'chirish
         run: sudo apt-get remove -y -q bitg && test ! -e /usr/libexec/ibus-engine-bitg
+      - name: fcitx5-bitg o'rnatish va yuklash
+        run: |
+          sudo apt-get install -y -q --no-install-recommends ./target/deb/fcitx5-bitg_*.deb
+          so=$(dpkg -L fcitx5-bitg | grep '/fcitx5/bitg.so$')
+          ldd -r "$so" 2>&1 | tee /tmp/ldd.txt; ! grep -q "undefined symbol" /tmp/ldd.txt
+          nm -D --defined-only "$so" | grep -q " fcitx_addon_factory_instance$"
+          test -f /usr/share/fcitx5/addon/bitg.conf && test -f /usr/share/fcitx5/inputmethod/bitg.conf
+          sudo apt-get remove -y -q fcitx5-bitg
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bitg-deb
           path: target/deb/*.deb*
           if-no-files-found: error
-
-  fcitx5:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Paketlar
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev pkg-config
-      - run: cargo build --release --locked -p bitg-ime
-      - run: make -C linux/fcitx5
-      - name: Eksport qilingan belgilar
-        run: nm -D --defined-only linux/fcitx5/bitg.so | grep -v " fcitx_addon_factory_instance$" | grep -c " T " || true

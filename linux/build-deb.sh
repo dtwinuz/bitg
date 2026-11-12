@@ -65,3 +65,47 @@ chmod 755 "$PKG/DEBIAN/postinst"
 dpkg-deb --root-owner-group --build "$PKG" "$OUT/$NAME.deb" >/dev/null
 ( cd "$OUT" && sha256sum "$NAME.deb" > "$NAME.deb.sha256" )
 echo "$OUT/$NAME.deb"
+
+# fcitx5-bitg: Fcitx5 qo'shimchasi (libfcitx5core-dev bor bo'lsa)
+pkg-config --exists Fcitx5Core || { echo "Fcitx5 dev yo'q — fcitx5-bitg o'tkazib yuborildi"; exit 0; }
+make -C linux/fcitx5 clean
+make -C linux/fcitx5
+FNAME="fcitx5-bitg_${VER}_${ARCH}"
+FPKG="$OUT/$FNAME"
+MA="$(dpkg-architecture -qDEB_HOST_MULTIARCH)"
+rm -rf "$FPKG"
+install -d "$FPKG/DEBIAN" "$FPKG/usr/lib/$MA/fcitx5" "$FPKG/usr/share/fcitx5/addon" "$FPKG/usr/share/fcitx5/inputmethod" \
+  "$FPKG/usr/share/icons/hicolor/scalable/apps" "$FPKG/usr/share/doc/fcitx5-bitg"
+install -m 644 -s linux/fcitx5/bitg.so "$FPKG/usr/lib/$MA/fcitx5/bitg.so"
+sed "s/@VERSION@/$VER/" linux/fcitx5/bitg-addon.conf > "$FPKG/usr/share/fcitx5/addon/bitg.conf"
+install -m 644 linux/fcitx5/bitg-im.conf "$FPKG/usr/share/fcitx5/inputmethod/bitg.conf"
+chmod 644 "$FPKG/usr/share/fcitx5/addon/bitg.conf"
+install -m 644 web/icon.svg "$FPKG/usr/share/icons/hicolor/scalable/apps/fcitx-bitg.svg"
+sed -i 's/^Icon=bitg$/Icon=fcitx-bitg/' "$FPKG/usr/share/fcitx5/inputmethod/bitg.conf"
+install -m 644 linux/copyright "$FPKG/usr/share/doc/fcitx5-bitg/copyright"
+cp "$PKG/usr/share/doc/bitg/changelog.gz" "$FPKG/usr/share/doc/fcitx5-bitg/changelog.gz"
+
+SH="$(mktemp -d)"
+mkdir "$SH/debian" && printf 'Source: bitg\n' > "$SH/debian/control"
+FDEPS="$(cd "$SH" && dpkg-shlibdeps -O "$FPKG/usr/lib/$MA/fcitx5/bitg.so" | sed -n 's/^shlibs:Depends=//p')"
+rm -rf "$SH"
+FSIZE="$(du -sk --exclude=DEBIAN "$FPKG" | cut -f1)"
+cat > "$FPKG/DEBIAN/control" <<EOF
+Package: fcitx5-bitg
+Version: $VER
+Architecture: $ARCH
+Maintainer: dtwinuz <info@dtwin.uz>
+Installed-Size: $FSIZE
+Depends: $FDEPS, fcitx5
+Section: utils
+Priority: optional
+Homepage: https://bitg.uz
+Description: Uzbek input method for the new 2026 Latin alphabet (Fcitx5)
+ bitg converts Uzbek text to the new Latin alphabet (o' g' sh ch to
+ the new letters) as you type, in any Fcitx5 application. English words,
+ links and code are left alone; Backspace right after a replacement
+ restores the original word. Works offline.
+EOF
+dpkg-deb --root-owner-group --build "$FPKG" "$OUT/$FNAME.deb" >/dev/null
+( cd "$OUT" && sha256sum "$FNAME.deb" > "$FNAME.deb.sha256" )
+echo "$OUT/$FNAME.deb"
