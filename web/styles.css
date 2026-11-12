@@ -295,6 +295,7 @@ a.bg-plat__card:hover { border-color: var(--line2); transform: translateY(-3px);
 .bg-plat__ico svg { width: 21px; height: 21px; }
 .bg-plat__name { font-weight: 650; font-size: 17px; letter-spacing: -.01em; }
 .bg-plat__sub { font-size: 14px; color: var(--muted); }
+.bg-plat__go { margin-top: auto; align-self: flex-start; }
 .bg-state { margin-top: auto; align-self: flex-start; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--subtle); color: var(--muted); }
 .bg-state--ok { background: var(--ok-soft); color: var(--ok); }
 .bg-note-sm { margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
@@ -372,8 +373,13 @@ button.bg-key.is-new:hover { background: color-mix(in srgb, var(--accent) 24%, v
   .bg-sheet > .bg-sh-x { display: none; }
   .bg-plat { grid-template-columns: 1fr; }
   .bg-plat__card { min-height: 0; }
-  .bg-undo__key { right: 0; width: 104px; height: 54px; }
-  .bg-toast { left: 10px; font-size: 13px; }
+  .bg-undo { margin-bottom: 64px; }
+  .bg-undo__key { right: 12px; width: 104px; height: 54px; }
+  .bg-toast { left: 0; right: 0; bottom: -84px; justify-content: center; font-size: 13px; }
+  .bg-stage { margin-top: 22px; }
+  .bg-win--chat { transform: none; margin-bottom: 12px; }
+  .bg-chat { height: 150px; }
+  .bg-kb--3d { transform: rotateX(28deg); }
   .bg-kb--flat { --gap: 3px; --u: calc((100vw - 32px - 12px - 39px) / 15.2); padding: 6px; border-radius: 12px; }
   .bg-kb--flat .bg-key { font-size: 11px; border-radius: 4px; }
   .bg-kb--flat .bg-key--mod { font-size: 8.5px; }
