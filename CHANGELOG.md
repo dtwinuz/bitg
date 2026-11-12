@@ -4,6 +4,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+### Tuzatildi
+- **Windows: bitg ishga tushishda xato bersa ham tanlangan klaviatura o'zgarmaydi** ([#13](https://github.com/dtwinuz/bitg/issues/13)).
+  Avval `ActivateEx` ichidagi xato yoki panic TSF'ga qaytardi, shunda Windows o'z-o'zidan oldingi klaviaturaga
+  o'tib ketardi. Endi xato `tsf.log` ga `activate failed hr=…` deb yoziladi va bitg tanlangan holda qoladi.
+- Sayt: CodeQL ogohlantirishlari tuzatildi (`web/app.js` — `innerHTML` DOM atributidan olinmaydi; `tools/site/og.cjs` —
+  teglar to'liq olinadi, `&amp;` ikki marta ochilmaydi).
+
 ## [0.3.0] — 2026-11-12
 
 ### Tuzatildi
