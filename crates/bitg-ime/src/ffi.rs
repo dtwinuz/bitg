@@ -277,4 +277,45 @@ mod tests {
             bitg_ime_free(ime);
         }
     }
+
+    #[test]
+    fn abi_null_engine_is_ignored() {
+        unsafe {
+            bitg_ime_focus_in(ptr::null_mut());
+            assert!(bitg_ime_reset(ptr::null_mut()).is_null());
+            let o = &*bitg_ime_set_suspended(ptr::null_mut(), 1);
+            assert_eq!((o.consumed, s(o.commit)), (0, String::new()));
+            bitg_ime_free(ptr::null_mut());
+        }
+    }
+
+    #[test]
+    fn abi_suspend_flushes_preedit() {
+        let ime = bitg_ime_new();
+        unsafe {
+            bitg_ime_focus_in(ime);
+            for c in "cho".chars() {
+                bitg_ime_key(ime, BITG_KEY_CHAR, c as u32, ptr::null());
+            }
+            let o = &*bitg_ime_set_suspended(ime, 1);
+            assert_eq!(
+                (o.consumed, s(o.commit), o.preedit_changed, s(o.preedit)),
+                (0, "cho".to_string(), 1, String::new())
+            );
+            let o = &*bitg_ime_set_suspended(ime, 0);
+            assert_eq!((o.commit.is_null(), o.preedit_changed), (true, 0));
+            bitg_ime_free(ime);
+        }
+    }
+
+    #[test]
+    fn control_and_invalid_codepoints_are_other() {
+        assert_eq!(to_key(BITG_KEY_CHAR, 7), Key::Other);
+        assert_eq!(to_key(BITG_KEY_CHAR, 0xD800), Key::Other);
+        assert_eq!(to_key(BITG_KEY_SPACE, 0xA0), Key::Space('\u{a0}'));
+        assert_eq!(to_key(BITG_KEY_CHAR, 'a' as u32), Key::Char('a'));
+        assert_eq!(to_key(BITG_KEY_TAB, 0), Key::Tab);
+        assert_eq!(to_key(BITG_KEY_OTHER, 0), Key::Other);
+        assert_eq!(to_key(99, 0), Key::Other);
+    }
 }

@@ -727,3 +727,178 @@ impl Session {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn opts_with(exceptions: &[&str]) -> Options {
+        Options {
+            exceptions: exceptions.iter().map(|s| s.to_string()).collect(),
+            ..Options::default()
+        }
+    }
+
+    fn tok(name: NameKind, clause_end: bool, sentence_end: bool) -> Tok {
+        Tok {
+            start: 0,
+            end: 0,
+            evidence: 0.0,
+            sentence_end,
+            clause_end,
+            name,
+        }
+    }
+
+    #[test]
+    fn ellipsis_ends_sentence() {
+        let t = tokens("keldi…ketdi");
+        assert_eq!(t.len(), 2);
+        assert!(t[0].sentence_end);
+        assert!(!t[1].sentence_end);
+    }
+
+    #[test]
+    fn known_uzbek_word_is_decided_by_context() {
+        assert!(!english_blocks("shahar", -3.0, 2.0));
+        assert!(english_blocks("shahar", -3.0, 0.0));
+    }
+
+    #[test]
+    fn unknown_cyrillic_letters_are_unchanged() {
+        let (out, words) = convert_words("є", &Options::default());
+        assert_eq!(out, "є");
+        assert_eq!(words[0].reason, Reason::Unchanged);
+        let (out, words) = convert_words("шаҳар", &Options::default());
+        assert_eq!(out, "şahar");
+        assert_eq!(words[0].reason, Reason::Converted);
+        assert_eq!(words[0].alt, None);
+    }
+
+    #[test]
+    fn exception_beats_foreign_name_and_lone_letter() {
+        let (_, words) = convert_words("Michelle keldi", &Options::default());
+        assert_eq!(words[0].reason, Reason::English);
+        let (out, words) = convert_words("Michelle keldi", &opts_with(&["michelle"]));
+        assert_eq!(out, "Michelle keldi");
+        assert_eq!(words[0].reason, Reason::Exception);
+        assert_eq!(convert("O' harfi", &Options::default()), "Ö harfi");
+        let (out, words) = convert_words("O' harfi", &opts_with(&["o'"]));
+        assert_eq!(out, "O' harfi");
+        assert_eq!(words[0].reason, Reason::Unchanged);
+    }
+
+    #[test]
+    fn english_stem_with_uzbek_suffix_is_kept() {
+        let (out, words) = convert_words("flashlar", &Options::default());
+        assert_eq!(out, "flashlar");
+        assert_eq!(words[0].reason, Reason::English);
+        assert!(!english_with_suffix("Bookda"));
+    }
+
+    #[test]
+    fn compound_without_english_guard() {
+        let o = Options {
+            english_guard: false,
+            ..Options::default()
+        };
+        assert_eq!(convert("C-uchli", &o), "C-uçli");
+    }
+
+    #[test]
+    fn german_sch_inside_unknown_word() {
+        assert!(german_sch("Fischer"));
+        assert!(german_sch("Schmidt"));
+        assert!(!german_sch("bokschi"));
+    }
+
+    #[test]
+    fn lone_letter_needs_apostrophe() {
+        for w in ["o'", "O'", "g'", "G'"] {
+            assert!(is_lone_letter(w), "{w}");
+        }
+        for w in ["ot", "Ot", "gu", "Gu", "o", "o''"] {
+            assert!(!is_lone_letter(w), "{w}");
+        }
+    }
+
+    #[test]
+    fn closed_link_breaks_name_chain() {
+        use NameKind::*;
+        for (link, chained) in [
+            (tok(Link, false, false), true),
+            (tok(Link, true, false), false),
+            (tok(Link, false, true), false),
+        ] {
+            let mut t = vec![tok(Foreign, false, false), link, tok(Maybe, false, false)];
+            resolve_names(&mut t);
+            assert_eq!(t[2].name == Foreign, chained);
+        }
+    }
+
+    #[test]
+    fn exception_has_no_alternative() {
+        let o = Options::default();
+        assert_eq!(
+            alternative_of("ochmaydi", "oçmaydi", &o).as_deref(),
+            Some("öçmaydi")
+        );
+        assert_eq!(
+            alternative_of("ochmaydi", "oçmaydi", &opts_with(&["ochmaydi"])),
+            None
+        );
+    }
+
+    fn typed(words: &[&str], opts: &Options) -> Vec<String> {
+        let mut s = Session::new();
+        words
+            .iter()
+            .map(|w| {
+                s.complete_word(w, opts)
+                    .map(|e| e.insert)
+                    .unwrap_or_else(|| w.to_string())
+            })
+            .collect()
+    }
+
+    #[test]
+    fn session_without_guard_or_restore() {
+        let no_guard = Options {
+            english_guard: false,
+            ..Options::default()
+        };
+        assert_eq!(typed(&["check"], &no_guard), ["çeck"]);
+        let no_restore = Options {
+            restore_apostrophes: false,
+            ..Options::default()
+        };
+        assert_eq!(
+            typed(&["shahar", "ozbek", "oz"], &no_restore),
+            ["şahar", "ozbek", "oz"]
+        );
+    }
+
+    #[test]
+    fn session_name_chain_needs_open_neighbours() {
+        let o = Options::default();
+        assert_eq!(typed(&["Michelle", "Richard"], &o)[1], "Richard");
+        assert_eq!(typed(&["Michelle,", "Richard"], &o)[1], "Riçard");
+        assert_eq!(typed(&["Bugun", "kelgan", "Richard"], &o)[2], "Riçard");
+        assert_eq!(typed(&["Michelle", "va,", "Richard"], &o)[2], "Riçard");
+        assert_eq!(typed(&["Bugun", "va", "Richard"], &o)[2], "Riçard");
+    }
+
+    #[test]
+    fn session_keeps_last_eight_words() {
+        let o = Options::default();
+        let mut s = Session::new();
+        for w in [
+            "bir", "ikki", "uch", "tort", "besh", "olti", "yetti", "sakkiz", "toqqiz",
+        ] {
+            s.complete_word(w, &o);
+        }
+        assert_eq!(s.recent.len(), 8);
+        s.complete_word("tamom.", &o);
+        assert!(s.recent.is_empty());
+    }
+}

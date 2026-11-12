@@ -296,7 +296,8 @@ fn letter_cues(key: &str) -> f32 {
     s
 }
 
-/// Inglizcha qisqartma yoki egalik: don't, we're, you'll, they've, Obama's, CNN's, I'm, he'd.
+/// Inglizcha qisqartma yoki egalik: don't, we're, you'll, they've, Obama's, CNN's, I'm, she'd
+/// (`he'd` emas: `he` o'zbekcha lug'atda ham bor).
 /// O'zbek so'zi tutuq + s / re / ll / ve bilan tugamaydi. 'm, 'd — faqat o'zagi inglizcha bo'lsa (ta'm o'zbekcha).
 fn is_english_contraction(key: &str) -> bool {
     let always = ["n't", "'re", "'ve", "'ll", "'s"].iter().any(|s| {
@@ -568,4 +569,55 @@ fn with_apostrophes(chars: &[char], slots: &[usize], mask: u32) -> String {
 pub fn known(word: &str) -> (bool, bool) {
     let key = fold_key(word);
     (uz_weight(&key).is_some(), en().contains_key(key.as_str()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn english_endings_and_contractions() {
+        assert_eq!(letter_cues("zention"), -2.0);
+        assert_eq!(letter_cues("zenness"), -2.0);
+        assert_eq!(letter_cues("zenment"), -2.0);
+        assert_eq!(evidence("I'd"), -6.0);
+        assert!(is_english_contraction("she'd"));
+        assert!(!is_english_contraction("ta'm"));
+    }
+
+    #[test]
+    fn short_stems_are_not_looked_up() {
+        assert_eq!(uz_weight("xqni"), None);
+        assert_eq!(uz_weight("xqnini"), None);
+    }
+
+    #[test]
+    fn suffix_chain_depth_is_limited() {
+        assert!(is_suffix_chain("dandandan", 0));
+        assert!(!is_suffix_chain("dandandandan", 0));
+    }
+
+    #[test]
+    fn hyphen_and_case_folding_block_restore() {
+        assert_eq!(alternative("ot-ot"), None);
+        assert_eq!(restore_apostrophes("İgor", true, true), None);
+    }
+
+    #[test]
+    fn names_with_short_stem_or_w() {
+        assert_eq!(name_kind("Shoga"), NameKind::Other);
+        assert_eq!(name_kind("Shwartz"), NameKind::Foreign);
+    }
+
+    #[test]
+    fn restore_via_stems_and_seen_ambiguous_words() {
+        assert_eq!(
+            restore_apostrophes("ogirni", false, false).as_deref(),
+            Some("og'irni")
+        );
+        assert_eq!(
+            restore_apostrophes("boyi", false, false).as_deref(),
+            Some("bo'yi")
+        );
+    }
 }

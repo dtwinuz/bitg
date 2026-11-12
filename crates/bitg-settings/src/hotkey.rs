@@ -682,6 +682,7 @@ mod win {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::{Value, json};
 
     #[test]
     fn parses_combos() {
@@ -715,9 +716,12 @@ mod tests {
             "ctrl+f0",
             "ctrl+enter",
             "ctrl++y",
+            "ctrl+.",
+            "ctrl+fx",
         ] {
             assert_eq!(parse(s), None, "{s}");
         }
+        assert_eq!(parse("ctrl+f").unwrap().label(), "Ctrl+F");
     }
 
     #[test]
@@ -750,13 +754,16 @@ mod tests {
     #[test]
     fn clipboard_decisions() {
         assert!(keep_format(13, true));
-        assert!(!keep_format(1, true) && keep_format(1, false));
+        assert!(!keep_format(1, true));
+        assert!(keep_format(1, false));
         assert!(!keep_format(7, true));
-        assert!(!keep_format(2, false) && !keep_format(14, false) && !keep_format(3, false));
-        assert!(!keep_format(0x82, false) && !keep_format(0x300, false));
+        for fmt in [0, 2, 3, 9, 14, 0x82, 0x300] {
+            assert!(!keep_format(fmt, false), "{fmt}");
+        }
         assert!(keep_format(8, true)); // CF_DIB
         assert!(keep_format(0xC123, true)); // ro'yxatdan o'tgan format (HTML Format va h.k.)
-        assert!(should_restore(7, 7) && !should_restore(7, 8));
+        assert!(should_restore(7, 7));
+        assert!(!should_restore(7, 8));
         assert!(copied_without_selection(
             r#"{"version":1,"isFromEmptySelection": true,"mode":"rust"}"#
         ));
@@ -770,11 +777,27 @@ mod tests {
         let c = bitg_tsf::config::parse("hotkey_keys=ctrl+shift+b", "");
         let v = status_json(&c, Some(true));
         assert_eq!(v["label"], "Ctrl+Shift+B");
-        assert!(v["on"].as_bool().unwrap() && v["ok"].as_bool().unwrap());
+        assert_eq!(
+            (&v["on"], &v["ok"], &v["valid"]),
+            (&json!(true), &json!(true), &json!(true))
+        );
         let off = status_json(
             &bitg_tsf::config::parse("enabled=0\nhotkey_keys=x", ""),
             None,
         );
-        assert!(!off["on"].as_bool().unwrap() && !off["valid"].as_bool().unwrap());
+        assert_eq!(
+            (&off["on"], &off["valid"], &off["ok"], &off["label"]),
+            (&json!(false), &json!(false), &json!(false), &Value::Null)
+        );
+        let no_hotkey = status_json(&bitg_tsf::config::parse("hotkey=0", ""), Some(false));
+        assert_eq!(no_hotkey["on"], false);
+    }
+
+    #[test]
+    fn labels_for_all_key_kinds() {
+        assert_eq!(parse("alt+f24").unwrap().label(), "Alt+F24");
+        assert_eq!(parse("ctrl+pause").unwrap().label(), "Ctrl+Pause");
+        assert_eq!(parse("ctrl+scrolllock").unwrap().vk, 0x91);
+        assert_eq!(Combo { mods: 0, vk: 0x0D }.label(), "0x0D");
     }
 }

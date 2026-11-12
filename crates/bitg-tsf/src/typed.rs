@@ -156,5 +156,25 @@ mod tests {
         let mut t = Typed::default();
         "choy".chars().for_each(|c| t.push(c));
         assert_eq!(t.finish(), None);
+        assert_eq!(t.why(), "no word start seen");
+    }
+
+    #[test]
+    fn too_long_or_empty_word_is_not_returned() {
+        let mut t = typed(&"a".repeat(MAX));
+        assert_eq!(t.len(), MAX);
+        t.push('b');
+        assert_eq!(t.len(), MAX + 1);
+        assert_eq!(t.finish(), None);
+        assert_eq!(t.why(), "word too long");
+        assert!(t.is_empty());
+
+        let mut t = typed("");
+        assert_eq!(t.finish(), None);
+        t.lost("mouse");
+        assert_eq!(t.why(), "mouse");
+        t.boundary();
+        t.backspace();
+        assert_eq!(t.why(), "backspace past word start");
     }
 }

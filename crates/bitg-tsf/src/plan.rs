@@ -101,6 +101,15 @@ mod tests {
     }
 
     #[test]
+    fn whole_buffer_is_the_word_when_start_reached() {
+        let t = word_before_caret(&u("choy"), true).unwrap();
+        assert_eq!((t.trailing, t.word_len, t.word.as_str()), (0, 4, "choy"));
+        let t = word_before_caret(&u("choy\u{A0}"), true).unwrap();
+        assert_eq!((t.trailing, t.word.as_str()), (1, "choy"));
+        assert_eq!(word_before_caret(&[0x20, 0xD800], true), None);
+    }
+
+    #[test]
     fn utf16_lengths() {
         let t = word_before_caret(&u("a 😀choy"), true).unwrap();
         assert_eq!(t.word_len, 6); // surrogat juftlik = 2 birlik

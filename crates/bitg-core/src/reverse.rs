@@ -77,6 +77,8 @@ mod tests {
         assert_eq!(to_old("şahar va çoy", OldStyle::Ascii), "shahar va choy");
         assert_eq!(to_old("ŞAHAR", OldStyle::Ascii), "SHAHAR");
         assert_eq!(to_old("Şahnoza", OldStyle::Ascii), "Shahnoza");
+        assert_eq!(to_old("ÇOY", OldStyle::Ascii), "CHOY");
+        assert_eq!(to_old("Çoy", OldStyle::Ascii), "Choy");
         assert_eq!(to_old("Ishoq", OldStyle::Ascii), "Is'hoq");
         assert_eq!(to_old("ma\u{02BC}no", OldStyle::Ascii), "ma'no");
     }

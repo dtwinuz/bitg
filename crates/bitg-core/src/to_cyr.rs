@@ -312,4 +312,21 @@ mod tests {
         assert_eq!(word_to_cyr("aytsa"), "айтса");
         assert_eq!(word_to_cyr("ketsin"), "кетсин");
     }
+
+    #[test]
+    fn separator_before_ye() {
+        assert_eq!(word_to_cyr("OBYEKT"), "ОБЪЕКТ");
+        assert_eq!(word_to_cyr("sʼyezd"), "съезд");
+    }
+
+    #[test]
+    fn tokens_kept_or_split() {
+        assert_eq!(to_cyrillic("şahar.uz"), "şahar.uz");
+        assert_eq!(to_cyrillic("C-uchli"), "C-учли");
+        assert_eq!(to_cyrillic("MR-şartli"), "MR-шартли");
+        assert_eq!(to_cyrillic("DEKABRʼ"), "ДЕКАБРЪ");
+        assert_eq!(to_cyrillic("5-o'rin"), "5-ўрин");
+        assert_eq!(to_cyrillic("20%"), "20%");
+        assert_eq!(to_cyrillic("20ga%"), "20ga%");
+    }
 }

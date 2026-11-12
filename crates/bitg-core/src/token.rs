@@ -225,4 +225,12 @@ mod tests {
             assert!(!is_protected(t), "{t}");
         }
     }
+
+    #[test]
+    fn protected_domain_after_apostrophe_and_number_suffix() {
+        assert!(is_protected("bog'.uz"));
+        assert!(!is_protected("bog'.xx"));
+        assert!(is_protected("5-sinf2"));
+        assert!(!is_protected("3-o'rin"));
+    }
 }

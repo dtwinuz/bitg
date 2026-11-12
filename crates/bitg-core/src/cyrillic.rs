@@ -165,6 +165,13 @@ mod tests {
     }
 
     #[test]
+    fn upper_multi_letter_inside_word() {
+        assert_eq!(to_new_latin("ПОЕЗД", T), "POYEZD");
+        assert_eq!(to_new_latin("(ЯНГИ)", T), "(YANGI)");
+        assert_eq!(to_new_latin("Я", T), "Ya");
+    }
+
+    #[test]
     fn mixed_text_keeps_latin() {
         assert_eq!(to_new_latin("Салом, World! 2026", T), "Salom, World! 2026");
     }

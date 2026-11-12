@@ -406,3 +406,67 @@ fn wants_before_typical_word() {
     assert!(e.wants_before(Key::Backspace));
     assert!(!e.wants_before(Key::Navigate));
 }
+
+#[test]
+fn space_as_char_and_wants_before_when_off() {
+    let mut e = engine();
+    let mut app = App::direct();
+    app.typ(&mut e, "choy");
+    assert!(e.wants_before(Key::Char(' ')));
+    let o = e.key(Key::Char(' '), Some("choy"));
+    app.apply(Key::Char(' '), o);
+    assert_eq!(app.text, "çoy ");
+    assert!(!e.wants_before(Key::Char(' ')));
+
+    let _ = e.set_suspended(true);
+    assert!(!e.wants_before(Key::Char('c')));
+    let mut e = Engine::with_settings(Settings {
+        auto_convert: false,
+        ..Settings::default()
+    });
+    assert!(!e.wants_before(Key::Char('c')));
+}
+
+fn settings_dir(name: &str) -> PathBuf {
+    let dir = std::env::temp_dir().join(format!("bitg-ime-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    dir
+}
+
+#[test]
+fn settings_file_change_is_picked_up() {
+    let dir = settings_dir("reload");
+    let mut e = Engine::new(Some(dir.clone()));
+    let mut app = App::direct();
+    app.typ(&mut e, "choy ");
+    assert_eq!(app.text, "çoy ");
+    std::fs::write(dir.join("settings.ini"), "enabled=0\n").unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(1100));
+    app.typ(&mut e, "choy ");
+    assert_eq!(app.text, "çoy choy ");
+    assert!(!e.settings().enabled);
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+#[test]
+fn undo_remember_writes_exception() {
+    let dir = settings_dir("remember");
+    std::fs::write(dir.join("settings.ini"), "undo_remember=1\n").unwrap();
+    let mut e = Engine::new(Some(dir.clone()));
+    e.focus_in();
+    let mut app = App::direct();
+    app.typ(&mut e, "Choy, \u{8}");
+    assert_eq!(app.text, "Choy,");
+    assert_eq!(
+        std::fs::read_to_string(dir.join("exceptions.txt")).unwrap(),
+        "Choy\n"
+    );
+    assert_eq!(e.settings().exceptions, vec!["choy".to_string()]);
+
+    let mut e = Engine::new(Some(dir.clone()));
+    let mut app = App::direct();
+    app.typ(&mut e, "choy shahar ");
+    assert_eq!(app.text, "choy şahar ");
+    std::fs::remove_dir_all(&dir).unwrap();
+}

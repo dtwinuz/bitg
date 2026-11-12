@@ -465,6 +465,48 @@ mod tests {
     }
 
     #[test]
+    fn other_attributes_and_nested_markup() {
+        let xml = r#"<w:p><w:r><w:t w:rsid="1">choy</w:t></w:r></w:p>"#;
+        assert_eq!(
+            run(xml, &WORD).0,
+            r#"<w:p><w:r><w:t w:rsid="1">çoy</w:t></w:r></w:p>"#
+        );
+        let xml = r#"<w:p><w:r><w:t>o'<w:br/>z</w:t></w:r><w:r><w:t>choy</w:t></w:r></w:p>"#;
+        let (out, ch) = run(xml, &WORD);
+        assert_eq!(out, xml.replace("<w:t>choy", "<w:t>çoy"));
+        assert_eq!(ch, [("choy".to_string(), "çoy".to_string())]);
+    }
+
+    #[test]
+    fn empty_element_inside_phonetic_is_skipped() {
+        let xml = r#"<si><t>choy</t><rPh><t>sh</t><x/></rPh></si>"#;
+        assert_eq!(
+            run(xml, &SHARED).0,
+            r#"<si><t>çoy</t><rPh><t>sh</t><x/></rPh></si>"#
+        );
+    }
+
+    #[test]
+    fn change_in_separator_only_has_no_run() {
+        let mut ch = Vec::new();
+        let xml = "<w:p><w:r><w:tab/></w:r></w:p>";
+        let out = convert_xml(xml, &WORD, &|_| "x".to_string(), &mut ch).unwrap();
+        assert_eq!(out, None);
+        assert_eq!(ch, [("\t".to_string(), "x".to_string())]);
+    }
+
+    #[test]
+    fn trailing_whitespace_gets_preserve() {
+        let mut ch = Vec::new();
+        let xml = "<w:p><w:r><w:t>a b</w:t></w:r></w:p>";
+        let out = convert_xml(xml, &WORD, &|s| s.replace('b', ""), &mut ch).unwrap();
+        assert_eq!(
+            out.as_deref(),
+            Some(r#"<w:p><w:r><w:t xml:space="preserve">a </w:t></w:r></w:p>"#)
+        );
+    }
+
+    #[test]
     fn parts() {
         assert!(spec_for(Kind::Word, "word/document.xml").is_some());
         assert!(spec_for(Kind::Word, "word/header2.xml").is_some());
@@ -581,6 +623,46 @@ mod tests {
         ]);
         let out = convert_package(&ok, Kind::Word, &conv, &mut Vec::new()).unwrap();
         assert_eq!(read_zip(&out)[0].1.len(), body.len());
+    }
+
+    #[test]
+    fn archive_comment_is_kept() {
+        let mut w = ZipWriter::new(Cursor::new(Vec::new()));
+        w.set_comment("izoh").unwrap();
+        w.start_file("word/document.xml", SimpleFileOptions::default())
+            .unwrap();
+        w.write_all(b"<w:p><w:r><w:t>choy</w:t></w:r></w:p>")
+            .unwrap();
+        let input = w.finish().unwrap().into_inner();
+        let out = convert_package(&input, Kind::Word, &conv, &mut Vec::new()).unwrap();
+        let a = ZipArchive::new(Cursor::new(&out)).unwrap();
+        assert_eq!(a.comment(), b"izoh");
+        assert_eq!(read_zip(&out)[0].1, "<w:p><w:r><w:t>çoy</w:t></w:r></w:p>");
+    }
+
+    #[test]
+    fn invalid_entry_date_is_not_copied() {
+        let mut input = make_zip(&[(
+            "word/document.xml",
+            "<w:p><w:r><w:t>choy</w:t></w:r></w:p>",
+            CompressionMethod::Stored,
+        )]);
+        // MS-DOS sanasi 0 (oy 0) — yaroqsiz
+        for (sig, at) in [(b"PK\x03\x04", 12), (b"PK\x01\x02", 14)] {
+            let p = input.windows(4).position(|w| w == sig).unwrap();
+            input[p + at..p + at + 2].copy_from_slice(&[0, 0]);
+        }
+        let date = |bytes: &[u8]| {
+            ZipArchive::new(Cursor::new(bytes))
+                .unwrap()
+                .by_index_raw(0)
+                .unwrap()
+                .last_modified()
+        };
+        assert_eq!(date(&input), None);
+        let out = convert_package(&input, Kind::Word, &conv, &mut Vec::new()).unwrap();
+        assert_eq!(date(&out), Some(zip::DateTime::default()));
+        assert_eq!(read_zip(&out)[0].1, "<w:p><w:r><w:t>çoy</w:t></w:r></w:p>");
     }
 
     #[test]

@@ -195,10 +195,14 @@ mod tests {
     #[test]
     fn flags_reach_options() {
         let o = opts(BITG_NO_ENGLISH_GUARD | BITG_NO_CYRILLIC | BITG_ASCII_TUTUQ | BITG_NO_RESTORE);
-        assert!(!o.english_guard && !o.cyrillic && !o.restore_apostrophes);
+        assert!(!o.english_guard);
+        assert!(!o.cyrillic);
+        assert!(!o.restore_apostrophes);
         assert_eq!(o.tutuq, '\'');
         let d = opts(0);
-        assert!(d.english_guard && d.cyrillic && d.restore_apostrophes);
+        assert!(d.english_guard);
+        assert!(d.cyrillic);
+        assert!(d.restore_apostrophes);
         assert_eq!(d.tutuq, crate::chars::DEFAULT_TUTUQ);
     }
 
@@ -225,7 +229,7 @@ mod tests {
         let p = unsafe { bitg_session_complete_word(s, w.as_ptr(), 0, &mut delete) };
         assert!(!p.is_null());
         assert_eq!(unsafe { CStr::from_ptr(p) }.to_str().unwrap(), "şahar");
-        assert!(delete > 0 && delete <= "shahar".chars().count());
+        assert_eq!(delete, "shahar".chars().count());
         unsafe { bitg_free(p) };
 
         // ingliz so'zi o'zgarmaydi -> NULL, `delete` ga tegilmaydi
@@ -244,5 +248,27 @@ mod tests {
             );
             bitg_session_free(s);
         }
+    }
+
+    #[test]
+    fn official_old_style_and_null_word() {
+        assert_eq!(
+            call(|p| unsafe { bitg_to_old(p, 0) }, "Özbekiston").unwrap(),
+            "O\u{02BB}zbekiston"
+        );
+        let s = bitg_session_new();
+        let mut delete = 3;
+        unsafe {
+            assert!(bitg_session_complete_word(s, std::ptr::null(), 0, &mut delete).is_null());
+        }
+        assert_eq!(delete, 3);
+        assert_eq!(
+            call(
+                |p| unsafe { bitg_session_complete_word(s, p, 0, &mut delete) },
+                "check"
+            ),
+            None
+        );
+        unsafe { bitg_session_free(s) };
     }
 }
