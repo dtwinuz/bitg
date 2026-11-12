@@ -21,6 +21,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: winget
         shell: pwsh
+        env:
+          # Repair-WinGetPackageManager GitHub API'ni so'raydi; tokensiz umumiy runner IP'si limitga uriladi
+          GH_TOKEN: ${{ github.token }}
         run: |
           # runner image'dagi winget eski bo'ladi va yangi manifest schema'sini tanimaydi: eng yangisiga
           # -AllUsers runner'da provisioning qiladi, lekin joriy sessiyadagi winget eski qoladi (v1.11 != kutilgan)
