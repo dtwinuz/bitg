@@ -52,7 +52,8 @@ jobs:
         shell: bash
         run: |
           python3 -I deploy/stats/stats.py --selftest
-          python3 -I -m py_compile tools/apt/apt_repo.py tools/release/packaging.py tools/release/announce.py
+          python3 -I -m py_compile tools/apt/apt_repo.py tools/release/packaging.py tools/release/announce.py tools/telegram/setup.py
+          python3 -I tools/telegram/setup.py --check
           # har reliz e'loni CHANGELOG'dan to'g'ri chiqadimi va Telegram chegarasiga sig'adimi
           for v in $(sed -n 's/^## \[\([0-9][^]]*\)\].*/\1/p' CHANGELOG.md); do python3 -I tools/release/announce.py "$v" --dry-run >/dev/null; done
           sh -n deploy/set-stats-env.sh && bash -n deploy/deploy.sh && bash -n tools/apt/genkey.sh

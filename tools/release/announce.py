@@ -5,7 +5,8 @@
   TG_TOKEN=... python3 tools/release/announce.py 0.3.0  # @bitguz: qisqa post, @bitgtech: to'liq ro'yxat
 
 Matn CHANGELOG.md dagi "## [<versiya>]" bo'limidan olinadi. Bot ikkala kanalda admin bo'lishi kerak.
-Muhit: TG_TOKEN, NEWS_CHANNEL (standart @bitguz), TECH_CHANNEL (standart @bitgtech).
+Muhit: TG_TOKEN, NEWS_CHANNEL (standart @bitguz), TECH_CHANNEL (standart @bitgtech),
+BITG_CLI (bitg binari: @bitguz posti yangi alifboga o'giriladi; bo'lmasa eski lotinda).
 Token URL ichida bo'ladi: xato matnida URL chiqarilmaydi.
 """
 import argparse
@@ -13,6 +14,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -108,6 +110,18 @@ def full_post(ver, groups):
     return head + "\n".join(body) + note
 
 
+def to_new(text: str, cli: str) -> str:
+    """@bitguz kanali yangi alifboda yuritiladi: qisqa post bitg'ning o'zi bilan o'giriladi
+    (HTML teg, havola va @username'ga tegmaydi). CLI ishlamasa matn o'zgarishsiz qoladi."""
+    try:
+        r = subprocess.run([cli], input=text.encode(), capture_output=True, timeout=30, check=True)
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"bitg CLI ishlamadi ({type(e).__name__}): qisqa post eski lotinda", file=sys.stderr)
+        return text
+    out = r.stdout.decode("utf-8").rstrip("\n")
+    return out if out.count("<") == text.count("<") else text
+
+
 def visible_len(s: str) -> int:
     return len(html.unescape(re.sub(r"<[^>]+>", "", s)))
 
@@ -144,7 +158,10 @@ def main():
     news = os.environ.get("NEWS_CHANNEL") or "@bitguz"
     tech = os.environ.get("TECH_CHANNEL") or "@bitgtech"
     groups = section((ROOT / "CHANGELOG.md").read_text(encoding="utf-8"), ver)
-    posts = [(news, short_post(ver, groups, tech)), (tech, full_post(ver, groups))]
+    short = short_post(ver, groups, tech)
+    if os.environ.get("BITG_CLI"):
+        short = to_new(short, os.environ["BITG_CLI"])
+    posts = [(news, short), (tech, full_post(ver, groups))]
     for chat, text in posts:
         if visible_len(text) > LIMIT:
             raise SystemExit(f"{chat}: xabar {visible_len(text)} belgi, chegara {LIMIT}")

@@ -22,10 +22,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ startsWith(inputs.version, 'v') && inputs.version || format('v{0}', inputs.version) }}
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      # @bitguz posti yangi alifboda: bitg o'zi o'giradi
+      - run: cargo build --release --locked -p bitg-cli
       - name: Telegram
         env:
           TG_TOKEN: ${{ secrets.BITG_DEVBOT_TOKEN }}
           VERSION: ${{ inputs.version }}
+          BITG_CLI: target/release/bitg
         run: |
           python3 -I tools/release/announce.py "$VERSION" --dry-run
           python3 -I tools/release/announce.py "$VERSION"

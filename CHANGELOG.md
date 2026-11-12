@@ -22,6 +22,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - **Reliz e'loni:** yangi versiya chiqqanda @bitguz ga qisqa post, @bitgtech ga CHANGELOG'dagi to'liq ro'yxat
   (`tools/release/announce.py`, `announce` workflow, @bitgdevbot orqali).
 
+- `tools/telegram/setup.py`: kanal va botlar profili kod sifatida (nom, tavsif, rasm, qadalgan post), idempotent;
+  har akkauntga logotipning o'z rangli varianti. @bitguz posti bitg'ning o'zi bilan yangi alifboga o'giriladi.
+
 ### O'zgardi
 - Saytdagi "Telegram'da yozing" havolalari kanal (@bitguz, u yerga yozib bo'lmaydi) o'rniga @bitguzbot `/fikr` ga
   olib boradi. @bitguz faqat yangiliklar uchun qoldi, texnik kanal @bitgtech "Biz haqimizda" va `llms.txt` da.
