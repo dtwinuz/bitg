@@ -33,8 +33,8 @@ advisory'da va `CHANGELOG.md` da minnatdorchilik bilan qayd etiladi. Xavfsizlik 
 
 - Yozilgan matnni tarmoqqa yubormaydi va saqlamaydi (faqat siz qo'shgan istisno so'zlar `exceptions.txt` ga yoziladi).
 - Linux'da parol, PIN va maxfiy maydonlarda o'chiq turadi; macOS'da tizim xavfsiz kiritish paytida kiritish
-  usullarini o'chiradi; Windows'da terminallarda o'chiq, parol maydonlarida esa dastur IME'ni o'zi o'chiradi
-  (bitg maydon turini o'zi hali tekshirmaydi — [docs/ASSURANCE.md](docs/ASSURANCE.md) G1).
+  usullarini o'chiradi; Windows'da terminallarda, shuningdek maydon turi parol, PIN yoki email bo'lsa
+  (`InputScope`) yoki dastur klaviatura kiritishini o'chirgan bo'lsa o'chiq turadi.
 - Kiritish usuli (Windows TSF, Linux IBus/Fcitx5) klaviatura hook'i va clipboard ishlatmaydi. Clipboard faqat
   siz `Ctrl+Shift+Y` (belgilangan matnni o'girish) ni bosganda vaqtincha ishlatiladi va asl holiga qaytariladi.
 

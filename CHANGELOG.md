@@ -40,6 +40,12 @@ har reliz fayli imzolangan kelib chiqish (provenance) bilan tekshiriladi.
   har akkauntga logotipning o'z rangli varianti. @bitguz posti bitg'ning o'zi bilan yangi alifboga o'giriladi.
 - **@bitgapp** (mobil ilova kanali): "tez kunda" posti, telefonda hozir ishlaydigan yo'llar (@bitguzbot, Tilmoch),
   binafsha logotip; @bitguz tavsifidan havola.
+- **@bitguzbot qayta ishga tushsa ham `/fikr` yo'qolmaydi:** kutish holati va admin suhbatlari `STATE_DIR/state.json`
+  da saqlanadi. Bot har 30 soniyada tiriklik belgisini yozadi; `bitg-stats` u 5 daqiqadan eskirsa @bitgdevbot orqali
+  ogohlantiradi (kuzatuv jadvalida ham ko'rinadi).
+- **@bitguz rejali postlari:** `deploy/stats/posts/YYYY-MM-DD-nom.html` o'sha kuni 10:00 dan keyin bir marta chiqadi
+  (`bitg-stats`, @bitgdevbot). Birinchi seriya — sayt sahifalaridagi manbali faktlardan 8 ta post (alifbo, qonun
+  sanalari, hujjatlar, kompyuter va telefonda yozish, tutuq belgisi, maktab, inglizcha so'zlar).
 
 ### O'zgardi
 - Saytdagi "Telegram'da yozing" havolalari kanal (@bitguz, u yerga yozib bo'lmaydi) o'rniga @bitguzbot `/fikr` ga
@@ -48,6 +54,7 @@ har reliz fayli imzolangan kelib chiqish (provenance) bilan tekshiriladi.
   (`set-stats-env.sh` tokenni so'raydi; bir nechta admin chat — vergul bilan).
 
 ### Tuzatildi
+- **Windows maxfiy maydonlar ([#26](https://github.com/dtwinuz/bitg/issues/26)):** bitg maydon turini (`InputScope`) o'zi o'qiydi va parol, PIN, email maydonlarida, shuningdek dastur klaviatura kiritishini o'chirganda so'zlarni o'zgartirmaydi.
 - Docker image'lari digest bilan, `rustup-init` versiya va SHA-256 bilan qotirildi; Dependabot Docker'ni ham kuzatadi. `osv-scanner.toml`: Linux'da hech qachon yig'ilmaydigan glib zanjiri uchun asoslangan istisno.
 - `bot/Cargo.lock` bitg-core 0.3.0 ga yangilandi: eskisi bilan bot Docker'da (`--locked`) yig'ilmas edi.
 - `SECURITY.md`: qo'llab-quvvatlanadigan versiya 0.3.x; `release.yml` umumiy ruxsati `contents: read` ga tushirildi.

@@ -22,6 +22,8 @@ use std::time::{Duration, Instant};
 use bitg_core::Session;
 use bitg_core::chars::fold_key;
 use windows::Win32::Foundation::{LPARAM, WPARAM};
+use windows::Win32::System::Com::CoTaskMemFree;
+use windows::Win32::System::Variant::{VT_I4, VT_UNKNOWN, VariantClear};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetAsyncKeyState, GetKeyState, GetKeyboardLayout, GetKeyboardState, INPUT, INPUT_0,
     INPUT_KEYBOARD, KEYBD_EVENT_FLAGS, KEYBDINPUT, KEYEVENTF_EXTENDEDKEY, KEYEVENTF_KEYUP,
@@ -32,14 +34,19 @@ use windows::Win32::UI::Input::KeyboardAndMouse::{
     VK_SPACE, VK_TAB, VK_UP,
 };
 use windows::Win32::UI::TextServices::{
+    GUID_COMPARTMENT_KEYBOARD_DISABLED, GUID_PROP_INPUTSCOPE, ITfCompartmentMgr, ITfInputScope,
+    InputScope,
+};
+use windows::Win32::UI::TextServices::{
     INSERT_TEXT_AT_SELECTION_FLAGS, ITfCompositionSink, ITfContext, ITfContextComposition,
     ITfDocumentMgr, ITfEditRecord, ITfEditSession, ITfEditSession_Impl, ITfInsertAtSelection,
-    ITfKeyEventSink, ITfKeyEventSink_Impl, ITfKeystrokeMgr, ITfRange, ITfSource, ITfTextEditSink,
-    ITfTextEditSink_Impl, ITfTextInputProcessor, ITfTextInputProcessor_Impl,
-    ITfTextInputProcessorEx, ITfTextInputProcessorEx_Impl, ITfThreadMgr, ITfThreadMgrEventSink,
-    ITfThreadMgrEventSink_Impl, TF_AE_END, TF_ANCHOR_END, TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS,
-    TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READWRITE, TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT,
-    TF_MOD_SHIFT, TF_PRESERVEDKEY, TF_SELECTION, TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
+    ITfKeyEventSink, ITfKeyEventSink_Impl, ITfKeystrokeMgr, ITfRange, ITfReadOnlyProperty,
+    ITfSource, ITfTextEditSink, ITfTextEditSink_Impl, ITfTextInputProcessor,
+    ITfTextInputProcessor_Impl, ITfTextInputProcessorEx, ITfTextInputProcessorEx_Impl,
+    ITfThreadMgr, ITfThreadMgrEventSink, ITfThreadMgrEventSink_Impl, TF_AE_END, TF_ANCHOR_END,
+    TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS, TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READWRITE,
+    TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT, TF_MOD_SHIFT, TF_PRESERVEDKEY, TF_SELECTION,
+    TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
 };
 use windows::Win32::UI::WindowsAndMessaging::GetMessageExtraInfo;
 use windows_core::{BOOL, GUID, IUnknown, IUnknownImpl, Interface, Ref, Result, implement};
@@ -101,6 +108,9 @@ struct State {
     checked: Option<Instant>,
     /// Shu dasturda ishlaydimi (enabled va disabled_apps bo'yicha).
     active: bool,
+    /// Fokusdagi maydon maxfiymi (parol, PIN, email; dastur IME'ni o'chirgan). `None` — hali bilinmaydi:
+    /// input scope faqat edit cookie bilan o'qiladi, birinchi matn o'zgarishida aniqlanadi (#26).
+    sensitive: Option<bool>,
     /// Kontekst matnni bermayapti — zaxira yo'l ishlaydi.
     blind: bool,
     key_sink: bool,
@@ -241,6 +251,7 @@ impl Default for State {
             stamp: Default::default(),
             checked: None,
             active: false,
+            sensitive: None,
             blind: true,
             key_sink: false,
             typed: Typed::default(),
@@ -319,9 +330,9 @@ impl State {
         self.active
     }
 
-    /// So'zni o'girish kerakmi: shu dasturda yoqilgan va avto o'girish o'chirilmagan.
+    /// So'zni o'girish kerakmi: shu dasturda yoqilgan, avto o'girish o'chirilmagan va maydon maxfiy emas.
     fn converting(&mut self) -> bool {
-        self.refresh() && self.cfg.auto_convert
+        self.sensitive != Some(true) && self.refresh() && self.cfg.auto_convert
     }
 }
 
@@ -501,10 +512,20 @@ impl TextService_Impl {
             st.typed.boundary();
             st.undo = None;
         }
-        let Some(dim) = dim else { return };
-        let Ok(ctx) = (unsafe { dim.GetTop() }) else {
+        let Some(dim) = dim else {
+            self.state.borrow_mut().sensitive = None;
             return;
         };
+        let Ok(ctx) = (unsafe { dim.GetTop() }) else {
+            self.state.borrow_mut().sensitive = None;
+            return;
+        };
+        // Dastur IME'ni o'chirgan (Win32 parol maydoni va h.k.) — darhol ma'lum; aks holda input scope kutiladi.
+        let off = keyboard_disabled(&ctx);
+        self.state.borrow_mut().sensitive = if off { Some(true) } else { None };
+        if off {
+            log::write("sensitive field: keyboard disabled, off");
+        }
         let me: IUnknown = self.to_object().to_interface();
         let Ok(src) = ctx.cast::<ITfSource>() else {
             return;
@@ -515,10 +536,43 @@ impl TextService_Impl {
         }
     }
 
+    /// Maxfiy maydon: matn eslab qolinmaydi — Backspace/undo va zaxira yo'l ham shu maydonda ishlamaydi.
+    fn forget_sensitive(&self) -> Result<()> {
+        let mut st = self.state.borrow_mut();
+        st.last.clear();
+        st.session.reset();
+        st.undo = None;
+        Ok(())
+    }
+
     fn on_text_changed(&self, ctx: &ITfContext, ec: u32) -> Result<()> {
-        let Some((_, before, reached_start)) = read_before_caret(ctx, ec)? else {
+        // Maxfiyligi ma'lum maydonda matn umuman o'qilmaydi.
+        if self.state.borrow().sensitive == Some(true) {
+            return self.forget_sensitive();
+        }
+        let Some((caret, before, reached_start)) = read_before_caret(ctx, ec)? else {
             return Ok(());
         };
+        let known = self.state.borrow().sensitive;
+        let sensitive = match known {
+            Some(s) => s,
+            None => {
+                let (s, diag) = sensitive_scope(ctx, ec, &caret);
+                self.state.borrow_mut().sensitive = Some(s);
+                log::write(&format!(
+                    "input scope: {diag} -> {}",
+                    if s {
+                        "sensitive field, off"
+                    } else {
+                        "plain field"
+                    }
+                ));
+                s
+            }
+        };
+        if sensitive {
+            return self.forget_sensitive();
+        }
         let prev = std::mem::replace(&mut self.state.borrow_mut().last, before.clone());
         {
             // Asosiy yo'lga faqat kontekst bosilayotgan harflarni haqiqatan ko'rsatsa o'tamiz. Telegram fokusda
@@ -1243,6 +1297,97 @@ fn drop_and_retype(back: usize, insert: &str, space: bool) -> bool {
     } else {
         log::write(&format!("fallback: SendInput sent {sent}/{}", inputs.len()));
         false
+    }
+}
+
+/// Dastur maydonda klaviatura kiritishini o'chirib qo'yganmi (`GUID_COMPARTMENT_KEYBOARD_DISABLED`).
+fn keyboard_disabled(ctx: &ITfContext) -> bool {
+    let Ok(mgr) = ctx.cast::<ITfCompartmentMgr>() else {
+        return false;
+    };
+    unsafe {
+        let Ok(comp) = mgr.GetCompartment(&GUID_COMPARTMENT_KEYBOARD_DISABLED) else {
+            return false;
+        };
+        let Ok(mut v) = comp.GetValue() else {
+            return false;
+        };
+        let inner = &v.Anonymous.Anonymous;
+        let off = inner.vt == VT_I4 && inner.Anonymous.lVal != 0;
+        let _ = VariantClear(&mut v);
+        off
+    }
+}
+
+/// Maydonning input scope'i maxfiymi (parol, PIN, email) — `GUID_PROP_INPUTSCOPE` (#26).
+/// Scope dastur atributi (`GetAppProperty`), ba'zi dasturlarda TIP xossasi (`GetProperty`) sifatida keladi.
+/// Ikkinchi qiymat — log uchun: qaysi yo'l, VARIANT turi va scope ro'yxati.
+fn sensitive_scope(ctx: &ITfContext, ec: u32, caret: &ITfRange) -> (bool, String) {
+    let mut diag = Vec::new();
+    for app in [true, false] {
+        let src = if app { "app" } else { "tip" };
+        let prop: Result<ITfReadOnlyProperty> = unsafe {
+            if app {
+                ctx.GetAppProperty(&GUID_PROP_INPUTSCOPE)
+            } else {
+                ctx.GetProperty(&GUID_PROP_INPUTSCOPE)
+                    .and_then(|p| p.cast())
+            }
+        };
+        let prop = match prop {
+            Ok(p) => p,
+            Err(e) => {
+                diag.push(format!("{src}: no property 0x{:08x}", e.code().0));
+                continue;
+            }
+        };
+        let mut v = match unsafe { prop.GetValue(ec, caret) } {
+            Ok(v) => v,
+            Err(e) => {
+                diag.push(format!("{src}: GetValue 0x{:08x}", e.code().0));
+                continue;
+            }
+        };
+        let ids = unsafe { input_scopes(&v) };
+        let vt = unsafe { v.Anonymous.Anonymous.vt.0 };
+        let _ = unsafe { VariantClear(&mut v) };
+        match ids {
+            Some(ids) => {
+                let s = plan::sensitive_input_scope(&ids);
+                diag.push(format!("{src}: vt={vt} scopes={ids:?}"));
+                return (s, diag.join("; "));
+            }
+            None => diag.push(format!("{src}: vt={vt} no scopes")),
+        }
+    }
+    (false, diag.join("; "))
+}
+
+/// VARIANT ichidagi `ITfInputScope` dan scope ro'yxati.
+unsafe fn input_scopes(v: &windows::Win32::System::Variant::VARIANT) -> Option<Vec<i32>> {
+    unsafe {
+        let inner = &v.Anonymous.Anonymous;
+        if inner.vt != VT_UNKNOWN {
+            return None;
+        }
+        let scope = inner
+            .Anonymous
+            .punkVal
+            .as_ref()?
+            .cast::<ITfInputScope>()
+            .ok()?;
+        let mut p: *mut InputScope = std::ptr::null_mut();
+        let mut n = 0u32;
+        scope.GetInputScopes(&mut p, &mut n).ok()?;
+        if p.is_null() {
+            return Some(Vec::new());
+        }
+        let ids = std::slice::from_raw_parts(p, n as usize)
+            .iter()
+            .map(|s| s.0)
+            .collect();
+        CoTaskMemFree(Some(p as *const _));
+        Some(ids)
     }
 }
 

@@ -9,17 +9,20 @@
   python3 bot/test/e2e.py target/release/bitg-bot
 
 Ssenariy: /start fikr -> rasmli fikr adminga nusxa bo'lib boradi -> admin reply qiladi -> javob foydalanuvchiga;
-/fikr matn bilan; /bekor; guruhda /fikr; /yuklash; oddiy o'girish; bitta admin botni bloklagan bo'lsa ham yetkaziladi.
+/fikr matn bilan; /bekor; guruhda /fikr; /yuklash; oddiy o'girish; bitta admin botni bloklagan bo'lsa ham yetkaziladi;
+/fikr dan keyin bot qayta ishga tushsa ham fikr yetkaziladi (STATE_DIR), tiriklik belgisi yoziladi.
 """
 import json
 import os
+import shutil
 import subprocess
+import tempfile
 import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-ADMIN, BLOCKED, USER, USER2, GROUP = 9001, 9002, 501, 502, -100777
+ADMIN, BLOCKED, USER, USER2, USER3, GROUP = 9001, 9002, 501, 502, 503, -100777
 calls = []          # (method, body, result)
 lock = threading.Lock()
 mid = [1000]
@@ -68,11 +71,11 @@ class H(BaseHTTPRequestHandler):
             with lock:
                 calls.append((method, body, resp.get("result")))
         data = json.dumps(resp).encode()
-        self.send_response(200 if ok else 403)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
         try:
+            self.send_response(200 if ok else 403)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
             self.wfile.write(data)
         except OSError:
             pass  # sinov oxirida bot long-poll paytida to'xtatiladi
@@ -110,9 +113,16 @@ def main():
     exe = sys.argv[1]
     srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
+    state = tempfile.mkdtemp(prefix="bitg-bot-state-")
     env = {**os.environ, "BOT_TOKEN": "1:TEST", "API_URL": f"http://127.0.0.1:{srv.server_port}",
-           "ADMIN_IDS": f"{BLOCKED},{ADMIN}", "NEWS_CHANNEL": "@bitguz", "SITE_URL": "https://bitg.uz"}
-    bot = subprocess.Popen([exe], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+           "ADMIN_IDS": f"{BLOCKED},{ADMIN}", "NEWS_CHANNEL": "@bitguz", "SITE_URL": "https://bitg.uz",
+           "STATE_DIR": state}
+
+    def start():
+        return subprocess.Popen([exe], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
+    bot = start()
+    logs = []
     try:
         wait_for(lambda c: c[0] == "setMyCommands", "setMyCommands")
         cmds = [c for c in calls if c[0] == "setMyCommands"][0][1]["commands"]
@@ -186,14 +196,36 @@ def main():
         time.sleep(0.3)
         assert count_to(USER) == n_user
 
+        # 8) STATE_DIR: /fikr bosilgandan keyin bot qayta ishga tushsa ham keyingi xabar fikr bo'ladi;
+        #    tiriklik belgisi (alive) yoziladi — bitg-stats shu fayl bilan kuzatadi
+        push(msg(USER3, "/fikr"))
+        wait_for(sent(USER3, "bitta xabarda"), "3-taklif")
+        alive = os.path.join(state, "alive")
+        assert int(open(alive, encoding="utf-8").read()) > 1_700_000_000
+        assert "503" in open(os.path.join(state, "state.json"), encoding="utf-8").read()
+        bot.terminate()
+        logs.append(bot.communicate(timeout=5)[0])
+        bot = start()
+        wait_for(lambda c: c[0] == "setMyCommands" and len([x for x in calls if x[0] == "setMyCommands"]) >= 2,
+                 "qayta ishga tushish")
+        push(msg(USER3, "Restartdan keyin ham yetib bordi"))
+        wait_for(sent(ADMIN, "id 503"), "tiklangan /fikr")
+        # eslab qolingan nusxaga reply (sarlavhasiz) ham qayta ishga tushgandan keyin ishlaydi
+        push(msg(ADMIN, "Ko'rdik", reply_to_message={"message_id": c2[2]["message_id"]}))
+        wait_for(lambda c: c[0] == "copyMessage" and c[1]["chat_id"] == USER2 and c[1]["from_chat_id"] == ADMIN
+                 and len([x for x in calls if x[0] == "copyMessage" and x[1]["chat_id"] == USER2]) >= 2,
+                 "tiklangan suhbat")
+
         print(f"bot e2e: OK ({len(calls)} chaqiruv)")
     finally:
         bot.terminate()
-        out = bot.communicate(timeout=5)[0]
+        logs.append(bot.communicate(timeout=5)[0])
         srv.shutdown()
-        if "panic" in out:
-            print(out)
-            sys.exit(1)
+        shutil.rmtree(state, ignore_errors=True)
+    out = "".join(logs)
+    if "panic" in out or "holat tiklandi: 1 fikr kutilmoqda" not in out:
+        print(out)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

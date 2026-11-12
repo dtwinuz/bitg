@@ -28,6 +28,7 @@ rm -rf src; mkdir src
 tar --no-same-owner -xzf - -C src
 cp src/bot/docker-compose.yml docker-compose.yml
 install -m 755 src/bot/set-token.sh set-token.sh
+install -d -m 755 data && chown 65534:65534 data
 docker build -q -t bitg-bot:${SHA:0:8} -t bitg-bot:latest -f src/bot/Dockerfile src >/dev/null
 docker compose up -d --force-recreate --remove-orphans
 echo '$SHA' > REVISION

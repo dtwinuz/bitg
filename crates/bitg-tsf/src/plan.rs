@@ -44,9 +44,34 @@ pub fn word_before_caret(before: &[u16], reached_start: bool) -> Option<Target> 
     })
 }
 
+/// Maxfiy maydon turlari (Windows `InputScope` qiymatlari): parol, PIN va email aynan yozilganicha qoladi (#26).
+pub const SENSITIVE_INPUT_SCOPES: &[i32] = &[
+    4,  // IS_EMAIL_USERNAME
+    5,  // IS_EMAIL_SMTPEMAILADDRESS
+    31, // IS_PASSWORD
+    63, // IS_NUMERIC_PASSWORD
+    64, // IS_NUMERIC_PIN
+    65, // IS_ALPHANUMERIC_PIN
+    66, // IS_ALPHANUMERIC_PIN_SET
+];
+
+/// Maydonning input scope ro'yxatida maxfiy tur bormi.
+pub fn sensitive_input_scope(scopes: &[i32]) -> bool {
+    scopes.iter().any(|s| SENSITIVE_INPUT_SCOPES.contains(s))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sensitive_scopes() {
+        assert!(sensitive_input_scope(&[31]));
+        assert!(sensitive_input_scope(&[0, 64]));
+        assert!(sensitive_input_scope(&[5]));
+        assert!(!sensitive_input_scope(&[]));
+        assert!(!sensitive_input_scope(&[0, 1, 50, 57, 61]));
+    }
 
     fn u(s: &str) -> Vec<u16> {
         s.encode_utf16().collect()

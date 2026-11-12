@@ -68,7 +68,10 @@ compromised operating system.
   (`password_field_untouched`).
 - macOS: the system disables input methods while secure text entry is active.
 - Windows: terminal processes (`windowsterminal.exe`, `conhost.exe`, …) are disabled by default
-  (`crates/bitg-tsf/src/config.rs`). Standard Windows password boxes disable the IME themselves. See gap G1.
+  (`crates/bitg-tsf/src/config.rs`). The text service reads the field's input scope (`GUID_PROP_INPUTSCOPE`)
+  and the keyboard-disabled compartment and stays off for password, PIN and e-mail fields
+  (`crates/bitg-tsf/src/plan.rs` `SENSITIVE_INPUT_SCOPES`); covered by `tools/e2e/tsf-e2e.ps1`
+  (`sensitive: email field untouched`).
 
 ### R5 — verifiable releases
 - Releases are built only by `.github/workflows/release.yml` from a `v*` tag.
@@ -110,7 +113,6 @@ compromised operating system.
 
 | # | Gap | Plan |
 |---|---|---|
-| G1 | The Windows text service does not itself check the input scope (password, PIN, e-mail) of the field; it relies on the application disabling the IME. | Check `InputScope` / the keyboard-disabled compartment in `bitg-tsf` and add an e2e test ([#26](https://github.com/dtwinuz/bitg/issues/26)). |
 | G2 | `bitg file` has no size limit for decompressed Office entries (a "zip bomb" can use a lot of memory). Only affects files the user chooses to convert. | Cap the decompressed size per entry ([#27](https://github.com/dtwinuz/bitg/issues/27)). |
 | G3 | The apt signing key and the web server are held by one maintainer. | Handover tracked in [GOVERNANCE.md](../GOVERNANCE.md#continuity). |
 
