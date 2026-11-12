@@ -19,8 +19,9 @@ jobs:
         shell: pwsh
         run: |
           # runner image'dagi winget eski bo'ladi va yangi manifest schema'sini tanimaydi: eng yangisiga
-          Install-PSResource Microsoft.WinGet.Client -Repository PSGallery -TrustRepository -Scope AllUsers -Quiet
-          Repair-WinGetPackageManager -AllUsers -Latest -Force
+          # -AllUsers runner'da provisioning qiladi, lekin joriy sessiyadagi winget eski qoladi (v1.11 != kutilgan)
+          Install-PSResource Microsoft.WinGet.Client -Repository PSGallery -TrustRepository -Scope CurrentUser -Quiet
+          Repair-WinGetPackageManager -Latest -Force
           winget --version
           winget settings --enable LocalManifestFiles
       - name: Validate, install, uninstall
