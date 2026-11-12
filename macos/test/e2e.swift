@@ -1,8 +1,12 @@
 // bitg macOS uchidan-uchiga sinov: haqiqiy Cocoa matn maydoni (NSTextView) + haqiqiy InputMethodKit + o'rnatilgan
 // /Library/Input Methods/bitg.app. Tugmalar dasturning o'z hodisa navbatiga qo'yiladi (NSApp.postEvent) va
 // NSTextView -> NSTextInputContext -> IMK -> BitgController yo'lidan o'tadi, xuddi foydalanuvchi bosgandek.
-// TCC ruxsati (Accessibility) kerak emas, shuning uchun GitHub macOS mashinasida ishlaydi.
-//   bitg-e2e        holatlarni yurgizadi; chiqish kodi 0 = hammasi o'tdi, 1 = farq, 2 = sozlash, 3 = vaqt tugadi
+// TCC ruxsati (Accessibility) kerak emas.
+// Faqat haqiqiy Mac'da: macOS 15 uchinchi tomon kiritish usulini dastur orqali tanlashni rad etadi
+// (TISSelectInputSource = -50, HIToolbox sozlamasi ham yordam bermaydi), shuning uchun CI uni faqat yig'adi.
+//   1) bitg .pkg ni o'rnating, menyu satridan bitg ni tanlang
+//   2) swiftc -O macos/test/e2e.swift -o bitg-e2e && ./bitg-e2e
+//   chiqish kodi 0 = hammasi o'tdi, 1 = farq, 2 = bitg tanlanmagan, 3 = vaqt tugadi
 import AppKit
 import Carbon
 
