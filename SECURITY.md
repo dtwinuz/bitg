@@ -6,8 +6,8 @@ bitg kiritish usuli sifatida siz yozayotgan matnni ko'radi, shuning uchun xavfsi
 
 | Versiya | Holat |
 |---|---|
-| 0.2.x | ✅ tuzatishlar chiqadi |
-| < 0.2 | ❌ yangilang |
+| 0.3.x | ✅ tuzatishlar chiqadi |
+| < 0.3 | ❌ yangilang |
 
 ## Zaiflik haqida xabar berish
 
@@ -23,3 +23,14 @@ javob beramiz; tuzatish chiqqach, xohlasangiz, ismingizni advisory'da qayd etami
 - Parol, PIN va email maydonlarida o'chiq turadi.
 - Kiritish usuli (Windows TSF, Linux IBus/Fcitx5) klaviatura hook'i va clipboard ishlatmaydi. Clipboard faqat
   siz `Ctrl+Shift+Y` (belgilangan matnni o'girish) ni bosganda vaqtincha ishlatiladi va asl holiga qaytariladi.
+
+## Yuklab olingan faylni tekshirish
+
+v0.3.1 dan boshlab har bir reliz fayli (MSI, `.deb`, `.pkg`) uchun GitHub Actions imzolagan SLSA build provenance va
+SBOM (SPDX) attestation'i bor. Fayl aynan shu repodagi teg'dan, GitHub Actions'da yig'ilganini tekshirish:
+
+```bash
+gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg
+```
+
+Har relizda `bitg-<versiya>.spdx.json` ham bor: unda bitg ichidagi barcha kutubxonalar va ularning versiyalari.

@@ -1,13 +1,14 @@
 name: release
 
 # Faqat versiya tegi (v0.3.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI
-# imzolanadi va hammasi bitta GitHub Release'ga yuklanadi.
+# imzolanadi va hammasi bitta GitHub Release'ga yuklanadi. Har fayl uchun SLSA build provenance va SBOM attestation'i
+# yoziladi: `gh attestation verify <fayl> -R dtwinuz/bitg` u shu repodagi shu teg'dan, GitHub Actions'da yig'ilganini tasdiqlaydi.
 on:
   push:
     tags: ["v*.*.*"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   deb:
@@ -37,12 +38,23 @@ jobs:
         run: |
           sudo apt-get install -y -q ./target/deb/bitg_*.deb
           dbus-run-session -- python3 -u linux/test/ibus_e2e.py
+      - name: SBOM nomi
+        run: echo "SBOM=target/deb/bitg-${GITHUB_REF_NAME#v}.spdx.json" >> "$GITHUB_ENV"
+      # Cargo.lock va boshqa manifestlardan: bitg qaysi kutubxonalarning qaysi versiyasidan yig'ilgani (SPDX)
+      - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          output-file: ${{ env.SBOM }}
+          upload-artifact: false
+          upload-release-assets: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: deb
           path: |
             target/deb/*.deb
             target/deb/*.deb.sha256
+            target/deb/*.spdx.json
           if-no-files-found: error
 
   pkg:
@@ -72,6 +84,10 @@ jobs:
   msi:
     needs: [deb, pkg]
     runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
@@ -101,13 +117,26 @@ jobs:
         with:
           name: pkg
           path: dist/pkg
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/bitg-${{ env.VERSION }}-x64.msi
+            dist/deb/*.deb
+            dist/pkg/*.pkg
+      - uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: |
+            dist/bitg-${{ env.VERSION }}-x64.msi
+            dist/deb/*.deb
+            dist/pkg/*.pkg
+          sbom-path: dist/deb/bitg-${{ env.VERSION }}.spdx.json
       - name: Release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $deb = Get-ChildItem dist/deb -File | ForEach-Object { $_.FullName }
-          if ($deb.Count -lt 4) { throw "deb artefaktlari to'liq emas: $($deb.Count)" }
+          if ($deb.Count -lt 5) { throw "deb artefaktlari (2 deb + 2 sha256 + SBOM) to'liq emas: $($deb.Count)" }
           $pkg = Get-ChildItem dist/pkg -File | ForEach-Object { $_.FullName }
           if ($pkg.Count -lt 2) { throw "pkg artefaktlari to'liq emas: $($pkg.Count)" }
           gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
