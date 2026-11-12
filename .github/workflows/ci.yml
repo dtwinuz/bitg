@@ -96,5 +96,5 @@ jobs:
           { echo '### Test coverage'; echo; python3 -I tools/coverage_gate.py "$RUNNER_TEMP/cov.json" \
               --min-lines "$MIN_LINES" --min-branches "$MIN_BRANCHES"; } | tee -a "$GITHUB_STEP_SUMMARY"
         env:
-          MIN_LINES: 90
-          MIN_BRANCHES: 80
+          MIN_LINES: 95
+          MIN_BRANCHES: 90

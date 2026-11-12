@@ -5,7 +5,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [Unreleased]
 
 ### Qo'shildi
-- CI `coverage` job'i: tarmoq (branch) qamrovi ≥ 80 % va satrlar ≥ 90 % (`cargo llvm-cov --branch`, nightly sanasi
+- CI `coverage` job'i: tarmoq (branch) qamrovi ≥ 90 % va satrlar ≥ 95 % (hozir 94.8 % va 97.2 %) (`cargo llvm-cov --branch`, nightly sanasi
   qotirilgan; fayllar jadvali job summary'da). Yadro, CLI, IME va sozlamalar uchun yangi testlar.
 
 ### Tuzatildi

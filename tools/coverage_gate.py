@@ -7,7 +7,7 @@
 Satr va tarmoq (branch) qamrovi chegaradan past bo'lsa — exit 1. Jadval Markdown'da stdout'ga
 (CI uni job summary'ga yozadi).
 
-    python3 -I tools/coverage_gate.py cov.json --min-lines 90 --min-branches 80
+    python3 -I tools/coverage_gate.py cov.json --min-lines 95 --min-branches 90
 """
 
 import argparse
