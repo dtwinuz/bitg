@@ -11,7 +11,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - **Loyiha hujjatlari:** `GOVERNANCE.md` (ikki maintainer, qarorlar, davomiylik), `ROADMAP.md`, `ARCHITECTURE.md`,
   `docs/ASSURANCE.md` (xavfsizlik talablari, tahdid modeli, ma'lum kamchiliklar); `SECURITY.md` ga javob muddatlari;
   `CONTRIBUTING.md` ga kod standarti, review va DCO. README'da OpenSSF Best Practices belgisi.
-- CI: test qamrovi (`cargo llvm-cov`, satrlar ≥ 80 %, hisobot job summary'da).
+- CI: test qamrovi (`cargo llvm-cov`, satrlar ≥ 90 %, hisobot job summary'da).
 - **REUSE 3.3:** har kod faylida SPDX litsenziya va copyright sarlavhasi, qolgan fayllar `REUSE.toml` da, litsenziya
   matnlari `LICENSES/` da (Inter — OFL-1.1, SCOWL so'zlari — `LicenseRef-SCOWL`, o'zbekcha chastotalar — CC-BY-4.0);
   CI `reuse lint` bilan tekshiradi.

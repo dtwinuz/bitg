@@ -110,8 +110,8 @@ compromised operating system.
 
 | # | Gap | Plan |
 |---|---|---|
-| G1 | The Windows text service does not itself check the input scope (password, PIN, e-mail) of the field; it relies on the application disabling the IME. | Check `InputScope` / the keyboard-disabled compartment in `bitg-tsf` and add an e2e test. |
-| G2 | `bitg file` has no size limit for decompressed Office entries (a "zip bomb" can use a lot of memory). Only affects files the user chooses to convert. | Cap the decompressed size per entry. |
+| G1 | The Windows text service does not itself check the input scope (password, PIN, e-mail) of the field; it relies on the application disabling the IME. | Check `InputScope` / the keyboard-disabled compartment in `bitg-tsf` and add an e2e test ([#26](https://github.com/dtwinuz/bitg/issues/26)). |
+| G2 | `bitg file` has no size limit for decompressed Office entries (a "zip bomb" can use a lot of memory). Only affects files the user chooses to convert. | Cap the decompressed size per entry ([#27](https://github.com/dtwinuz/bitg/issues/27)). |
 | G3 | The apt signing key and the web server are held by one maintainer. | Handover tracked in [GOVERNANCE.md](../GOVERNANCE.md#continuity). |
 
 ## 8. Review

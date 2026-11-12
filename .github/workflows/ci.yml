@@ -50,7 +50,7 @@ jobs:
           cargo llvm-cov --workspace --summary-only --fail-under-lines "$MIN_LINES" | tee "$RUNNER_TEMP/cov.txt"
           { echo '### Test coverage'; echo '```'; tail -n 25 "$RUNNER_TEMP/cov.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
         env:
-          MIN_LINES: 80
+          MIN_LINES: 90
       - run: cargo build --release -p bitg-cli
       - name: Smoke
         shell: bash

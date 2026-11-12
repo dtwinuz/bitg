@@ -155,3 +155,94 @@ pub unsafe extern "C" fn bitg_session_complete_word(
 pub extern "C" fn bitg_warm_up() {
     crate::lang::warm_up();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// C chaqiruvchi kabi: satr beradi, natijani o'qib `bitg_free` bilan bo'shatadi.
+    fn call(f: impl FnOnce(*const c_char) -> *mut c_char, text: &str) -> Option<String> {
+        let c = CString::new(text).unwrap();
+        let p = f(c.as_ptr());
+        if p.is_null() {
+            return None;
+        }
+        // SAFETY: p — shu kutubxona qaytargan satr, bir marta bo'shatiladi.
+        let s = unsafe { CStr::from_ptr(p) }.to_str().unwrap().to_owned();
+        unsafe { bitg_free(p) };
+        Some(s)
+    }
+
+    #[test]
+    fn convert_and_back() {
+        bitg_warm_up();
+        let new = call(
+            |p| unsafe { bitg_convert(p, 0) },
+            "O'zbekiston shaharlari: Toshkent",
+        )
+        .unwrap();
+        assert_eq!(new, "Özbekiston şaharlari: Toşkent");
+        assert_eq!(
+            call(|p| unsafe { bitg_to_old(p, 1) }, &new).unwrap(),
+            "O'zbekiston shaharlari: Toshkent"
+        );
+        assert_eq!(
+            call(|p| unsafe { bitg_to_cyrillic(p) }, "Toşkent").unwrap(),
+            "Тошкент"
+        );
+    }
+
+    #[test]
+    fn flags_reach_options() {
+        let o = opts(BITG_NO_ENGLISH_GUARD | BITG_NO_CYRILLIC | BITG_ASCII_TUTUQ | BITG_NO_RESTORE);
+        assert!(!o.english_guard && !o.cyrillic && !o.restore_apostrophes);
+        assert_eq!(o.tutuq, '\'');
+        let d = opts(0);
+        assert!(d.english_guard && d.cyrillic && d.restore_apostrophes);
+        assert_eq!(d.tutuq, crate::chars::DEFAULT_TUTUQ);
+    }
+
+    #[test]
+    fn null_and_invalid_input_return_null() {
+        unsafe {
+            assert!(bitg_convert(std::ptr::null(), 0).is_null());
+            assert!(bitg_to_old(std::ptr::null(), 0).is_null());
+            assert!(bitg_to_cyrillic(std::ptr::null()).is_null());
+            bitg_free(std::ptr::null_mut());
+            bitg_session_free(std::ptr::null_mut());
+            bitg_session_reset(std::ptr::null_mut());
+        }
+        // UTF-8 emas
+        let bad = [0xffu8, 0xfe, 0];
+        assert!(unsafe { bitg_convert(bad.as_ptr().cast(), 0) }.is_null());
+    }
+
+    #[test]
+    fn session_round_trip() {
+        let s = bitg_session_new();
+        let mut delete = usize::MAX;
+        let w = CString::new("shahar").unwrap();
+        let p = unsafe { bitg_session_complete_word(s, w.as_ptr(), 0, &mut delete) };
+        assert!(!p.is_null());
+        assert_eq!(unsafe { CStr::from_ptr(p) }.to_str().unwrap(), "şahar");
+        assert!(delete > 0 && delete <= "shahar".chars().count());
+        unsafe { bitg_free(p) };
+
+        // ingliz so'zi o'zgarmaydi -> NULL, `delete` ga tegilmaydi
+        let mut untouched = 7;
+        let en = CString::new("check").unwrap();
+        assert!(unsafe { bitg_session_complete_word(s, en.as_ptr(), 0, &mut untouched) }.is_null());
+        assert_eq!(untouched, 7);
+        // `delete` NULL bo'lishi mumkin
+        let p = unsafe { bitg_session_complete_word(s, w.as_ptr(), 0, std::ptr::null_mut()) };
+        unsafe { bitg_free(p) };
+        unsafe {
+            bitg_session_reset(s);
+            assert!(
+                bitg_session_complete_word(std::ptr::null_mut(), w.as_ptr(), 0, &mut delete)
+                    .is_null()
+            );
+            bitg_session_free(s);
+        }
+    }
+}
