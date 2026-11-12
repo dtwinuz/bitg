@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# bitg macOS kiritish usuli: universal (arm64 + x86_64) bitg.app va o'rnatuvchi .pkg.
+#   macos/build.sh          ->  target/macos/bitg-<versiya>-macos.pkg (+ .sha256), target/macos/bitg-test
+# Talab: Xcode Command Line Tools, rustup target add aarch64-apple-darwin x86_64-apple-darwin
+set -euo pipefail
+cd "$(dirname "$0")/.."
+ROOT="$(pwd)"
+
+VER="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
+OUT="$ROOT/target/macos"
+APP="$OUT/stage/bitg.app"
+export MACOSX_DEPLOYMENT_TARGET=11.0
+FRAMEWORKS=(-framework Cocoa -framework InputMethodKit -framework Carbon)
+
+rm -rf "$OUT"
+mkdir -p "$OUT/bin"
+
+for pair in "aarch64-apple-darwin arm64" "x86_64-apple-darwin x86_64"; do
+  set -- $pair
+  cargo build --release --locked -p bitg-ime --target "$1"
+  LIB="$ROOT/target/$1/release"
+  swiftc -O -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
+    macos/Sources/*.swift -L "$LIB" -lbitg_ime "${FRAMEWORKS[@]}" -o "$OUT/bin/bitg-$2"
+  # sinov: IMK'siz, faqat Session.swift + soxta matn maydoni
+  swiftc -O -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
+    macos/Sources/Session.swift macos/test/main.swift -L "$LIB" -lbitg_ime -o "$OUT/bin/bitg-test-$2"
+done
+lipo -create "$OUT/bin/bitg-arm64" "$OUT/bin/bitg-x86_64" -output "$OUT/bin/bitg"
+lipo -create "$OUT/bin/bitg-test-arm64" "$OUT/bin/bitg-test-x86_64" -output "$OUT/bitg-test"
+
+# bundle
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/en.lproj"
+install -m 755 "$OUT/bin/bitg" "$APP/Contents/MacOS/bitg"
+sed "s/@VERSION@/$VER/g" macos/Info.plist > "$APP/Contents/Info.plist"
+plutil -lint "$APP/Contents/Info.plist"
+printf 'APPL????' > "$APP/Contents/PkgInfo"
+cp macos/InfoPlist.strings "$APP/Contents/Resources/en.lproj/InfoPlist.strings"
+sips -s format tiff -z 32 32 web/logo-512.png --out "$APP/Contents/Resources/bitg.tiff" >/dev/null
+
+# imzo: Developer ID bo'lmasa ad-hoc (Apple Silicon imzosiz binarni ishga tushirmaydi)
+codesign --force --sign "${BITG_MAC_SIGN_ID:--}" --timestamp=none "$APP"
+codesign --verify --strict --verbose=2 "$APP"
+
+# pkg: /Library/Input Methods/bitg.app; ko'chiriladigan bundle emas (boshqa joydagi nusxani yangilamasin)
+COMP="$OUT/component.plist"
+pkgbuild --analyze --root "$OUT/stage" "$COMP"
+plutil -replace 0.BundleIsRelocatable -bool NO "$COMP"
+PKG="$OUT/bitg-$VER-macos.pkg"
+pkgbuild --root "$OUT/stage" --component-plist "$COMP" --install-location "/Library/Input Methods" \
+  --identifier uz.bitg.inputmethod.pkg --version "$VER" --scripts macos/pkg-scripts "$PKG"
+(cd "$OUT" && shasum -a 256 "$(basename "$PKG")" > "$(basename "$PKG").sha256")
+lipo -info "$APP/Contents/MacOS/bitg"
+ls -l "$PKG"

@@ -1,0 +1,49 @@
+name: macos
+
+# InputMethodKit kiritish usuli: universal bitg.app, .pkg, sinov (soxta matn maydoni) va o'rnatish tekshiruvi.
+on:
+  push:
+    branches: [main, "macos/**"]
+    paths: ["crates/bitg-core/**", "crates/bitg-ime/**", "linux/include/**", "macos/**", "Cargo.*", ".github/workflows/macos.yml"]
+  pull_request:
+    paths: ["crates/bitg-core/**", "crates/bitg-ime/**", "linux/include/**", "macos/**", "Cargo.*", ".github/workflows/macos.yml"]
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  imk:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo test --locked -p bitg-ime
+      - name: bitg.app va .pkg
+        run: macos/build.sh
+      - name: Sinov (Session.swift + dvigatel)
+        run: target/macos/bitg-test
+      - name: O'rnatish
+        run: |
+          sudo installer -pkg target/macos/bitg-*-macos.pkg -target /
+          APP="/Library/Input Methods/bitg.app"
+          test -x "$APP/Contents/MacOS/bitg"
+          codesign --verify --strict "$APP"
+          lipo -archs "$APP/Contents/MacOS/bitg" | grep -q arm64
+          lipo -archs "$APP/Contents/MacOS/bitg" | grep -q x86_64
+          /usr/libexec/PlistBuddy -c "Print :InputMethodServerControllerClass" "$APP/Contents/Info.plist" | grep -qx BitgController
+          # IMK serveri ishga tushib, 3 soniya yiqilmay turishi kerak
+          "$APP/Contents/MacOS/bitg" & pid=$!; sleep 3; kill -0 $pid && kill $pid
+          "$APP/Contents/MacOS/bitg" --register || echo "register: CI sessiyasida TIS cheklangan bo'lishi mumkin"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bitg-macos
+          path: target/macos/bitg-*-macos.pkg*
+          if-no-files-found: error
