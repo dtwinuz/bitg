@@ -129,7 +129,7 @@ $end = $t + 1700
 # --- Oyna: bitg.uz uslubi (tinch sirt, 1px chiziq, bitta aksent #2f62c0) ---
 [xml]$xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        Title="bitg demo" Width="960" Height="300" WindowStyle="None" ResizeMode="NoResize"
+        Title="bitg demo" Width="960" Height="226" WindowStyle="None" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen" Background="#FFFFFF" Topmost="True" UseLayoutRounding="True"
         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="Grayscale">
   <Border BorderBrush="#E3E6EB" BorderThickness="1">
