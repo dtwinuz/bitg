@@ -2,11 +2,11 @@
 {
  "slug": "/yuklab-olish/",
  "lang": "uz",
- "title": "bitg yuklab olish — Windows 10/11 uchun bepul · bitg",
- "description": "bitg’ni Windows uchun yuklab oling: MSI o‘rnatuvchi, versiya, hajm, SHA-256 va o‘rnatish qadamlari. Bepul, ochiq kod, internetsiz ishlaydi.",
- "h1": "bitg’ni Windows uchun yuklab olish",
+ "title": "bitg yuklab olish — Windows va Linux uchun bepul · bitg",
+ "description": "bitg’ni Windows (MSI) va Linux (Ubuntu/Debian .deb) uchun yuklab oling: versiya, hajm, SHA-256 va o‘rnatish qadamlari. Bepul, ochiq kod, internetsiz ishlaydi.",
+ "h1": "bitg’ni yuklab olish: Windows va Linux",
  "crumb": "Yuklab olish",
- "card": "MSI o‘rnatuvchi, SHA-256, o‘rnatish va o‘chirish.",
+ "card": "Windows MSI va Linux .deb, SHA-256, o‘rnatish va o‘chirish.",
  "lead": "Bitta fayl, bir daqiqa: o‘rnating, <kbd>Win</kbd> + <kbd>Probel</kbd> bilan bitg’ni tanlang va odatdagidek yozavering — so‘z tugashi bilan yangi alifboga o‘tadi.",
  "updated": "2026-11-12",
  "schema": ["SoftwareApplication"],
@@ -29,7 +29,7 @@
           <code id="dc-sha" data-no-conv>{{sha256}}</code>
         </div>
       </div>
-      <p class="dc-note">Boshqa yo‘l: <a href="https://github.com/dtwinuz/bitg/releases">GitHub Releases</a> sahifasida ham shu fayl va <code>.sha256</code> turadi. Manba kodi ochiq — o‘zingiz qurishingiz ham mumkin.</p>
+      <p class="dc-note"><b>Linux’dasizmi?</b> Ubuntu va Debian uchun <a href="#linux">.deb paket</a> pastda. Boshqa yo‘l: <a href="https://github.com/dtwinuz/bitg/releases">GitHub Releases</a> sahifasida ham shu fayllar va <code>.sha256</code> turadi. Manba kodi ochiq — o‘zingiz qurishingiz ham mumkin.</p>
 
       <h2>O‘rnatish: 3 qadam</h2>
       <ol class="dc-steps">
@@ -67,11 +67,35 @@ msiexec /x {{msiName}} /qn</code></pre>
       <h2>O‘chirish</h2>
       <p>Sozlamalar → Ilovalar → bitg → O‘chirish (yoki <code>msiexec /x</code>). Dastur ochiq oynalarda yuklangan bo‘lsa, o‘chirish bir daqiqagacha cho‘zilishi mumkin — qayta yuklash kerak emas. Shaxsiy sozlamalar (<code>%APPDATA%\bitg</code>) saqlanib qoladi.</p>
 
+      <h2 id="linux">Linux (Ubuntu, Debian)</h2>
+      <div class="dc-dl">
+        <div class="dc-dl__top">
+          <div>
+            <div class="dc-dl__name">bitg {{version}} · Linux (IBus)</div>
+            <p class="dc-dl__meta" data-no-conv>amd64 · .deb · {{debSizeUz}} · Ubuntu 22.04+, Debian 12+</p>
+          </div>
+          <a class="bg-btn bg-btn--pri" href="{{debUrl}}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+            Yuklab olish
+          </a>
+        </div>
+        <div class="dc-dl__sha">
+          <span>SHA-256:</span>
+          <code data-no-conv>{{debSha}}</code>
+        </div>
+      </div>
+      <p>Ubuntu va GNOME’da standart kiritish tizimi — IBus. Terminalda:</p>
+      <pre><code data-no-conv>sudo apt install ./{{debName}}
+ibus restart</code></pre>
+      <p>So‘ng <b>Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg</b> va <kbd>Super</kbd> + <kbd>Probel</kbd> bilan tanlang. Matnni bermaydigan dasturlarda so‘z yozilayotganda tagi chizilgan ko‘rinadi va probel bosilganda yangi alifboda yoziladi. Parol maydonlari va terminallarda bitg o‘chiq turadi.</p>
+      <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguz">Telegram</a>’da yozing.</p>
+      <p>O‘chirish: <code data-no-conv>sudo apt remove bitg</code>. Sozlamalar <code data-no-conv>~/.config/bitg</code> da saqlanib qoladi.</p>
+
       <h2>Boshqa qurilmalar</h2>
       <div class="dc-table"><table>
         <tr><th>Qurilma</th><th>Holat</th></tr>
         <tr><td>Windows 10 / 11</td><td class="dc-yes">Hozir</td></tr>
+        <tr><td>Linux (IBus; Fcitx5 — sinov)</td><td class="dc-yes">Hozir — <a href="#linux">.deb</a></td></tr>
         <tr><td>Buyruq qatori (fayl va matnni o‘girish)</td><td class="dc-yes">Hozir — <a href="https://github.com/dtwinuz/bitg#readme">GitHub</a></td></tr>
-        <tr><td>Linux (IBus, Fcitx5)</td><td class="dc-no">Reja</td></tr>
         <tr><td>iPhone, Android, Mac</td><td class="dc-no">Reja — hozircha <a href="/yangi-harflarni-yozish/">qo‘lda yozish yo‘llari</a></td></tr>
       </table></div>

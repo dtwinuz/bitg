@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # bitg.uz: faqat origin/main deploy qilinadi.
-# web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI -> /opt/bitg-site -> health -> IndexNow.
+# web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI + Linux .deb
+# (dist/ da, GitHub Release'dan) -> /opt/bitg-site -> health -> IndexNow.
 set -euo pipefail
 
 HOST="${1:-dtwin}"
@@ -32,6 +33,11 @@ MSI="dist/bitg-$VER-x64.msi"
 [ -f "$MSI" ] || fail "$MSI yo'q (installer/build.ps1)"
 [ "$(sha256sum < "$MSI" | cut -d' ' -f1)" = "$(tr -d '\r' < "$MSI.sha256" | cut -d' ' -f1)" ] || fail "$MSI sha256 mos emas"
 grep -q "download/bitg-$VER-x64.msi" "$STAGE/src/web/index.html" || fail "index.html $VER MSI'ga havola bermaydi"
+DEBS="dist/bitg_${VER}_amd64.deb dist/fcitx5-bitg_${VER}_amd64.deb"
+for d in $DEBS; do
+  [ -f "$d" ] || fail "$d yo'q (GitHub Release v$VER dan yuklang)"
+  [ "$(sha256sum < "$d" | cut -d' ' -f1)" = "$(tr -d '\r' < "$d.sha256" | cut -d' ' -f1)" ] || fail "$d sha256 mos emas"
+done
 
 SITE="$STAGE/out/site"
 # css/js uzoq keshlanadi: har deployda manzil yangilansin (?v=<sha8>)
@@ -42,6 +48,7 @@ V="${SHA:0:8}"
 mkdir -p "$SITE/download"
 cp "$WASM" "$SITE/bitg_core.wasm"
 cp "$MSI" "dist/bitg-$VER-x64.msi.sha256" "$SITE/download/"
+for d in $DEBS; do cp "$d" "$d.sha256" "$SITE/download/"; done
 printf '%s\n' "$SHA" > "$SITE/version.txt"
 cp deploy/docker-compose.yml deploy/Caddyfile "$STAGE/out/"
 

@@ -1,0 +1,46 @@
+name: Xato / noto'g'ri o'girish
+description: So'z noto'g'ri o'girildi, o'girilmadi yoki dastur ishlamayapti
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Nima yozdingiz va nima chiqdi?
+      description: Matn bilan yozing. Kutilgan natijani ham ko'rsating.
+      placeholder: |
+        Yozdim: shoshilinch
+        Chiqdi: şoşilinç
+        Kutgan edim: ...
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Tizim
+      options:
+        - Windows 11
+        - Windows 10
+        - Ubuntu / Debian (IBus)
+        - Linux (Fcitx5)
+        - Boshqa (pastda yozing)
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Qaysi dasturda?
+      placeholder: Word, Chrome, Telegram Desktop, LibreOffice…
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: bitg versiyasi
+      placeholder: "0.2.0 (sozlamalar oynasida yoki `bitg --version`)"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Qo'shimcha
+      description: "`bitg explain \"<so'z>\"` natijasi, skrinshot yoki log (Windows: %LOCALAPPDATA%\\bitg\\tsf.log)."

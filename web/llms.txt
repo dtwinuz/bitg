@@ -1,16 +1,16 @@
 # bitg
 
-> bitg — yozayotganingizda oʻzbek matnini 2026-yilgi yangi lotin alifbosiga (Ö, Ğ, Ş, Ç) avtomatik oʻgiradigan bepul, ochiq kodli dastur. Inglizcha soʻz, havola va kodga tegmaydi; Backspace bilan qaytariladi; internetsiz ishlaydi. Windows 10/11 uchun.
+> bitg — yozayotganingizda oʻzbek matnini 2026-yilgi yangi lotin alifbosiga (Ö, Ğ, Ş, Ç) avtomatik oʻgiradigan bepul, ochiq kodli dastur. Inglizcha soʻz, havola va kodga tegmaydi; Backspace bilan qaytariladi; internetsiz ishlaydi. Windows 10/11 (MSI) va Linux (Ubuntu 22.04+, Debian 12+; IBus .deb, Fcitx5 sinovda) uchun.
 
 Yangi oʻzbek alifbosi: Oʻ→Ö, Gʻ→Ğ, Sh→Ş, Ch→Ç; tutuq belgisi (ʼ) qoladi.
 
 ## Sahifalar
 - [Bosh sahifa](https://bitg.uz/): dastur nima qiladi, brauzerdagi sinov maydoni, Windows MSI yuklab olish
-- [Yuklab olish](https://bitg.uz/yuklab-olish/): MSI, SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
+- [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI va Linux .deb, SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
 - [Onlayn konvertor](https://bitg.uz/konvertor/): eski lotin/kirill → yangi alifbo va aksincha, brauzerning oʻzida
 - [Yangi oʻzbek alifbosi](https://bitg.uz/yangi-alifbo/): 28 harf + tutuq, nima oʻzgardi, Ng
 - [Alifbo qonuni OʻRQ-1184](https://bitg.uz/yangi-alifbo-qonuni/): sanalar, 4 modda, nima oʻzgarmaydi
-- [Ş, Ç, Ğ, Ö qanday yoziladi](https://bitg.uz/yangi-harflarni-yozish/): Windows, Mac, telefon
+- [Ş, Ç, Ğ, Ö qanday yoziladi](https://bitg.uz/yangi-harflarni-yozish/): Windows, Linux, Mac, telefon
 - [Klaviatura tartiblari](https://bitg.uz/klaviatura/) va [Windows klaviaturasi](https://bitg.uz/klaviatura/windows/)
 - [Vositalarni taqqoslash](https://bitg.uz/qiyoslash/): tartib, konvertor va avtomatik oʻgirish farqi
 - [Savol-javob](https://bitg.uz/savollar/), [bitg haqida](https://bitg.uz/haqida/), [Maxfiylik](https://bitg.uz/maxfiylik/)

@@ -1,0 +1,17 @@
+name: Taklif
+description: Yangi imkoniyat yoki yaxshilash
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qanday muammoni hal qiladi?
+      placeholder: Men ... qilganimda ... bo'ladi, bu noqulay, chunki ...
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Taklifingiz
+    validations:
+      required: true

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Savol-javob
+    url: https://bitg.uz/savollar/
+    about: O'rnatish va ishlatish bo'yicha tez-tez beriladigan savollar
+  - name: Telegram kanal
+    url: https://t.me/bitguz
+    about: Yangiliklar va qisqa savollar
+  - name: Xavfsizlik zaifligi
+    url: https://github.com/dtwinuz/bitg/security/advisories/new
+    about: Zaiflik haqida yopiq xabar bering (ommaviy issue ochmang)

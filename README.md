@@ -1,5 +1,11 @@
 # bitg
 
+[![ci](https://github.com/dtwinuz/bitg/actions/workflows/ci.yml/badge.svg)](https://github.com/dtwinuz/bitg/actions/workflows/ci.yml)
+[![linux](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml/badge.svg)](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml)
+[![release](https://img.shields.io/github/v/release/dtwinuz/bitg?label=release)](https://github.com/dtwinuz/bitg/releases/latest)
+[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#litsenziya)
+[![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux-informational)](https://bitg.uz/yuklab-olish/)
+
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
 *Uzbek text to the 2026 Latin alphabet (ö ğ ş ç ʼ) — as you type, everywhere, without breaking English.*
 
@@ -361,6 +367,12 @@ yaxshi tanlov: tarjimon (16 til, ovozli rejim), turkiy tillar uchun moslangan �
 [Google Play](https://play.google.com/store/apps/details?id=com.tahrirchi.tilmoch) ·
 [tilmoch.ai](https://tilmoch.ai/ru/product/mobile). Tilmoch'ning yangi alifbo klaviatura tartibi (Windows, macOS)
 bitg'da `tilmoch` tartibi sifatida bor; ularning Android/iOS klaviaturasi «tez orada» deb e'lon qilingan.
+
+## Hissa qo'shish
+
+Xato, noto'g'ri o'girilgan so'z yoki taklif — [issue](https://github.com/dtwinuz/bitg/issues/new/choose). Kod bilan
+yordam: [CONTRIBUTING.md](CONTRIBUTING.md). Zaiflik haqida yopiq xabar: [SECURITY.md](SECURITY.md). O'zgarishlar
+tarixi: [CHANGELOG.md](CHANGELOG.md).
 
 ## Litsenziya
 
