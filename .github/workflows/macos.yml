@@ -32,6 +32,27 @@ jobs:
       - run: cargo test --locked -p bitg-ime
       - name: bitg.app va .pkg
         run: macos/build.sh
+      - name: Reproducible build
+        run: |
+          b="$RUNNER_TEMP/second"
+          git worktree add --detach "$b" HEAD
+          (cd "$b" && macos/build.sh >/dev/null)
+          n=$(basename target/macos/bitg-*-macos.pkg)
+          a=$(shasum -a 256 < "target/macos/$n" | cut -d' ' -f1); c=$(shasum -a 256 < "$b/target/macos/$n" | cut -d' ' -f1)
+          echo "$n  $a  $c"
+          { echo '### Reproducible .pkg'; echo '```'; echo "$a  $n"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$a" != "$c" ]; then
+            for d in 1 2; do
+              src=target/macos/$n; [ $d = 2 ] && src="$b/target/macos/$n"
+              x="$RUNNER_TEMP/x$d"; pkgutil --expand "$src" "$x"; mkdir "$x/payload"
+              (cd "$x/payload" && gunzip -c ../Payload | cpio -i --quiet)
+              xar --dump-toc="$x/toc.xml" -f "$src"
+            done
+            diff "$RUNNER_TEMP/x1/toc.xml" "$RUNNER_TEMP/x2/toc.xml" || true
+            diff <(cd "$RUNNER_TEMP/x1" && find . -type f ! -name toc.xml -exec shasum -a 256 {} + | sort -k2) \
+                 <(cd "$RUNNER_TEMP/x2" && find . -type f ! -name toc.xml -exec shasum -a 256 {} + | sort -k2) || true
+            exit 1
+          fi
       - name: Sinov (Session.swift + dvigatel)
         run: target/macos/bitg-test
       - name: O'rnatish

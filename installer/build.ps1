@@ -39,10 +39,15 @@ try {
         # MSVC majburiy: GNU toolchain'da WebView2Loader.dll alohida fayl bo'lib qoladi (o'rnatilgan ilova ochilmaydi)
         # va IME DLL boshqa CRT bilan quriladi. Standart toolchain GNU bo'lgan kompyuterda ham shu ishlatiladi.
         if (-not $env:RUSTUP_TOOLCHAIN) { $env:RUSTUP_TOOLCHAIN = 'stable-x86_64-pc-windows-msvc' }
-        cargo build --release --locked -p bitg-tsf -p bitg-settings -p bitg-cli
+        # Takrorlanuvchan qurilish: binarlarga qurilish papkasi va cargo kesh yo'li yozilmasin
+        # (.cargo/config.toml dagi target rustflags'ga qo'shiladi).
+        $cargoHome = if ($env:CARGO_HOME) { $env:CARGO_HOME } else { Join-Path $HOME '.cargo' }
+        $remap = "target.'cfg(windows)'.rustflags=['--remap-path-prefix=$root=/build/bitg', " +
+            "'--remap-path-prefix=$cargoHome=/cargo']"
+        cargo build --release --locked --config $remap -p bitg-tsf -p bitg-settings -p bitg-cli
         if ($LASTEXITCODE) { throw 'cargo build' }
         # 32-bit dasturlar uchun IME DLL (rustup target add i686-pc-windows-msvc).
-        cargo build --release --locked -p bitg-tsf --target i686-pc-windows-msvc
+        cargo build --release --locked --config $remap -p bitg-tsf --target i686-pc-windows-msvc
         if ($LASTEXITCODE) { throw 'cargo build (i686)' }
     }
     $bin = Join-Path $root 'target\release'
@@ -77,14 +82,58 @@ try {
     try {
         Sign $binaries
 
+        # --- takrorlanuvchanlik ---
+        # Vaqt: SOURCE_DATE_EPOCH yoki oxirgi commit vaqti. MSI kabinetiga fayl vaqti yoziladi, xulosa
+        # (summary) ma'lumotiga yaratilgan sana — ikkalasi ham shu vaqtga tenglanadi.
+        $epoch = if ($env:SOURCE_DATE_EPOCH) { [long]$env:SOURCE_DATE_EPOCH } else { [long](git log -1 --format=%ct) }
+        $when = [DateTimeOffset]::FromUnixTimeSeconds($epoch).UtcDateTime
+        $payload = $binaries + @('crates\bitg-settings\assets\bitg.ico', 'LICENSE-MIT', 'LICENSE-APACHE',
+            'installer\assets\license.rtf', 'installer\assets\dialog.bmp', 'installer\assets\banner.bmp' |
+            ForEach-Object { Join-Path $root $_ })
+        foreach ($f in $payload) { (Get-Item $f).LastWriteTimeUtc = $when }
+        # ProductCode va PackageCode: UUIDv5(UpgradeCode, versiya + o'rnatuvchi manbalari + fayllar xeshi).
+        $seed = "bitg-x64|$Version|" + (@($payload + (Join-Path $root 'installer\Package.wxs') |
+            ForEach-Object { (Get-FileHash $_ -Algorithm SHA256).Hash }) -join '|')
+        function Uuid5([string]$name) {
+            $ns = [guid]'80B9514E-EB2C-4EA5-B42A-CECB40A16979'
+            $nb = $ns.ToByteArray()
+            [Array]::Reverse($nb, 0, 4); [Array]::Reverse($nb, 4, 2); [Array]::Reverse($nb, 6, 2)
+            $h = [Security.Cryptography.SHA1]::Create().ComputeHash([byte[]]($nb + [Text.Encoding]::UTF8.GetBytes($name)))
+            [byte[]]$b = $h[0..15]
+            $b[6] = ($b[6] -band 0x0F) -bor 0x50
+            $b[8] = ($b[8] -band 0x3F) -bor 0x80
+            [Array]::Reverse($b, 0, 4); [Array]::Reverse($b, 4, 2); [Array]::Reverse($b, 6, 2)
+            '{' + ([guid][byte[]]$b).ToString().ToUpper() + '}'
+        }
+        $productCode = Uuid5 "$seed|product"
+        $packageCode = Uuid5 "$seed|package"
+
         # --- MSI ---
         dotnet build installer/bitg.wixproj -c Release -t:Rebuild -nologo -v:minimal `
-            "-p:Version=$Version" "-p:BinDir=$bin\" "-p:BinDir32=$bin32\"
+            "-p:Version=$Version" "-p:ProductCode=$productCode" "-p:BinDir=$bin\" "-p:BinDir32=$bin32\"
         if ($LASTEXITCODE) { throw 'WiX build' }
         $dist = Join-Path $root 'dist'
         New-Item -ItemType Directory -Force $dist | Out-Null
         $msi = Join-Path $dist "bitg-$Version-x64.msi"
         Copy-Item installer\bin\x64\Release\en-US\bitg.msi $msi -Force
+        # WiX PackageCode'ni (summary 9) tasodifiy, sanalarni (12, 13) hozirgi vaqt qilib yozadi.
+        $wi = New-Object -ComObject WindowsInstaller.Installer
+        $db = $wi.GetType().InvokeMember('OpenDatabase', 'InvokeMethod', $null, $wi, @([string]$msi, 1))
+        $si = $db.GetType().InvokeMember('SummaryInformation', 'GetProperty', $null, $db, @(3))
+        foreach ($p in @(@(9, $packageCode), @(12, $when), @(13, $when))) {
+            $si.GetType().InvokeMember('Property', 'SetProperty', $null, $si, $p)
+        }
+        [void]$si.GetType().InvokeMember('Persist', 'InvokeMethod', $null, $si, $null)
+        [void]$db.GetType().InvokeMember('Commit', 'InvokeMethod', $null, $db, $null)
+        foreach ($o in $si, $db, $wi) { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($o) }
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+        # Commit OLE (CFB) faylning "Root Entry" o'zgartirilgan vaqtini (katalog yozuvi, +108) hozirgi vaqt qiladi.
+        $bytes = [IO.File]::ReadAllBytes($msi)
+        $rootEntry = ([BitConverter]::ToUInt32($bytes, 48) + 1) -shl [BitConverter]::ToUInt16($bytes, 30)
+        if ([Text.Encoding]::Unicode.GetString($bytes, $rootEntry, 20) -ne 'Root Entry') { throw 'MSI: Root Entry topilmadi' }
+        [BitConverter]::GetBytes($when.ToFileTimeUtc()).CopyTo($bytes, $rootEntry + 108)
+        [IO.File]::WriteAllBytes($msi, $bytes)
+        Write-Host "ProductCode $productCode, PackageCode $packageCode, vaqt $($when.ToString('u'))"
         Sign @($msi)
     }
     finally {

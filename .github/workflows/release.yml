@@ -22,6 +22,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
@@ -68,6 +70,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
@@ -94,6 +98,9 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # yozish huquqli token .git/config'da qolmasin: keyingi qadamlar begona kodni (build.rs) kompilyatsiya qiladi
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
@@ -102,17 +109,22 @@ jobs:
       - name: Versiya tegdan va Cargo.toml'dan bir xilmi
         shell: pwsh
         run: |
-          $tag = "${{ github.ref_name }}".TrimStart('v')
+          $tag = $env:GITHUB_REF_NAME.TrimStart('v')
           $cargo = (Select-String -Path Cargo.toml -Pattern '^version\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value
           if ($tag -ne $cargo) { throw "Teg $tag, Cargo.toml $cargo" }
           "VERSION=$tag" >> $env:GITHUB_ENV
       - run: cargo test --workspace --locked
       - name: MSI
         shell: pwsh
+        run: ./installer/build.ps1 -Version $env:VERSION
+      # Imzo kaliti faqat shu qadamda: u kompilyatsiya qilmaydi (-SkipCargo), faqat tayyor binarlarni imzolab MSI'ni
+      # qayta yig'adi. Sertifikat sozlanmagan bo'lsa qadam hech narsa qilmaydi.
+      - name: Imzo
+        shell: pwsh
         env:
           BITG_SIGN_PFX: ${{ secrets.BITG_SIGN_PFX }}
           BITG_SIGN_PFX_PASSWORD: ${{ secrets.BITG_SIGN_PFX_PASSWORD }}
-        run: ./installer/build.ps1 -Version $env:VERSION
+        run: if ($env:BITG_SIGN_PFX) { ./installer/build.ps1 -Version $env:VERSION -SkipCargo }
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: deb
@@ -152,7 +164,7 @@ jobs:
           if ($deb.Count -lt 5) { throw "deb artefaktlari (2 deb + 2 sha256 + SBOM) to'liq emas: $($deb.Count)" }
           $pkg = Get-ChildItem dist/pkg -File | ForEach-Object { $_.FullName }
           if ($pkg.Count -lt 2) { throw "pkg artefaktlari to'liq emas: $($pkg.Count)" }
-          gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
+          gh release create $env:GITHUB_REF_NAME dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
             "dist/bitg-$env:VERSION.intoto.jsonl" "dist/bitg-$env:VERSION.sbom.sigstore.json" `
             --title "bitg $env:VERSION" --generate-notes --verify-tag
 

@@ -7,6 +7,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ### Qo'shildi
 - CI `coverage` job'i: tarmoq (branch) qamrovi ≥ 90 % va satrlar ≥ 95 % (hozir 94.8 % va 97.2 %) (`cargo llvm-cov --branch`, nightly sanasi
   qotirilgan; fayllar jadvali job summary'da). Yadro, CLI, IME va sozlamalar uchun yangi testlar.
+- **Takrorlanadigan MSI va `.pkg`:** `.deb` kabi, bir commit'dan istalgan papkada bayt-mayt bir xil o'rnatuvchi.
+  MSI: `/Brepro`, yo'l prefikslari, fayl vaqtlari commit vaqtida, ProductCode/PackageCode versiya va fayllardan
+  (UUIDv5). `.pkg`: yo'l prefikslari (Rust, Swift `#file`), fayl vaqtlari, xar TOC vaqtlari
+  (`tools/xar_normalize.py`). `macos` va `e2e` workflow'lari ikki marta yig'ib solishtiradi.
+- Xavfsizlik tekshiruvi 2026-11-13 (`docs/ASSURANCE.md` 8-bo'lim): 11 topilma, kritik va yuqori yo'q.
+
+### Xavfsizlik
+- Reliz job'i: token `.git/config`da qolmaydi, imzo kaliti faqat kompilyatsiya qilmaydigan qadamda, teg nomi
+  skriptga `env` orqali beriladi.
+- `input.dll` faqat System32 dan yuklanadi; zaxira yo'lda so'z buferi 40 belgidan oshmaydi.
 
 ### Tuzatildi
 - **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML

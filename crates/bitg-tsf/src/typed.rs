@@ -33,10 +33,13 @@ impl Typed {
         self.why = why;
     }
 
+    /// MAX dan uzun so'z baribir o'girilmaydi, shuning uchun ortiqcha belgilar xotirada saqlanmaydi
+    /// (bo'sh joysiz uzun parol yoki kalit cheksiz to'planmasin).
     pub fn push(&mut self, c: char) {
         if self.word.len() >= MAX {
             self.trusted = false;
             self.why = "word too long";
+            return;
         }
         self.word.push(c);
     }
@@ -164,7 +167,7 @@ mod tests {
         let mut t = typed(&"a".repeat(MAX));
         assert_eq!(t.len(), MAX);
         t.push('b');
-        assert_eq!(t.len(), MAX + 1);
+        assert_eq!(t.len(), MAX);
         assert_eq!(t.finish(), None);
         assert_eq!(t.why(), "word too long");
         assert!(t.is_empty());
