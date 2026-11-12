@@ -15,9 +15,22 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   o'rnatib, `bitg.exe` ni ishlatib, o'chirib tekshiradi. Manifest ProductCode va UpgradeCode bilan, shuning uchun
   `winget upgrade` MSI'dan o'rnatilgan nusxani ham taniydi.
 - `tools/release/packaging.py`: ikkala havola ham GitHub Release'ga, ProductCode MSI'ning o'zidan o'qiladi.
+- **@bitguzbot: `/fikr` va `/yuklash`.** `/fikr` (yoki saytdagi `t.me/bitguzbot?start=fikr`) dan keyingi xabar,
+  skrinshot bilan ham, bitg jamoasiga boradi; jamoa reply qilsa javob foydalanuvchining shu chatiga qaytadi.
+  `/yuklash` Windows, Mac (brew), Linux (apt) va telefon yo'llarini beradi. Botga soxta Telegram server bilan
+  uchidan-uchiga sinov (`bot/test/e2e.py`) qo'shildi va CI'da yuradi.
+- **Reliz e'loni:** yangi versiya chiqqanda @bitguz ga qisqa post, @bitgtech ga CHANGELOG'dagi to'liq ro'yxat
+  (`tools/release/announce.py`, `announce` workflow, @bitgdevbot orqali).
+
+### O'zgardi
+- Saytdagi "Telegram'da yozing" havolalari kanal (@bitguz, u yerga yozib bo'lmaydi) o'rniga @bitguzbot `/fikr` ga
+  olib boradi. @bitguz faqat yangiliklar uchun qoldi, texnik kanal @bitgtech "Biz haqimizda" va `llms.txt` da.
+- Statistika xulosasi va uptime ogohlantirishlari ommaviy bot emas, ishchi @bitgdevbot orqali boradi
+  (`set-stats-env.sh` tokenni so'raydi; bir nechta admin chat — vergul bilan).
 
 ### Tuzatildi
 - Docker image'lari digest bilan, `rustup-init` versiya va SHA-256 bilan qotirildi; Dependabot Docker'ni ham kuzatadi. `osv-scanner.toml`: Linux'da hech qachon yig'ilmaydigan glib zanjiri uchun asoslangan istisno.
+- `bot/Cargo.lock` bitg-core 0.3.0 ga yangilandi: eskisi bilan bot Docker'da (`--locked`) yig'ilmas edi.
 - `SECURITY.md`: qo'llab-quvvatlanadigan versiya 0.3.x; `release.yml` umumiy ruxsati `contents: read` ga tushirildi.
 - **Windows: bitg ishga tushishda xato bersa ham tanlangan klaviatura o'zgarmaydi** ([#13](https://github.com/dtwinuz/bitg/issues/13)).
   Avval `ActivateEx` ichidagi xato yoki panic TSF'ga qaytardi, shunda Windows o'z-o'zidan oldingi klaviaturaga

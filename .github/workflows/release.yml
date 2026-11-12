@@ -151,3 +151,13 @@ jobs:
           gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb @pkg `
             "dist/bitg-$env:VERSION.intoto.jsonl" "dist/bitg-$env:VERSION.sbom.sigstore.json" `
             --title "bitg $env:VERSION" --generate-notes --verify-tag
+
+  announce:
+    needs: msi
+    permissions:
+      contents: read
+    uses: ./.github/workflows/announce.yml
+    with:
+      version: ${{ github.ref_name }}
+    secrets:
+      BITG_DEVBOT_TOKEN: ${{ secrets.BITG_DEVBOT_TOKEN }}

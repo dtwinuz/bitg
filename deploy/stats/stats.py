@@ -354,10 +354,15 @@ def digest(state, day):
 
 
 def tg(method, fields=None, files=None):
-    token, chat = ENV["BOT_TOKEN"], ENV["ADMIN_CHAT_ID"]
-    if not token or not chat:
+    """ADMIN_CHAT_ID vergul bilan bir nechta bo'lishi mumkin; hech bo'lmasa bittasiga yetsa True."""
+    chats = [c.strip() for c in ENV["ADMIN_CHAT_ID"].split(",") if c.strip()]
+    if not ENV["BOT_TOKEN"] or not chats:
         return False
-    url = f"https://api.telegram.org/bot{token}/{method}"
+    return any([tg_one(method, c, fields, files) for c in chats])
+
+
+def tg_one(method, chat, fields, files):
+    url = f"https://api.telegram.org/bot{ENV['BOT_TOKEN']}/{method}"
     fields = {"chat_id": chat, **(fields or {})}
     if files:
         b = uuid.uuid4().hex

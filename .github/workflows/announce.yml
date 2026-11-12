@@ -1,0 +1,31 @@
+name: announce
+
+# Yangi versiya e'loni: @bitguz ga qisqa post, @bitgtech ga CHANGELOG'dagi to'liq ro'yxat (@bitgdevbot orqali).
+# release.yml reliz yaratilgach o'zi chaqiradi; qo'lda qayta yuborish: Actions -> announce -> Run workflow.
+on:
+  workflow_call:
+    inputs:
+      version: { type: string, required: true }
+    secrets:
+      BITG_DEVBOT_TOKEN: { required: false }
+  workflow_dispatch:
+    inputs:
+      version: { description: "Versiya (masalan 0.3.0)", type: string, required: true }
+
+permissions:
+  contents: read
+
+jobs:
+  telegram:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ startsWith(inputs.version, 'v') && inputs.version || format('v{0}', inputs.version) }}
+      - name: Telegram
+        env:
+          TG_TOKEN: ${{ secrets.BITG_DEVBOT_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 -I tools/release/announce.py "$VERSION" --dry-run
+          python3 -I tools/release/announce.py "$VERSION"

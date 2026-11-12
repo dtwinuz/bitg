@@ -48,7 +48,7 @@
       <div class="dc-answer"><p>Beta o‘rnatuvchi hozircha raqamli imzosiz, shuning uchun SmartScreen notanish nashriyotchi haqida ogohlantiradi. Oynada <b>«Batafsil»</b> → <b>«Baribir ishga tushirish»</b> ni bosing.</p></div>
       <p>Fayl aynan biznikimi — tekshirish oson. PowerShell’da:</p>
       <pre><code data-no-conv>Get-FileHash .\{{msiName}} -Algorithm SHA256</code></pre>
-      <p>Chiqqan qiymat yuqoridagi SHA-256 bilan bir xil bo‘lishi kerak. Bir belgi farq qilsa ham faylni ochmang va bizga <a href="https://t.me/bitguz">Telegram</a> orqali yozing.</p>
+      <p>Chiqqan qiymat yuqoridagi SHA-256 bilan bir xil bo‘lishi kerak. Bir belgi farq qilsa ham faylni ochmang va bizga <a href="https://t.me/bitguzbot?start=fikr">Telegram</a> orqali yozing.</p>
 
       <h2>Tizim talablari</h2>
       <div class="dc-table"><table>
@@ -102,7 +102,7 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bitg.gpg] https://bitg.uz/apt 
 sudo apt update && sudo apt install bitg
 ibus restart</code></pre>
       <p>Fcitx5 uchun oxirgi qatorda <code data-no-conv>sudo apt install fcitx5-bitg</code>. Kalit izi (fingerprint): <code data-no-conv>{{aptFingerprint}}</code>. Omborni olib tashlash: <code data-no-conv>sudo rm /etc/apt/sources.list.d/bitg.list /etc/apt/keyrings/bitg.gpg</code>.</p>
-      <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-dl="fcitx" data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguz">Telegram</a>’da yozing.</p>
+      <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-dl="fcitx" data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguzbot?start=fikr">Telegram</a>’da yozing.</p>
       <p>O‘chirish: <code data-no-conv>sudo apt remove bitg</code>. Sozlamalar <code data-no-conv>~/.config/bitg</code> da saqlanib qoladi.</p>
 
       <h2 id="mac">Mac (sinov)</h2>
@@ -133,7 +133,7 @@ ibus restart</code></pre>
       <p>Terminalda o‘rnatish (ogohlantirish oynasisiz) va faylni tekshirish:</p>
       <pre><code data-no-conv>shasum -a 256 ~/Downloads/{{macName}}
 sudo installer -pkg ~/Downloads/{{macName}} -target /</code></pre>
-      <p>Mac versiyasi yangi va hali ko‘p dasturlarda sinalmagan. Biror dasturda harf ikki marta yozilsa, yo‘qolsa yoki so‘z o‘girilmasa — dastur nomi bilan <a href="https://t.me/bitguz">Telegram</a>’da yozing. Terminal, iTerm, Warp va boshqa terminallarda bitg o‘chiq turadi. bitg tanlanganda menyu satridagi kiritish menyusida: bitg’ni yoqish/o‘chirish, uni bitta dasturda o‘chirish, istisno so‘zlar ro‘yxati. O‘chirish: <code data-no-conv>sudo rm -rf "/Library/Input Methods/bitg.app"</code>, so‘ng qayta kiring; sozlamalar <code data-no-conv>~/Library/Application Support/bitg</code> da qoladi.</p>
+      <p>Mac versiyasi yangi va hali ko‘p dasturlarda sinalmagan. Biror dasturda harf ikki marta yozilsa, yo‘qolsa yoki so‘z o‘girilmasa — dastur nomi bilan <a href="https://t.me/bitguzbot?start=fikr">Telegram</a>’da yozing. Terminal, iTerm, Warp va boshqa terminallarda bitg o‘chiq turadi. bitg tanlanganda menyu satridagi kiritish menyusida: bitg’ni yoqish/o‘chirish, uni bitta dasturda o‘chirish, istisno so‘zlar ro‘yxati. O‘chirish: <code data-no-conv>sudo rm -rf "/Library/Input Methods/bitg.app"</code>, so‘ng qayta kiring; sozlamalar <code data-no-conv>~/Library/Application Support/bitg</code> da qoladi.</p>
 
       <h2>Boshqa qurilmalar</h2>
       <div class="dc-table"><table>

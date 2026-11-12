@@ -188,7 +188,7 @@ def sitewide():
          "logo": SITE + "/logo-512.png",
          "description": "bitg — yozayotganingizda oʻzbek matnini 2026-yilgi yangi alifboga (ö ğ ş ç) avtomatik "
                         "oʻgiradigan bepul, ochiq kodli dastur.",
-         "sameAs": ["https://github.com/dtwinuz/bitg", "https://t.me/bitguz", "https://t.me/bitguzbot"]},
+         "sameAs": ["https://github.com/dtwinuz/bitg", "https://t.me/bitguz", "https://t.me/bitguzbot", "https://t.me/bitgtech"]},
         {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "bitg",
          "inLanguage": ["uz", "ru", "en"], "publisher": {"@id": SITE + "/#org"}},
     ]
