@@ -641,11 +641,13 @@ impl TextService_Impl {
 
 impl ITfKeyEventSink_Impl for TextService_Impl {
     fn OnSetFocus(&self, _foreground: BOOL) -> Result<()> {
-        if let Ok(mut st) = self.state.try_borrow_mut() {
-            st.typed.boundary();
-            st.undo = None;
-        }
-        Ok(())
+        guard("key focus", || {
+            if let Ok(mut st) = self.state.try_borrow_mut() {
+                st.typed.boundary();
+                st.undo = None;
+            }
+            Ok(())
+        })
     }
 
     /// TRUE faqat ushlanadigan tugmada (tartib belgisi yoki o'girishni bekor qiluvchi Backspace) —

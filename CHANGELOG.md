@@ -17,6 +17,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - Reliz job'i: token `.git/config`da qolmaydi, imzo kaliti faqat kompilyatsiya qilmaydigan qadamda, teg nomi
   skriptga `env` orqali beriladi.
 - `input.dll` faqat System32 dan yuklanadi; zaxira yo'lda so'z buferi 40 belgidan oshmaydi.
+- C ABI (`bitg-core`) va TSF COM eksportlarida panik ushlanadi: ilova yopilib qolmaydi ([#44](https://github.com/dtwinuz/bitg/issues/44)).
+- `bitg file`: vaqtinchalik fayl oldindan bilib bo'lmaydigan nom bilan, faqat yangi fayl sifatida ochiladi, fayl
+  ruxsatlari saqlanadi; Linux/macOS'da `exceptions.txt` atomik va faqat egasi o'qiydigan (0600) yoziladi ([#43](https://github.com/dtwinuz/bitg/issues/43)).
+- CI: `cargo deny check advisories` (RustSec), Python paketlari xesh bilan qotirilgan ([#47](https://github.com/dtwinuz/bitg/issues/47)).
 
 ### Tuzatildi
 - **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML

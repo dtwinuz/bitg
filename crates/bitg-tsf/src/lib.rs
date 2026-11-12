@@ -36,7 +36,7 @@ mod exports {
     use std::sync::atomic::{AtomicIsize, Ordering};
 
     use windows::Win32::Foundation::{
-        CLASS_E_CLASSNOTAVAILABLE, E_POINTER, HINSTANCE, S_FALSE, S_OK,
+        CLASS_E_CLASSNOTAVAILABLE, E_POINTER, E_UNEXPECTED, HINSTANCE, S_FALSE, S_OK,
     };
     use windows::Win32::System::Com::{IClassFactory, IClassFactory_Impl};
     use windows::Win32::System::SystemServices::DLL_PROCESS_ATTACH;
@@ -59,6 +59,15 @@ mod exports {
         true.into()
     }
 
+    /// COM chegarasi: panik dasturni to'xtatmasin (`extern "system"` ichidagi panik jarayonni yopadi),
+    /// o'rniga E_UNEXPECTED qaytadi va logga yoziladi.
+    fn com_guard(what: &str, f: impl FnOnce() -> HRESULT) -> HRESULT {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)).unwrap_or_else(|_| {
+            crate::log::write(&format!("panic in {what}"));
+            E_UNEXPECTED
+        })
+    }
+
     #[implement(IClassFactory)]
     struct Factory;
 
@@ -76,9 +85,12 @@ mod exports {
             if outer.is_some() {
                 return Err(windows::Win32::Foundation::CLASS_E_NOAGGREGATION.into());
             }
-            crate::log::write("create instance");
-            let unknown: IUnknown = TextService::new().into();
-            unsafe { unknown.query(iid, object).ok() }
+            com_guard("create instance", || {
+                crate::log::write("create instance");
+                let unknown: IUnknown = TextService::new().into();
+                unsafe { unknown.query(iid, object) }
+            })
+            .ok()
         }
 
         fn LockServer(&self, _lock: BOOL) -> windows_core::Result<()> {
@@ -101,9 +113,11 @@ mod exports {
         if unsafe { *clsid } != CLSID_BITG {
             return CLASS_E_CLASSNOTAVAILABLE;
         }
-        crate::log::write("get class object");
-        let factory: IClassFactory = Factory.into();
-        unsafe { factory.query(iid, out) }
+        com_guard("get class object", || {
+            crate::log::write("get class object");
+            let factory: IClassFactory = Factory.into();
+            unsafe { factory.query(iid, out) }
+        })
     }
 
     /// DLL doim yuklangan qoladi (oddiy va xavfsiz: TSF ob'ektlari har dasturda qisqa yashaydi).
@@ -114,18 +128,18 @@ mod exports {
 
     #[unsafe(no_mangle)]
     pub extern "system" fn DllRegisterServer() -> HRESULT {
-        match crate::register::register() {
+        com_guard("register", || match crate::register::register() {
             Ok(()) => S_OK,
             Err(e) => e.code(),
-        }
+        })
     }
 
     #[unsafe(no_mangle)]
     pub extern "system" fn DllUnregisterServer() -> HRESULT {
-        match crate::register::unregister() {
+        com_guard("unregister", || match crate::register::unregister() {
             Ok(()) => S_OK,
             Err(e) => e.code(),
-        }
+        })
     }
 
     #[allow(dead_code)]

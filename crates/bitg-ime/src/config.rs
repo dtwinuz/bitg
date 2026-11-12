@@ -207,11 +207,34 @@ impl Watched {
         }
         text.push_str(word);
         text.push('\n');
-        fs::write(&exc, text)?;
+        write_private(&exc, &text)?;
         self.stamp = None;
         self.reload();
         Ok(())
     }
+}
+
+/// `exceptions.txt` foydalanuvchi yozgan so'zlarni saqlaydi: boshqa foydalanuvchilar o'qiy olmasin (Unix'da 0600)
+/// va yozish yarmida uzilsa eski ro'yxat buzilmasin (vaqtinchalik fayl + rename).
+fn write_private(path: &Path, text: &str) -> std::io::Result<()> {
+    use std::io::Write;
+    let mut name = path.as_os_str().to_owned();
+    name.push(format!(".{}.tmp", std::process::id()));
+    let tmp = std::path::PathBuf::from(name);
+    let _ = fs::remove_file(&tmp);
+    let mut o = fs::OpenOptions::new();
+    o.write(true).create_new(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut o, 0o600);
+    let written = o.open(&tmp).and_then(|mut f| {
+        f.write_all(text.as_bytes())?;
+        f.sync_all()
+    });
+    written
+        .and_then(|()| fs::rename(&tmp, path))
+        .inspect_err(|_| {
+            let _ = fs::remove_file(&tmp);
+        })
 }
 
 fn meta(p: &Path) -> (u64, SystemTime) {
@@ -305,6 +328,12 @@ mod tests {
         let _ = fs::remove_dir_all(&dir);
         let mut w = Watched::new(Some(dir.clone()));
         w.remember("Chat").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let m = fs::metadata(dir.join("exceptions.txt")).unwrap();
+            assert_eq!(m.permissions().mode() & 0o777, 0o600);
+        }
         w.remember("chat").unwrap();
         assert_eq!(
             fs::read_to_string(dir.join("exceptions.txt")).unwrap(),

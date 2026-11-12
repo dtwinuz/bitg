@@ -248,14 +248,46 @@ pub fn run(args: &[String], opts: &Options, ascii: bool) -> ExitCode {
 }
 
 /// Avval vaqtinchalik faylga yozib, keyin almashtiradi — yarim yozilgan hujjat qolmaydi.
+/// Vaqtinchalik fayl o'sha papkada, oldindan bilib bo'lmaydigan nom bilan va faqat yangi fayl sifatida
+/// (`create_new`: oldindan qo'yilgan fayl yoki symlink ustidan yozilmaydi) ochiladi; maqsad fayl bor bo'lsa,
+/// uning ruxsatlari yangi faylga o'tkaziladi (`--in-place` 0600 faylni hammaga ochib qo'ymasin).
 fn write_atomic(target: &Path, bytes: &[u8]) -> io::Result<()> {
-    let mut tmp = target.as_os_str().to_owned();
-    tmp.push(".bitg-tmp");
-    let tmp = PathBuf::from(tmp);
-    std::fs::write(&tmp, bytes)?;
-    std::fs::rename(&tmp, target).inspect_err(|_| {
-        let _ = std::fs::remove_file(&tmp);
-    })
+    use std::io::Write;
+    let perms = std::fs::metadata(target).ok().map(|m| m.permissions());
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.subsec_nanos());
+    let mut attempt = 0u32;
+    let (tmp, mut file) = loop {
+        let mut name = target.as_os_str().to_owned();
+        name.push(format!(
+            ".bitg-{}-{nanos:x}-{attempt}.tmp",
+            std::process::id()
+        ));
+        let tmp = PathBuf::from(name);
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&tmp)
+        {
+            Ok(f) => break (tmp, f),
+            Err(e) if e.kind() == io::ErrorKind::AlreadyExists && attempt < 100 => attempt += 1,
+            Err(e) => return Err(e),
+        }
+    };
+    let written = file
+        .write_all(bytes)
+        .and_then(|()| file.sync_all())
+        .and_then(|()| match perms {
+            Some(p) => std::fs::set_permissions(&tmp, p),
+            None => Ok(()),
+        });
+    drop(file);
+    written
+        .and_then(|()| std::fs::rename(&tmp, target))
+        .inspect_err(|_| {
+            let _ = std::fs::remove_file(&tmp);
+        })
 }
 
 /// `bitg diff [--old] [MATN...]`: nima o'zgarishini ko'rsatadi, hech narsa yozmaydi (MATN bo'lmasa — stdin).
@@ -328,5 +360,33 @@ mod tests {
             line_changes("choy\nbor", "çoy bor"),
             [(0, "choy\nbor".into(), "çoy bor".into())]
         );
+    }
+
+    #[test]
+    fn write_atomic_replaces_keeps_permissions_and_leaves_no_temp() {
+        let dir = std::env::temp_dir().join(format!("bitg-write-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let target = dir.join("hujjat.txt");
+        std::fs::write(&target, "eski").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o600)).unwrap();
+        }
+        write_atomic(&target, b"yangi").unwrap();
+        assert_eq!(std::fs::read_to_string(&target).unwrap(), "yangi");
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mode = std::fs::metadata(&target).unwrap().permissions().mode();
+            assert_eq!(mode & 0o777, 0o600);
+        }
+        let left: Vec<_> = std::fs::read_dir(&dir)
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        assert_eq!(left, [std::ffi::OsString::from("hujjat.txt")]);
+        assert!(write_atomic(&dir.join("yoq").join("x.txt"), b"x").is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

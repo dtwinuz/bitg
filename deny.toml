@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# cargo-deny: CI (`ci.yml`, `advisories` job) RustSec bazasida zaiflik, unsound yoki qarovsiz deb belgilangan
+# bog'liqlik bo'lsa to'xtaydi. Istisno faqat asoslangan holda, ID bilan va sababi yozilib qo'shiladi.
+[advisories]
+ignore = [
+    # gtk3-macros orqali (wry va tray-icon ning Linux bog'liqligi; bitg-settings faqat Windows'da yetkaziladi).
+    # Zaiflik emas, faqat "qarovsiz"; gtk-rs 0.18 tarmog'i almashtirilmaguncha.
+    { id = "RUSTSEC-2024-0370", reason = "proc-macro-error unmaintained, build-time only, via gtk3-macros (Linux deps of wry/tray-icon)" },
+]

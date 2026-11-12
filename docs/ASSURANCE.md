@@ -65,9 +65,10 @@ compromised operating system.
 ### R3 — robustness against arbitrary input
 - Memory safety: Rust everywhere except the thin IBus (C), Fcitx5 (C++) and macOS (Swift) shells; `unsafe` is
   limited to FFI and COM calls.
-- The COM entry points of the Windows text service that do real work run inside `guard()`, which catches errors
-  and panics and logs them instead of returning them to TSF (`service.rs`, issue #13). The trivial class-factory
-  and focus callbacks and the `bitg-core` C ABI are not wrapped yet ([#44](https://github.com/dtwinuz/bitg/issues/44)).
+- Every COM entry point of the Windows text service runs inside `guard()` (`service.rs`, issue #13), which
+  catches errors and panics and logs them instead of returning them to TSF; the class factory and the `Dll*`
+  exports turn a panic into `E_UNEXPECTED` (`com_guard` in `lib.rs`). Every function of the `bitg-core` C ABI
+  catches panics too (`guarded` in `ffi.rs`, [#44](https://github.com/dtwinuz/bitg/issues/44)).
 - libFuzzer targets `convert` and `session` with a corpus from `eval/`; CodeQL (Rust, C/C++, Python,
   JavaScript, Actions) on every pull request; `cargo clippy -D warnings`.
 - Office files: only text nodes are rewritten into a new archive; entry names are never used as file-system paths,
@@ -124,7 +125,9 @@ compromised operating system.
 | Weakness (CWE) | Status |
 |---|---|
 | Memory corruption (CWE-119/787/416) | Rust; the C/C++ shells are small and covered by CodeQL. |
-| Uncaught exception across FFI (CWE-248) | `guard()` at the working COM entry points; `catch_unwind` in the `bitg-ime` C ABI used by Linux and macOS; remaining entry points: [#44](https://github.com/dtwinuz/bitg/issues/44). |
+| Uncaught exception across FFI (CWE-248) | `guard()` / `com_guard()` at every COM entry point; `catch_unwind` in the `bitg-core` and `bitg-ime` C ABIs. |
+| Insecure temporary file (CWE-377) | `bitg file` writes through a `create_new` temp file with an unpredictable name and keeps the target's permissions; `exceptions.txt` is written atomically with mode 0600. |
+| Use of vulnerable components (CWE-1395) | `cargo deny check advisories` in CI (`deny.toml`); CI Python packages are hash-pinned. |
 | Uncontrolled search path (CWE-427) | `input.dll` is loaded from System32 only (`LOAD_LIBRARY_SEARCH_SYSTEM32`). |
 | Injection (CWE-74/78/79) | No shell, SQL or HTML is built from typed text; the site is static and escapes generated text (`tools/site/og.cjs`). |
 | Information exposure through logs (CWE-532) | Logs contain no typed text (R1). |
@@ -139,8 +142,8 @@ compromised operating system.
 | G3 | The apt signing key and the web server are held by one maintainer. | Handover tracked in [GOVERNANCE.md](../GOVERNANCE.md#continuity). |
 | G4 | Windows fallback path (apps without TSF text): a field whose type cannot be read is treated as plain text, and Backspace re-typing cannot re-read the text (R2, R4). | [#41](https://github.com/dtwinuz/bitg/issues/41) |
 | G5 | `bitg.uz` serves files checked only against their `.sha256`, not the attestation. | [#42](https://github.com/dtwinuz/bitg/issues/42) |
-| G6 | `bitg file` output and `exceptions.txt` writes: predictable temp name, permissions not kept. | [#43](https://github.com/dtwinuz/bitg/issues/43) |
-| G7 | No CI gate on RustSec advisories. | [#47](https://github.com/dtwinuz/bitg/issues/47) |
+| G6 | Closed: safe temp files and kept permissions ([#43](https://github.com/dtwinuz/bitg/issues/43)). | — |
+| G7 | Closed: RustSec advisory gate in CI ([#47](https://github.com/dtwinuz/bitg/issues/47)). | — |
 
 ## 8. Review
 
@@ -162,14 +165,14 @@ path is added. Last review: 2026-11-13 (v0.3.x).
 | F1 | medium | Windows fallback: unknown field type treated as non-sensitive | open, G4 / #41 |
 | F2 | medium | release `msi` job compiled third-party code with the write token in `.git/config` and the signing secrets in the environment | fixed (`persist-credentials: false`, separate signing step) |
 | F3 | medium | `bitg.uz` mirror not tied to the attestation | open, G5 / #42 |
-| F4 | low | `bitg file` / `exceptions.txt` write safety | open, G6 / #43 |
-| F5 | low | panics not caught at a few FFI/COM entry points; R3 wording overstated | wording fixed, code #44 |
+| F4 | low | `bitg file` / `exceptions.txt` write safety | fixed (#43); overwriting an existing output file is kept on purpose |
+| F5 | low | panics not caught at a few FFI/COM entry points | fixed (#44) |
 | F6 | low | fallback word buffer grew without limit | fixed (capped at 40) |
 | F7 | low | `LoadLibraryW("input.dll")` searched the application directory | fixed (System32 only) |
 | F8 | low | `%APPDATA%` taken from the host's environment | open, #45 |
 | F9 | low | tag name interpolated into release scripts | fixed (passed through `env`) |
 | F10 | low | IBus copies the whole surrounding text on every key | open, #46 |
-| F11 | info | no advisory gate in CI; `pip install` not hash-pinned | open, G7 / #47 |
+| F11 | info | no advisory gate in CI; `pip install` not hash-pinned | fixed (#47) |
 
 Checked and found sound: VARIANT/BSTR clearing and `CoTaskMemFree` pairing, re-validation of the text before
 every replacement on all platforms, `catch_unwind` in the `bitg-ime` C ABI, OOXML entry names never used as paths,

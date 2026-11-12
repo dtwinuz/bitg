@@ -43,6 +43,12 @@ unsafe fn input<'a>(s: *const c_char) -> Option<&'a str> {
     unsafe { CStr::from_ptr(s) }.to_str().ok()
 }
 
+/// Panik C chegarasidan o'tmasin: `extern "C"` ichidagi panik butun dasturni (IME bo'lsa foydalanuvchi
+/// yozayotgan ilovani) to'xtatadi. Panik bo'lsa `fallback` qaytadi.
+fn guarded<T>(fallback: T, f: impl FnOnce() -> T) -> T {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)).unwrap_or(fallback)
+}
+
 fn output(s: String) -> *mut c_char {
     CString::new(s)
         .map(CString::into_raw)
@@ -55,10 +61,10 @@ fn output(s: String) -> *mut c_char {
 /// `text` — NUL bilan tugagan UTF-8 satr yoki NULL.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn bitg_convert(text: *const c_char, flags: u32) -> *mut c_char {
-    match unsafe { input(text) } {
+    guarded(std::ptr::null_mut(), || match unsafe { input(text) } {
         Some(t) => output(crate::convert(t, &opts(flags))),
         None => std::ptr::null_mut(),
-    }
+    })
 }
 
 /// Yangi alifbodan eski lotinga. `ascii` != 0 — o' g' ' (aks holda rasmiy oʻ gʻ ʼ).
@@ -72,10 +78,10 @@ pub unsafe extern "C" fn bitg_to_old(text: *const c_char, ascii: u32) -> *mut c_
     } else {
         OldStyle::Official
     };
-    match unsafe { input(text) } {
+    guarded(std::ptr::null_mut(), || match unsafe { input(text) } {
         Some(t) => output(crate::to_old(t, style)),
         None => std::ptr::null_mut(),
-    }
+    })
 }
 
 /// Lotin (yangi yoki eski yozuv) → o'zbek kirill. Xato bo'lsa NULL.
@@ -84,10 +90,10 @@ pub unsafe extern "C" fn bitg_to_old(text: *const c_char, ascii: u32) -> *mut c_
 /// `text` — NUL bilan tugagan UTF-8 satr yoki NULL.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn bitg_to_cyrillic(text: *const c_char) -> *mut c_char {
-    match unsafe { input(text) } {
+    guarded(std::ptr::null_mut(), || match unsafe { input(text) } {
         Some(t) => output(crate::to_cyrillic(t)),
         None => std::ptr::null_mut(),
-    }
+    })
 }
 
 /// `bitg_*` qaytargan satrni bo'shatadi.
@@ -97,13 +103,15 @@ pub unsafe extern "C" fn bitg_to_cyrillic(text: *const c_char) -> *mut c_char {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn bitg_free(s: *mut c_char) {
     if !s.is_null() {
-        drop(unsafe { CString::from_raw(s) });
+        guarded((), || drop(unsafe { CString::from_raw(s) }));
     }
 }
 
 #[unsafe(no_mangle)]
 pub extern "C" fn bitg_session_new() -> *mut Session {
-    Box::into_raw(Box::new(Session::new()))
+    guarded(std::ptr::null_mut(), || {
+        Box::into_raw(Box::new(Session::new()))
+    })
 }
 
 /// # Safety
@@ -111,7 +119,7 @@ pub extern "C" fn bitg_session_new() -> *mut Session {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn bitg_session_free(s: *mut Session) {
     if !s.is_null() {
-        drop(unsafe { Box::from_raw(s) });
+        guarded((), || drop(unsafe { Box::from_raw(s) }));
     }
 }
 
@@ -120,7 +128,7 @@ pub unsafe extern "C" fn bitg_session_free(s: *mut Session) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn bitg_session_reset(s: *mut Session) {
     if let Some(s) = unsafe { s.as_mut() } {
-        s.reset();
+        guarded((), || s.reset());
     }
 }
 
@@ -139,21 +147,23 @@ pub unsafe extern "C" fn bitg_session_complete_word(
     let (Some(s), Some(w)) = (unsafe { s.as_mut() }, unsafe { input(word) }) else {
         return std::ptr::null_mut();
     };
-    match s.complete_word(w, &opts(flags)) {
-        Some(e) => {
-            if let Some(d) = unsafe { delete.as_mut() } {
-                *d = e.delete;
+    guarded(std::ptr::null_mut(), || {
+        match s.complete_word(w, &opts(flags)) {
+            Some(e) => {
+                if let Some(d) = unsafe { delete.as_mut() } {
+                    *d = e.delete;
+                }
+                output(e.insert)
             }
-            output(e.insert)
+            None => std::ptr::null_mut(),
         }
-        None => std::ptr::null_mut(),
-    }
+    })
 }
 
 /// Lug'atlarni oldindan yuklaydi.
 #[unsafe(no_mangle)]
 pub extern "C" fn bitg_warm_up() {
-    crate::lang::warm_up();
+    guarded((), crate::lang::warm_up);
 }
 
 #[cfg(test)]
@@ -190,6 +200,12 @@ mod tests {
             call(|p| unsafe { bitg_to_cyrillic(p) }, "Toşkent").unwrap(),
             "Тошкент"
         );
+    }
+
+    #[test]
+    fn panic_does_not_cross_the_boundary() {
+        assert_eq!(guarded(7, || -> i32 { panic!("sinov") }), 7);
+        assert_eq!(guarded(7, || 1), 1);
     }
 
     #[test]

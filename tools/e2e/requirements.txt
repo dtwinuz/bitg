@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# e2e.yml, Qt qadami (windows-latest): pip install --require-hashes -r tools/e2e/requirements.txt
+# Xeshlar PyPI'dan (abi3 win_amd64 g'ildiraklari).
+PySide6-Essentials==6.8.1 \
+    --hash=sha256:d5ed4ddb149f36d65bc49ae4260b2d213ee88b2d9a309012ae27f38158c2d1b6
+shiboken6==6.8.1 \
+    --hash=sha256:3ea127fd72be113b73cacd70e06687ad6f83c1c888047833c7dcdd5cf8e7f586
