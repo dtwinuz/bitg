@@ -8,6 +8,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - **Reliz fayllarini tekshirish:** har MSI, `.deb` va `.pkg` uchun SLSA build provenance va SBOM attestation'i (`gh attestation verify <fayl> -R dtwinuz/bitg`), relizga `bitg-<versiya>.spdx.json` qo'shiladi.
 - OpenSSF Scorecard (haftalik, README belgisi), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
 - **Fuzzing:** `fuzz/` (cargo-fuzz, libFuzzer) — `convert` va `session` target'lari, boshlang'ich korpus `eval/` dan; `fuzz` workflow haftalik va yadro o'zgargan PR'da.
+- **Loyiha hujjatlari:** `GOVERNANCE.md` (ikki maintainer, qarorlar, davomiylik), `ROADMAP.md`, `ARCHITECTURE.md`,
+  `docs/ASSURANCE.md` (xavfsizlik talablari, tahdid modeli, ma'lum kamchiliklar); `SECURITY.md` ga javob muddatlari;
+  `CONTRIBUTING.md` ga kod standarti, review va DCO. README'da OpenSSF Best Practices belgisi.
+- CI: test qamrovi (`cargo llvm-cov`, satrlar ≥ 80 %, hisobot job summary'da).
 - **REUSE 3.3:** har kod faylida SPDX litsenziya va copyright sarlavhasi, qolgan fayllar `REUSE.toml` da, litsenziya
   matnlari `LICENSES/` da (Inter — OFL-1.1, SCOWL so'zlari — `LicenseRef-SCOWL`, o'zbekcha chastotalar — CC-BY-4.0);
   CI `reuse lint` bilan tekshiradi.

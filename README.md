@@ -5,6 +5,7 @@
 [![release](https://img.shields.io/github/v/release/dtwinuz/bitg?label=release)](https://github.com/dtwinuz/bitg/releases/latest)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#litsenziya)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dtwinuz/bitg/badge)](https://scorecard.dev/viewer/?uri=github.com/dtwinuz/bitg)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16620/badge)](https://www.bestpractices.dev/projects/16620)
 [![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
 
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
@@ -410,18 +411,18 @@ bitg-cli` va `bitg eval eval/uz.tsv` (shuningdek `uz_noapos.tsv`, `en.tsv`).
 
 ## Yo'l xaritasi
 
-- [x] Phase 0a — yadro, CLI, inglizcha himoya, o'lchov
-- [x] O'zbekcha o'lchov (kirill korpusdan), Is'hoq/Ishoq lug'ati
-- [ ] Phase 0b — Windows TSF IME prototipi (kod tayyor): qaysi dasturlarda ishlashini o'lchash (Chrome, Telegram, VS Code, Word)
-- [ ] MVP — imzolangan Windows beta: TSF IME + tray, Backspace bilan qaytarish, istisnolar
-- [ ] v1 — qonun kuchga kirishidan oldin (2027-aprel)
+To'liq reja: [ROADMAP.md](ROADMAP.md). Qisqasi:
+
+- [x] Yadro, CLI, inglizcha himoya, o'lchov; Windows TSF IME + sozlamalar + MSI (v0.1.0)
 - [x] **Linux (Ubuntu)** — IBus dvigateli va `.deb` paket, haqiqiy `ibus-daemon` bilan CI sinovi (v0.2.0)
-- [ ] Linux: Fcitx5 qo'shimchasini real dasturlarda sinash (paket bor, sinov bosqichida); Fedora `.rpm`, Flatpak
-- [ ] **iOS** — klaviatura kengaytmasi (Keyboard Extension), yadro `staticlib` sifatida
-- [x] **macOS** — InputMethodKit kiritish usuli, universal `.pkg`, CI'da o'rnatish sinovi (sinov bosqichi)
-- [ ] macOS: real dasturlarda sinash (Safari, Chrome, Notes, Word, Telegram); Apple Developer ID imzo va notarizatsiya
-- [ ] Android; Word/brauzer kengaytmasi; B2B API
+- [x] **macOS** — InputMethodKit kiritish usuli, universal `.pkg`, CI'da o'rnatish sinovi (sinov bosqichi, v0.3.0)
 - [x] Sayt: [bitg.uz](https://bitg.uz) (`web/`), sinov maydoni haqiqiy yadroda (Rust → WASM)
+- [ ] Imzolangan Windows o'rnatuvchi va Microsoft Store; Fcitx5 va macOS real dasturlarda; Fedora `.rpm`, Flatpak
+- [ ] v1 — qonun kuchga kirishidan oldin (2027-aprel)
+- [ ] **iOS**, Android; Word/brauzer kengaytmasi; B2B API
+
+Loyiha qanday boshqariladi: [GOVERNANCE.md](GOVERNANCE.md) · tuzilma: [ARCHITECTURE.md](ARCHITECTURE.md) ·
+xavfsizlik asoslamasi: [docs/ASSURANCE.md](docs/ASSURANCE.md).
 
 ## Telefonda (Android, iOS)
 

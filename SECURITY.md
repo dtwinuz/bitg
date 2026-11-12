@@ -14,13 +14,27 @@ bitg kiritish usuli sifatida siz yozayotgan matnni ko'radi, shuning uchun xavfsi
 Ommaviy issue **ochmang**. GitHub'ning yopiq kanalidan foydalaning:
 [**Report a vulnerability**](https://github.com/dtwinuz/bitg/security/advisories/new).
 
-Xabarda: ta'sirlangan versiya va platforma, qayta chiqarish qadamlari, mumkin bo'lgan ta'sir. Imkon qadar tez
-javob beramiz; tuzatish chiqqach, xohlasangiz, ismingizni advisory'da qayd etamiz.
+Xabarda: ta'sirlangan versiya va platforma, qayta chiqarish qadamlari, mumkin bo'lgan ta'sir.
+
+## Xabar kelgandan keyin (Vulnerability response)
+
+| Qadam | Muddat |
+|---|---|
+| Xabar olinganini tasdiqlash | 7 kun ichida |
+| Tekshirish va xavf darajasi (CVSS) | 14 kun ichida |
+| Tuzatish va reliz (yuqori/kritik) | 60 kun ichida, iloji bo'lsa tezroq |
+| GitHub Security Advisory va CVE (kerak bo'lsa) | tuzatilgan reliz bilan birga |
+
+Xabar beruvchi tuzatish ustida yopiq advisory'da ishtirok etadi. Tuzatish chiqqach, xohlasangiz, ismingiz
+advisory'da va `CHANGELOG.md` da minnatdorchilik bilan qayd etiladi. Xavfsizlik asoslamasi va ma'lum kamchiliklar:
+[docs/ASSURANCE.md](docs/ASSURANCE.md).
 
 ## bitg nimani qilmaydi
 
 - Yozilgan matnni tarmoqqa yubormaydi va saqlamaydi (faqat siz qo'shgan istisno so'zlar `exceptions.txt` ga yoziladi).
-- Parol, PIN va email maydonlarida o'chiq turadi.
+- Linux'da parol, PIN va maxfiy maydonlarda o'chiq turadi; macOS'da tizim xavfsiz kiritish paytida kiritish
+  usullarini o'chiradi; Windows'da terminallarda o'chiq, parol maydonlarida esa dastur IME'ni o'zi o'chiradi
+  (bitg maydon turini o'zi hali tekshirmaydi — [docs/ASSURANCE.md](docs/ASSURANCE.md) G1).
 - Kiritish usuli (Windows TSF, Linux IBus/Fcitx5) klaviatura hook'i va clipboard ishlatmaydi. Clipboard faqat
   siz `Ctrl+Shift+Y` (belgilangan matnni o'girish) ni bosganda vaqtincha ishlatiladi va asl holiga qaytariladi.
 
