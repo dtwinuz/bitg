@@ -26,7 +26,11 @@ function pages(dir, base = '') {
   return out;
 }
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-const plain = (s) => s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').trim();
+// teglar natija o'zgarmay qolguncha olinadi; &amp; eng oxirida — "&amp;quot;" ikki marta ochilmasin
+const plain = (s) => {
+  for (let p = ''; p !== s; ) { p = s; s = s.replace(/<[^>]*>/g, ''); }
+  return s.replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+};
 
 function card(h1, lang) {
   const size = h1.length > 52 ? 64 : h1.length > 34 ? 74 : 86;
