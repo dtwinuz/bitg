@@ -1,8 +1,9 @@
-// bitg macOS: InputMethodKit kontrolleri. Mantiq — Session.swift va crates/bitg-ime; bu fayl faqat IMK bilan bog'laydi.
+// bitg macOS: InputMethodKit kontrolleri. Mantiq — Session.swift, Keys.swift va crates/bitg-ime; bu fayl faqat
+// IMK bilan bog'laydi. IMK har bir matn mijozi uchun alohida kontroller yaratadi va hammasini asosiy oqimda chaqiradi.
 import AppKit
 import InputMethodKit
 
-/// IMK mijozini `TextClient` ga moslaydi.
+/// IMK mijozini `TextClient` ga moslaydi. Barcha diapazonlar UTF-16 birligida.
 final class IMKClient: TextClient {
     private let c: IMKTextInput & NSObjectProtocol
 
@@ -33,39 +34,6 @@ final class IMKClient: TextClient {
     }
 }
 
-enum Keys {
-    /// macOS virtual key code'lari (Carbon kVK_*).
-    static func map(_ e: NSEvent) -> (BitgKey, UInt32) {
-        let m = e.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        if m.contains(.command) || m.contains(.control) {
-            return (.other, 0)
-        }
-        switch e.keyCode {
-        case 49: // Space; Option+Space — NBSP
-            return (.space, e.characters?.unicodeScalars.first?.value == 0xA0 ? 0xA0 : 0x20)
-        case 36, 76: // Return, keypad Enter
-            return (.enter, 0)
-        case 48:
-            return (.tab, 0)
-        case 51: // Delete (Backspace)
-            return (.backspace, 0)
-        case 53, 115, 116, 117, 119, 121, 123, 124, 125, 126: // Esc, Home, PgUp, Fwd Delete, End, PgDn, strelkalar
-            return (.navigate, 0)
-        default:
-            break
-        }
-        // tartib qo'llangan belgi; o'lik tugma (Option+U) yoki bir nechta belgi — so'z bilan bog'lamaymiz
-        guard let s = e.characters?.unicodeScalars, s.count == 1, let u = s.first else {
-            return (.other, 0)
-        }
-        let v = u.value
-        if v < 0x20 || v == 0x7F || (0xF700...0xF8FF).contains(v) { // funksional tugmalar
-            return (.other, 0)
-        }
-        return (.char, v)
-    }
-}
-
 @objc(BitgController)
 final class BitgController: IMKInputController {
     private let session = BitgSession()
@@ -75,13 +43,22 @@ final class BitgController: IMKInputController {
     }
 
     override func recognizedEvents(_ sender: Any!) -> Int {
-        Int(NSEvent.EventTypeMask.keyDown.rawValue)
+        Int(NSEvent.EventTypeMask([.keyDown, .leftMouseDown]).rawValue)
     }
 
     override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-        guard let event, event.type == .keyDown, let c = wrap(sender) else { return false }
-        let (kind, cp) = Keys.map(event)
-        return session.key(kind, cp, c)
+        guard let event, let c = wrap(sender) else { return false }
+        switch event.type {
+        case .keyDown:
+            let (kind, cp) = Keys.map(event)
+            return session.key(kind, cp, c)
+        case .leftMouseDown:
+            // kursor sichqoncha bilan ko'chdi: preedit'dagi so'z o'girilmay yoziladi, so'z boshi noma'lum
+            session.commitComposition(c)
+            return false
+        default:
+            return false
+        }
     }
 
     override func activateServer(_ sender: Any!) {

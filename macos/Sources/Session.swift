@@ -54,9 +54,13 @@ final class BitgSession {
     }
 
     /// Fokus ketdi, sichqoncha bosildi: preedit'dagi so'z o'girilmay yoziladi (matn yo'qolmaydi).
+    /// IMK buni bir hodisada bir necha marta chaqirishi mumkin — ikkinchisida yoziladigan narsa yo'q.
     func commitComposition(_ c: TextClient) {
         guard let ime, let p = bitg_ime_reset(ime) else { return }
-        c.insert(String(cString: p), replacing: Self.caret)
+        let pending = String(cString: p)
+        if !pending.isEmpty {
+            c.insert(pending, replacing: Self.caret)
+        }
     }
 
     /// true — tugma iste'mol qilindi, dasturga yuborilmasin.

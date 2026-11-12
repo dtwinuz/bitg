@@ -1,6 +1,6 @@
-// bitg macOS sinovi: Session.swift + dvigatel, soxta matn maydoni bilan (IMK'siz).
-// Holatlar Linux'dagi linux/test/ibus_e2e.py bilan bir xil, ustiga UTF-16 (emoji) va terminal.
-import Foundation
+// bitg macOS sinovi: Session.swift + Keys.swift + dvigatel, soxta matn maydoni bilan (IMK'siz).
+// Holatlar Linux'dagi linux/test/ibus_e2e.py bilan bir xil, ustiga UTF-16 (emoji), terminal, sichqoncha va tugmalar.
+import AppKit
 
 /// Matn maydoni: kursor doim oxirda. Diapazonlar UTF-16 (NSString), xuddi IMK mijozidagidek.
 final class FakeField: TextClient {
@@ -144,6 +144,58 @@ let cases: [Case] = [
         let f = FakeField(bundle: "com.apple.Terminal"), s = session(f)
         type("choy shahar ", f, s)
         try check("text", f.value, "choy shahar ")
+    },
+    Case(name: "mouse_moves_cursor") {
+        // "cho" dan keyin sichqoncha bosildi: "y" yangi so'z boshi emas, so'z o'girilmaydi
+        let f = FakeField(), s = session(f)
+        type("cho", f, s)
+        s.commitComposition(f)
+        type("y ", f, s)
+        try check("text", f.value, "choy ")
+    },
+    Case(name: "commit_twice_writes_once") {
+        let f = FakeField(surrounding: false), s = session(f)
+        type("choy", f, s)
+        s.commitComposition(f)
+        s.commitComposition(f)
+        try check("text", f.value, "choy")
+    },
+    Case(name: "navigate_flushes_preedit") {
+        let f = FakeField(surrounding: false), s = session(f)
+        type("choy", f, s)
+        try check("consumed", s.key(.navigate, 0, f), false)
+        try check("text", f.value, "choy")
+        try check("preedit", f.marked, "")
+    },
+    Case(name: "key_map") {
+        typealias K = (code: UInt16, flags: NSEvent.ModifierFlags, chars: String?, kind: BitgKey, cp: UInt32)
+        let table: [K] = [
+            (0, [], "a", .char, 0x61),
+            (0, .shift, "A", .char, 0x41),
+            (0, [.shift, .capsLock], "A", .char, 0x41),
+            (0, [], "ф", .char, 0x444),
+            (39, [], "'", .char, 0x27),
+            (49, [], " ", .space, 0x20),
+            (49, .option, "\u{A0}", .space, 0xA0),
+            (36, [], "\r", .enter, 0),
+            (76, [], "\u{3}", .enter, 0),
+            (48, [], "\t", .tab, 0),
+            (51, [], "\u{7F}", .backspace, 0),
+            (51, .option, "\u{7F}", .other, 0),
+            (51, .command, "\u{7F}", .other, 0),
+            (123, [.function, .numericPad], "\u{F702}", .navigate, 0),
+            (117, .function, "\u{F728}", .navigate, 0),
+            (53, [], "\u{1B}", .navigate, 0),
+            (0, .command, "a", .other, 0),
+            (0, .control, "\u{1}", .other, 0),
+            (32, .option, "", .other, 0), // o'lik tugma Option+U
+            (122, .function, "\u{F704}", .other, 0), // F1
+            (0, [], nil, .other, 0),
+        ]
+        for k in table {
+            let (kind, cp) = Keys.map(keyCode: k.code, flags: k.flags, characters: k.chars)
+            try check("key \(k.code) \(k.chars.map { Array($0.unicodeScalars) } ?? [])", "\(kind) \(cp)", "\(k.kind) \(k.cp)")
+        }
     },
 ]
 
