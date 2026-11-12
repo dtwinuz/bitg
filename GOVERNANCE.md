@@ -8,6 +8,7 @@ organization. This document says who decides what and how the project keeps goin
 | Role | Who | Can do |
 |---|---|---|
 | **Maintainer** | [@XakimovNosirbek](https://github.com/XakimovNosirbek) (lead), [@leverow](https://github.com/leverow) | Review and merge pull requests, triage issues, cut releases, handle security reports, change repository settings. Both are owners of the `dtwinuz` organization. |
+| **Reviewer** | [@wonmors](https://github.com/wonmors) | Review pull requests; owner of the `dtwinuz` organization. Becomes a maintainer through the process below. |
 | **Contributor** | anyone | Open issues and pull requests, review others' pull requests, suggest words for the lexicon. |
 | **Reporter** | anyone | Report bugs and wrong conversions (issue templates, [bitg.uz/fikr](https://bitg.uz/fikr/), Telegram [@bitguz](https://t.me/bitguz)) and vulnerabilities ([SECURITY.md](SECURITY.md)). |
 
@@ -26,7 +27,8 @@ The two maintainers work for different employers; neither is paid by the other.
 - Day-to-day changes are decided in the pull request: a change is merged when CI is green and the review
   questions are resolved. Merges are squash-only and go through the `main` ruleset (no direct pushes, no
   force-push, no branch deletion).
-- A change by one maintainer is reviewed by the other before it is merged. Exceptions: urgent security fixes and
+- Every change is reviewed and approved by a maintainer or reviewer other than its author before it is merged;
+  the reviewer reads the diff and leaves at least one comment or question when something is unclear. Exceptions: urgent security fixes and
   documentation-only changes, which are reviewed after the merge.
 - Bigger decisions (a new platform, a change of the conversion rules, dropping a supported OS, license questions)
   are discussed in a GitHub issue and need the agreement of both maintainers. If they disagree, the lead

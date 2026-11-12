@@ -1,7 +1,8 @@
 # Architecture
 
-bitg converts Uzbek text to the 2026 Latin alphabet (`o'` → `ö`, `g'` → `ğ`, `sh` → `ş`, `ch` → `ç`) while the user
-types, and leaves English and foreign names alone. One Rust core does the conversion; thin platform layers connect
+bitg converts Uzbek text to the 2026 Latin alphabet (`o'` → `ö`, `g'` → `ğ`, `sh` → `ş`, `ch` → `ç`, and every
+apostrophe form of the glottal stop → `ʼ` U+02BC; `ng` stays two letters) while the user types, and leaves English and
+foreign names alone. One Rust core does the conversion; thin platform layers connect
 it to each operating system's input-method framework.
 
 ## Components
