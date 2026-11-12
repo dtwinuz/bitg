@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Kursor oldidagi matndan qaysi so'zni almashtirishni hisoblash (platformaga bog'liq emas — test qilinadi).
 //! Uzunliklar UTF-16 birliklarida: TSF `ITfRange::ShiftStart` shunday sanaydi.
 

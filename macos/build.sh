@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg macOS kiritish usuli: universal (arm64 + x86_64) bitg.app va o'rnatuvchi .pkg.
 #   macos/build.sh          ->  target/macos/bitg-<versiya>-macos.pkg (+ .sha256), target/macos/bitg-test
 # Talab: Xcode Command Line Tools, rustup target add aarch64-apple-darwin x86_64-apple-darwin

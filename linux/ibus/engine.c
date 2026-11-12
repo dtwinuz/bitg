@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+ *
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ */
+
 /* ibus-engine-bitg: IBus dvigateli. Mantiq — crates/bitg-ime (libbitg_ime.a), bu fayl faqat IBus bilan bog'laydi.
  *
  *   ibus-engine-bitg --ibus     ibus-daemon ishga tushiradi (component/bitg.xml)

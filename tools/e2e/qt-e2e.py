@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """bitg IME'ning Qt (Telegram Desktop bilan bir xil yo'l: IMM32/CUAS, matn TSF'ga berilmaydi) sinovi.
 
 Tugmalar SendInput bilan bosiladi, natija QTextEdit'dan o'qiladi. FAQAT CI VM'da (GitHub Actions):

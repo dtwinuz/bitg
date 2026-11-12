@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS: settings.ini (Windows va Linux bilan bir xil format, key=value). Dvigatel faylni o'zi o'qiydi
 // (crates/bitg-ime/src/config.rs); bu yerda faqat Mac menyusi o'zgartiradigan kalitlar: enabled, undo_remember,
 // disabled_apps. Boshqa qatorlar, izohlar va tartib saqlanadi. Foundation'dan boshqa narsaga bog'liq emas — macos/test.

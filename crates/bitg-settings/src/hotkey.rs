@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Belgilangan matnni o'girish tugmasi (standart: Ctrl+Shift+Y). Tray ilovasi tugmani `RegisterHotKey` bilan
 //! ushlaydi; bosilganda: clipboard saqlanadi → Ctrl+C → matn o'giriladi → clipboard'ga yoziladi → Ctrl+V →
 //! qisqa kutishdan keyin asl clipboard qaytariladi. Hech narsa belgilanmagan bo'lsa (Ctrl+C clipboard'ni

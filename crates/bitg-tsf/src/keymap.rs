@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Klaviatura tartibi: tugma (US joylashuvidagi nomi bilan) → 4 qatlam belgisi (oddiy, Shift, AltGr,
 //! AltGr+Shift). Bo'sh qatlam — tugma odatdagidek (inglizcha) ishlaydi. Platformaga bog'liq emas.
 //!

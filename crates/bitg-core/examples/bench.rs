@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Toza tezlik o'lchovi: lug'at oldindan yuklanadi, `convert` dan boshqa narsa vaqtga kirmaydi.
 //! `cargo run --release -p bitg-core --example bench -- eval/out/uz.tsv`
 

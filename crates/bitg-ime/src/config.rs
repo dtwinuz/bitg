@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Sozlamalar: Windows bilan bir xil format (`settings.ini` key=value, `exceptions.txt` — har qatorda so'z).
 //! Linux'da joyi: `$XDG_CONFIG_HOME/bitg/` (bo'lmasa `~/.config/bitg/`); macOS'da `~/Library/Application Support/bitg/`.
 

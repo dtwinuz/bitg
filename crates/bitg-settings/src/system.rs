@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Windows bilan bog'liq ishlar: bitta nusxa, Windows bilan ishga tushish, klaviatura o'rnatilganini tekshirish.
 //!
 //! O'rnatuvchi (MSI) barcha foydalanuvchilar uchun `HKLM\...\Run` yozadi (`--autostart`); har foydalanuvchi uni

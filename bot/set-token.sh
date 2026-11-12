@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Serverda: ssh -t dtwin /opt/bitg-bot/set-token.sh
 # Tokenni ekranga chiqarmasdan /opt/bitg-bot/.env ga yozadi va bot ishlayotgan bo'lsa qayta ishga tushiradi.
 set -e

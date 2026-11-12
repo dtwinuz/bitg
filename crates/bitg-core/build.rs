@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Lug'atlarni (`src/data/*.tsv`) qurish vaqtida tayyor hash-jadvalga aylantiradi: ishga tushganda tahlil
 //! qilish va xotira ajratish yo'q, jadval binarning faqat o'qiladigan qismida turadi (IME yuklangan barcha
 //! dasturlar uni bitta nusxada bo'lishadi). Format `src/lexicon.rs` da.

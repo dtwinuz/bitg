@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """bitg ikonkalari yangi logodan ("Yumshoq b": to'q plitka, oq b, ko'k ö nuqtalari).
 
     python -I tools/make_icons.py   # crates/bitg-settings/assets/bitg.ico, bitg-off.ico (+ .png)

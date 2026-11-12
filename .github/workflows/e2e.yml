@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 name: e2e
 
 # Haqiqiy Windows'da IME sinovi: MSI o'rnatiladi, tugmalar SendInput bilan bosiladi (WPF, Win32 EDIT, Qt, 32-bit).

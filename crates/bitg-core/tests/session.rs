@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Yozish paytidagi (IME) o'girish: so'zlar birma-bir, kontekst faqat oldingi so'zlar.
 
 use bitg_core::{Options, Session};

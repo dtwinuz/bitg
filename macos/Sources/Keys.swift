@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS: NSEvent tugmasini dvigatel tugmasiga (BITG_KEY_*) aylantirish. Sof funksiya — macos/test sinaydi.
 import AppKit
 

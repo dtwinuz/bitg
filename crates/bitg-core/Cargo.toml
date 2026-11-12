@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "bitg-core"
 description = "Uzbek Latin to the 2026 alphabet (ö ğ ş ç ʼ) conversion engine: rules, Cyrillic, reverse and an English guard"

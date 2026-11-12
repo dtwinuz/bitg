@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg.uz yuklab olish: tashrif buyuruvchining tizimini aniqlab, mos o'rnatuvchini birinchi qo'yadi.
 // Sahifa JS'siz ham to'liq ishlaydi (Windows standart, barcha havolalar to'g'ri fayllarga).
 // JS bo'lsa: yuklash tugmasi /yuklab-olish/rahmat/ sahifasini ochadi, fayl o'sha yerdan yuklanadi.

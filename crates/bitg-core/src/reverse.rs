@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! 2026 alifbosi → eski lotin. O'tish davrida (2027–2031) yangi harflarni qabul qilmaydigan saytlar,
 //! bazalar va hujjatlar uchun.
 

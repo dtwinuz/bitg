@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! bitg yozish dvigateli — platformadan mustaqil (IBus, Fcitx5 shu yerdan foydalanadi; C ABI — `ffi`).
 //!
 //! Ikki rejim, so'z boshida tanlanadi:

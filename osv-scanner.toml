@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # OSV (OpenSSF Scorecard "Vulnerabilities") uchun asoslangan istisnolar. Har biri qayta ko'rib chiqiladi:
 # tray-icon gtk 0.18 dan voz kechsa yoki zaiflik bitg yig'adigan biror paketga kirsa — o'chiriladi.
 

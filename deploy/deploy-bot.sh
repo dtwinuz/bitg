@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # @bitguzbot: faqat origin/main deploy qilinadi. Manba serverga yuboriladi, image o'sha yerda quriladi.
 # Token serverda /opt/bitg-bot/.env (BOT_TOKEN=...) — repoga ham, bu skriptga ham kirmaydi.
 # Birinchi marta tokenni qo'yish: ssh -t dtwin /opt/bitg-bot/set-token.sh

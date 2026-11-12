@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 ﻿<#
 .SYNOPSIS
   bitg IME'ning haqiqiy Windows sinovi: tugmalar SendInput bilan bosiladi, natija matn maydonidan o'qiladi.

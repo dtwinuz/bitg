@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! C ABI: TSF IME (C++/Rust), tray ilova (C#/.NET), Linux (Fcitx5/IBus) va boshqa tillar uchun.
 //! Barcha satrlar UTF-8. Qaytarilgan satrni faqat `bitg_free` bo'shatadi.
 

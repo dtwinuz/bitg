@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg.so (Fcitx5 qo'shimchasi): avval `cargo build --release -p bitg-ime`, keyin `make -C linux/fcitx5`.
 CARGO_TARGET ?= ../../target
 LIB ?= $(CARGO_TARGET)/release/libbitg_ime.a

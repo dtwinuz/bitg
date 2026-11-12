@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """Yangi versiyani Telegram kanallarga e'lon qiladi (@bitgdevbot orqali).
 
   python3 tools/release/announce.py 0.3.0 --dry-run     # xabarlarni chiqaradi, hech narsa yubormaydi

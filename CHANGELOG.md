@@ -8,6 +8,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - **Reliz fayllarini tekshirish:** har MSI, `.deb` va `.pkg` uchun SLSA build provenance va SBOM attestation'i (`gh attestation verify <fayl> -R dtwinuz/bitg`), relizga `bitg-<versiya>.spdx.json` qo'shiladi.
 - OpenSSF Scorecard (haftalik, README belgisi), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
 - **Fuzzing:** `fuzz/` (cargo-fuzz, libFuzzer) — `convert` va `session` target'lari, boshlang'ich korpus `eval/` dan; `fuzz` workflow haftalik va yadro o'zgargan PR'da.
+- **REUSE 3.3:** har kod faylida SPDX litsenziya va copyright sarlavhasi, qolgan fayllar `REUSE.toml` da, litsenziya
+  matnlari `LICENSES/` da (Inter — OFL-1.1, SCOWL so'zlari — `LicenseRef-SCOWL`, o'zbekcha chastotalar — CC-BY-4.0);
+  CI `reuse lint` bilan tekshiradi.
 - Reliz attestation bundle'lari (`bitg-<versiya>.intoto.jsonl`, `.sbom.sigstore.json`) relizga qo'shiladi.
 - **Homebrew:** `brew install --cask dtwinuz/tap/bitg` ([dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap);
   CI cask'ni haqiqiy macOS'da o'rnatib, o'chirib tekshiradi, har dushanba qayta).

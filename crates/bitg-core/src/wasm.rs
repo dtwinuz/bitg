@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Brauzer ABI (sayt sinov maydoni, `web/`): JS kirishni `bitg_alloc` xotirasiga UTF-8 qilib yozadi,
 //! `bitg_run` natijani JSON qilib ichki buferga qo'yadi va uzunligini qaytaradi, `bitg_out` — bufer manzili.
 //! wasm-bindgen'siz: yadro bog'liqliksiz qoladi.

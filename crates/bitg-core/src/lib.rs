@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! # bitg-core
 //!
 //! O'zbek matnini 2026-yilgi lotin alifbosiga (O'RQ-1184: ö ğ ş ç, tutuq ʼ) o'girish yadrosi.

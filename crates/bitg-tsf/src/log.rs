@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Diagnostika log'i: `%LOCALAPPDATA%\bitg\tsf.log`. Matnning o'zi yozilmaydi — faqat dastur nomi,
 //! natija va uzunliklar (maxfiylik: klaviatura dasturi hech qachon yozilgan so'zni saqlamaydi).
 

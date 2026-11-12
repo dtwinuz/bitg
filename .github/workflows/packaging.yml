@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 name: packaging
 
 # winget manifesti microsoft/winget-pkgs ga yuborishdan oldin haqiqiy Windows'da o'rnatib, o'chirib tekshiriladi.

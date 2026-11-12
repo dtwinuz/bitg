@@ -37,3 +37,7 @@ cargo run -p bitg-cli -- eval eval/uz.tsv   # aniqlik o'lchovi (core'ni o'zgarti
 ## Litsenziya
 
 Yuborgan hissangiz loyiha litsenziyasi (MIT yoki Apache-2.0, foydalanuvchi tanlovi) ostida tarqatiladi.
+
+Loyiha [REUSE](https://reuse.software/) talabiga mos: har kod faylining boshida SPDX sarlavha bor, qolgan fayllar
+`REUSE.toml` da. Yangi kod fayliga sarlavha qo'shing (`reuse annotate --copyright "dtwinuz and bitg contributors"
+--license "MIT OR Apache-2.0" <fayl>`) — CI `reuse lint` bilan tekshiradi. Litsenziya matnlari: `LICENSES/`.

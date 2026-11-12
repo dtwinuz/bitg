@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // Mavzu va alifbo tanlovi birinchi chizishdan oldin (CSP: inline script yo'q).
 (function () {
   var d = document.documentElement, t = null, a = null;

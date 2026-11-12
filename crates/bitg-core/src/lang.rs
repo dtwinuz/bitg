@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! So'z o'zbekchami yoki inglizchami — dalillar yig'indisi (musbat = o'zbekcha, manfiy = inglizcha).
 //!
 //! Manbalar: o'zbek korpusi chastotasi (Leipzig Corpora, CC BY), inglizcha so'zlar (SCOWL, ruxsat beruvchi

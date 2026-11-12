@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Eski lotin → 2026 alifbosi: sof qoidalar (lug'at va til tekshiruvisiz).
 //!
 //! O'RQ-1184 (2026-10-21): Oʻ → Ö, Gʻ → Ğ, Sh → Ş, Ch → Ç; tutuq belgisi qoladi. Ng o'zgarmaydi.

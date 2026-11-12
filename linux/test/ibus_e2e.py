@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """ibus-daemon + o'rnatilgan bitg dvigateli bilan uchidan-uchiga sinov.
 
 Dastur o'rnida IBus kiritish konteksti: tugmalar daemon orqali dvigatelga boradi, commit/delete/preedit

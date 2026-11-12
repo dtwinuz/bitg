@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 name: release
 
 # Faqat versiya tegi (v0.3.0) qo'yilganda: Linux .deb (IBus + Fcitx5), macOS .pkg va MSI quriladi, (sertifikat bo'lsa) MSI

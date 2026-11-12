@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! So'zni chetidagi tinish belgilaridan ajratish va tegilmaydigan tokenlarni (havola, email, kod) aniqlash.
 
 use crate::chars::is_apostrophe;

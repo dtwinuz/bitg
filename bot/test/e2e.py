@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """@bitguzbot uchidan-uchiga sinovi: soxta Telegram API (API_URL) bilan haqiqiy bot binari.
 
   python3 bot/test/e2e.py target/release/bitg-bot

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use bitg_core::{cyrillic::to_new_latin, to_cyrillic};
 
 const T: char = '\u{02BC}';

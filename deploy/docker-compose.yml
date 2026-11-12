@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Serverda: /opt/bitg-site (deploy/deploy.sh nusxalaydi).
 #   site/         — statik sayt (har deployda almashtiriladi)
 #   logs/         — Caddy kirish jurnali (IP qisqartirilgan, 30 kun)

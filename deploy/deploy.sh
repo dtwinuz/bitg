@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg.uz: faqat origin/main deploy qilinadi.
 # web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI + Linux .deb
 # + Mac .pkg (dist/ da, GitHub Release'dan) + imzolangan apt ombori + statistika xizmati

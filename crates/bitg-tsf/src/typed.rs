@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Zaxira yo'l uchun: dastur matnni TSF'ga bermasa (Telegram Desktop), bosilgan harflardan joriy so'zni yig'amiz.
 //! Faqat so'z chegarasidan (probel, Enter, fokus) keyin ketma-ket yozilgan harflar ishonchli — navigatsiya,
 //! Ctrl+..., noma'lum belgi bo'lsa so'z "noaniq" bo'ladi va o'girilmaydi (begona matnni o'chirib yubormaslik uchun).

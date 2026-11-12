@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Serverda: ssh -t dtwin /opt/bitg-site/set-stats-env.sh <ADMIN_CHAT_ID[,ID2...]>
 # Statistika, uptime va sertifikat ogohlantirishlari @bitgdevbot (ishchi bot) orqali adminlarga boradi.
 # Ommaviy @bitguzbot tokeni bu yerda ishlatilmaydi. Har bir admin avval @bitgdevbot'ga /start yozgan bo'lishi kerak.

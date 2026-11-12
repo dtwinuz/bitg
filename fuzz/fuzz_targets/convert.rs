@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Butun matn o'girishlari (sayt konvertori, CLI, tray): ixtiyoriy UTF-8 matnda panic bo'lmasligi kerak.
 #![no_main]
 

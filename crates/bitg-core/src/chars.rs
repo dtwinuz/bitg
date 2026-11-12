@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Belgilar: tutuq belgisining barcha ko'rinishlari, yangi harflar va kichik normalizatsiya.
 
 /// Tutuq / o' / g' uchun ishlatiladigan barcha belgilar. Klaviatura, Word avtotuzatishi va saytlar

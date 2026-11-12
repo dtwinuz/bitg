@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Qurish vaqtida tayyorlangan lug'at jadvali (`build.rs`): so'z → og'irlik. Ishga tushganda tahlil va
 //! xotira ajratish yo'q; qidiruv — FNV-1a hash + chiziqli probing, bitta so'z solishtiriladi.
 

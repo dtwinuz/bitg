@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `regsvr32` uchun: COM klassi (HKCR\CLSID) va TSF profili + kategoriyalar.
 
 use windows::Win32::Foundation::{ERROR_FILE_NOT_FOUND, HMODULE, MAX_PATH};

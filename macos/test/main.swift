@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS sinovi: Session.swift + Keys.swift + dvigatel, soxta matn maydoni bilan (IMK'siz).
 // Holatlar Linux'dagi linux/test/ibus_e2e.py bilan bir xil, ustiga UTF-16 (emoji), terminal, sichqoncha va tugmalar.
 import AppKit

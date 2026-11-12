@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "bitg-tsf"
 description = "bitg Windows input method (TSF text input processor): converts the word before the caret in place"

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! .docx va .xlsx (Office Open XML) ichidagi matnni formatini buzmasdan o'girish.
 //!
 //! Faqat matn tugunlari (`w:t`, `t`) baytma-bayt almashtiriladi — qolgan XML, zip yozuvlarining

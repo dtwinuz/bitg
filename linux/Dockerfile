@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Linux dvigatellarini lokal yig'ish va sinash muhiti (Ubuntu 24.04, CI bilan bir xil paketlar).
 #   docker build -t bitg-linux -f linux/Dockerfile linux
 #   docker run --rm -v "$PWD:/src" -w /src bitg-linux linux/ci.sh

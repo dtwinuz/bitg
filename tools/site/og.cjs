@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // OG rasmlar (1200×630) va logo PNG'lari: yig'ilgan saytdagi har sahifa h1'idan.
 // Natija web/og/*.png, web/logo-512.png, web/apple-touch-icon.png — repoga commit qilinadi.
 //

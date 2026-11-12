@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! O'zbek kirill → 2026 lotin. Kirillda sh/ch va tutuq bo'yicha noaniqlik yo'q (ш ≠ сҳ), shuning uchun
 //! bu yo'nalish eng aniq: lug'atsiz, faqat kontekst qoidalari (е, ц, ъ).
 

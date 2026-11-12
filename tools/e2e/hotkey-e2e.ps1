@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 <#
 .SYNOPSIS
   "Belgilangan matnni o'girish" tugmasining haqiqiy Windows sinovi: o'rnatilgan bitg-settings.exe (tray)

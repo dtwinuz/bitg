@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! bitg — o'zbek matnini 2026 alifbosiga o'girish (CLI).
 
 use std::io::{self, Read, Write};

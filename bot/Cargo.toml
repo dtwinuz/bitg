@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "bitg-bot"
 description = "@bitguzbot: Telegram bot that converts Uzbek text to the 2026 alphabet with bitg-core"

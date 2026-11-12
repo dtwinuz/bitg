@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """bitg apt ombori: dist/*.deb -> imzolangan apt repo (https://bitg.uz/apt, suite `stable`, component `main`).
 
   python tools/apt/apt_repo.py --out <papka> --gnupg ~/.bitg-apt-gnupg dist/bitg_0.2.0_amd64.deb dist/fcitx5-bitg_0.2.0_amd64.deb

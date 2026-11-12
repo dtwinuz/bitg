@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # O'rnatgandan keyin: eski nusxani to'xtatish va kirgan foydalanuvchi uchun kiritish manbasini ro'yxatdan o'tkazish.
 # Xato o'rnatishni buzmaydi — foydalanuvchi Tizim sozlamalari -> Klaviatura -> Kiritish manbalari'dan o'zi qo'shadi.
 APP="/Library/Input Methods/bitg.app"

@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+ *
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ */
+
 /* bitg yozish dvigateli — C ABI (crates/bitg-ime, statik kutubxona libbitg_ime.a).
  * Barcha satrlar UTF-8. Qaytgan ko'rsatkichlar dvigatelga tegishli va shu dvigatelning keyingi chaqiruvigacha
  * yaroqli: bo'shatilmaydi, saqlab qo'yilmaydi. Bitta dvigatel — bitta kiritish konteksti, bitta oqim. */

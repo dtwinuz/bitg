@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # ibus-engine-bitg: avval `cargo build --release -p bitg-ime` (libbitg_ime.a), keyin `make -C linux/ibus`.
 CARGO_TARGET ?= ../../target
 LIB ?= $(CARGO_TARGET)/release/libbitg_ime.a

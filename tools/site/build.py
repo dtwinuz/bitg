@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """bitg.uz statik sayt yig'uvchisi.
 
 web/            qo'lda yozilgan bosh sahifa va umumiy fayllar (styles.css, app.js, ...)

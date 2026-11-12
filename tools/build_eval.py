@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """Sifat o'lchovi uchun to'plamlar (eval/out/*.tsv, repoga kiritilmaydi).
 
   en.tsv  — haqiqiy inglizcha gaplar (sh/ch/apostrof bor): o'zgarmasligi kerak.

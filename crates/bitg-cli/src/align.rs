@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Asl va o'girilgan matnni belgi darajasida moslash: qaysi bo'lak nimaga almashgani.
 //!
 //! O'girish bo'shliqlarni aynan saqlaydi, shuning uchun matn so'zlarga bo'linib juftlanadi va faqat

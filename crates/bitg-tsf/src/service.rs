@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! TSF xizmati. Tugmani faqat ikki holatda ushlab qoladi (qolgani doim dasturga boradi):
 //! - klaviatura tartibi yoqilgan va tugmaga belgi qo'yilgan — belgi tahrir sessiyasida yoziladi
 //!   (IMM32 dasturlarida qisqa kompozitsiya bilan); AltGr qatlamlari — "preserved key" (o'ng Alt);

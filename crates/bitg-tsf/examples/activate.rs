@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Diagnostika: bitg profilini shu jarayon uchun yoqadi va TSF qaysi profilni faol deb bilishini chiqaradi.
 //! `cargo run -p bitg-tsf --example activate` — so'ng `%LOCALAPPDATA%\bitg\tsf.log` ga qarang.
 

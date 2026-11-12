@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `bitg file` va `bitg diff`: fayllarni (.docx, .xlsx, matn) o'girish va o'zgarishlarni oldindan ko'rish.
 
 use std::collections::BTreeMap;

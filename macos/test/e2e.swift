@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS uchidan-uchiga sinov: haqiqiy Cocoa matn maydoni (NSTextView) + haqiqiy InputMethodKit + o'rnatilgan
 // /Library/Input Methods/bitg.app. Tugmalar dasturning o'z hodisa navbatiga qo'yiladi (NSApp.postEvent) va
 // NSTextView -> NSTextInputContext -> IMK -> BitgController yo'lidan o'tadi, xuddi foydalanuvchi bosgandek.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // Fcitx5 qo'shimchasi (bitg.so). Mantiq — crates/bitg-ime (libbitg_ime.a); bu fayl faqat Fcitx5 bilan bog'laydi.
 // Har kiritish kontekstiga alohida dvigatel (InputContextProperty).
 #include <fcitx-utils/key.h>

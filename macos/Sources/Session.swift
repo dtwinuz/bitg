@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS: dvigatel (crates/bitg-ime, C ABI) va matn maydoni orasidagi bog'lovchi.
 // IMK'ga bog'liq emas — test (macos/test) soxta maydon bilan shu kodni sinaydi.
 import Foundation

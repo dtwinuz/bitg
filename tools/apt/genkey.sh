@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg apt ombori imzo kalitini BIR MARTA yaratadi (deploy qiladigan kompyuterda).
 #   maxfiy kalit:  ${BITG_APT_GNUPG:-~/.bitg-apt-gnupg}  (repoga KIRMAYDI)
 #   zaxira:        AES256 bilan shifrlangan nusxa D:\Backups\bitg va dtwin:~/backups/bitg da, tiklash: TIKLASH.txt;

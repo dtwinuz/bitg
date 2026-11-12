@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Yozish paytidagi sessiya (IME): har so'z uchun tahrir faqat shu so'zning o'zini almashtiradi.
 //! `delete` so'zdan uzun bo'lsa, IME foydalanuvchining oldingi matnini o'chirib yuborgan bo'lardi.
 #![no_main]

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Lotin (2026 yoki eski: o' g' sh ch ') → o'zbek kirill.
 //!
 //! Avval matn oldinga yo'nalishdagi tahlildan o'tadi (`convert_token`): eski yozuv yangi harflarga

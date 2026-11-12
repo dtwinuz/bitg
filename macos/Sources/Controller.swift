@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS: InputMethodKit kontrolleri. Mantiq — Session.swift, Keys.swift va crates/bitg-ime; bu fayl faqat
 // IMK bilan bog'laydi. IMK har bir matn mijozi uchun alohida kontroller yaratadi va hammasini asosiy oqimda chaqiradi.
 import AppKit

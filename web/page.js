@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg.uz ichki sahifalari: mavzu, menyu, sahifa alifbosi, onlayn konvertor, kunlar hisobi.
 // bitg yadrosi (WASM) faqat kerak bo'lganda yuklanadi: konvertor sahifasida yoki «Yangi» tanlanganda.
 (function () {

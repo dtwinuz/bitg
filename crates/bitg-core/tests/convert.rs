@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use bitg_core::{OldStyle, Options, Session, convert, to_old};
 
 fn c(s: &str) -> String {

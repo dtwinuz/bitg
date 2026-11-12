@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg_<versiya>_<arch>.deb: IBus dvigateli + bitg CLI. Ubuntu 22.04 da yig'iladi (22.04, 24.04, Debian 12 uchun).
 #   sudo apt install libibus-1.0-dev dpkg-dev && linux/build-deb.sh   ->  target/deb/bitg_X_amd64.deb (+ .sha256)
 set -euo pipefail

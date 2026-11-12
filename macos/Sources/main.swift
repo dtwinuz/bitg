@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg macOS kiritish usuli: /Library/Input Methods/bitg.app
 //   bitg               IMK serveri (macOS o'zi ishga tushiradi)
 //   bitg --register    kiritish manbasini ro'yxatdan o'tkazadi va yoqadi (o'rnatuvchi postinstall chaqiradi)

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Oyna bilan Rust o'rtasidagi JSON xabarlar. Platformaga bog'liq emas — testlanadi.
 //!
 //! Oyna yuboradi: `{"cmd":"load"}`, `{"cmd":"save","settings":{..},"exceptions":[..]}`,

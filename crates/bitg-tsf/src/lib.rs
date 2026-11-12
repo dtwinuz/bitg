@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! # bitg-tsf — Windows matn kiritish xizmati (TSF Text Input Processor)
 //!
 //! Har bir dastur ichida (DLL sifatida) ishlaydi. Probel bosilganda kursor oldidagi so'zni TSF orqali o'qiydi

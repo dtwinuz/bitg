@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """O'rnatuvchi (WiX) rasmlari: dialog 493x312 (chapda 164px brend paneli), banner 493x58, litsenziya RTF.
 
     python -I tools/make_installer_art.py   # installer/assets/*

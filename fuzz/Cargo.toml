@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # bitg-core uchun cargo-fuzz (libFuzzer): ixtiyoriy matnda panic va noto'g'ri tahrir qidiradi.
 #   cargo +nightly fuzz run convert -- -max_total_time=60
 #   cargo +nightly fuzz run session -- -max_total_time=60

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 <#
 .SYNOPSIS
   bitg MSI'ni quradi: Rust binarlari (statik CRT) -> ixtiyoriy imzo -> WiX MSI -> MSI imzosi -> SHA256.

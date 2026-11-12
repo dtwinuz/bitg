@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 """bitg.uz statistikasi: Caddy kirish jurnalidan umumiy sonlar, Telegram xulosa, uptime kuzatuvi.
 
 Faqat standart kutubxona. Serverda `bitg-stats` konteynerida ishlaydi (deploy/docker-compose.yml).

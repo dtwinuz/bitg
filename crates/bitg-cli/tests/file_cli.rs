@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! `bitg file` va `bitg diff` buyruqlari: chiqish nomi, kirishni saqlash, --dry-run.
 
 use std::io::{Cursor, Read, Write};

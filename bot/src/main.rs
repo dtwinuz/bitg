@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! @bitguzbot: matnni bitg yadrosi bilan yangi alifboga (yoki /eski bilan eski lotinga) o'giradi,
 //! /yuklash bilan kompyuter dasturiga yo'l ko'rsatadi, /fikr bilan xato va takliflarni adminlarga yetkazadi.
 //! Long polling (getUpdates) — serverda kiruvchi port kerak emas.

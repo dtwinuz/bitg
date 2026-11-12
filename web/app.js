@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 // bitg.uz — demolar, 3D klaviatura, WASM sinov maydoni, sahifa alifbosi.
 // Demo natijalari bitg yadrosi (WASM) chiqishidan olingan: to'qima o'girish yo'q.
 (function () {

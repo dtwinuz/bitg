@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! C ABI (`linux/include/bitg_ime.h`). Barcha satrlar UTF-8. Qaytgan ko'rsatkichlar dvigatelga tegishli va
 //! shu dvigatelning keyingi chaqiruvigacha yaroqli — frontend ularni bo'shatmaydi.
 //! Har chaqiruv `catch_unwind` ichida: xato bo'lsa tugma odatdagidek dasturga o'tadi, jarayon yiqilmaydi.

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! Dastur modeli bilan: dvigatel javobini matn maydoniga qo'llab, natijaviy matnni tekshiramiz.
 
 use super::*;

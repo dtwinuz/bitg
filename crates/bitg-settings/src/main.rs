@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 //! bitg ilovasi: tray belgisi + sozlamalar oynasi. Sozlamalar darhol `%APPDATA%\bitg` ga yoziladi; IME ularni
 //! bir soniya ichida, dasturlarni qayta ochmasdan qabul qiladi. Namuna IME bilan bir xil yadroni ishlatadi.
 //!

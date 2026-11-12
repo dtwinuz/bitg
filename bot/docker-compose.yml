@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Serverda: /opt/bitg-bot/docker-compose.yml (deploy/deploy-bot.sh nusxalaydi).
 # /opt/bitg-bot/.env: BOT_TOKEN=... (repoda yo'q; set-token.sh bilan qo'yiladi), ixtiyoriy SITE_URL=...,
 # ADMIN_IDS=778806941[,ID2] — /fikr xabarlari keladigan shaxsiy chatlar (har biri @bitguzbot'ga /start yozgan bo'lsin),
