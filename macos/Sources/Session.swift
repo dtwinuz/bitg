@@ -20,12 +20,6 @@ enum BitgKey: UInt32 {
     case char = 0, space, enter, tab, backspace, navigate, other
 }
 
-/// Terminallar: buyruq va parol yoziladi — bitg tegmaydi (Linux'dagi INPUT_PURPOSE_TERMINAL kabi).
-let terminalBundles: Set<String> = [
-    "com.apple.Terminal", "com.googlecode.iterm2", "dev.warp.Warp-Stable", "net.kovidgoyal.kitty",
-    "io.alacritty", "org.alacritty", "com.github.wez.wezterm", "com.mitchellh.ghostty",
-]
-
 final class BitgSession {
     /// Kursor oldidan so'raladigan matn (UTF-16). So'z ko'pi bilan 40 belgi — 128 yetadi.
     static let window = 128
@@ -43,12 +37,18 @@ final class BitgSession {
 
     var ready: Bool { ime != nil }
 
-    /// Yangi maydon yoki dastur: so'z boshi ishonchli, terminalda o'chiq.
+    /// Yangi maydon yoki dastur: so'z boshi ishonchli; o'chirilgan dasturda (standart: terminallar) bitg tegmaydi.
     func activate(_ c: TextClient) {
         guard let ime else { return }
         bitg_ime_focus_in(ime)
-        let off = c.bundleID.map(terminalBundles.contains) ?? false
-        if let o = bitg_ime_set_suspended(ime, off ? 1 : 0) {
+        updateSuspended(c)
+    }
+
+    /// Sozlamalardan (`Prefs`) shu dastur uchun o'chiq/yoqiqni qo'llaydi. Menyudan o'zgartirilganda darhol chaqiriladi —
+    /// dvigatelning o'zi `settings.ini` ni ko'pi bilan sekundiga bir marta o'qiydi.
+    func updateSuspended(_ c: TextClient, _ prefs: Prefs = .load()) {
+        guard let ime else { return }
+        if let o = bitg_ime_set_suspended(ime, prefs.suspended(bundle: c.bundleID) ? 1 : 0) {
             apply(o.pointee, c, nil)
         }
     }
@@ -66,7 +66,9 @@ final class BitgSession {
     /// true — tugma iste'mol qilindi, dasturga yuborilmasin.
     func key(_ kind: BitgKey, _ cp: UInt32, _ c: TextClient) -> Bool {
         guard let ime else { return false }
-        let ctx = before(c)
+        // kursor oldidagi matn — dasturga sinxron IPC (Chromium'da sekin): faqat dvigatel uni ishlatadigan tugmada
+        // (so'z boshi, so'z oxiri, qaytarish). Natija baribir bir xil — crates/bitg-ime tests::wants_before_is_exact.
+        let ctx = bitg_ime_wants_before(ime, kind.rawValue, cp) != 0 ? before(c) : nil
         let out: UnsafePointer<BitgImeOut>?
         if let ctx {
             out = ctx.text.withCString { bitg_ime_key(ime, kind.rawValue, cp, $0) }

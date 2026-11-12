@@ -157,11 +157,35 @@ impl Engine {
         Out::pass()
     }
 
-    /// Bitta tugma. `before` — kursor oldidagi matn (dastur bersa), aks holda `None`.
-    pub fn key(&mut self, key: Key, before: Option<&str>) -> Out {
+    /// Sozlamalar fayli o'zgargan bo'lsa qayta o'qiydi (sekundiga ko'pi bilan bir marta).
+    fn sync(&mut self) {
         if self.cfg.refresh() {
             self.session.reset();
         }
+    }
+
+    /// Shu tugma uchun `key()` ga kursor oldidagi matn kerakmi. Matnni so'rash qimmat bo'lgan joyda (macOS:
+    /// har so'rov dasturga sinxron IPC) frontend `false` bo'lsa `before = None` beradi — natija baribir bir xil
+    /// (`tests::wants_before_is_exact` buni tasodifiy ketma-ketliklarda tekshiradi).
+    pub fn wants_before(&mut self, key: Key) -> bool {
+        self.sync();
+        if self.suspended || !self.cfg.settings.converting() || self.in_preedit {
+            return false;
+        }
+        match key {
+            // so'z boshi: matn bor-yo'qligi rejimni tanlaydi (to'g'ridan-to'g'ri yoki preedit)
+            Key::Char(c) if !c.is_whitespace() => self.word.is_empty(),
+            // so'z oxiri: kursor oldida haqiqatan shu so'z turganini tekshirish uchun
+            Key::Char(_) | Key::Space(_) | Key::Enter | Key::Tab => !self.word.is_empty(),
+            // faqat "asl so'zni qaytarish" matnni o'qiydi
+            Key::Backspace => self.word.is_empty() && self.undo.is_some(),
+            Key::Navigate | Key::Other => false,
+        }
+    }
+
+    /// Bitta tugma. `before` — kursor oldidagi matn (dastur bersa), aks holda `None`.
+    pub fn key(&mut self, key: Key, before: Option<&str>) -> Out {
+        self.sync();
         if self.suspended || !self.cfg.settings.converting() {
             self.undo = None;
             return self.flush();

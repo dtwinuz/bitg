@@ -2,7 +2,9 @@
 # O'rnatgandan keyin: eski nusxani to'xtatish va kirgan foydalanuvchi uchun kiritish manbasini ro'yxatdan o'tkazish.
 # Xato o'rnatishni buzmaydi — foydalanuvchi Tizim sozlamalari -> Klaviatura -> Kiritish manbalari'dan o'zi qo'shadi.
 APP="/Library/Input Methods/bitg.app"
-/usr/bin/killall bitg 2>/dev/null || true
+# faqat shu kiritish usulining eski jarayonlari (barcha foydalanuvchilarda; macOS keyingi tugmada yangisini
+# ishga tushiradi). `killall bitg` emas — u bitg CLI va nomi bitg bo'lgan boshqa jarayonlarni ham o'ldirardi.
+/usr/bin/pkill -f "^$APP/Contents/MacOS/bitg( |\$)" 2>/dev/null || true
 U="$(/usr/bin/stat -f %Su /dev/console 2>/dev/null)"
 if [ -n "$U" ] && [ "$U" != "root" ] && [ "$U" != "loginwindow" ]; then
   UID_="$(/usr/bin/id -u "$U")"

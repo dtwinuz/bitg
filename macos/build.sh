@@ -23,7 +23,7 @@ for pair in "aarch64-apple-darwin arm64" "x86_64-apple-darwin x86_64"; do
     macos/Sources/*.swift -L "$LIB" -lbitg_ime "${FRAMEWORKS[@]}" -o "$OUT/bin/bitg-$2"
   # sinov: IMK'siz — Session.swift, Keys.swift va soxta matn maydoni
   swiftc -O -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
-    macos/Sources/Session.swift macos/Sources/Keys.swift macos/test/main.swift \
+    macos/Sources/Session.swift macos/Sources/Keys.swift macos/Sources/Prefs.swift macos/test/main.swift \
     -L "$LIB" -lbitg_ime -framework AppKit -o "$OUT/bin/bitg-test-$2"
 done
 lipo -create "$OUT/bin/bitg-arm64" "$OUT/bin/bitg-x86_64" -output "$OUT/bin/bitg"

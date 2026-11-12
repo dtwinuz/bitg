@@ -40,6 +40,10 @@ void bitg_ime_free(BitgIme *ime);
  * before — kursor oldidagi matn (dastur surrounding text bersa va tanlov bo'lmasa) yoki NULL. */
 const BitgImeOut *bitg_ime_key(BitgIme *ime, uint32_t kind, uint32_t codepoint, const char *before);
 
+/* 1 — keyingi bitg_ime_key(kind, codepoint) ga `before` kerak; 0 — NULL berilsa ham natija bir xil.
+ * Matnni so'rash qimmat bo'lgan frontend (macOS: har so'rov dasturga sinxron IPC) uchun. */
+uint32_t bitg_ime_wants_before(BitgIme *ime, uint32_t kind, uint32_t codepoint);
+
 void bitg_ime_focus_in(BitgIme *ime);
 /* Fokus ketdi yoki kursor siljidi. Preedit'dagi o'girilmagan so'z (yoki NULL): dastur preedit'ni
  * o'zi yozmasa, frontend uni yozadi. */

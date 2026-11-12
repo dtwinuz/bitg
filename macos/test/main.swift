@@ -14,8 +14,12 @@ final class FakeField: TextClient {
         self.bundleID = bundle
     }
 
+    /// Dasturga so'rovlar soni (haqiqiy IMK'da har biri sinxron IPC).
+    var queries = 0
+
     func selection() -> NSRange {
-        surrounding ? NSRange(location: text.length, length: 0) : NSRange(location: NSNotFound, length: 0)
+        queries += 1
+        return surrounding ? NSRange(location: text.length, length: 0) : NSRange(location: NSNotFound, length: 0)
     }
 
     func text(in range: NSRange) -> String? {
@@ -64,10 +68,14 @@ func check<T: Equatable>(_ what: String, _ got: T, _ want: T) throws {
 }
 
 /// Har holat o'z HOME'ida: o'rganilgan so'zlar (exceptions.txt) holatlar orasida o'tmaydi.
-func session(_ f: FakeField) -> BitgSession {
+/// `ini` — dvigatel ishga tushishidan oldin yoziladigan settings.ini.
+func session(_ f: FakeField, ini: String? = nil) -> BitgSession {
     let dir = FileManager.default.temporaryDirectory.appendingPathComponent("bitg-test-\(UUID().uuidString)")
     try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     setenv("HOME", dir.path, 1)
+    if let ini {
+        try! Prefs(text: ini).save()
+    }
     let s = BitgSession()
     precondition(s.ready, "bitg_ime_new NULL qaytardi")
     s.activate(f)
@@ -176,6 +184,64 @@ let cases: [Case] = [
         try check("consumed", s.key(.navigate, 0, f), false)
         try check("text", f.value, "choy")
         try check("preedit", f.marked, "")
+    },
+    Case(name: "few_app_queries") {
+        // "choy " — faqat so'z boshi va probelda matn so'raladi (5 emas, 2)
+        let f = FakeField(), s = session(f)
+        f.queries = 0
+        type("choy ", f, s)
+        try check("text", f.value, "çoy ")
+        try check("queries", f.queries, 2)
+        // darhol Backspace — qaytarish uchun matn kerak
+        type("\u{8}", f, s)
+        try check("restored", f.value, "choy")
+        try check("queries", f.queries, 3)
+    },
+    Case(name: "prefs_keep_other_lines") {
+        var p = Prefs(text: "\u{feff}# izoh\r\nEnabled = 1\nfoo=bar\nenabled=1\n")
+        try check("read", p.enabled, true)
+        p.enabled = false
+        try check("text", p.text, "# izoh\nenabled=0\nfoo=bar\n")
+        try check("flag words", Prefs(text: "enabled=yo‘q").enabled, false)
+        try check("bad value -> default", Prefs(text: "enabled=maybe").enabled, true)
+        try check("last wins", Prefs(text: "undo_remember=1\nundo_remember=0").undoRemember, false)
+    },
+    Case(name: "prefs_disabled_apps") {
+        var p = Prefs(text: "")
+        try check("terminal default", p.isDisabled(bundle: "com.apple.Terminal"), true)
+        try check("textedit default", p.isDisabled(bundle: "com.apple.TextEdit"), false)
+        p.setDisabled(bundle: "com.apple.TextEdit", true)
+        try check("added", p.isDisabled(bundle: "com.apple.textedit"), true)
+        try check("terminal kept", p.isDisabled(bundle: "com.apple.Terminal"), true)
+        p.setDisabled(bundle: "com.apple.Terminal", false)
+        try check("terminal on", p.isDisabled(bundle: "com.apple.Terminal"), false)
+        try check("empty key = none", Prefs(text: "disabled_apps=").isDisabled(bundle: "com.apple.Terminal"), false)
+    },
+    Case(name: "app_disabled_in_settings") {
+        let f = FakeField(), s = session(f, ini: "disabled_apps=com.apple.TextEdit\n")
+        type("choy shahar ", f, s)
+        try check("text", f.value, "choy shahar ")
+    },
+    Case(name: "terminal_enabled_by_user") {
+        let f = FakeField(bundle: "com.apple.Terminal"), s = session(f, ini: "disabled_apps=\n")
+        type("choy ", f, s)
+        try check("text", f.value, "çoy ")
+    },
+    Case(name: "toggle_applies_immediately") {
+        let f = FakeField(), s = session(f)
+        type("choy ", f, s)
+        var p = Prefs.load()
+        p.enabled = false
+        try p.save()
+        s.updateSuspended(f, p)
+        type("shahar ", f, s)
+        try check("off", f.value, "çoy shahar ")
+        p.enabled = true
+        try p.save()
+        s.updateSuspended(f, p)
+        Thread.sleep(forTimeInterval: 1.1) // dvigatel settings.ini ni sekundiga bir marta qayta o'qiydi
+        type("choy ", f, s)
+        try check("on again", f.value, "çoy shahar çoy ")
     },
     Case(name: "key_map") {
         typealias K = (code: UInt16, flags: NSEvent.ModifierFlags, chars: String?, kind: BitgKey, cp: UInt32)

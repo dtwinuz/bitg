@@ -44,6 +44,84 @@ final class BitgController: IMKInputController {
         ((sender as? (IMKTextInput & NSObjectProtocol)) ?? client()).map(IMKClient.init)
     }
 
+    // MARK: menyu (kiritish manbalari menyusida, bitg tanlanganda)
+
+    override func menu() -> NSMenu! {
+        let p = Prefs.load()
+        let m = NSMenu(title: "bitg")
+        item(m, "bitg yoqilgan", #selector(toggleEnabled(_:)), on: p.enabled)
+        if let id = client()?.bundleIdentifier(), !id.isEmpty {
+            item(m, "\(Self.appName(id)) dasturida o‘chirish", #selector(toggleApp(_:)), on: p.isDisabled(bundle: id))
+        }
+        item(m, "Qaytarilgan so‘zlarni eslab qolish", #selector(toggleRemember(_:)), on: p.undoRemember)
+        m.addItem(.separator())
+        item(m, "Istisno so‘zlar…", #selector(openExceptions(_:)))
+        item(m, "Yordam — bitg.uz", #selector(openHelp(_:)))
+        return m
+    }
+
+    private func item(_ m: NSMenu, _ title: String, _ action: Selector, on: Bool? = nil) {
+        let i = NSMenuItem(title: title, action: action, keyEquivalent: "")
+        i.target = self
+        if let on {
+            i.state = on ? .on : .off
+        }
+        m.addItem(i)
+    }
+
+    private static func appName(_ bundle: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) else { return bundle }
+        let name = FileManager.default.displayName(atPath: url.path)
+        return name.hasSuffix(".app") ? String(name.dropLast(4)) : name
+    }
+
+    /// O'zgartiradi, saqlaydi va joriy dasturga darhol qo'llaydi (boshqalari — dvigatel faylni qayta o'qiganda, ≤1 s).
+    private func change(_ f: (inout Prefs) -> Void) {
+        var p = Prefs.load()
+        f(&p)
+        do {
+            try p.save()
+        } catch {
+            FileHandle.standardError.write("bitg: settings.ini yozilmadi: \(error)\n".data(using: .utf8)!)
+            NSSound.beep()
+            return
+        }
+        if let c = wrap(nil) {
+            session.updateSuspended(c, p)
+        }
+    }
+
+    @objc func toggleEnabled(_ sender: Any?) {
+        change { $0.enabled.toggle() }
+    }
+
+    @objc func toggleApp(_ sender: Any?) {
+        guard let id = client()?.bundleIdentifier(), !id.isEmpty else { return }
+        change { $0.setDisabled(bundle: id, !$0.isDisabled(bundle: id)) }
+    }
+
+    @objc func toggleRemember(_ sender: Any?) {
+        change { $0.undoRemember.toggle() }
+    }
+
+    @objc func openExceptions(_ sender: Any?) {
+        let url = Prefs.exceptionsURL
+        if !FileManager.default.fileExists(atPath: url.path) {
+            try? FileManager.default.createDirectory(at: Prefs.dir, withIntermediateDirectories: true)
+            let head = "# bitg bu so‘zlarni o‘girmaydi: har qatorda bitta so‘z (masalan, nom yoki atama).\n"
+            try? Data(head.utf8).write(to: url, options: .atomic)
+        }
+        NSWorkspace.shared.open(url)
+    }
+
+    @objc func openHelp(_ sender: Any?) {
+        if let url = URL(string: "https://bitg.uz/yuklab-olish/#mac") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    // MARK: hodisalar
+
     override func recognizedEvents(_ sender: Any!) -> Int {
         Int(NSEvent.EventTypeMask([.keyDown, .leftMouseDown]).rawValue)
     }

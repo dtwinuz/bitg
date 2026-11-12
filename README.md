@@ -176,7 +176,8 @@ Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linu
 
 ### O'rnatish (macOS 11+, Apple M va Intel) — sinov
 
-[Releases](https://github.com/dtwinuz/bitg/releases) dan `bitg-<versiya>-macos.pkg` ni oling: bitta universal fayl
+[bitg.uz/yuklab-olish](https://bitg.uz/yuklab-olish/#mac) dan `bitg-<versiya>-macos.pkg` ni oling (SHA-256 shu
+sahifada; v0.2.0 dan keyingi versiyalarda [Releases](https://github.com/dtwinuz/bitg/releases) da ham): bitta universal fayl
 (arm64 + x86_64). O'rnatuvchi hozircha Apple imzosiz — ochilmasa **Tizim sozlamalari → Maxfiylik va xavfsizlik →
 Baribir ochish**, yoki terminalda:
 
@@ -186,6 +187,9 @@ sudo installer -pkg ~/Downloads/bitg-0.2.0-macos.pkg -target /
 
 bitg `/Library/Input Methods/bitg.app` ga yoziladi va kiritish manbalariga o'zi qo'shiladi (ko'rinmasa — tizimdan
 chiqib qayta kiring). **Control + Probel** bilan tanlang. Terminal, iTerm, Warp, kitty va boshqa terminallarda o'chiq.
+Menyu satridagi kiritish manbalari menyusida (bitg tanlanganda): **bitg yoqilgan**, **<dastur> dasturida o'chirish**,
+**qaytarilgan so'zlarni eslab qolish**, **istisno so'zlar** — hammasi `settings.ini` ga Windows bilan bir xil kalitlarda
+(`enabled`, `disabled_apps` — bundle ID'lar, `undo_remember`) yoziladi va joriy dasturga darhol qo'llanadi.
 
 | Nima | Qayerda |
 |---|---|

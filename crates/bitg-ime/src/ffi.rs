@@ -125,7 +125,15 @@ pub unsafe extern "C" fn bitg_ime_key(
         // SAFETY: chaqiruvchi NUL bilan tugagan satr beradi; UTF-8 bo'lmasa — matn yo'q deb hisoblaymiz
         unsafe { CStr::from_ptr(before) }.to_str().ok()
     };
-    let key = match kind {
+    let key = to_key(kind, codepoint);
+    guard(pass(), move || {
+        let out = ime.engine.key(key, before);
+        ime.store(out)
+    })
+}
+
+fn to_key(kind: u32, codepoint: u32) -> Key {
+    match kind {
         BITG_KEY_CHAR | BITG_KEY_SPACE => match char::from_u32(codepoint) {
             Some(c) if kind == BITG_KEY_SPACE => Key::Space(c),
             Some(c) if !c.is_control() => Key::Char(c),
@@ -136,10 +144,26 @@ pub unsafe extern "C" fn bitg_ime_key(
         BITG_KEY_BACKSPACE => Key::Backspace,
         BITG_KEY_NAVIGATE => Key::Navigate,
         _ => Key::Other,
+    }
+}
+
+/// 1 — shu tugma uchun `bitg_ime_key` ga kursor oldidagi matn kerak; 0 — `before = NULL` berilsa ham natija
+/// bir xil. Matnni so'rash qimmat bo'lgan frontend (macOS IMK) har tugmada so'ramasligi uchun.
+///
+/// # Safety
+/// `ime` — tirik dvigatel yoki NULL (NULL — 0).
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn bitg_ime_wants_before(
+    ime: *mut BitgIme,
+    kind: u32,
+    codepoint: u32,
+) -> u32 {
+    let Some(ime) = (unsafe { ime.as_mut() }) else {
+        return 0;
     };
-    guard(pass(), move || {
-        let out = ime.engine.key(key, before);
-        ime.store(out)
+    // xato bo'lsa — matnni so'raymiz: ortiqcha so'rov xavfsiz, yetishmagani emas
+    guard(1, || {
+        u32::from(ime.engine.wants_before(to_key(kind, codepoint)))
     })
 }
 
@@ -194,6 +218,27 @@ mod tests {
             String::new()
         } else {
             unsafe { CStr::from_ptr(p) }.to_string_lossy().into_owned()
+        }
+    }
+
+    #[test]
+    fn abi_wants_before() {
+        let ime = bitg_ime_new();
+        assert!(!ime.is_null());
+        unsafe {
+            bitg_ime_focus_in(ime);
+            assert_eq!(bitg_ime_wants_before(ime, BITG_KEY_CHAR, 'c' as u32), 1);
+            let b = CString::new("").unwrap();
+            bitg_ime_key(ime, BITG_KEY_CHAR, 'c' as u32, b.as_ptr());
+            // so'z o'rtasi: matn kerak emas; so'z oxiri: kerak
+            assert_eq!(bitg_ime_wants_before(ime, BITG_KEY_CHAR, 'h' as u32), 0);
+            assert_eq!(bitg_ime_wants_before(ime, BITG_KEY_SPACE, ' ' as u32), 1);
+            assert_eq!(bitg_ime_wants_before(ime, BITG_KEY_NAVIGATE, 0), 0);
+            assert_eq!(
+                bitg_ime_wants_before(ptr::null_mut(), BITG_KEY_CHAR, 'c' as u32),
+                0
+            );
+            bitg_ime_free(ime);
         }
     }
 

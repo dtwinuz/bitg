@@ -313,3 +313,92 @@ fn double_space_and_leading_space_pass_through() {
     app.typ(&mut e, "  choy  ");
     assert_eq!(app.text, "  çoy  ");
 }
+
+/// `wants_before` aniq: matn faqat u `true` degan tugmada berilsa ham, dvigatel javobi va natijaviy matn
+/// har qadamda "matn doim beriladi" holati bilan bir xil. Tasodifiy ketma-ketliklar, uch xil dastur.
+#[test]
+fn wants_before_is_exact() {
+    const KEYS: &[char] = &[
+        'c', 'h', 'o', 'y', 's', 'a', 'r', 'g', 'i', 'l', '\'', 'ʻ', 'O', 'S', 'ч', 'о', 'й', 'x',
+        'w', '1', '.', ',', ' ', ' ', ' ', '\u{a0}', '\n', '\t', '\u{8}', '\u{8}', '\u{1b}',
+        '\u{7}',
+    ];
+    let mut seed: u64 = 0x9e37_79b9_7f4a_7c15;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed
+    };
+    let mut asked = 0usize;
+    let mut total = 0usize;
+    for round in 0..600 {
+        let mode = round % 3;
+        let mk = || match mode {
+            0 => App::direct(),
+            1 => App {
+                broken: true,
+                surrounding: true,
+                ..App::default()
+            },
+            _ => App::default(),
+        };
+        let (mut a, mut b) = (mk(), mk());
+        let (mut ea, mut eb) = (engine(), engine());
+        let len = 20 + (next() % 60) as usize;
+        for step in 0..len {
+            let c = KEYS[(next() % KEYS.len() as u64) as usize];
+            let key = match c {
+                ' ' | '\u{a0}' => Key::Space(c),
+                '\n' => Key::Enter,
+                '\t' => Key::Tab,
+                '\u{8}' => Key::Backspace,
+                '\u{1b}' => Key::Navigate,
+                '\u{7}' => Key::Other,
+                c => Key::Char(c),
+            };
+            let oa = ea.key(key, a.before().as_deref());
+            let want = eb.wants_before(key);
+            total += 1;
+            asked += usize::from(want);
+            let bb = if want { b.before() } else { None };
+            let ob = eb.key(key, bb.as_deref());
+            assert_eq!(
+                oa,
+                ob,
+                "round {round} step {step} key {key:?}: {:?}",
+                a.shown()
+            );
+            a.apply(key, oa);
+            b.apply(key, ob);
+            assert_eq!(a.shown(), b.shown(), "round {round} step {step}");
+        }
+    }
+    // tejash haqiqiy: matn tugmalarning yarmidan kamida so'raladi
+    assert!(asked * 2 < total, "so'raldi {asked}/{total}");
+}
+
+#[test]
+fn wants_before_typical_word() {
+    let mut e = engine();
+    let mut app = App::direct();
+    let mut asked = String::new();
+    for c in "choy ".chars() {
+        let key = if c == ' ' {
+            Key::Space(c)
+        } else {
+            Key::Char(c)
+        };
+        let want = e.wants_before(key);
+        asked.push(if want { '1' } else { '0' });
+        let b = if want { app.before() } else { None };
+        let o = e.key(key, b.as_deref());
+        app.apply(key, o);
+    }
+    // so'z boshi va probel — 2 ta so'rov, 5 emas
+    assert_eq!(asked, "10001");
+    assert_eq!(app.text, "çoy ");
+    // darhol Backspace — asl so'zni qaytarish uchun matn kerak
+    assert!(e.wants_before(Key::Backspace));
+    assert!(!e.wants_before(Key::Navigate));
+}
