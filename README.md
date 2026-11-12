@@ -78,11 +78,15 @@ flowchart LR
   core["bitg-core<br/>(Rust, bog'liqliksiz)"]
   cli["bitg CLI"]
   tsf["Windows TSF IME<br/>(prototip)"]
+  ime["bitg-ime<br/>(yozish mantiqi)"]
+  ibus["Linux: IBus / Fcitx5"]
   tray["Sozlamalar oynasi<br/>(WebView2)"]
   mob["Android / iOS klaviatura<br/>(reja)"]
   web["Web / WASM<br/>(wasm.rs tayyor, sayt ishlanmoqda)"]
   core --> cli
   core -- "C ABI (ffi.rs)" --> tsf
+  core --> ime
+  ime -- "C ABI" --> ibus
   core --> tray
   core -- "UniFFI" --> mob
   core --> web
@@ -93,6 +97,7 @@ flowchart LR
 | [`bitg-core`](crates/bitg-core) | qoidalar (`latin`), kirill (`cyrillic`), teskari (`reverse`), tokenlar (`token`), til dalili (`lang`), brendlar (`data/names.txt`), yozish sessiyasi (`Session`), C ABI (`ffi`), brauzer ABI (`wasm`, faqat wasm32) |
 | [`bitg-cli`](crates/bitg-cli) | `bitg convert / old / explain / eval` |
 | [`bitg-settings`](crates/bitg-settings) | sozlamalar oynasi: kalitlar, ro'yxatlar, jonli namuna (Windows, WebView2) |
+| [`bitg-ime`](crates/bitg-ime) | platformadan mustaqil yozish mantiqi (Linux): so'z chegarasi, kursor oldidagi matnni tekshirib almashtirish, matn bermaydigan dasturlar uchun preedit, Backspace bilan qaytarish va istisno o'rganish, `settings.ini`/`exceptions.txt` (`~/.config/bitg`); C ABI — [`linux/`](linux) dagi IBus (C) va Fcitx5 (C++) qobiqlari uchun |
 | [`bitg-tsf`](crates/bitg-tsf) | Windows matn kiritish xizmati (TSF TIP, Rust): tugmalarga tegmaydi — matn o'zgarishini kuzatadi (`ITfTextEditSink`) va so'zdan keyin probel yozilganda o'sha so'zni joyida almashtiradi. Matnni bermaydigan dasturlarda (Qt: Telegram) — zaxira yo'l: bosilgan harflardan so'z yig'iladi, `SendInput` bilan Backspace + yangi so'z. Hook va clipboard yo'q |
 
 ### O'rnatish (Windows 10/11, x64)
@@ -138,7 +143,30 @@ Get-FileHash .\bitg-0.1.0-x64.msi -Algorithm SHA256   # Release'dagi .sha256 bil
 
 O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bitg-<versiya>-x64.msi` + `.sha256`.
 `-CertThumbprint` yoki `BITG_SIGN_PFX` bilan binarlar va MSI imzolanadi (SHA-256, vaqt tamg'asi). `v*` tegi qo'yilsa,
-[`release`](.github/workflows/release.yml) workflow MSI'ni GitHub Release'ga chiqaradi.
+[`release`](.github/workflows/release.yml) workflow MSI va Linux `.deb` paketlarini GitHub Release'ga chiqaradi.
+
+### O'rnatish (Linux: Ubuntu 22.04+, Debian 12+, x64)
+
+[Releases](https://github.com/dtwinuz/bitg/releases) dan paketni oling. IBus (Ubuntu, Debian GNOME standarti):
+
+```bash
+sudo apt install ./bitg_0.2.0_amd64.deb      # IBus dvigateli + bitg CLI
+ibus restart                                  # yoki tizimdan chiqib qayta kiring
+```
+
+So'ng **Sozlamalar → Klaviatura → Kiritish manbasi qo'shish → O'zbek → bitg** va **Super + Probel** bilan tanlang.
+Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.2.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
+qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
+
+| Nima | Qayerda |
+|---|---|
+| IBus dvigateli | `/usr/libexec/ibus-engine-bitg`, `/usr/share/ibus/component/bitg.xml` |
+| Fcitx5 qo'shimchasi | `/usr/lib/<arch>/fcitx5/bitg.so`, `/usr/share/fcitx5/{addon,inputmethod}/bitg.conf` |
+| Sozlamalar | `~/.config/bitg/settings.ini`, `exceptions.txt` — Windows bilan bir xil format, o'zgarish ~1 soniyada qo'llanadi |
+
+Matnni bermaydigan dasturlarda so'z yozilayotganda tagi chizilgan (preedit) ko'rinadi va probelda o'girilib yoziladi.
+Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linux/build-deb.sh` (`libibus-1.0-dev`,
+`libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`.
 
 Ishlab chiqishda (MSI'siz):
 
@@ -319,7 +347,8 @@ bitg-cli` va `bitg eval eval/uz.tsv` (shuningdek `uz_noapos.tsv`, `en.tsv`).
 - [ ] Phase 0b — Windows TSF IME prototipi (kod tayyor): qaysi dasturlarda ishlashini o'lchash (Chrome, Telegram, VS Code, Word)
 - [ ] MVP — imzolangan Windows beta: TSF IME + tray, Backspace bilan qaytarish, istisnolar
 - [ ] v1 — qonun kuchga kirishidan oldin (2027-aprel)
-- [ ] **Linux (Ubuntu)** — IBus va Fcitx5 dvigateli (`bitg-core` C ABI orqali), `.deb` paket
+- [x] **Linux (Ubuntu)** — IBus dvigateli va `.deb` paket, haqiqiy `ibus-daemon` bilan CI sinovi (v0.2.0)
+- [ ] Linux: Fcitx5 qo'shimchasini real dasturlarda sinash (paket bor, sinov bosqichida); Fedora `.rpm`, Flatpak
 - [ ] **iOS** — klaviatura kengaytmasi (Keyboard Extension), yadro `staticlib` sifatida
 - [ ] macOS, Android; Word/brauzer kengaytmasi; B2B API
 - [x] Sayt: [bitg.uz](https://bitg.uz) (`web/`), sinov maydoni haqiqiy yadroda (Rust → WASM)

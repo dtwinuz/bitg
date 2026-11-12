@@ -1,6 +1,7 @@
 name: release
 
-# Faqat versiya tegi (v0.2.0) qo'yilganda: MSI quriladi, (sertifikat bo'lsa) imzolanadi va GitHub Release'ga yuklanadi.
+# Faqat versiya tegi (v0.2.0) qo'yilganda: Linux .deb (IBus + Fcitx5) va MSI quriladi, (sertifikat bo'lsa) MSI
+# imzolanadi va hammasi bitta GitHub Release'ga yuklanadi.
 on:
   push:
     tags: ["v*.*.*"]
@@ -9,7 +10,43 @@ permissions:
   contents: write
 
 jobs:
+  deb:
+    # Linux paketlari: yig'ish + haqiqiy ibus-daemon bilan sinov; release'ga MSI bilan birga qo'shiladi
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Paketlar
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends libibus-1.0-dev ibus dbus python3-gi gir1.2-ibus-1.0 dpkg-dev \
+            libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev pkg-config
+      - name: Versiya tegdan va Cargo.toml'dan bir xilmi
+        run: |
+          tag="${GITHUB_REF_NAME#v}"; cargo=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          [ "$tag" = "$cargo" ] || { echo "Teg $tag, Cargo.toml $cargo"; exit 1; }
+      - run: linux/build-deb.sh
+      - name: Uchidan-uchiga (ibus-daemon)
+        env:
+          GSETTINGS_BACKEND: memory
+        run: |
+          sudo apt-get install -y -q ./target/deb/bitg_*.deb
+          dbus-run-session -- python3 -u linux/test/ibus_e2e.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deb
+          path: |
+            target/deb/*.deb
+            target/deb/*.deb.sha256
+          if-no-files-found: error
+
   msi:
+    needs: deb
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,10 +69,16 @@ jobs:
           BITG_SIGN_PFX: ${{ secrets.BITG_SIGN_PFX }}
           BITG_SIGN_PFX_PASSWORD: ${{ secrets.BITG_SIGN_PFX_PASSWORD }}
         run: ./installer/build.ps1 -Version $env:VERSION
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: deb
+          path: dist/deb
       - name: Release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 `
+          $deb = Get-ChildItem dist/deb -File | ForEach-Object { $_.FullName }
+          if ($deb.Count -lt 4) { throw "deb artefaktlari to'liq emas: $($deb.Count)" }
+          gh release create "${{ github.ref_name }}" dist/bitg-$env:VERSION-x64.msi dist/bitg-$env:VERSION-x64.msi.sha256 @deb `
             --title "bitg $env:VERSION" --generate-notes --verify-tag
