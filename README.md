@@ -206,7 +206,14 @@ Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linu
 
 **Arch Linux** (Manjaro, EndeavourOS): [`packaging/aur/PKGBUILD`](packaging/aur) manbadan yig'adi va ikkita paket
 beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
-AUR'da e'lon qilingach: `yay -S bitg`.
+AUR'da hali yo'q (yangi akkaunt ochish vaqtincha yopiq) — shu PKGBUILD bilan o'zingiz yig'ing:
+
+```bash
+git clone --depth 1 https://github.com/dtwinuz/bitg.git && cd bitg/packaging/aur
+makepkg --syncdeps                                    # Release tarball'ini oladi, SHA-256 va check() bilan
+sudo pacman -U bitg-[0-9]*.pkg.tar.zst                # IBus; Fcitx5 uchun: fcitx5-bitg-[0-9]*.pkg.tar.zst
+ibus restart
+```
 
 ### O'rnatish (macOS 11+, Apple M va Intel) — sinov
 
