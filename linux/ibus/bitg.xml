@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- /usr/share/ibus/component/bitg.xml — ibus-daemon shu fayldan dvigatelni topadi. @VERSION@ build-deb.sh'da. -->
+<component>
+	<name>org.freedesktop.IBus.Bitg</name>
+	<description>bitg — yangi o‘zbek alifbosi uchun kiritish usuli</description>
+	<exec>/usr/libexec/ibus-engine-bitg --ibus</exec>
+	<version>@VERSION@</version>
+	<author>dtwinuz</author>
+	<license>MIT OR Apache-2.0</license>
+	<homepage>https://bitg.uz</homepage>
+	<textdomain>bitg</textdomain>
+	<engines>
+		<engine>
+			<name>bitg</name>
+			<language>uz</language>
+			<license>MIT OR Apache-2.0</license>
+			<author>dtwinuz</author>
+			<icon>/usr/share/icons/hicolor/scalable/apps/bitg.svg</icon>
+			<!-- default: foydalanuvchining joriy klaviatura tartibi saqlanadi (lotin, kirill, turkcha Q) -->
+			<layout>default</layout>
+			<longname>bitg (yangi alifbo)</longname>
+			<description>Eskicha yozing — so‘z tugashi bilan yangi alifboga (ö ğ ş ç) o‘giriladi. Inglizcha so‘z va havolalarga tegmaydi; Backspace bilan qaytariladi.</description>
+			<symbol>ö</symbol>
+			<rank>0</rank>
+		</engine>
+	</engines>
+</component>

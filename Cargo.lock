@@ -84,6 +84,13 @@ name = "bitg-core"
 version = "0.1.0"
 
 [[package]]
+name = "bitg-ime"
+version = "0.1.0"
+dependencies = [
+ "bitg-core",
+]
+
+[[package]]
 name = "bitg-settings"
 version = "0.1.0"
 dependencies = [

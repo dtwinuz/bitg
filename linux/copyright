@@ -1,0 +1,17 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: bitg
+Upstream-Contact: dtwinuz <info@dtwin.uz>
+Source: https://github.com/dtwinuz/bitg
+
+Files: *
+Copyright: 2026 dtwinuz
+License: MIT or Apache-2.0
+ This software is dual-licensed under the MIT license and the Apache
+ License, Version 2.0; you may use it under the terms of either.
+ .
+ The full license texts are in LICENSE-MIT and LICENSE-APACHE in the
+ source repository. On Debian systems the Apache License 2.0 is in
+ /usr/share/common-licenses/Apache-2.0.
+ .
+ Lexicon sources and their licenses are listed in the README of the
+ source repository.

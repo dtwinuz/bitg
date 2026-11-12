@@ -1,0 +1,52 @@
+name: linux
+
+# IBus dvigateli: yig'ish, .deb, o'rnatish va haqiqiy ibus-daemon bilan uchidan-uchiga sinov.
+on:
+  push:
+    branches: [main, "linux/**"]
+    paths: ["crates/bitg-core/**", "crates/bitg-ime/**", "crates/bitg-cli/**", "linux/**", "Cargo.*", ".github/workflows/linux.yml"]
+  pull_request:
+    paths: ["crates/bitg-core/**", "crates/bitg-ime/**", "crates/bitg-cli/**", "linux/**", "Cargo.*", ".github/workflows/linux.yml"]
+
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ibus:
+    # 22.04 da yig'ilgan paket 22.04, 24.04 va Debian 12 da o'rnatiladi
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Paketlar
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends libibus-1.0-dev ibus dbus python3-gi gir1.2-ibus-1.0 dpkg-dev lintian
+      - run: cargo test --locked -p bitg-ime
+      - name: .deb
+        run: linux/build-deb.sh
+      - name: lintian
+        run: lintian --no-tag-display-limit --suppress-tags no-manual-page,binary-without-manpage,initial-upload-closes-no-bugs target/deb/*.deb || true
+      - name: O'rnatish
+        run: |
+          sudo apt-get install -y -q ./target/deb/bitg_*.deb
+          test -x /usr/libexec/ibus-engine-bitg && bitg "O'zbekiston shaharlari" | grep -qx "Özbekiston şaharlari"
+      - name: Uchidan-uchiga (ibus-daemon)
+        env:
+          GSETTINGS_BACKEND: memory
+          BITG_IBUS_LOG: ${{ runner.temp }}/ibus-daemon.log
+        run: dbus-run-session -- python3 -u linux/test/ibus_e2e.py
+      - name: Paketni o'chirish
+        run: sudo apt-get remove -y -q bitg && test ! -e /usr/libexec/ibus-engine-bitg
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bitg-deb
+          path: target/deb/*.deb*
+          if-no-files-found: error
