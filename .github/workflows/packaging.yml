@@ -18,11 +18,10 @@ jobs:
       - name: winget
         shell: pwsh
         run: |
-          if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-            Install-PackageProvider -Name NuGet -Force | Out-Null
-            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
-            Repair-WinGetPackageManager -AllUsers -Latest
-          }
+          # runner image'dagi winget eski bo'ladi va yangi manifest schema'sini tanimaydi: eng yangisiga
+          Install-PackageProvider -Name NuGet -Force | Out-Null
+          Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
+          Repair-WinGetPackageManager -AllUsers -Latest -Force
           winget --version
           winget settings --enable LocalManifestFiles
       - name: Validate, install, uninstall
