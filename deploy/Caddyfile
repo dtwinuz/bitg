@@ -5,8 +5,8 @@
 {
 	# faqat konteyner ichida (port ochilmagan): deploy.sh `caddy reload` uchun ishlatadi
 	admin localhost:2019
-	# konteyner qayta yaratilganda (kam) ochiq yuklashlarga 10 s beriladi
-	grace_period 10s
+	# grace_period ataylab yo'q: reload'da eski ulanishlar oxirigacha kutiladi (sekin yuklash uzilmaydi);
+	# to'xtatish esa compose'dagi stop_grace_period bilan chegaralangan
 	auto_https off
 	servers {
 		# dtwin edge (docker tarmog'i, xususiy IP) haqiqiy mijoz IP'sini X-Forwarded-For'da beradi

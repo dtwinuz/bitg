@@ -17,7 +17,7 @@ services:
     image: caddy:2-alpine
     container_name: bitg-site
     restart: unless-stopped
-    # konteyner faqat shu fayl o'zgarganda qayta yaratiladi; Caddy grace_period (Caddyfile) dan biroz uzoq
+    # konteyner faqat shu fayl o'zgarganda qayta yaratiladi; shunda ochiq yuklashlarga 15 s beriladi
     stop_grace_period: 15s
     volumes:
       - ./conf:/etc/caddy:ro
