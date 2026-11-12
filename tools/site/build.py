@@ -173,7 +173,7 @@ def software_app(ctx):
         "@type": "SoftwareApplication", "@id": SITE + "/#app", "name": "bitg",
         "description": "Oʻzbek matnini yozish paytida 2026-yilgi yangi lotin alifbosiga (Ö, Ğ, Ş, Ç) avtomatik "
                        "oʻgiradi. Inglizcha soʻz, havola va kodga tegmaydi, Backspace bilan qaytariladi, internetsiz ishlaydi.",
-        "applicationCategory": "UtilitiesApplication", "operatingSystem": "Windows 10, Windows 11, Ubuntu 22.04+, Debian 12+",
+        "applicationCategory": "UtilitiesApplication", "operatingSystem": "Windows 10, Windows 11, Ubuntu 22.04+, Debian 12+, macOS 11+",
         "softwareVersion": ctx["version"], "fileSize": ctx["msiSizeMb"] + " MB",
         "downloadUrl": SITE + ctx["msiUrl"], "installUrl": SITE + "/yuklab-olish/",
         "isAccessibleForFree": True, "license": "https://github.com/dtwinuz/bitg#litsenziya",
@@ -425,10 +425,10 @@ def msi_info(msi):
             "msiSizeMb": f"{mb:.1f}", "msiSizeUz": f"{mb:.1f}".replace(".", ",")}
 
 
-def deb_info(path, key):
-    """Linux paketi: {key}Name/Url/Sha/SizeUz (masalan debName, fcitxSha)."""
+def pkg_info(path, key):
+    """Linux/macOS paketi: {key}Name/Url/Sha/SizeUz (masalan debName, fcitxSha, macSizeUz)."""
     if not path.exists():
-        fail(f"Linux paketi topilmadi: {path} (GitHub Release'dan dist/ ga yuklang)")
+        fail(f"paket topilmadi: {path} (GitHub Release'dan dist/ ga yuklang)")
     data = path.read_bytes()
     kb = len(data) / 1024
     size = f"{kb / 1024:.1f} MB".replace(".", ",") if kb >= 1024 else f"{kb:.0f} KB"
@@ -449,8 +449,9 @@ def main():
     today = dt.date.fromisoformat(a.today) if a.today else dt.date.today()
     ctx = dict(CONFIG)
     ctx.update(msi_info(msi))
-    ctx.update(deb_info(msi.parent / f"bitg_{version}_amd64.deb", "deb"))
-    ctx.update(deb_info(msi.parent / f"fcitx5-bitg_{version}_amd64.deb", "fcitx"))
+    ctx.update(pkg_info(msi.parent / f"bitg_{version}_amd64.deb", "deb"))
+    ctx.update(pkg_info(msi.parent / f"fcitx5-bitg_{version}_amd64.deb", "fcitx"))
+    ctx.update(pkg_info(msi.parent / f"bitg-{version}-macos.pkg", "mac"))
     ctx.update({
         "version": version,
         "daysLeft": max((dt.date.fromisoformat(CONFIG["lawDate"]) - today).days, 0),

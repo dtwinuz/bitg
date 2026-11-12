@@ -283,7 +283,7 @@ b { font-weight: 650; }
 .bg-check input { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; }
 
 /* platforms */
-.bg-plat { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 14px; }
+.bg-plat { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 14px; }
 .bg-plat__card { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); min-height: 190px; transition: border-color .2s, transform .3s var(--ease); }
 a.bg-plat__card:hover { border-color: var(--line2); transform: translateY(-3px); }
 .bg-plat__card--main { background: var(--text); color: var(--bg); border-color: var(--text); }
@@ -335,6 +335,7 @@ button.bg-key.is-new:hover { background: color-mix(in srgb, var(--accent) 24%, v
   .bg-hero__sub { max-width: none; }
   .bg-stage { min-height: 460px; }
   .bg-plat { grid-template-columns: 1fr 1fr; }
+  .bg-plat__card--main { grid-column: 1 / -1; }
 }
 @media (max-width: 860px) {
   .bg-nav { display: none; }

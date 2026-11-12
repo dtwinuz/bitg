@@ -4,7 +4,7 @@
 [![linux](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml/badge.svg)](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml)
 [![release](https://img.shields.io/github/v/release/dtwinuz/bitg?label=release)](https://github.com/dtwinuz/bitg/releases/latest)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#litsenziya)
-[![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux-informational)](https://bitg.uz/yuklab-olish/)
+[![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
 
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
 *Uzbek text to the 2026 Latin alphabet (ö ğ ş ç ʼ) — as you type, everywhere, without breaking English.*
@@ -149,7 +149,7 @@ Get-FileHash .\bitg-0.1.0-x64.msi -Algorithm SHA256   # Release'dagi .sha256 bil
 
 O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bitg-<versiya>-x64.msi` + `.sha256`.
 `-CertThumbprint` yoki `BITG_SIGN_PFX` bilan binarlar va MSI imzolanadi (SHA-256, vaqt tamg'asi). `v*` tegi qo'yilsa,
-[`release`](.github/workflows/release.yml) workflow MSI va Linux `.deb` paketlarini GitHub Release'ga chiqaradi.
+[`release`](.github/workflows/release.yml) workflow MSI, Linux `.deb` va macOS `.pkg` paketlarini GitHub Release'ga chiqaradi.
 
 ### O'rnatish (Linux: Ubuntu 22.04+, Debian 12+, x64)
 
@@ -173,6 +173,29 @@ qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 Matnni bermaydigan dasturlarda so'z yozilayotganda tagi chizilgan (preedit) ko'rinadi va probelda o'girilib yoziladi.
 Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linux/build-deb.sh` (`libibus-1.0-dev`,
 `libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`.
+
+### O'rnatish (macOS 11+, Apple M va Intel) — sinov
+
+[Releases](https://github.com/dtwinuz/bitg/releases) dan `bitg-<versiya>-macos.pkg` ni oling: bitta universal fayl
+(arm64 + x86_64). O'rnatuvchi hozircha Apple imzosiz — ochilmasa **Tizim sozlamalari → Maxfiylik va xavfsizlik →
+Baribir ochish**, yoki terminalda:
+
+```bash
+sudo installer -pkg ~/Downloads/bitg-0.2.0-macos.pkg -target /
+```
+
+bitg `/Library/Input Methods/bitg.app` ga yoziladi va kiritish manbalariga o'zi qo'shiladi (ko'rinmasa — tizimdan
+chiqib qayta kiring). **Control + Probel** bilan tanlang. Terminal, iTerm, Warp, kitty va boshqa terminallarda o'chiq.
+
+| Nima | Qayerda |
+|---|---|
+| Kiritish usuli (InputMethodKit) | `/Library/Input Methods/bitg.app` — [`macos/Sources`](macos/Sources) (Swift) + `bitg-ime` (Rust, C ABI) |
+| Sozlamalar | `~/Library/Application Support/bitg/settings.ini`, `exceptions.txt` |
+
+Yig'ish (Xcode Command Line Tools): `macos/build.sh` → `target/macos/bitg-<versiya>-macos.pkg`; sinov (soxta matn
+maydoni, IMK'siz): `target/macos/bitg-test`. CI ([`macos`](.github/workflows/macos.yml)) paketni o'rnatib, serverni
+ishga tushiradi va kiritish manbasi yoqilishini tekshiradi. Real dasturlarda (Safari, Chrome, Notes, Word, Telegram)
+hali sinalmagan — muammo bo'lsa [issue](https://github.com/dtwinuz/bitg/issues) oching.
 
 Ishlab chiqishda (MSI'siz):
 
@@ -356,7 +379,9 @@ bitg-cli` va `bitg eval eval/uz.tsv` (shuningdek `uz_noapos.tsv`, `en.tsv`).
 - [x] **Linux (Ubuntu)** — IBus dvigateli va `.deb` paket, haqiqiy `ibus-daemon` bilan CI sinovi (v0.2.0)
 - [ ] Linux: Fcitx5 qo'shimchasini real dasturlarda sinash (paket bor, sinov bosqichida); Fedora `.rpm`, Flatpak
 - [ ] **iOS** — klaviatura kengaytmasi (Keyboard Extension), yadro `staticlib` sifatida
-- [ ] macOS, Android; Word/brauzer kengaytmasi; B2B API
+- [x] **macOS** — InputMethodKit kiritish usuli, universal `.pkg`, CI'da o'rnatish sinovi (sinov bosqichi)
+- [ ] macOS: real dasturlarda sinash (Safari, Chrome, Notes, Word, Telegram); Apple Developer ID imzo va notarizatsiya
+- [ ] Android; Word/brauzer kengaytmasi; B2B API
 - [x] Sayt: [bitg.uz](https://bitg.uz) (`web/`), sinov maydoni haqiqiy yadroda (Rust → WASM)
 
 ## Telefonda (Android, iOS)

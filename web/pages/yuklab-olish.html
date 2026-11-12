@@ -2,11 +2,11 @@
 {
  "slug": "/yuklab-olish/",
  "lang": "uz",
- "title": "bitg yuklab olish — Windows va Linux uchun bepul · bitg",
- "description": "bitg’ni Windows (MSI) va Linux (Ubuntu/Debian .deb) uchun yuklab oling: versiya, hajm, SHA-256 va o‘rnatish qadamlari. Bepul, ochiq kod, internetsiz ishlaydi.",
- "h1": "bitg’ni yuklab olish: Windows va Linux",
+ "title": "bitg yuklab olish — Windows, Linux va Mac uchun bepul · bitg",
+ "description": "bitg’ni Windows (MSI), Linux (Ubuntu/Debian .deb) va Mac (.pkg, sinov) uchun yuklab oling: versiya, hajm, SHA-256 va o‘rnatish qadamlari. Bepul, ochiq kod, internetsiz ishlaydi.",
+ "h1": "bitg’ni yuklab olish: Windows, Linux va Mac",
  "crumb": "Yuklab olish",
- "card": "Windows MSI va Linux .deb, SHA-256, o‘rnatish va o‘chirish.",
+ "card": "Windows MSI, Linux .deb va Mac .pkg, SHA-256, o‘rnatish va o‘chirish.",
  "lead": "Bitta fayl, bir daqiqa: o‘rnating, <kbd>Win</kbd> + <kbd>Probel</kbd> bilan bitg’ni tanlang va odatdagidek yozavering — so‘z tugashi bilan yangi alifboga o‘tadi.",
  "updated": "2026-11-12",
  "schema": ["SoftwareApplication"],
@@ -29,7 +29,7 @@
           <code id="dc-sha" data-no-conv>{{sha256}}</code>
         </div>
       </div>
-      <p class="dc-note"><b>Linux’dasizmi?</b> Ubuntu va Debian uchun <a href="#linux">.deb paket</a> pastda. Boshqa yo‘l: <a href="https://github.com/dtwinuz/bitg/releases">GitHub Releases</a> sahifasida ham shu fayllar va <code>.sha256</code> turadi. Manba kodi ochiq — o‘zingiz qurishingiz ham mumkin.</p>
+      <p class="dc-note"><b>Linux yoki Mac’dasizmi?</b> Ubuntu va Debian uchun <a href="#linux">.deb paket</a>, Mac uchun <a href="#mac">.pkg o‘rnatuvchi</a> pastda. Boshqa yo‘l: <a href="https://github.com/dtwinuz/bitg/releases">GitHub Releases</a> sahifasida ham shu fayllar va <code>.sha256</code> turadi. Manba kodi ochiq — o‘zingiz qurishingiz ham mumkin.</p>
 
       <h2>O‘rnatish: 3 qadam</h2>
       <ol class="dc-steps">
@@ -91,6 +91,34 @@ ibus restart</code></pre>
       <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguz">Telegram</a>’da yozing.</p>
       <p>O‘chirish: <code data-no-conv>sudo apt remove bitg</code>. Sozlamalar <code data-no-conv>~/.config/bitg</code> da saqlanib qoladi.</p>
 
+      <h2 id="mac">Mac (sinov)</h2>
+      <div class="dc-dl">
+        <div class="dc-dl__top">
+          <div>
+            <div class="dc-dl__name">bitg {{version}} · macOS</div>
+            <p class="dc-dl__meta" data-no-conv>Apple M va Intel · .pkg · {{macSizeUz}} · macOS 11+ · sinov</p>
+          </div>
+          <a class="bg-btn bg-btn--pri" href="{{macUrl}}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+            Yuklab olish
+          </a>
+        </div>
+        <div class="dc-dl__sha">
+          <span>SHA-256:</span>
+          <code data-no-conv>{{macSha}}</code>
+        </div>
+      </div>
+      <p>Bitta fayl hamma Mac’lar uchun: yangi (Apple M1, M2, M3, M4) va eski (Intel) protsessorlarda ishlaydi — qaysi Mac ekanini bilish shart emas.</p>
+      <ol class="dc-steps">
+        <li><b>Faylni oching.</b> O‘rnatuvchi hozircha Apple imzosiz, shuning uchun macOS «tekshirib bo‘lmadi» deb ochmaydi. <b>Tizim sozlamalari → Maxfiylik va xavfsizlik</b> ga o‘ting, pastda <b>«Baribir ochish»</b> ni bosing va parolni kiriting.</li>
+        <li><b>O‘rnating.</b> bitg <code data-no-conv>/Library/Input Methods</code> ga yoziladi va kiritish manbalariga o‘zi qo‘shiladi. Menyu satridagi ro‘yxatda ko‘rinmasa, tizimdan chiqib qayta kiring.</li>
+        <li><b>Tanlang.</b> <kbd>Control</kbd> + <kbd>Probel</kbd> (yoki 🌐 tugmasi) bilan «bitg» ni tanlang va eskicha yozing. Ro‘yxatda bo‘lmasa: Tizim sozlamalari → Klaviatura → Kiritish manbalari → Tahrirlash → <b>+</b>, qidiruvga «bitg» yozing.</li>
+      </ol>
+      <p>Terminalda o‘rnatish (ogohlantirish oynasisiz) va faylni tekshirish:</p>
+      <pre><code data-no-conv>shasum -a 256 ~/Downloads/{{macName}}
+sudo installer -pkg ~/Downloads/{{macName}} -target /</code></pre>
+      <p>Mac versiyasi yangi va hali ko‘p dasturlarda sinalmagan. Biror dasturda harf ikki marta yozilsa, yo‘qolsa yoki so‘z o‘girilmasa — dastur nomi bilan <a href="https://t.me/bitguz">Telegram</a>’da yozing. Terminal, iTerm, Warp va boshqa terminallarda bitg o‘chiq turadi. O‘chirish: <code data-no-conv>sudo rm -rf "/Library/Input Methods/bitg.app"</code>, so‘ng qayta kiring; sozlamalar <code data-no-conv>~/Library/Application Support/bitg</code> da qoladi.</p>
+
       <h2>Boshqa qurilmalar</h2>
       <div class="dc-table"><table>
         <tr><th>Qurilma</th><th>Holat</th></tr>
@@ -98,5 +126,5 @@ ibus restart</code></pre>
         <tr><td>Linux (IBus; Fcitx5 — sinov)</td><td class="dc-yes">Hozir — <a href="#linux">.deb</a></td></tr>
         <tr><td>Buyruq qatori (fayl va matnni o‘girish)</td><td class="dc-yes">Hozir — <a href="https://github.com/dtwinuz/bitg#readme">GitHub</a></td></tr>
         <tr><td>iPhone, Android</td><td class="dc-yes">Tavsiya — <a href="/yangi-harflarni-yozish/#telefon">Tilmoch klaviaturasi</a></td></tr>
-        <tr><td>Mac</td><td class="dc-no">Tayyorlanmoqda — hozircha <a href="/yangi-harflarni-yozish/">qo‘lda yozish yo‘llari</a></td></tr>
+        <tr><td>Mac (macOS 11+, Apple M va Intel)</td><td class="dc-yes">Sinov — <a href="#mac">.pkg</a></td></tr>
       </table></div>
