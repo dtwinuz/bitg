@@ -1,0 +1,3 @@
+# Linux serverda ishlaydigan skriptlar: Windows (core.autocrlf=true) checkout ham LF qoldirsin.
+# deploy.sh git worktree orqali yig'adi; CRLF bilan set-stats-env.sh "required file not found" berardi.
+*.sh text eol=lf
