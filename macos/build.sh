@@ -36,7 +36,10 @@ sed "s/@VERSION@/$VER/g" macos/Info.plist > "$APP/Contents/Info.plist"
 plutil -lint "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 cp macos/InfoPlist.strings "$APP/Contents/Resources/en.lproj/InfoPlist.strings"
-sips -s format tiff -z 32 32 web/logo-512.png --out "$APP/Contents/Resources/bitg.tiff" >/dev/null
+# menyu ikonkasi: 32 px + Retina uchun 64 px, bitta TIFF ichida
+sips -s format png -z 32 32 web/logo-512.png --out "$OUT/icon.png" >/dev/null
+sips -s format png -z 64 64 web/logo-512.png --out "$OUT/icon@2x.png" >/dev/null
+tiffutil -cathidpicheck "$OUT/icon.png" "$OUT/icon@2x.png" -out "$APP/Contents/Resources/bitg.tiff"
 
 # imzo: Developer ID bo'lmasa ad-hoc (Apple Silicon imzosiz binarni ishga tushirmaydi)
 codesign --force --sign "${BITG_MAC_SIGN_ID:--}" --timestamp=none "$APP"

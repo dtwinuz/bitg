@@ -12,13 +12,33 @@ func register() -> Int32 {
         FileHandle.standardError.write("bitg: TISRegisterInputSource \(st)\n".data(using: .utf8)!)
         return 1
     }
+    // ro'yxatda ikkita manba: kiritish usulining o'zi va tanlanadigan rejim (.latin). Foydalanuvchiga ko'rinadigani
+    // va yoqilishi shart bo'lgani — rejim; usulning o'zini yoqish ko'pincha xato qaytaradi, bu normal.
+    let mode = "\(id).latin"
     let filter = [kTISPropertyBundleID as String: id] as CFDictionary
     let sources = TISCreateInputSourceList(filter, true)?.takeRetainedValue() as? [TISInputSource] ?? []
+    var modeStatus: OSStatus?
     for s in sources {
-        TISEnableInputSource(s)
+        let st = TISEnableInputSource(s)
+        if sourceID(s) == mode {
+            modeStatus = st
+        }
     }
-    print("bitg: \(sources.count) ta kiritish manbasi yoqildi")
+    guard let modeStatus else {
+        FileHandle.standardError.write("bitg: \(mode) topilmadi (\(sources.count) ta manba); qayta kiring\n".data(using: .utf8)!)
+        return 2
+    }
+    guard modeStatus == noErr else {
+        FileHandle.standardError.write("bitg: \(mode) yoqilmadi: \(modeStatus)\n".data(using: .utf8)!)
+        return 3
+    }
+    print("bitg: \(mode) yoqildi")
     return 0
+}
+
+func sourceID(_ s: TISInputSource) -> String? {
+    guard let p = TISGetInputSourceProperty(s, kTISPropertyInputSourceID) else { return nil }
+    return Unmanaged<CFString>.fromOpaque(p).takeUnretainedValue() as String
 }
 
 if CommandLine.arguments.contains("--register") {

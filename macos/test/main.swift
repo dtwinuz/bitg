@@ -22,7 +22,12 @@ final class FakeField: TextClient {
         surrounding ? text.substring(with: range) : nil
     }
 
+    /// insertText'dan keyin darhol setMarkedText("") — haqiqiy mijozlarda bo'sh marked diapazon qoldiradi.
+    var clearsAfterInsert = 0
+    private var justInserted = false
+
     func insert(_ s: String, replacing range: NSRange) {
+        justInserted = true
         if range.location == NSNotFound {
             text.append(s)
         } else {
@@ -33,6 +38,10 @@ final class FakeField: TextClient {
     }
 
     func setMarked(_ s: String) {
+        if s.isEmpty, justInserted {
+            clearsAfterInsert += 1
+        }
+        justInserted = false
         marked = s
     }
 
@@ -127,6 +136,7 @@ let cases: [Case] = [
         type(" choy\n", f, s)
         try check("text", f.value, "şahar çoy\n")
         try check("preedit", f.marked, "")
+        try check("empty setMarkedText after insertText", f.clearsAfterInsert, 0)
     },
     Case(name: "preedit_kept_on_focus_out") {
         let f = FakeField(surrounding: false), s = session(f)

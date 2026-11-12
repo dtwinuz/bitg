@@ -103,8 +103,13 @@ final class BitgSession {
             }
             // delete_before > 0, lekin matn yo'q — bo'lmaydi (dvigatel faqat matn bilan o'chiradi); takror yozmaymiz
         }
-        if o.preedit_changed != 0 {
-            c.setMarked(o.preedit.map { String(cString: $0) } ?? "")
+        guard o.preedit_changed != 0 else { return }
+        let preedit = o.preedit.map { String(cString: $0) } ?? ""
+        // insertText kompozitsiyani o'zi yopadi: undan keyin setMarkedText("") Chromium/Word'da bo'sh marked
+        // diapazon qoldiradi va keyingi almashtirish noto'g'ri joyga tushadi
+        if preedit.isEmpty, commit != nil {
+            return
         }
+        c.setMarked(preedit)
     }
 }

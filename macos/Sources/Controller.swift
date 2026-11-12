@@ -38,8 +38,10 @@ final class IMKClient: TextClient {
 final class BitgController: IMKInputController {
     private let session = BitgSession()
 
+    /// IMK ba'zan `sender` ni nil beradi (masalan Cmd+Space bilan manba almashganda commitComposition) —
+    /// unda kontrollerga bog'langan mijoz olinadi, aks holda preedit'dagi so'z yo'qoladi.
     private func wrap(_ sender: Any!) -> IMKClient? {
-        (sender as? (IMKTextInput & NSObjectProtocol)).map(IMKClient.init)
+        ((sender as? (IMKTextInput & NSObjectProtocol)) ?? client()).map(IMKClient.init)
     }
 
     override func recognizedEvents(_ sender: Any!) -> Int {
