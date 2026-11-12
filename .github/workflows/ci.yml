@@ -40,5 +40,8 @@ jobs:
         shell: bash
         run: |
           head -c 4096 /dev/zero > "$RUNNER_TEMP/ci.msi"
+          # build.py Linux paketlarini MSI yonidan qidiradi (nom Cargo.toml versiyasidan)
+          ver=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          for p in "bitg_${ver}_amd64.deb" "fcitx5-bitg_${ver}_amd64.deb"; do head -c 4096 /dev/zero > "$RUNNER_TEMP/$p"; done
           python3 -I tools/site/build.py --out "$RUNNER_TEMP/site" --v ci --msi "$RUNNER_TEMP/ci.msi"
           test -f "$RUNNER_TEMP/site/404.html" && test -f "$RUNNER_TEMP/site/sitemap.xml"
