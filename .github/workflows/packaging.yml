@@ -19,8 +19,7 @@ jobs:
         shell: pwsh
         run: |
           # runner image'dagi winget eski bo'ladi va yangi manifest schema'sini tanimaydi: eng yangisiga
-          Install-PackageProvider -Name NuGet -Force | Out-Null
-          Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
+          Install-PSResource Microsoft.WinGet.Client -Repository PSGallery -TrustRepository -Scope AllUsers -Quiet
           Repair-WinGetPackageManager -AllUsers -Latest -Force
           winget --version
           winget settings --enable LocalManifestFiles
