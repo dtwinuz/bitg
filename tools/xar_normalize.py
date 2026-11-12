@@ -46,6 +46,16 @@ def normalize(data: bytes, stamp: str) -> bytes:
         # pkgbuild creation-time'ni "Z"siz, fayl vaqtlarini "Z" bilan yozadi; shakl saqlanadi.
         value = stamp if tag != "creation-time" else stamp.rstrip("Z")
         text = re.sub(rf"<{tag}>[^<]*</{tag}>", f"<{tag}>{value}</{tag}>", text)
+    # FinderCreateTime ichidagi <time> va <nanoseconds> ham vaqtinchalik fayl yaratilgan paytni saqlaydi.
+    text = re.sub(r"<time>[^<]*</time>", "<time>1900-01-00T00:00:00</time>", text)
+    text = re.sub(r"<nanoseconds>[^<]*</nanoseconds>", "<nanoseconds>0</nanoseconds>", text)
+    # Arxiv ichidagi vaqtinchalik fayllar egasi va qurilmasi quruvchining mashinasiga bog'liq (o'rnatishga ta'siri
+    # yo'q: o'rnatiladigan fayllar egasi Payload ichida, root:wheel).
+    for tag, value in (("user", "root"), ("uid", "0"), ("group", "wheel"), ("gid", "0"), ("deviceno", "0")):
+        text = re.sub(rf"<{tag}>[^<]*</{tag}>", f"<{tag}>{value}</{tag}>", text)
+    # inode: qurilish mashinasidagi raqam; o'rniga tartib raqami (yagona bo'lib qoladi).
+    counter = iter(range(1, 1 << 30))
+    text = re.sub(r"<inode>\d+</inode>", lambda _: f"<inode>{next(counter)}</inode>", text)
     new_toc = text.encode("utf-8")
     packed = zlib.compress(new_toc, 9)
     heap = bytearray(data[size + toc_len:])

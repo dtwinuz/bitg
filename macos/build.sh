@@ -22,7 +22,9 @@ FRAMEWORKS=(-framework Cocoa -framework InputMethodKit -framework Carbon)
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct)}"
 export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$ROOT=/build/bitg --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
 export ZERO_AR_DATE=1
-SWIFT_REPRO=(-file-prefix-map "$ROOT=/build/bitg")
+# -Xlinker -S: debug map (N_OSO) yozilmaydi — u libbitg_ime.a ning to'liq yo'lini va vaqtinchalik obyekt fayllar
+# nomini saqlaydi; belgilar jadvali qoladi.
+SWIFT_REPRO=(-file-prefix-map "$ROOT=/build/bitg" -Xlinker -S)
 STAMP="$(date -u -r "$SOURCE_DATE_EPOCH" +%Y%m%d%H%M.%S)"
 
 rm -rf "$OUT"
