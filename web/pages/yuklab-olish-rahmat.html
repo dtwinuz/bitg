@@ -1,0 +1,63 @@
+---json
+{
+ "slug": "/yuklab-olish/rahmat/",
+ "lang": "uz",
+ "title": "Rahmat! bitg yuklanmoqda — endi o‘rnating · bitg",
+ "description": "bitg yuklab olish boshlandi. Windows, Mac va Linux uchun o‘rnatish qadamlari, ogohlantirish oynasi chiqsa nima qilish va yordam kerak bo‘lsa qayerga yozish.",
+ "h1": "Rahmat! Endi o‘rnating — bir daqiqa",
+ "crumb": "Rahmat",
+ "updated": "2026-11-12",
+ "noindex": true,
+ "no_updated": true,
+ "dl": true
+}
+---
+      <div class="dc-ty" id="dc-ty">
+        <p class="dc-ty__state" id="dc-ty-state" data-start="Yuklab olish boshlandi: fayl brauzeringizning yuklamalar ro‘yxatida." data-again="Fayl avval yuklangan. Yana kerak bo‘lsa — pastdagi havola." aria-live="polite">Tizimingizni tanlang — fayl yuklanadi va o‘rnatish qadamlari ko‘rinadi.</p>
+        <p class="dc-ty__alt">Boshlanmadimi? <a data-direct href="/yuklab-olish/" download>To‘g‘ridan-to‘g‘ri yuklab olish</a> <span class="dc-ty__file" data-file-name data-no-conv></span></p>
+
+        <div class="dc-ty__pick">
+          <a class="bg-btn bg-btn--pri" href="{{msiUrl}}" download data-dl="win" data-file-for="win" data-name="{{msiName}}">Windows</a>
+          <a class="bg-btn" href="{{macUrl}}" download data-dl="mac" data-file-for="mac" data-name="{{macName}}">Mac</a>
+          <a class="bg-btn" href="{{debUrl}}" download data-dl="linux" data-file-for="linux" data-name="{{debName}}">Linux (IBus)</a>
+          <a class="bg-btn" href="{{fcitxUrl}}" download data-dl="fcitx" data-file-for="fcitx" data-name="{{fcitxName}}">Linux (Fcitx5)</a>
+        </div>
+
+        <section class="dc-ty__os" data-os="win" aria-labelledby="ty-win">
+          <h2 id="ty-win">Windows: 3 qadam</h2>
+          <ol class="dc-steps">
+            <li><b>Faylni oching.</b> Yuklangan <code data-no-conv>{{msiName}}</code> ni bosing (brauzerning yuklamalar ro‘yxatida yoki «Yuklamalar» papkasida).</li>
+            <li><b>«Windows kompyuteringizni himoya qildi» chiqsa</b> — «Batafsil» → «Baribir ishga tushirish». O‘rnatuvchi hozircha raqamli imzosiz; fayl biznikimi — <a href="/yuklab-olish/#yuklash">SHA-256 bilan tekshiring</a>.</li>
+            <li><b>Klaviaturani tanlang.</b> <kbd>Win</kbd> + <kbd>Probel</kbd> → «bitg». Endi istalgan dasturda eskicha yozing: <span data-no-conv>«o‘zbek» → «özbek»</span>.</li>
+          </ol>
+        </section>
+
+        <section class="dc-ty__os" data-os="mac" aria-labelledby="ty-mac">
+          <h2 id="ty-mac">Mac: 3 qadam</h2>
+          <ol class="dc-steps">
+            <li><b>Faylni oching.</b> «Yuklamalar» dagi <code data-no-conv>{{macName}}</code>. macOS «tekshirib bo‘lmadi» desa: «Tizim sozlamalari → Maxfiylik va xavfsizlik» → pastda «Baribir ochish» → parol.</li>
+            <li><b>O‘rnating.</b> bitg kiritish manbalariga o‘zi qo‘shiladi. Ro‘yxatda ko‘rinmasa, tizimdan chiqib qayta kiring.</li>
+            <li><b>Tanlang.</b> <kbd>Control</kbd> + <kbd>Probel</kbd> (yoki 🌐) → «bitg». Bitta fayl Apple M va Intel’da ishlaydi.</li>
+          </ol>
+          <p>Mac versiyasi sinov bosqichida — biror dasturda xato bo‘lsa, <a href="/fikr/">dastur nomi bilan yozing</a>.</p>
+        </section>
+
+        <section class="dc-ty__os" data-os="linux" aria-labelledby="ty-linux">
+          <h2 id="ty-linux">Linux: 3 qadam</h2>
+          <ol class="dc-steps">
+            <li><b>O‘rnating.</b> Fayl turgan papkada: <code data-no-conv>sudo apt install ./<span data-file-name>{{debName}}</span></code></li>
+            <li><b>Kiritish tizimini qayta ishga tushiring:</b> <code data-no-conv>ibus restart</code> (Fcitx5’da <code data-no-conv>fcitx5 -r</code>).</li>
+            <li><b>Qo‘shing va tanlang.</b> Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg; so‘ng <kbd>Super</kbd> + <kbd>Probel</kbd>. Fcitx5’da: <code data-no-conv>fcitx5-configtool</code>.</li>
+          </ol>
+          <p>Keyingi versiyalar o‘zi kelsin desangiz — <a href="/yuklab-olish/#apt">apt omborini ulang</a>: <code data-no-conv>sudo apt upgrade</code> bilan yangilanadi.</p>
+        </section>
+
+        <section class="dc-ty__next" aria-labelledby="ty-next">
+          <h2 id="ty-next">Keyin nima?</h2>
+          <div class="dc-ty__cards">
+            <a class="dc-rel__card" href="https://t.me/bitguz" rel="noopener"><b>Yangiliklar — Telegram’da</b><span>Yangi versiya chiqqanda birinchi bo‘lib bilasiz: @bitguz</span></a>
+            <a class="dc-rel__card" href="/fikr/"><b>Ishlamadimi?</b><span>Qaysi dastur va nima yozganingizni ayting — tez tuzatamiz.</span></a>
+            <a class="dc-rel__card" href="/yangi-harflarni-yozish/"><b>Telefonda ham yozing</b><span>iPhone va Android uchun yangi harflar klaviaturasi.</span></a>
+          </div>
+        </section>
+      </div>

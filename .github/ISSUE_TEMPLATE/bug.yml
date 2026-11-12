@@ -22,6 +22,7 @@ body:
         - Windows 10
         - Ubuntu / Debian (IBus)
         - Linux (Fcitx5)
+        - macOS
         - Boshqa (pastda yozing)
     validations:
       required: true

@@ -1,3 +1,9 @@
+# Serverda: /opt/bitg-site (deploy/deploy.sh nusxalaydi).
+#   site/         — statik sayt (har deployda almashtiriladi)
+#   logs/         — Caddy kirish jurnali (IP qisqartirilgan, 30 kun)
+#   stats-data/   — state.json (kunlik umumiy sonlar) va dashboard.html
+#   stats-public/ — stats.json (bosh sahifa hisoblagichi, bitg.uz/stats.json)
+#   stats.env     — ixtiyoriy: BOT_TOKEN=..., ADMIN_CHAT_ID=... (repoda yo'q; deploy/set-stats-env.sh)
 services:
   bitg-site:
     image: caddy:2-alpine
@@ -6,8 +12,42 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./site:/srv:ro
+      - ./logs:/var/log/caddy
+      - ./stats-public:/stats-public:ro
     networks:
       - edge
+
+  # Jurnaldan umumiy sonlar, kunlik Telegram xulosa, uptime kuzatuvi (deploy/stats/stats.py).
+  bitg-stats:
+    image: python:3.13-alpine
+    container_name: bitg-stats
+    restart: unless-stopped
+    init: true
+    command: ["python", "-I", "-u", "/app/stats.py"]
+    env_file:
+      - path: stats.env
+        required: false
+    environment:
+      LOG_DIR: /logs
+      DATA_DIR: /data
+      PUBLIC_DIR: /public
+    volumes:
+      - ./stats/stats.py:/app/stats.py:ro
+      - ./logs:/logs:ro
+      - ./stats-data:/data
+      - ./stats-public:/public
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 128m
+    cpus: 0.25
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "3"
 
 # dtwin edge Caddy shu tarmoqda: bitg.uz -> bitg-site:80
 networks:

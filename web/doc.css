@@ -125,6 +125,32 @@ kbd { display: inline-block; min-width: 22px; padding: 1px 6px; font: 600 13px/1
 .dc-count b { font-size: 44px; line-height: 1; font-weight: 720; letter-spacing: -.03em; }
 .dc-count span { color: var(--muted); }
 
+/* tizimga mos eslatma (dl.js), havola ko'rinishidagi tugma */
+.dc-note--you { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+.bg-linkbtn { appearance: none; padding: 0; border: 0; background: none; font: inherit; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.bg-linkbtn:hover { color: var(--text); }
+
+/* rahmat sahifasi: ?os= bo'lsa faqat o'sha tizim bo'limi; JS'siz hammasi ko'rinadi */
+.dc-ty__state { margin: 0; padding: 14px 18px; border-radius: var(--r2); background: var(--ok-soft); color: var(--text); font-weight: 600; }
+.dc-article .dc-ty__alt { margin: 10px 0 0; font-size: 15px; color: var(--muted); }
+.dc-ty__file { color: var(--faint); font-size: 13.5px; }
+.dc-ty:not([data-show]) .dc-ty__alt { display: none; }
+.dc-ty__pick { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 0; }
+.dc-ty[data-show] .dc-ty__pick { display: none; }
+.dc-ty[data-show] .dc-ty__os { display: none; }
+.dc-ty[data-show="win"] .dc-ty__os[data-os="win"],
+.dc-ty[data-show="mac"] .dc-ty__os[data-os="mac"],
+.dc-ty[data-show="linux"] .dc-ty__os[data-os="linux"] { display: block; }
+.dc-ty__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 16px 0 0; }
+
+/* fikr sahifasi */
+.dc-fb { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 22px 0 0; }
+.dc-fb__opt { display: grid; gap: 6px; padding: 18px 20px; border: 1px solid var(--line2); border-radius: var(--r3); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .2s var(--ease), transform .2s var(--ease); }
+.dc-fb__opt:hover { border-color: var(--accent); transform: translateY(-2px); }
+.dc-fb__opt b { font-size: 17px; }
+.dc-fb__opt span { font-size: 14.5px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .dc-fb__opt:hover { transform: none; } }
+
 /* ---------- footer ---------- */
 .dc-foot { border-top: 1px solid var(--line); }
 .dc-foot__cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; padding: 40px 0 8px; }

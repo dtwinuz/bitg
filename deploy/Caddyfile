@@ -1,6 +1,11 @@
 {
 	admin off
 	auto_https off
+	servers {
+		# dtwin edge (docker tarmog'i, xususiy IP) haqiqiy mijoz IP'sini X-Forwarded-For'da beradi
+		trusted_proxies static private_ranges
+		client_ip_headers X-Forwarded-For
+	}
 }
 
 :80 {
@@ -20,6 +25,12 @@
 		Content-Disposition attachment
 	}
 
+	# apt ombori: indeks tez yangilansin, paket fayllari nomida versiya bor
+	@aptidx path /apt/dists/* /apt/bitg.gpg
+	header @aptidx Cache-Control "no-cache"
+	@aptpool path /apt/pool/*
+	header @aptpool Cache-Control "public, max-age=86400"
+
 	@html path / /index.html /version.txt */ *.html
 	header @html Cache-Control "no-cache"
 
@@ -29,6 +40,53 @@
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
 		Cross-Origin-Opener-Policy same-origin
 		-Server
+	}
+
+	# Kirish jurnali: faqat sahifalar, yuklab olishlar va apt. IP qisqartiriladi (/24, /48),
+	# to'liq IP'li sarlavhalar o'chiriladi, 30 kundan keyin fayl o'chadi (web/pages/maxfiylik.html).
+	# deploy/stats/stats.py shu jurnaldan umumiy sonlarni chiqaradi.
+	@nolog {
+		path /*.js /*.css /*.wasm /fonts/* /og/* /*.png /*.svg /*.ico /*.txt /*.xml /stats.json
+		not path /robots.txt
+	}
+	log_skip @nolog
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 20MiB
+			roll_keep 40
+			roll_keep_for 720h
+		}
+		format filter {
+			fields {
+				request>remote_ip ip_mask {
+					ipv4 24
+					ipv6 48
+				}
+				request>client_ip ip_mask {
+					ipv4 24
+					ipv6 48
+				}
+				request>headers>X-Forwarded-For delete
+				request>headers>X-Real-Ip delete
+				request>headers>Cookie delete
+				request>headers>Authorization delete
+				request>headers>Accept delete
+				request>headers>Accept-Encoding delete
+				request>headers>Accept-Language delete
+				request>headers>Sec-Ch-Ua delete
+				request>headers>Sec-Ch-Ua-Mobile delete
+				request>headers>Sec-Ch-Ua-Platform delete
+				request>tls delete
+				resp_headers delete
+			}
+		}
+	}
+
+	# ochiq hisoblagich (deploy/stats/stats.py yozadi): faqat umumiy son
+	handle /stats.json {
+		root * /stats-public
+		header Cache-Control "public, max-age=600"
+		file_server
 	}
 
 	file_server

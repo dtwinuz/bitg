@@ -16,6 +16,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - Saytdagi konvertor ikki ma'noli so'zni sariq belgilaydi; bosilsa boshqa o'qilishiga almashadi.
   `bitg explain` ham ko'rsatadi, yadroda — `convert_words` / `Word::alt`.
 - `foreign_names.txt` (SCOWL proper names, 1 394 nom) va `tools/build_foreign_names.py`.
+- **Sayt tizimni aniqlaydi** (`web/dl.js`): Mac'dan kirganga Mac `.pkg`, Linux'dan kirganga `.deb`, telefondan
+  kirganga Tilmoch klaviaturasi va "havolani kompyuterga yuborish" birinchi chiqadi. iPad (o'zini Mac deb ataydi)
+  telefon sifatida, Windows ARM ogohlantirish bilan. JS'siz sahifa avvalgidek ishlaydi.
+- **Yuklab olgandan keyingi sahifa** `/yuklab-olish/rahmat/`: fayl shu yerdan yuklanadi, tanlangan tizim uchun
+  3 qadam, SmartScreen/Gatekeeper oynasi chiqsa nima qilish. **Fikr sahifasi** `/fikr/` va Windows tray
+  menyusida "Xato haqida xabar berish" (versiya GitHub shakliga o'zi yoziladi).
+- **apt ombori** `https://bitg.uz/apt` (imzolangan, `sudo apt upgrade` bilan yangilanadi): `tools/apt/apt_repo.py`,
+  kalit `deploy/apt/bitg.asc`. Ubuntu 24.04 va Debian 12 konteynerlarida o'rnatib sinaldi.
+- **Statistika** (`deploy/stats/stats.py`, `bitg-stats` konteyneri): Caddy jurnalidan (IP /24 ga qisqartirilgan,
+  30 kun) kunlik tashrif, tizim bo'yicha yuklab olish, apt faol qurilmalar, manbalar va 404; GitHub Releases soni;
+  har kuni 9:00 da Telegram xulosa, dushanba — HTML hisobot; bitg.uz, www va TLS sertifikat kuzatuvi.
+  Bosh sahifada ochiq hisoblagich 500 dan oshganda ko'rinadi.
+- winget manifesti va Homebrew cask (`tools/release/packaging.py` -> `packaging/`), hali yuborilmagan.
 
 ### Sifat
 - `eval/uz_noapos.tsv`: 81.30% → 81.20% (2439 → 2436). Uchta gap to'g'rilandi (`otdim`, `oçmaydi`, `otlikka`),

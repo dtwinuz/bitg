@@ -45,3 +45,12 @@ jobs:
           for p in "bitg_${ver}_amd64.deb" "fcitx5-bitg_${ver}_amd64.deb" "bitg-${ver}-macos.pkg"; do head -c 4096 /dev/zero > "$RUNNER_TEMP/$p"; done
           python3 -I tools/site/build.py --out "$RUNNER_TEMP/site" --v ci --msi "$RUNNER_TEMP/ci.msi"
           test -f "$RUNNER_TEMP/site/404.html" && test -f "$RUNNER_TEMP/site/sitemap.xml"
+          test -f "$RUNNER_TEMP/site/yuklab-olish/rahmat/index.html" && test -f "$RUNNER_TEMP/site/fikr/index.html"
+          grep -q 'dl.js' "$RUNNER_TEMP/site/index.html" && grep -q 'data-dl="win"' "$RUNNER_TEMP/site/index.html"
+      - name: Site tools
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          python3 -I deploy/stats/stats.py --selftest
+          python3 -I -m py_compile tools/apt/apt_repo.py tools/release/packaging.py
+          sh -n deploy/set-stats-env.sh && bash -n deploy/deploy.sh && bash -n tools/apt/genkey.sh

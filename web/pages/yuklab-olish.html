@@ -10,16 +10,21 @@
  "lead": "Bitta fayl, bir daqiqa: o‘rnating, <kbd>Win</kbd> + <kbd>Probel</kbd> bilan bitg’ni tanlang va odatdagidek yozavering — so‘z tugashi bilan yangi alifboga o‘tadi.",
  "updated": "2026-11-12",
  "schema": ["SoftwareApplication"],
+ "dl": true,
  "links": ["/klaviatura/windows/", "/konvertor/", "/maxfiylik/", "/savollar/"]
 }
 ---
+      <div data-os-slot></div>
+      <template data-os-tpl="hint-mac"><p class="dc-note dc-note--you"><b>Mac’dan kirdingiz.</b> Mac uchun o‘rnatuvchi (Apple M va Intel, bitta fayl): <a href="#mac">Mac bo‘limiga o‘tish ↓</a></p></template>
+      <template data-os-tpl="hint-linux"><p class="dc-note dc-note--you"><b>Linux’dan kirdingiz.</b> Ubuntu va Debian uchun <a href="#linux">.deb paket</a> yoki o‘zi yangilanib turadigan <a href="#apt">apt ombori ↓</a></p></template>
+      <template data-os-tpl="hint-phone"><p class="dc-note dc-note--you"><b>Telefondan kirdingiz.</b> bitg kompyuter uchun; telefonda <a href="/yangi-harflarni-yozish/#telefon">Tilmoch klaviaturasi</a> qulay. Kompyuterda ochish uchun: <button type="button" class="bg-linkbtn" data-share="https://bitg.uz/yuklab-olish/" data-done="Havola nusxalandi"><span>havolani yuborish</span></button></p></template>
       <div class="dc-dl" id="yuklash">
         <div class="dc-dl__top">
           <div>
             <div class="dc-dl__name">bitg {{version}} · Windows 10 / 11</div>
             <p class="dc-dl__meta" data-no-conv>x64 · MSI · {{msiSizeUz}} MB · beta</p>
           </div>
-          <a class="bg-btn bg-btn--pri" href="{{msiUrl}}" download>
+          <a class="bg-btn bg-btn--pri" href="{{msiUrl}}" download data-dl="win">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
             Yuklab olish
           </a>
@@ -74,7 +79,7 @@ msiexec /x {{msiName}} /qn</code></pre>
             <div class="dc-dl__name">bitg {{version}} · Linux (IBus)</div>
             <p class="dc-dl__meta" data-no-conv>amd64 · .deb · {{debSizeUz}} · Ubuntu 22.04+, Debian 12+</p>
           </div>
-          <a class="bg-btn bg-btn--pri" href="{{debUrl}}" download>
+          <a class="bg-btn bg-btn--pri" href="{{debUrl}}" download data-dl="linux">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
             Yuklab olish
           </a>
@@ -88,7 +93,16 @@ msiexec /x {{msiName}} /qn</code></pre>
       <pre><code data-no-conv>sudo apt install ./{{debName}}
 ibus restart</code></pre>
       <p>So‘ng <b>Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg</b> va <kbd>Super</kbd> + <kbd>Probel</kbd> bilan tanlang. Matnni bermaydigan dasturlarda so‘z yozilayotganda tagi chizilgan ko‘rinadi va probel bosilganda yangi alifboda yoziladi. Parol maydonlari va terminallarda bitg o‘chiq turadi.</p>
-      <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguz">Telegram</a>’da yozing.</p>
+      <h3 id="apt">apt ombori: o‘zi yangilanib turadi</h3>
+      <p>Bir marta ulang — keyingi versiyalar <code data-no-conv>sudo apt upgrade</code> bilan keladi. Paketlar bizning kalitimiz bilan imzolangan; apt imzosi mos kelmagan faylni o‘rnatmaydi.</p>
+      <pre><code data-no-conv>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://bitg.uz/apt/bitg.gpg | sudo tee /etc/apt/keyrings/bitg.gpg >/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bitg.gpg] https://bitg.uz/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/bitg.list
+sudo apt update && sudo apt install bitg
+ibus restart</code></pre>
+      <p>Fcitx5 uchun oxirgi qatorda <code data-no-conv>sudo apt install fcitx5-bitg</code>. Kalit izi (fingerprint): <code data-no-conv>{{aptFingerprint}}</code>. Omborni olib tashlash: <code data-no-conv>sudo rm /etc/apt/sources.list.d/bitg.list /etc/apt/keyrings/bitg.gpg</code>.</p>
+      <p><b>Fcitx5</b> (KDE va boshqalar) ishlatsangiz: <a href="{{fcitxUrl}}" download data-dl="fcitx" data-no-conv>{{fcitxName}}</a> ({{fcitxSizeUz}}) ni o‘rnatib, <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing. Bu qo‘shimcha hozircha sinov bosqichida — muammo bo‘lsa <a href="https://t.me/bitguz">Telegram</a>’da yozing.</p>
       <p>O‘chirish: <code data-no-conv>sudo apt remove bitg</code>. Sozlamalar <code data-no-conv>~/.config/bitg</code> da saqlanib qoladi.</p>
 
       <h2 id="mac">Mac (sinov)</h2>
@@ -98,7 +112,7 @@ ibus restart</code></pre>
             <div class="dc-dl__name">bitg {{version}} · macOS</div>
             <p class="dc-dl__meta" data-no-conv>Apple M va Intel · .pkg · {{macSizeUz}} · macOS 11+ · sinov</p>
           </div>
-          <a class="bg-btn bg-btn--pri" href="{{macUrl}}" download>
+          <a class="bg-btn bg-btn--pri" href="{{macUrl}}" download data-dl="mac">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
             Yuklab olish
           </a>

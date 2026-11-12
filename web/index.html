@@ -69,9 +69,9 @@
         <h1 id="bg-h1">Eskicha yozing.<br>Yangicha chiqadi.</h1>
         <p class="bg-hero__sub" data-no-conv>So‘z tugashi bilan o‘ → ö, sh → ş. Qayta o‘rganish shart emas.</p>
         <div class="bg-hero__cta">
-          <a class="bg-btn bg-btn--pri" href="#yuklash">
+          <a class="bg-btn bg-btn--pri" href="#yuklash" id="bg-cta" data-label-mac="Mac uchun yuklab olish" data-label-linux="Linux uchun yuklab olish" data-label-phone="Telefonda qanday yoziladi" data-label-other="Yuklab olish">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
-            Windows uchun yuklab olish
+            <span id="bg-cta-txt">Windows uchun yuklab olish</span>
           </a>
           <a class="bg-btn" href="#sinov">Brauzerda sinab ko‘ring</a>
         </div>
@@ -79,6 +79,7 @@
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>Bepul</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>Ochiq kod</li>
           <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Internetsiz</li>
+          <li id="bg-count" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><span><b data-no-conv></b> yuklab olish</span></li>
         </ul>
       </div>
 
@@ -241,31 +242,31 @@
         <p><span>Keyin bitg’ni tanlang: <b>Win + Probel</b> (Windows), <b>Super + Probel</b> (Linux) yoki <b>Control + Probel</b> (Mac)</span></p>
       </header>
       <div class="bg-plat">
-        <a class="bg-plat__card bg-plat__card--main" id="bg-dl" href="download/bitg-0.2.0-x64.msi" download>
+        <a class="bg-plat__card bg-plat__card--main" id="bg-dl" href="{{msiUrl}}" download data-dl="win" data-os="win" data-file="{{msiUrl}}" data-page="/yuklab-olish/">
           <span class="bg-plat__ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="12" rx="1.6"/><path d="M8.5 20h7M12 16.5V20"/></svg></span>
           <span class="bg-plat__name">Windows 10 / 11</span>
           <span class="bg-plat__sub" id="bg-dl-sub">x64 · MSI o‘rnatuvchi · {{msiSizeUz}} MB</span>
           <span class="bg-btn bg-btn--pri bg-plat__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Yuklab olish</span>
         </a>
-        <a class="bg-plat__card" href="https://github.com/dtwinuz/bitg#readme">
+        <a class="bg-plat__card" href="https://github.com/dtwinuz/bitg#readme" data-os="cli">
           <span class="bg-plat__ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="1.6"/><path d="M7 10l3 2.5L7 15M12.5 15H17"/></svg></span>
           <span class="bg-plat__name">Buyruq qatori</span>
           <span class="bg-plat__sub">fayl va matnni o‘girish</span>
           <span class="bg-btn bg-btn--sm bg-plat__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>GitHub</span>
         </a>
-        <a class="bg-plat__card" href="/yuklab-olish/#linux">
+        <a class="bg-plat__card" href="/yuklab-olish/#linux" data-os="linux" data-file="{{debUrl}}" data-page="/yuklab-olish/#linux">
           <span class="bg-plat__ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c-2.4 0-3.6 2-3.6 4.6 0 1.6-.4 2.8-1.6 4.4C5.4 14.4 4.5 16 5 18c.4 1.7 2.4 2.5 7 2.5s6.6-.8 7-2.5c.5-2-.4-3.6-1.8-5.5-1.2-1.6-1.6-2.8-1.6-4.4 0-2.6-1.2-4.6-3.6-4.6z"/><circle cx="10.4" cy="8.4" r=".7"/><circle cx="13.6" cy="8.4" r=".7"/></svg></span>
           <span class="bg-plat__name">Linux · Ubuntu</span>
           <span class="bg-plat__sub">Ubuntu, Debian · .deb · {{debSizeUz}}</span>
           <span class="bg-btn bg-btn--sm bg-plat__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Yuklab olish</span>
         </a>
-        <a class="bg-plat__card" href="/yuklab-olish/#mac">
+        <a class="bg-plat__card" href="/yuklab-olish/#mac" data-os="mac" data-file="{{macUrl}}" data-page="/yuklab-olish/#mac">
           <span class="bg-plat__ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12.5" rx="1.6"/><path d="M2 19.5h20"/></svg></span>
           <span class="bg-plat__name">Mac · sinov</span>
           <span class="bg-plat__sub">Apple M va Intel · .pkg · {{macSizeUz}}</span>
           <span class="bg-btn bg-btn--sm bg-plat__go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Yuklab olish</span>
         </a>
-        <a class="bg-plat__card" href="/yangi-harflarni-yozish/#telefon">
+        <a class="bg-plat__card" href="/yangi-harflarni-yozish/#telefon" data-os="phone">
           <span class="bg-plat__ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg></span>
           <span class="bg-plat__name">iPhone · Android</span>
           <span class="bg-plat__sub">tavsiya: Tilmoch klaviaturasi</span>
@@ -273,6 +274,10 @@
         </a>
       </div>
       <p class="bg-note-sm" id="bg-dl-note">O‘rnatuvchi hozircha imzosiz: SmartScreen oynasida «Batafsil» → «Baribir ishga tushirish». SHA-256, tizim talablari va ommaviy o‘rnatish: <a href="/yuklab-olish/">yuklab olish sahifasi</a>.</p>
+      <template data-os-tpl="mac">Mac o‘rnatuvchisi hozircha Apple imzosiz: macOS ochmasa, «Tizim sozlamalari → Maxfiylik va xavfsizlik» da «Baribir ochish» ni bosing. Bitta fayl Apple M va Intel’da ishlaydi. Qadamlar va SHA-256: <a href="/yuklab-olish/#mac">yuklab olish sahifasi</a>.</template>
+      <template data-os-tpl="linux">Ubuntu 22.04+ va Debian 12+ (IBus). Terminal orqali yangilanib turadigan <a href="/yuklab-olish/#apt">apt ombori</a> ham bor. KDE / Fcitx5 va SHA-256: <a href="/yuklab-olish/#linux">yuklab olish sahifasi</a>.</template>
+      <template data-os-tpl="phone">Telefonda bitg o‘rnatilmaydi — <a href="/yangi-harflarni-yozish/#telefon">Tilmoch klaviaturasi</a> yoki <a href="/konvertor/">onlayn konvertor</a>. Kompyuterga o‘rnatmoqchimisiz? <button type="button" class="bg-linkbtn" data-share="https://bitg.uz/yuklab-olish/" data-done="Havola nusxalandi"><span>Havolani kompyuterga yuborish</span></button></template>
+      <template data-os-tpl="win-arm"> <b>ARM (Snapdragon) kompyuterda</b> bitg hali sinalmagan: ba’zi dasturlarda ishlamasligi mumkin. Natijani <a href="/fikr/">bizga yozing</a>.</template>
     </div>
   </section>
 </main>
@@ -292,11 +297,12 @@
     </a>
     <span class="bg-foot__txt">MIT yoki Apache-2.0 · <a href="https://github.com/dtwinuz/bitg" data-no-conv>github.com/dtwinuz/bitg</a></span>
     <span class="bg-foot__txt">Telegram: <a href="https://t.me/bitguz" rel="noopener" data-no-conv>@bitguz</a> · bot: <a href="https://t.me/bitguzbot" rel="noopener" data-no-conv>@bitguzbot</a></span>
-    <span class="bg-foot__txt" id="bg-ver" data-no-conv></span>
+    <span class="bg-foot__txt" id="bg-ver" data-ver="{{version}}" data-no-conv></span>
   </div>
   </div>
 </footer>
 
+<script src="dl.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

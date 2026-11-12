@@ -54,7 +54,21 @@ mod app {
     const ICON_ON: u16 = 1;
     const ICON_OFF: u16 = 2;
     /// Oynadan ochiladigan havolalar (boshqasi ochilmaydi).
-    const LINKS: &[&str] = &["https://bitg.uz", "https://github.com/dtwinuz/bitg"];
+    const LINKS: &[&str] = &[
+        "https://bitg.uz",
+        "https://github.com/dtwinuz/bitg",
+        FEEDBACK,
+    ];
+    /// Fikr sahifasi: versiya qo'shib ochiladi, GitHub shaklida o'zi yoziladi.
+    const FEEDBACK: &str = "https://bitg.uz/fikr/";
+
+    fn feedback_url() -> String {
+        format!("{FEEDBACK}?v={}&os=windows", env!("CARGO_PKG_VERSION"))
+    }
+
+    fn open_url(u: &str) {
+        let _ = std::process::Command::new("explorer").arg(u).spawn();
+    }
 
     enum Ev {
         /// Oynaga JSON javob.
@@ -71,6 +85,7 @@ mod app {
         icon: TrayIcon,
         enabled: CheckMenuItem,
         open: MenuItem,
+        feedback: MenuItem,
         quit: MenuItem,
     }
 
@@ -81,12 +96,14 @@ mod app {
     fn make_tray(on: bool) -> Result<Tray, Box<dyn std::error::Error>> {
         let enabled = CheckMenuItem::new("Yoqilgan", true, on, None);
         let open = MenuItem::new("bitg'ni ochish", true, None);
+        let feedback = MenuItem::new("Xato haqida xabar berish", true, None);
         let quit = MenuItem::new("Chiqish", true, None);
         let menu = Menu::new();
         menu.append_items(&[
             &enabled,
             &PredefinedMenuItem::separator(),
             &open,
+            &feedback,
             &PredefinedMenuItem::separator(),
             &quit,
         ])?;
@@ -101,6 +118,7 @@ mod app {
             icon: b.build()?,
             enabled,
             open,
+            feedback,
             quit,
         })
     }
@@ -208,6 +226,8 @@ mod app {
                         send(&webview, &logic::load().to_string());
                     } else if e.id == t.open.id() {
                         show(&window);
+                    } else if e.id == t.feedback.id() {
+                        open_url(&feedback_url());
                     } else if e.id == t.quit.id() {
                         *flow = ControlFlow::Exit;
                     }
@@ -314,7 +334,11 @@ mod app {
                 if let Some(u) = msg.get("url").and_then(Value::as_str)
                     && LINKS.contains(&u)
                 {
-                    let _ = std::process::Command::new("explorer").arg(u).spawn();
+                    open_url(&if u == FEEDBACK {
+                        feedback_url()
+                    } else {
+                        u.to_owned()
+                    });
                 }
             }
             "quit" => {

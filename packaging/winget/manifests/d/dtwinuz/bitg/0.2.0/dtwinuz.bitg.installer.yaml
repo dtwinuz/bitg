@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.9.0.schema.json
+
+PackageIdentifier: dtwinuz.bitg
+PackageVersion: 0.2.0
+MinimumOSVersion: 10.0.17763.0
+InstallerType: wix
+Scope: machine
+ElevationRequirement: elevatesSelf
+UpgradeBehavior: install
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/dtwinuz/bitg/releases/download/v0.2.0/bitg-0.2.0-x64.msi
+    InstallerSha256: D7927959353F7A635645461A83D06A5AA239D63C3FC00F812E4585801047EB4E
+ManifestType: installer
+ManifestVersion: 1.9.0

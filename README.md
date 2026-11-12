@@ -160,6 +160,17 @@ sudo apt install ./bitg_0.2.0_amd64.deb      # IBus dvigateli + bitg CLI
 ibus restart                                  # yoki tizimdan chiqib qayta kiring
 ```
 
+Yoki o'zi yangilanib turadigan imzolangan apt ombori (kalit izi `9EA5 79E2 9EC7 A7B1 1FC1 B02F BB03 FCBA D1C7 CB35`,
+[`deploy/apt/bitg.asc`](deploy/apt/bitg.asc)):
+
+```bash
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://bitg.uz/apt/bitg.gpg | sudo tee /etc/apt/keyrings/bitg.gpg >/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bitg.gpg] https://bitg.uz/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/bitg.list
+sudo apt update && sudo apt install bitg     # Fcitx5: fcitx5-bitg
+```
+
 So'ng **Sozlamalar → Klaviatura → Kiritish manbasi qo'shish → O'zbek → bitg** va **Super + Probel** bilan tanlang.
 Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.2.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
 qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.

@@ -212,6 +212,20 @@
     });
   });
 
+  // ---------- fikr sahifasi: dasturdan ochilganda (?v=0.2.0) o'sha versiya shaklga yoziladi ----------
+  var fbGh = $('#dc-fb-gh');
+  if (fbGh) {
+    var fbV = '';
+    try { fbV = new URLSearchParams(location.search).get('v') || ''; } catch (e) {}
+    if (/^\d+\.\d+\.\d+([.-][0-9A-Za-z.-]+)?$/.test(fbV)) {
+      var u = new URL(fbGh.href);
+      u.searchParams.set('version', fbV);
+      fbGh.href = u.toString();
+      var fbVer = $('#dc-fb-ver');
+      if (fbVer) fbVer.textContent = fbV;
+    }
+  }
+
   // ---------- kunlar hisobi: statik raqam bor, JS faqat bugungi kunga yangilaydi ----------
   $$('[data-until]').forEach(function (e) {
     var t = new Date(e.getAttribute('data-until') + 'T00:00:00+05:00').getTime();

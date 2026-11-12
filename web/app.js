@@ -897,9 +897,9 @@
   seen(trySec).then(startCore);
 
   // ---------- versiya ----------
-  var ver = $('#bg-ver');
+  var ver = $('#bg-ver'), appVer = 'v' + (ver.getAttribute('data-ver') || '').replace(/^v/, '');
   fetch('version.txt', { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
     var sha = (t || '').trim();
-    ver.textContent = 'v0.2.0' + (/^[0-9a-f]{7,40}$/.test(sha) ? ' · ' + sha.slice(0, 7) : '');
-  }, function () { ver.textContent = 'v0.2.0'; });
+    ver.textContent = appVer + (/^[0-9a-f]{7,40}$/.test(sha) ? ' · ' + sha.slice(0, 7) : '');
+  }, function () { ver.textContent = appVer; });
 })();

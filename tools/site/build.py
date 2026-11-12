@@ -318,6 +318,8 @@ def render(meta, ctx, by_slug, alt_groups):
             for h, n in items) + "</ul></div>" for t, items in ui["foot_cols"])
 
     wasm_attr = ' data-wasm="1"' if meta.get("wasm") else ""
+    # dl.js: tizimni aniqlash va rahmat sahifasi (yuklab olish sahifalari)
+    dl_js = '<script src="/dl.js" defer></script>\n' if meta.get("dl") else ""
     robots = '<meta name="robots" content="noindex">\n' if meta.get("noindex") else ""
     article_cls = "dc-article" + (" dc-article--wide" if meta.get("wide") else "")
     dl_btn = "" if slug == "/yuklab-olish/" else \
@@ -404,7 +406,7 @@ def render(meta, ctx, by_slug, alt_groups):
   </div>
 </footer>
 <script src="/page.js" defer></script>
-</body>
+{dl_js}</body>
 </html>
 """
 
@@ -452,7 +454,11 @@ def main():
     ctx.update(pkg_info(msi.parent / f"bitg_{version}_amd64.deb", "deb"))
     ctx.update(pkg_info(msi.parent / f"fcitx5-bitg_{version}_amd64.deb", "fcitx"))
     ctx.update(pkg_info(msi.parent / f"bitg-{version}-macos.pkg", "mac"))
+    fpr = (ROOT / "deploy" / "apt" / "fingerprint.txt").read_text(encoding="utf-8").strip().upper()
+    if not re.fullmatch(r"[0-9A-F]{40}", fpr):
+        fail("deploy/apt/fingerprint.txt: 40 belgili barmoq izi emas")
     ctx.update({
+        "aptFingerprint": " ".join(fpr[i:i + 4] for i in range(0, 40, 4)),
         "version": version,
         "daysLeft": max((dt.date.fromisoformat(CONFIG["lawDate"]) - today).days, 0),
         "buildDate": today.isoformat(),
