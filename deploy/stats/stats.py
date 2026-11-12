@@ -421,6 +421,7 @@ def check_site():
 
     try:
         ctx = ssl.create_default_context()
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         with socket.create_connection((host, 443), timeout=15) as s, ctx.wrap_socket(s, server_hostname=host) as t:
             end = ssl.cert_time_to_seconds(t.getpeercert()["notAfter"])
         left = int((end - time.time()) // 86400)

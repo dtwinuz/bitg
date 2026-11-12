@@ -7,6 +7,8 @@
   var doc = document, nav = navigator;
   var $ = function (s, r) { return (r || doc).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || doc).querySelectorAll(s)); };
+  // faqat shu saytdagi yo'l ("/..."); boshqa qiymat havolaga qo'yilmaydi
+  var local = function (u) { return typeof u === 'string' && /^\/(?![\/\\])[\w\-.\/#?=&%]*$/.test(u) ? u : null; };
 
   // ---------- tizimni aniqlash ----------
   // userAgentData (Chromium) aniqroq; bo'lmasa userAgent. iPad Safari o'zini Mac deb ataydi:
@@ -82,12 +84,13 @@
         var go = $('.bg-plat__go', c);
         if (go) { go.classList.toggle('bg-btn--pri', on); go.classList.toggle('bg-btn--sm', !on); }
         // asosiy karta to'g'ridan-to'g'ri faylga, qolganlari yuklab olish sahifasidagi bo'limga
-        var file = c.getAttribute('data-file');
-        if (file) {
+        var file = local(c.getAttribute('data-file'));
+        var page = local(c.getAttribute('data-page'));
+        if (file && page) {
           if (on) {
-            c.setAttribute('href', file); c.setAttribute('download', ''); c.setAttribute('data-dl', c.getAttribute('data-os'));
+            c.href = file; c.setAttribute('download', ''); c.setAttribute('data-dl', c.getAttribute('data-os'));
           } else {
-            c.setAttribute('href', c.getAttribute('data-page')); c.removeAttribute('download'); c.removeAttribute('data-dl');
+            c.href = page; c.removeAttribute('download'); c.removeAttribute('data-dl');
           }
         }
       });
@@ -125,11 +128,12 @@
   if (ty) {
     var want = '';
     try { want = new URLSearchParams(location.search).get('os') || ''; } catch (e) {}
+    if (['win', 'mac', 'linux', 'fcitx'].indexOf(want) < 0) return; // to'g'ridan-to'g'ri ochildi: barcha bo'limlar ko'rinib turadi
     var src = $('[data-file-for="' + want + '"]', ty);
-    if (!src) return; // to'g'ridan-to'g'ri ochildi: barcha bo'limlar ko'rinib turadi
+    var file = src && local(src.getAttribute('href'));
+    if (!file) return;
     ty.setAttribute('data-show', want === 'fcitx' ? 'linux' : want);
-    var file = src.getAttribute('href');
-    $$('[data-direct]', ty).forEach(function (a) { a.setAttribute('href', file); });
+    $$('[data-direct]', ty).forEach(function (a) { a.href = file; });
     $$('[data-file-name]', ty).forEach(function (n) { n.textContent = src.getAttribute('data-name'); });
     var state = $('#dc-ty-state');
     // sahifa yangilansa fayl ikkinchi marta yuklanmasin
