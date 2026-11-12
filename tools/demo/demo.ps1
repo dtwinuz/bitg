@@ -205,7 +205,8 @@ $tick = {
                 }
                 $p = Join-Path $frames ('{0:D5}.png' -f $script:frame)
                 [Demo]::Shot($script:h, $p)
-                $times.Add("{0}`t{1}" -f $script:frame, $sw.ElapsedMilliseconds)
+                # qavs shart: metod chaqiruvida vergul -f ning emas, Add() ning argumentini ajratadi
+                $times.Add(("{0}`t{1}" -f $script:frame, $sw.ElapsedMilliseconds))
                 $script:frame++
                 if ($now -ge $end) { $script:phase = 4 }
             }

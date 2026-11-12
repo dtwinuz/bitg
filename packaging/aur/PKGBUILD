@@ -31,7 +31,8 @@ build() {
   export RUSTUP_TOOLCHAIN=stable CARGO_TARGET_DIR=target
   cargo build --frozen --release -p bitg-ime -p bitg-cli
   make -C linux/ibus VERSION="$pkgver"
-  make -C linux/fcitx5
+  # Arch'dagi Fcitx5 sarlavhalari std::span ishlatadi (C++20); keyingi -std oldingisini bosadi
+  make -C linux/fcitx5 CXXFLAGS="$CXXFLAGS -std=c++20"
 }
 
 check() {
