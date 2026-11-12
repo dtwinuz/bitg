@@ -188,6 +188,17 @@ def main():
         log.close()
         with open(log_path, "rb") as f:
             print(f.read().decode(errors="replace")[-3000:])
+        addr = os.environ.get("IBUS_ADDRESS") or IBus.get_address()
+        print("address:", addr, "| daemon alive:", daemon is not None and daemon.poll() is None)
+        print(subprocess.run(["sh", "-c", "ls -la /tmp | grep -i ibus; ibus address"], capture_output=True,
+                             text=True).stdout)
+        try:
+            from gi.repository import Gio
+            Gio.DBusConnection.new_for_address_sync(addr, Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
+                                                    | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION, None, None)
+            print("Gio: ulanish muvaffaqiyatli")
+        except Exception as e:  # diagnostika: aniq sabab ko'rinsin
+            print("Gio xato:", e)
         sys.exit("ibus-daemon'ga ulanib bo'lmadi")
     for _ in range(50):  # komponentlar ro'yxati yuklanguncha
         if any(e.get_name() == "bitg" for e in bus.list_engines()):
