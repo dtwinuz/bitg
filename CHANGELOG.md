@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [Unreleased]
 
 ### Qo'shildi
+- **Chocolatey paketi** (`packaging/chocolatey`, `tools/release/packaging.py` yaratadi): `choco install bitg`. MSI GitHub
+  Release'dan SHA-256 bilan olinadi; `/NoAutostart`, `/NoKeyboard` parametrlari. `packaging` workflow paketni haqiqiy
+  Windows'da o'rnatib, parametrni tekshirib, o'chiradi; nashr — qo'lda (`publish`, `CHOCO_API_KEY`).
+- Sayt, yuklab olish: «Terminalda bitta buyruq bilan» bo'limi (winget, Chocolatey, Homebrew, apt, AUR; katalogda hali
+  yo'q kanal nusxalash tugmasisiz «tez orada» deb ko'rinadi) va har buyruq hamda SHA-256 yonida «Nusxalash» tugmasi.
 - CI `coverage` job'i: tarmoq (branch) qamrovi ≥ 90 % va satrlar ≥ 95 % (hozir 94.8 % va 97.2 %) (`cargo llvm-cov --branch`, nightly sanasi
   qotirilgan; fayllar jadvali job summary'da). Yadro, CLI, IME va sozlamalar uchun yangi testlar.
 - **Takrorlanadigan MSI va `.pkg`:** `.deb` kabi, bir commit'dan istalgan papkada bayt-mayt bir xil o'rnatuvchi.

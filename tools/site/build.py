@@ -36,6 +36,20 @@ CONFIG = {
     "signedDate": "2026-10-21",
     "lawDate": "2027-04-22",
 }
+# Paket menejerlari (yuklab olish sahifasi). live=False — katalogda hali yo'q: buyruq ko'rinadi, lekin nusxalash
+# tugmasi o'rniga holat yoziladi (ishlamaydigan buyruqni foydalanuvchiga bermaymiz). Qabul qilingach True qiling.
+CHANNELS = [
+    {"os": "Windows", "tool": "winget", "cmd": "winget install bitg", "live": False,
+     "soon": "tekshiruvda", "url": "https://github.com/microsoft/winget-pkgs/pull/478645"},
+    {"os": "Windows", "tool": "Chocolatey", "cmd": "choco install bitg", "live": False,
+     "soon": "tez orada", "url": "https://github.com/dtwinuz/bitg/tree/main/packaging/chocolatey"},
+    {"os": "macOS", "tool": "Homebrew", "cmd": "brew install --cask dtwinuz/tap/bitg", "live": True,
+     "url": "#brew"},
+    {"os": "Ubuntu, Debian", "tool": "apt", "cmd": "sudo apt install bitg", "live": True,
+     "note": "omborni bir marta ulang", "url": "#apt"},
+    {"os": "Arch Linux", "tool": "AUR", "cmd": "yay -S bitg", "live": False,
+     "soon": "tez orada", "url": "https://github.com/dtwinuz/bitg/tree/main/packaging/aur"},
+]
 COPY_EXT = {".html", ".css", ".js", ".svg", ".png", ".ico", ".txt", ".xml", ".woff2", ".webmanifest"}
 SKIP_TOP = {"pages", "download"}
 LANG_HTML = {"uz": "uz", "ru": "ru", "en": "en"}
@@ -423,6 +437,25 @@ def version_assets(text, v):
     return text.replace('data-v=""', f'data-v="{v}"')
 
 
+def channels_html():
+    """CHANNELS -> yuklab olish sahifasidagi «bitta buyruq» ro'yxati ({{pkgChannels}})."""
+    rows = []
+    for c in CHANNELS:
+        cmd, url = html.escape(c["cmd"]), html.escape(c["url"])
+        ext = "" if url.startswith("#") else ' rel="noopener"'
+        if c["live"]:
+            note = f' <a class="dc-pm__note" href="{url}"{ext}>{html.escape(c["note"])}</a>' if c.get("note") else ""
+            tail = (f'<button type="button" class="dc-copy" data-copy-text="{cmd}" aria-label="Nusxalash: {cmd}">'
+                    f'Nusxalash</button>')
+        else:
+            note = ""
+            tail = f'<a class="dc-pm__soon" href="{url}"{ext}>{html.escape(c["soon"])}</a>'
+        rows.append(f'<li class="dc-pm__row{"" if c["live"] else " is-soon"}">'
+                    f'<span class="dc-pm__os">{html.escape(c["os"])} <span>· {html.escape(c["tool"])}</span></span>'
+                    f'<code data-no-conv>{cmd}</code>{note}{tail}</li>')
+    return '<ul class="dc-pm">' + "".join(rows) + "</ul>"
+
+
 def msi_info(msi):
     if not msi.exists():
         fail(f"MSI topilmadi: {msi} (--msi)")
@@ -467,6 +500,7 @@ def main():
         "version": version,
         "daysLeft": max((dt.date.fromisoformat(CONFIG["lawDate"]) - today).days, 0),
         "buildDate": today.isoformat(),
+        "pkgChannels": channels_html(),
     })
     for lg in ("Uz", "Ru", "En"):
         ctx["lawDate" + lg] = human_date(CONFIG["lawDate"], lg.lower())

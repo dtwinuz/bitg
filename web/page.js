@@ -204,6 +204,49 @@
       function () { state.textContent = msg.fail; });
   }
 
+  // ---------- buyruqlarni nusxalash: har <pre>, SHA-256 va [data-copy-text] ----------
+  var CP = { uz: ['Nusxalash', 'Nusxalandi'], ru: ['Копировать', 'Скопировано'], en: ['Copy', 'Copied'] }[
+    (root.lang || 'uz').slice(0, 2)] || ['Nusxalash', 'Nusxalandi'];
+  function copyText(btn, text) {
+    var done = function () {
+      btn.classList.add('is-done'); btn.textContent = CP[1];
+      setTimeout(function () { btn.classList.remove('is-done'); btn.textContent = CP[0]; }, 1600);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () {});
+      return;
+    }
+    var ta = doc.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    doc.body.appendChild(ta); ta.select();
+    try { if (doc.execCommand('copy')) done(); } catch (e) {}
+    doc.body.removeChild(ta);
+  }
+  function copyBtn(label) {
+    var b = doc.createElement('button');
+    b.type = 'button'; b.className = 'dc-copy'; b.textContent = CP[0];
+    b.setAttribute('aria-label', CP[0] + ': ' + label);
+    return b;
+  }
+  $$('.dc-article pre').forEach(function (pre) {
+    if (pre.parentNode.classList.contains('dc-code')) return;
+    var wrap = doc.createElement('div'), b = copyBtn(pre.textContent.trim().split(/\n/)[0]);
+    wrap.className = 'dc-code';
+    pre.parentNode.insertBefore(wrap, pre); wrap.appendChild(pre); wrap.appendChild(b);
+    b.addEventListener('click', function () { copyText(b, pre.textContent.trim()); });
+  });
+  $$('.dc-dl__sha').forEach(function (box) {
+    var code = $('code', box);
+    if (!code) return;
+    var b = copyBtn('SHA-256');
+    box.appendChild(b);
+    b.addEventListener('click', function () { copyText(b, code.textContent.trim()); });
+  });
+  $$('[data-copy-text]').forEach(function (b) {
+    b.textContent = CP[0];
+    b.addEventListener('click', function () { copyText(b, b.getAttribute('data-copy-text')); });
+  });
+
   // ---------- nusxalash tugmalari ----------
   $$('[data-copy]').forEach(function (b) {
     b.addEventListener('click', function () {

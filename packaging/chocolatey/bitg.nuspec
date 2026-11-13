@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>bitg</id>
+    <version>0.3.1</version>
+    <title>bitg (Uzbek keyboard, new 2026 Latin alphabet)</title>
+    <authors>dtwinuz and bitg contributors</authors>
+    <owners>dtwinuz</owners>
+    <projectUrl>https://bitg.uz/</projectUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/dtwinuz/bitg@main/web/logo-512.png</iconUrl>
+    <copyright>Copyright (c) 2026 dtwinuz</copyright>
+    <licenseUrl>https://github.com/dtwinuz/bitg/blob/main/LICENSE-MIT</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/dtwinuz/bitg</projectSourceUrl>
+    <packageSourceUrl>https://github.com/dtwinuz/bitg/tree/main/packaging/chocolatey</packageSourceUrl>
+    <docsUrl>https://bitg.uz/yuklab-olish/</docsUrl>
+    <bugTrackerUrl>https://github.com/dtwinuz/bitg/issues</bugTrackerUrl>
+    <tags>bitg uzbek keyboard input-method ime alphabet transliteration latin foss</tags>
+    <summary>Uzbek keyboard that converts text to the new 2026 Latin alphabet (ö ğ ş ç) as you type.</summary>
+    <description><![CDATA[bitg is a Windows input method (TSF) for Uzbek. Type as you always did (o', g', sh, ch) and each word is
+converted to the new 2026 Latin alphabet when you finish it. English words, links and code are left alone,
+Backspace right after a replacement restores the original word, and everything works offline.
+
+After installing, press **Win + Space** and choose **bitg**.
+
+## Package parameters
+
+* `/NoAutostart` - do not start the tray app with Windows (MSI `AUTOSTART=0`)
+* `/NoKeyboard` - do not add the keyboard to the user's language list (MSI `ADDKEYBOARD=0`)
+
+Example: `choco install bitg --params "'/NoAutostart /NoKeyboard'"`
+]]></description>
+    <releaseNotes>https://github.com/dtwinuz/bitg/releases/tag/v0.3.1</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools/**" target="tools" />
+  </files>
+</package>

@@ -4,12 +4,18 @@
 
 name: packaging
 
-# winget manifesti microsoft/winget-pkgs ga yuborishdan oldin haqiqiy Windows'da o'rnatib, o'chirib tekshiriladi.
+# winget manifesti va Chocolatey paketi yuborishdan oldin haqiqiy Windows'da o'rnatib, o'chirib tekshiriladi.
+# Chocolatey'ga nashr: Actions -> packaging -> Run workflow, publish = true (CHOCO_API_KEY siri kerak).
 # Homebrew cask'ni dtwinuz/homebrew-tap CI'si tekshiradi.
 on:
   pull_request:
-    paths: ["packaging/winget/**", "tools/release/packaging.py", ".github/workflows/packaging.yml"]
+    paths: ["packaging/winget/**", "packaging/chocolatey/**", "tools/release/packaging.py", ".github/workflows/packaging.yml"]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Chocolatey paketini community.chocolatey.org ga yuborish"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,3 +57,50 @@ jobs:
           if ($p.ExitCode -notin 0, 3010) { throw "uninstall: $($p.ExitCode)" }
           if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$pc") { throw "o'chirilmadi" }
           "winget ${ver}: validate + install + uninstall OK"
+
+  chocolatey:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Pack, install, uninstall
+        shell: pwsh
+        run: |
+          choco --version
+          $out = Join-Path $env:RUNNER_TEMP choco
+          New-Item -ItemType Directory -Force $out | Out-Null
+          choco pack packaging/chocolatey/bitg.nuspec --outputdirectory $out --limit-output
+          if ($LASTEXITCODE) { throw "pack: $LASTEXITCODE" }
+          $nupkg = Get-ChildItem $out -Filter 'bitg.*.nupkg' | Select-Object -First 1
+          $ver = $nupkg.BaseName -replace '^bitg\.', ''
+          "nupkg: $($nupkg.Name)"
+          # tashqi manba emas, faqat shu papka; /NoAutostart parametri MSI'ga yetib borishini ham sinaymiz
+          choco install bitg --source $out --version $ver -y --no-progress --params "'/NoAutostart'"
+          if ($LASTEXITCODE -notin 0, 3010) { throw "install: $LASTEXITCODE" }
+          $key = Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall |
+            Get-ItemProperty | Where-Object { $_.DisplayName -eq 'bitg' -and $_.Publisher -eq 'dtwinuz' }
+          if (-not $key) { throw "o'rnatilgan yozuv topilmadi" }
+          if ($key.DisplayVersion -notlike "$ver*") { throw "o'rnatilgan versiya $($key.DisplayVersion), kutilgan $ver" }
+          $run = Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run -ErrorAction SilentlyContinue
+          if ($run.PSObject.Properties.Name -contains 'bitg') { throw "/NoAutostart ishlamadi: Run kalitida bitg bor" }
+          $auto = (Get-ItemProperty HKLM:\SOFTWARE\bitg -ErrorAction Stop).Autostart
+          if ($auto -ne '0') { throw "/NoAutostart MSI'ga yetmadi: Autostart=$auto" }
+          & "$env:ProgramFiles\bitg\bitg.exe" "O'zbekiston shaharlari"
+          if ($LASTEXITCODE) { throw "bitg.exe: $LASTEXITCODE" }
+          choco uninstall bitg -y --no-progress
+          if ($LASTEXITCODE -notin 0, 3010) { throw "uninstall: $LASTEXITCODE" }
+          if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$($key.PSChildName)") { throw "o'chirilmadi" }
+          "chocolatey ${ver}: pack + install + uninstall OK"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: chocolatey
+          path: ${{ runner.temp }}/choco/*.nupkg
+      - name: Publish
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        shell: pwsh
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+        run: |
+          if (-not $env:CHOCO_API_KEY) { throw "CHOCO_API_KEY siri yo'q (Settings -> Secrets -> Actions)" }
+          $nupkg = Get-ChildItem (Join-Path $env:RUNNER_TEMP choco) -Filter 'bitg.*.nupkg' | Select-Object -First 1
+          choco push $nupkg.FullName --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
+          if ($LASTEXITCODE) { throw "push: $LASTEXITCODE" }

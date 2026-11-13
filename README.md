@@ -122,13 +122,14 @@ foydalanuvchilar uchun ishlaydi. Oxirida bitg ochiladi va klaviaturani O'zbek (l
 **Win + Probel** bilan «bitg» ni tanlang. Yangilash ham shu fayl bilan qilinadi: ochiq dasturlarni (Chrome, Telegram)
 yopish va kompyuterni qayta yuklash shart emas.
 
-**winget** — paket Microsoft katalogida ko'rib chiqilmoqda
-([microsoft/winget-pkgs#478645](https://github.com/microsoft/winget-pkgs/pull/478645), avtomatik tekshiruvlar o'tgan).
-Qabul qilingach:
+**Paket menejeri bilan** (qisqa nom hamma joyda `bitg`):
 
 ```powershell
-winget install dtwinuz.bitg
+winget install bitg     # Microsoft katalogida ko'rib chiqilmoqda: microsoft/winget-pkgs#478645
+choco install bitg      # Chocolatey: paket tayyor (packaging/chocolatey), e'lon qilinishi kutilmoqda
 ```
+
+Chocolatey parametrlari: `--params "'/NoAutostart /NoKeyboard'"` (MSI'dagi `AUTOSTART=0`, `ADDKEYBOARD=0`).
 
 | Nima | Qayerda |
 |---|---|

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""winget manifesti va Homebrew cask'ni dist/ dagi release fayllaridan yaratadi.
+"""winget manifesti, Chocolatey paketi va Homebrew cask'ni dist/ dagi release fayllaridan yaratadi.
 
   gh release download v<v> -R dtwinuz/bitg -D dist --clobber
   python tools/release/packaging.py            # versiya Cargo.toml'dan, fayllar dist/ dan
@@ -7,6 +7,8 @@
 Natija (repoda saqlanadi):
   packaging/winget/manifests/d/dtwinuz/bitg/<v>/  -> microsoft/winget-pkgs ga PR ("Update: dtwinuz.bitg to <v>");
                                                      packaging workflow uni Windows'da o'rnatib sinaydi
+  packaging/chocolatey/                           -> community.chocolatey.org ga `choco push` (packaging workflow,
+                                                     publish=true); avval Windows'da o'rnatib, o'chirib sinaladi
   packaging/homebrew/Casks/bitg.rb                -> dtwinuz/homebrew-tap ga PR; tap CI macOS'da o'rnatib sinaydi
 
 Ikkala havola ham GitHub Release'ga: o'zgarmas, SHA-256 hech qachon siljimaydi.
@@ -123,6 +125,92 @@ ManifestVersion: {SCHEMA}
     return d
 
 
+CHOCO_INSTALL = r"""$ErrorActionPreference = 'Stop'
+
+# MSI GitHub Release'dan olinadi va SHA-256 bilan tekshiriladi: fayl paket ichida emas.
+$pp = Get-PackageParameters
+$props = @()
+if ($pp['NoAutostart']) { $props += 'AUTOSTART=0' }
+if ($pp['NoKeyboard'])  { $props += 'ADDKEYBOARD=0' }
+$log = Join-Path $env:TEMP "bitg-$env:ChocolateyPackageVersion-install.log"
+
+$packageArgs = @{
+  packageName    = $env:ChocolateyPackageName
+  fileType       = 'msi'
+  url64bit       = '@URL@'
+  checksum64     = '@SHA@'
+  checksumType64 = 'sha256'
+  softwareName   = 'bitg'
+  silentArgs     = "/qn /norestart /l*v `"$log`" $($props -join ' ')"
+  validExitCodes = @(0, 3010, 1641)
+}
+Install-ChocolateyPackage @packageArgs
+"""
+
+CHOCO_UNINSTALL = r"""$ErrorActionPreference = 'Stop'
+
+# ProductCode har build'da yangi: o'rnatilgan yozuv nomi bo'yicha topiladi (Publisher ham tekshiriladi).
+$keys = @(Get-UninstallRegistryKey -SoftwareName 'bitg' | Where-Object { $_.Publisher -eq 'dtwinuz' })
+if ($keys.Count -eq 0) {
+  Write-Warning "bitg o'rnatilmagan ko'rinadi: o'chiradigan narsa yo'q."
+  return
+}
+foreach ($k in $keys) {
+  Uninstall-ChocolateyPackage -PackageName $env:ChocolateyPackageName -FileType 'msi' `
+    -SilentArgs "$($k.PSChildName) /qn /norestart" -ValidExitCodes @(0, 3010, 1605, 1614, 1641) -File ''
+}
+"""
+
+
+def chocolatey(ver, msi_sha, out):
+    """Chocolatey paketi: nuspec + o'rnatish/o'chirish skriptlari (MSI ichiga solinmaydi, URL + SHA-256)."""
+    d = out / "chocolatey"
+    (d / "tools").mkdir(parents=True, exist_ok=True)
+    write(d / "bitg.nuspec", f"""<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>bitg</id>
+    <version>{ver}</version>
+    <title>bitg (Uzbek keyboard, new 2026 Latin alphabet)</title>
+    <authors>dtwinuz and bitg contributors</authors>
+    <owners>dtwinuz</owners>
+    <projectUrl>https://bitg.uz/</projectUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/dtwinuz/bitg@main/web/logo-512.png</iconUrl>
+    <copyright>Copyright (c) 2026 dtwinuz</copyright>
+    <licenseUrl>{REPO}/blob/main/LICENSE-MIT</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>{REPO}</projectSourceUrl>
+    <packageSourceUrl>{REPO}/tree/main/packaging/chocolatey</packageSourceUrl>
+    <docsUrl>https://bitg.uz/yuklab-olish/</docsUrl>
+    <bugTrackerUrl>{REPO}/issues</bugTrackerUrl>
+    <tags>bitg uzbek keyboard input-method ime alphabet transliteration latin foss</tags>
+    <summary>Uzbek keyboard that converts text to the new 2026 Latin alphabet (ö ğ ş ç) as you type.</summary>
+    <description><![CDATA[bitg is a Windows input method (TSF) for Uzbek. Type as you always did (o', g', sh, ch) and each word is
+converted to the new 2026 Latin alphabet when you finish it. English words, links and code are left alone,
+Backspace right after a replacement restores the original word, and everything works offline.
+
+After installing, press **Win + Space** and choose **bitg**.
+
+## Package parameters
+
+* `/NoAutostart` - do not start the tray app with Windows (MSI `AUTOSTART=0`)
+* `/NoKeyboard` - do not add the keyboard to the user's language list (MSI `ADDKEYBOARD=0`)
+
+Example: `choco install bitg --params "'/NoAutostart /NoKeyboard'"`
+]]></description>
+    <releaseNotes>{REPO}/releases/tag/v{ver}</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools/**" target="tools" />
+  </files>
+</package>
+""")
+    url = f"{REPO}/releases/download/v{ver}/bitg-{ver}-x64.msi"
+    write(d / "tools" / "chocolateyinstall.ps1", CHOCO_INSTALL.replace("@URL@", url).replace("@SHA@", msi_sha))
+    write(d / "tools" / "chocolateyuninstall.ps1", CHOCO_UNINSTALL)
+    return d
+
+
 def cask(ver, pkg_sha, bundle, out):
     d = out / "homebrew" / "Casks"
     d.mkdir(parents=True, exist_ok=True)
@@ -178,8 +266,9 @@ def main():
     if not pcode:
         sys.exit("packaging: MSI ProductCode o'qilmadi (--product-code bering)")
     w = winget(ver, sha(msi), pcode, upgrade_code(), a.out)
+    ch = chocolatey(ver, sha(msi), a.out)
     c = cask(ver, sha(pkg), bundle, a.out)
-    print(f"packaging: {w}, {c}")
+    print(f"packaging: {w}, {ch}, {c}")
 
 
 if __name__ == "__main__":
