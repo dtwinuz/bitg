@@ -16,6 +16,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   qotirilgan) MSI attestation'i tekshirilgach winget-pkgs'ga PR ochadi; token faqat `winget` environment'ida.
   `dtwinuz/homebrew-tap` `autobump`: har 3 soatda yangi relizni topib, sha256 + attestation + macOS'da o'rnatish
   sinovidan keyin cask'ni yangilaydi (repolararo token yo'q). `packaging/` 0.4.0 ga yangilandi.
+  Chocolatey (Windows'da o'rnatish sinovi, `CHOCO_API_KEY`) va AUR (Arch'da `check()` bilan yig'ish, alohida SSH
+  kalit, server kaliti qotirilgan) ham `stores.yml` da; `packaging/aur` 0.4.0.
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),

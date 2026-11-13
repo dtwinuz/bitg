@@ -1,6 +1,6 @@
 pkgbase = bitg
 	pkgdesc = Uzbek input method for the new 2026 Latin alphabet
-	pkgver = 0.3.1
+	pkgver = 0.4.0
 	pkgrel = 1
 	url = https://bitg.uz
 	arch = x86_64
@@ -11,8 +11,8 @@ pkgbase = bitg
 	makedepends = fcitx5
 	makedepends = pkgconf
 	options = !lto
-	source = bitg-0.3.1.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v0.3.1.tar.gz
-	sha256sums = 304dadba6b5b871ab7ebc2246733b1cb4e4fae629a54d966b857a63a4a19a166
+	source = bitg-0.4.0.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v0.4.0.tar.gz
+	sha256sums = 7ddabac2501919996d37b7b0c0d9e1fd79d9723a413c45de1c76592db4e84b0e
 
 pkgname = bitg
 	depends = ibus
