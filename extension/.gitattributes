@@ -1,0 +1,5 @@
+# Do'kon arxivi Windows (core.autocrlf=true) va CI'da baytma-bayt bir xil bo'lishi uchun matn fayllari LF.
+* text=auto eol=lf
+*.png binary
+*.wasm binary
+*.woff2 binary

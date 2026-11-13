@@ -1,0 +1,22 @@
+{
+  "extName": {
+    "message": "bitg — new Uzbek alphabet (Ö Ğ Ş Ç)",
+    "description": "Extension name (store limit 45)"
+  },
+  "extDescription": {
+    "message": "Converts Uzbek text from old Latin and Cyrillic to the new 2026 alphabet (Ö Ğ Ş Ç): selection, whole page, typing. Offline.",
+    "description": "Short description (store limit 132)"
+  },
+  "actionTitle": {
+    "message": "bitg — convert to the new alphabet",
+    "description": "Toolbar button tooltip"
+  },
+  "cmdConvert": {
+    "message": "Convert selected text to the new alphabet",
+    "description": "Keyboard shortcut: convert selection"
+  },
+  "cmdPage": {
+    "message": "View page in the new alphabet / restore",
+    "description": "Keyboard shortcut: toggle page"
+  }
+}

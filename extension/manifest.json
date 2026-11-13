@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "short_name": "bitg",
+  "description": "__MSG_extDescription__",
+  "version": "0.1.0",
+  "default_locale": "uz",
+  "homepage_url": "https://bitg.uz",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "__MSG_actionTitle__",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage", "clipboardWrite"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "commands": {
+    "convert-selection": {
+      "suggested_key": { "default": "Alt+Shift+Y", "mac": "Alt+Shift+Y" },
+      "description": "__MSG_cmdConvert__"
+    },
+    "toggle-page": {
+      "description": "__MSG_cmdPage__"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'"
+  },
+  "minimum_chrome_version": "116"
+}

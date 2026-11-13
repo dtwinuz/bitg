@@ -1,0 +1,84 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: extension
+
+# Brauzer kengaytmasi (extension/): yadro sayt bilan bir xil buyruq bilan wasm'ga yig'iladi (deploy/deploy.sh),
+# birlik testlari (haqiqiy wasm bilan), so'ng Chrome/Edge va Firefox arxivlari. Arxivlar takrorlanuvchan:
+# ikki marta yig'ilib, baytma-bayt solishtiriladi. Natija artifact — do'konlarga shu fayllar yuklanadi.
+on:
+  push:
+    branches: [main]
+    paths: ["extension/**", "crates/bitg-core/**", "Cargo.toml", "Cargo.lock", ".github/workflows/extension.yml"]
+  pull_request:
+    paths: ["extension/**", "crates/bitg-core/**", "Cargo.toml", "Cargo.lock", ".github/workflows/extension.yml"]
+
+concurrency:
+  group: extension-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: extension-wasm
+
+      - name: Yadro (wasm)
+        run: cargo build -p bitg-core --release --target wasm32-unknown-unknown --target-dir target/site
+
+      - name: Testlar
+        shell: bash
+        run: |
+          node --version
+          node --test extension/test/*.test.cjs
+
+      - name: Arxivlar
+        shell: bash
+        run: |
+          node extension/tools/build.mjs --out "$RUNNER_TEMP/a"
+          node extension/tools/build.mjs | tee "$RUNNER_TEMP/build.txt"
+          for z in chrome firefox; do cmp "$RUNNER_TEMP/a/$z.zip" "extension/dist/$z.zip"; done
+          # do'kon arxivida manifest va wasm bor, test/tools/hujjat yo'q
+          python3 -I - <<'EOF'
+          import json, zipfile
+          for target in ("chrome", "firefox"):
+              z = zipfile.ZipFile(f"extension/dist/{target}.zip")
+              assert z.testzip() is None, target
+              names = set(z.namelist())
+              m = json.loads(z.read("manifest.json"))
+              assert m["manifest_version"] == 3 and "core/bitg_core.wasm" in names, target
+              assert not any(n.startswith(("test/", "tools/", "dist/")) or n.endswith(".md") for n in names), names
+              if target == "firefox":
+                  assert m["browser_specific_settings"]["gecko"]["id"] == "bitg@bitg.uz"
+                  assert "scripts" in m["background"] and "service_worker" not in m["background"]
+              else:
+                  assert m["background"] == {"service_worker": "background.js"}
+              print(target, m["version"], len(names), "fayl")
+          EOF
+          {
+            echo '### Brauzer kengaytmasi'
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/build.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: extension
+          path: |
+            extension/dist/chrome.zip
+            extension/dist/firefox.zip
+          if-no-files-found: error
