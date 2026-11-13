@@ -21,26 +21,12 @@ Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» sh
 - **«Yangiliklar» sahifasi** ([#80](https://github.com/dtwinuz/bitg/issues/80)): `NEWS.md` dan versiyalar lentasi,
   yangilangandan keyin bir marta ochiladi (`whats_new`, `last_seen`).
 - Qoidalar: «Ehtiyotkor / Tavsiya / Maxsus» tayyor holatlari; apostrof tiklash lug'at so'zini ham tuzatishi yozildi.
+- **Ubuntu yuqori paneli** ([#81](https://github.com/dtwinuz/bitg/pull/81), [#75](https://github.com/dtwinuz/bitg/issues/75)):
+  `bitg-indicator` (Ayatana AppIndicator) — bitg ikonkasi va menyu: yoqish/o'chirish, avtomatik o'girish, kirillni
+  o'girish (`~/.config/bitg/settings.ini` ga yoziladi, IME darhol oladi), o'chiq holat uchun alohida ikonka.
+  Ilovalar menyusida «bitg» launcher, GNOME/Unity sessiyasida avtostart. `.deb` bog'liqligi: `python3-gi`,
+  `gir1.2-gtk-3.0`, `gir1.2-ayatanaappindicator3-0.1`.
 
-### Tuzatildi
-- Havola, kod, `@user` va brend gap kontekstida inglizcha deb ovoz bermaydi: «fetch() chaqiruvi», «Shohjahon
-  McDonald's» endi o'giriladi ([#76](https://github.com/dtwinuz/bitg/issues/76)). Baholash o'zgarmadi.
-- TSF: `take_retype()` sharti soddalashtirildi ([#37](https://github.com/dtwinuz/bitg/issues/37)).
-
-### Xavfsizlik
-- **SLSA Build L3:** reliz paketlarini reusable `build.yml` yig'adi va imzolaydi. Kod kompilyatsiya qiladigan
-  job'larda imzo tokeni (`id-token`) yo'q, attestation'ni alohida `attest` job yozadi. `release.yml` relizni faqat
-  har paket uchun `gh attestation verify --signer-workflow build.yml --source-ref <teg>` o'tgandan keyin ochadi.
-  Qo'lda ishga tushirilsa (`workflow_dispatch`) reliz zanjiri relizsiz sinaladi. bitg.uz deploy'i yangi imzolovchini
-  talab qiladi (v0.3.1 uchun eskisi).
-- `SECURITY.md`: qo'llab-quvvatlash muddati aniq yozildi (faqat eng so'nggi minor versiya).
-- OpenSSF Baseline: har PR'da DCO (`Signed-off-by`) tekshiruvi (`dco.yml`); `cargo deny` endi crates.io'dan
-  tashqari manbani ham rad etadi va relizdan oldin (`release.yml`) qayta yuradi. `SECURITY.md` ga SCA/SAST tuzatish
-  muddatlari, VEX (`VEX.openvex.json`) va sirlar siyosati; `GOVERNANCE.md` ga kirish huquqi berish tartibi va loyiha
-  repolari ro'yxati; `CONTRIBUTING.md` ga bog'liqlik siyosati. `.github/security-insights.yml`, `CITATION.cff`,
-  `.zenodo.json` qo'shildi.
-
-### Qo'shildi
 - **crates.io:** `bitg-core` kutubxonasi crates.io'da (`cargo add bitg-core`; 0.3.1 v0.3.1 tegidan qo'lda chiqarildi).
   Keyingi relizlarda `release.yml` dagi `crates-io` job uni Trusted Publishing (OIDC, `crates-io` environment) bilan
   chiqaradi: repoda crates.io tokeni saqlanmaydi.
@@ -58,7 +44,28 @@ Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» sh
 - `CONTRIBUTING.md`: birinchi hissa uchun qadamma-qadam yo'riqnoma (fork, branch, `commit -s`, PR).
 - Xavfsizlik tekshiruvi 2026-11-13 (`docs/ASSURANCE.md` 8-bo'lim): 11 topilma, kritik va yuqori yo'q.
 
+### Tuzatildi
+- Havola, kod, `@user` va brend gap kontekstida inglizcha deb ovoz bermaydi: «fetch() chaqiruvi», «Shohjahon
+  McDonald's» endi o'giriladi ([#76](https://github.com/dtwinuz/bitg/issues/76)). Baholash o'zgarmadi.
+- TSF: `take_retype()` sharti soddalashtirildi ([#37](https://github.com/dtwinuz/bitg/issues/37)).
+
+- **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML
+  qism ochilganda 256 MiB dan oshsa, o'girish xato bilan to'xtaydi (xotira to'lib qolmaydi). O'girilmaydigan
+  qismlar avvalgidek ochilmasdan ko'chiriladi.
+
 ### Xavfsizlik
+- **SLSA Build L3:** reliz paketlarini reusable `build.yml` yig'adi va imzolaydi. Kod kompilyatsiya qiladigan
+  job'larda imzo tokeni (`id-token`) yo'q, attestation'ni alohida `attest` job yozadi. `release.yml` relizni faqat
+  har paket uchun `gh attestation verify --signer-workflow build.yml --source-ref <teg>` o'tgandan keyin ochadi.
+  Qo'lda ishga tushirilsa (`workflow_dispatch`) reliz zanjiri relizsiz sinaladi. bitg.uz deploy'i yangi imzolovchini
+  talab qiladi (v0.3.1 uchun eskisi).
+- `SECURITY.md`: qo'llab-quvvatlash muddati aniq yozildi (faqat eng so'nggi minor versiya).
+- OpenSSF Baseline: har PR'da DCO (`Signed-off-by`) tekshiruvi (`dco.yml`); `cargo deny` endi crates.io'dan
+  tashqari manbani ham rad etadi va relizdan oldin (`release.yml`) qayta yuradi. `SECURITY.md` ga SCA/SAST tuzatish
+  muddatlari, VEX (`VEX.openvex.json`) va sirlar siyosati; `GOVERNANCE.md` ga kirish huquqi berish tartibi va loyiha
+  repolari ro'yxati; `CONTRIBUTING.md` ga bog'liqlik siyosati. `.github/security-insights.yml`, `CITATION.cff`,
+  `.zenodo.json` qo'shildi.
+
 - Reliz job'i: token `.git/config`da qolmaydi, imzo kaliti faqat kompilyatsiya qilmaydigan qadamda, teg nomi
   skriptga `env` orqali beriladi.
 - `input.dll` faqat System32 dan yuklanadi; zaxira yo'lda so'z buferi 40 belgidan oshmaydi.
@@ -70,11 +77,6 @@ Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» sh
 - Windows: sozlamalar va log papkasi `SHGetKnownFolderPath` dan olinadi, bitg yuklangan ilovaning muhitidagi `%APPDATA%` dan emas ([#45](https://github.com/dtwinuz/bitg/issues/45)).
 - IBus va Fcitx5: kursor oldidagi matn faqat kerak bo'lganda va oxirgi 128 belgi olinadi (macOS kabi) ([#46](https://github.com/dtwinuz/bitg/issues/46)).
 - CI: `cargo deny check advisories` (RustSec), Python paketlari xesh bilan qotirilgan ([#47](https://github.com/dtwinuz/bitg/issues/47)).
-
-### Tuzatildi
-- **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML
-  qism ochilganda 256 MiB dan oshsa, o'girish xato bilan to'xtaydi (xotira to'lib qolmaydi). O'girilmaydigan
-  qismlar avvalgidek ochilmasdan ko'chiriladi.
 
 ## [0.3.1] — 2026-11-13
 
