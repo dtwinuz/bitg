@@ -54,6 +54,8 @@ The project must be able to continue if any one person disappears.
 | apt repository signing key | encrypted offline backup | lead maintainer; handover to @leverow is pending |
 | `bitg.uz` web server and DNS | server configuration in `deploy/` (Caddy, deploy scripts) | lead maintainer; handover to @leverow is pending |
 
+Step-by-step handover guide (review, merge, release, packages, website): [docs/MAINTAINING.md](docs/MAINTAINING.md).
+
 Anything marked "pending" is a known gap: until it is closed, a new apt key or server can be set up from `deploy/`
 and the documented scripts, at the cost of users re-importing the apt key.
 
