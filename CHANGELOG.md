@@ -15,7 +15,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
-  Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65)).
+  Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65), [#70](https://github.com/dtwinuz/bitg/pull/70) — @Abdulazim1771).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
   standartni o'zgartirmaydi ([#84](https://github.com/dtwinuz/bitg/issues/84)).
 - `.deb`: indikatorning GTK/Python bog'liqliklari `Depends` dan `Recommends` ga — IBus dvigateli va CLI ularsiz ham
