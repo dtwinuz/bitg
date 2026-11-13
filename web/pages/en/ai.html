@@ -1,0 +1,44 @@
+---json
+{
+ "slug": "/en/ai/",
+ "lang": "en",
+ "alt": "ai",
+ "title": "bitg MCP: new Uzbek alphabet in Claude and ChatGPT · bitg",
+ "description": "Let your AI assistant write Uzbek correctly in the new 2026 alphabet (ö ğ ş ç): connect the free bitg MCP server at bitg.uz/mcp. No sign-in, text is not stored.",
+ "h1": "Write in the new Uzbek alphabet with Claude, ChatGPT and Gemini",
+ "crumb": "AI assistants",
+ "card": "Connect bitg to your AI assistant: exact, rule-based conversion.",
+ "lead": "AI assistants usually guess the new Uzbek alphabet: they replace every “sh” and “ch”, break English words and names, and miss apostrophe variants. The <b>free bitg MCP server</b> — <code data-no-conv>https://bitg.uz/mcp</code> — lets the assistant convert text with the bitg engine instead. No sign-in, no API key.",
+ "updated": "2026-11-14",
+ "published": "2026-11-14",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/en/privacy/", "/en/", "/konvertor/"]
+}
+---
+      <h2>What it does</h2>
+      <p>The server exposes one read-only tool, <code data-no-conv>convert_text</code>. It converts Uzbek text from the old Latin alphabet (o‘ g‘ sh ch, any apostrophe) or Cyrillic to the new Uzbek Latin alphabet adopted in 2026 (Ö Ğ Ş Ç), and back to old Latin or Cyrillic. It is the same deterministic engine as the bitg.uz converter and the bitg keyboard, with dictionaries for English words, names and exceptions.</p>
+
+      <h2 data-faq>How do I connect it to Claude?</h2>
+      <p>In Claude.ai or Claude Desktop: <b>Customize → Connectors → Add → Custom connector</b>, URL <code data-no-conv>https://bitg.uz/mcp</code>, authentication “No sign-in”. In Claude Code:</p>
+      <pre data-no-conv><code>/plugin install bitg --marketplace dtwinuz/bitg</code></pre>
+      <p>The plugin also installs a “new alphabet” skill, so Claude uses bitg on its own when it writes Uzbek.</p>
+
+      <h2 data-faq>Does it work in ChatGPT?</h2>
+      <p>Yes. In ChatGPT settings, enable developer mode under <b>Apps</b> and add a new app with the URL <code data-no-conv>https://bitg.uz/mcp</code>.</p>
+
+      <h2 data-faq>What about Gemini and other clients?</h2>
+      <p>Gemini CLI: <code data-no-conv>gemini extensions install https://github.com/dtwinuz/bitg</code>. In VS Code, Cursor and any other client that supports remote MCP, add an HTTP server with the same URL. The server is listed in the official MCP Registry as <code data-no-conv>uz.bitg/bitg</code>.</p>
+
+      <h2 data-faq>Is my text stored?</h2>
+      <p>No. Text is converted in memory and returned; it is never written to disk or logged. The server keeps the caller’s IP address in memory for one minute only to enforce a rate limit of 120 requests per minute. See the <a href="/en/privacy/">privacy policy</a>. For confidential documents, use the offline <a href="/yuklab-olish/">bitg app</a> or the in-browser <a href="/konvertor/">converter</a>.</p>
+
+      <h2>Examples</h2>
+      <div class="dc-table"><table>
+        <tr><th>Prompt</th><th>Result</th></tr>
+        <tr><td>Write “O‘zbekiston shaharlari” in the new alphabet</td><td>Özbekiston şaharlari</td></tr>
+        <tr><td>Convert “Чой ичамиз” to the new Latin alphabet</td><td>Çoy içamiz</td></tr>
+        <tr><td>Convert “Özbekiston” to Cyrillic</td><td>Ўзбекистон</td></tr>
+      </table></div>
+
+      <h2>For developers</h2>
+      <p>Transport: Streamable HTTP (<code data-no-conv>POST /mcp</code>, JSON responses), stateless, no authentication. Protocol revisions 2026-07-28 (<code data-no-conv>server/discover</code>) and 2025-11-25 down to 2024-11-05 (<code data-no-conv>initialize</code>). Tool annotations: read-only, idempotent. Inputs: <code data-no-conv>text</code> (up to 20,000 characters), <code data-no-conv>direction</code> (<code data-no-conv>to_new</code>, <code data-no-conv>to_old</code>, <code data-no-conv>to_cyrillic</code>), <code data-no-conv>old_style</code> (<code data-no-conv>official</code>, <code data-no-conv>ascii</code>). Source: <a href="https://github.com/dtwinuz/bitg/blob/main/bot/src/mcp.rs">bot/src/mcp.rs</a>. Support: <span data-no-conv>tech@bitg.uz</span> or <a href="https://github.com/dtwinuz/bitg/issues">GitHub issues</a>.</p>
