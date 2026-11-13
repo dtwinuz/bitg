@@ -26,6 +26,9 @@ Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» sh
   o'girish (`~/.config/bitg/settings.ini` ga yoziladi, IME darhol oladi), o'chiq holat uchun alohida ikonka.
   Ilovalar menyusida «bitg» launcher, GNOME/Unity sessiyasida avtostart. `.deb` bog'liqligi: `python3-gi`,
   `gir1.2-gtk-3.0`, `gir1.2-ayatanaappindicator3-0.1`.
+- **Xorijiy ismlar ro'yxati kengaydi** ([#71](https://github.com/dtwinuz/bitg/pull/71)): `foreign_names.txt` 1 394 dan
+  3 419 nomga (AQSh aholi ro'yxati familiyalari va NameDatabases, o'zbek kirill korpusida uchramaydiganlari;
+  `tools/foreign_names_extra.txt`). `Chesney`, `Sanchez` kabi nomlar o'girilmaydi.
 
 - **crates.io:** `bitg-core` kutubxonasi crates.io'da (`cargo add bitg-core`; 0.3.1 v0.3.1 tegidan qo'lda chiqarildi).
   Keyingi relizlarda `release.yml` dagi `crates-io` job uni Trusted Publishing (OIDC, `crates-io` environment) bilan

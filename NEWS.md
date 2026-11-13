@@ -19,6 +19,7 @@ Bu fayldan ilovadagi «Yangiliklar» sahifasi va yangilanish oynasidagi qaydlar 
 - **Aqlli tuzatishni boshqarish.** «Tushib qolgan apostrofni tiklash» lug'at bo'yicha xato yozilgan so'zni ham tuzatadi (Qirgiziston → Qirğiziston). Endi tavsifda aniq yozilgan: yozganingiz aynan qolsin desangiz — o'chiring yoki so'zni lug'atga qo'shing.
 
 ### Tuzatildi
+- **Ko'proq xorijiy ism.** 2 000 dan ortiq yangi xorijiy ism va familiya (Chesney kabi) yozilganidek qoladi, bitg ularni o'zbekcha deb o'girmaydi.
 - **Kod yoki brend yonidagi so'z.** «fetch() chaqiruvi», «Shohjahon McDonald's» kabi qisqa gapda o'zbekcha so'z inglizcha deb qolib ketardi — endi o'giriladi.
 
 ## 0.3.1 — 2026-11-13
