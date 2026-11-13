@@ -3,6 +3,7 @@
 # (Shakira → Şakira, Pushkin → Puşkin). Umumiy inglizcha so'zlar (chrome, shell, chat) lug'atdan aniqlanadi.
 # Kichik harfda, qatorda bitta nom. Manba: qo'lda tuzilgan.
 # dasturlar va xizmatlar
+semrush
 chrome
 chromebook
 chromium
@@ -48,6 +49,10 @@ pushwoosh
 onesignal
 fetch
 # texnika
+logitech
+keychron
+vtech
+karcher
 huawei
 hisense
 chuwi
@@ -61,6 +66,9 @@ sharp
 shimano
 casio
 # avto
+maybach
+shineray
+bianchi
 porsche
 chevrolet
 chery
@@ -72,11 +80,20 @@ mitsubishi
 peugeot
 skoda
 # kiyim, go'zallik
+skechers
+oysho
+sheglam
+rochas
+chaumet
+vacheron
 chanel
 hermes
 lush
 nike
 # oziq-ovqat va restoranlar
+hochland
+rocher
+auchan
 schweppes
 chupa
 chups
