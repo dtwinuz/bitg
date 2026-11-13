@@ -12,6 +12,31 @@ Rahmat! bitg — ochiq loyiha, xato haqida xabar, lug'atga so'z yoki kod bilan y
 
 Noto'g'ri o'girilgan so'zni `bitg explain "<so'z>"` bilan tekshirsangiz, natijani ham qo'shing.
 
+## Birinchi hissa (qadamma-qadam)
+
+Boshlash uchun [`good first issue`](https://github.com/dtwinuz/bitg/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+belgili vazifalardan birini tanlang va issue'da "olaman" deb yozing, ikki kishi bir ishni qilmasin.
+
+1. GitHub'da **Fork** tugmasini bosing, so'ng o'z nusxangizni yuklab oling:
+   ```bash
+   git clone https://github.com/<sizning-login>/bitg.git
+   cd bitg
+   git switch -c tuzatish-nomi
+   ```
+2. O'zgartiring va tekshiring: `cargo test --workspace --locked`, `cargo fmt --all`
+   (faqat hujjat o'zgarsa, bu shart emas).
+3. Commit qiling, oxirida `-s` bo'lsin (pastdagi DCO bo'limi):
+   ```bash
+   git commit -s -m "core: xorijiy ismlar uchun testlar"
+   git push -u origin tuzatish-nomi
+   ```
+4. GitHub o'zi **Compare & pull request** tugmasini ko'rsatadi. PR tavsifida qaysi issue ekanini yozing
+   (masalan `Closes #50`).
+5. CI tekshiruvlari ishlaydi, maintainer ko'rib chiqadi va kerak bo'lsa izoh qoldiradi. Tuzatishlarni o'sha
+   branch'ga yana `push` qilsangiz, PR o'zi yangilanadi.
+
+Savol bo'lsa, issue'ning o'zida so'rang, javob beramiz.
+
 ## Kod
 
 Talablar: Rust (stable, `rust-version` — `Cargo.toml` da). Windows qismi uchun MSVC, Linux qismi uchun
