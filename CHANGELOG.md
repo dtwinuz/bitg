@@ -12,21 +12,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   `exceptions.txt` formatidagi istisnolar va lug'at qatorlari.
 - README: «Windows'da muammo bo'lsa» bo'limi ([#51](https://github.com/dtwinuz/bitg/issues/51)).
 - C ABI uchun tashqi integratsion test `crates/bitg-core/tests/ffi.rs` ([#38](https://github.com/dtwinuz/bitg/issues/38)).
-<<<<<<< HEAD
 - **winget va Homebrew avtomatik yangilanadi.** `stores.yml` (release.yml chaqiradi): Komac (versiya va SHA-256
   qotirilgan) MSI attestation'i tekshirilgach winget-pkgs'ga PR ochadi; token faqat `winget` environment'ida.
   `dtwinuz/homebrew-tap` `autobump`: har 3 soatda yangi relizni topib, sha256 + attestation + macOS'da o'rnatish
   sinovidan keyin cask'ni yangilaydi (repolararo token yo'q). `packaging/` 0.4.0 ga yangilandi.
   Chocolatey (Windows'da o'rnatish sinovi, `CHOCO_API_KEY`) va AUR (Arch'da `check()` bilan yig'ish, alohida SSH
   kalit, server kaliti qotirilgan) ham `stores.yml` da; `packaging/aur` 0.4.0.
-=======
 - **Ubuntu sinov matritsasi** ([#75](https://github.com/dtwinuz/bitg/issues/75)): CI'da 22.04 da yig'ilgan paket
   24.04 da ham o'rnatilib, IBus e2e va panel belgisi sinovidan o'tadi. Yangi e2e: lotin va kirill kirish bir xil
   natija beradi (matnli va preedit dasturda), panel belgisi yozgan sozlama va istisno IME'ga jonli yetadi, BOM'li
   `settings.ini` ikkalasida bir xil o'qiladi; panel belgisi Xvfb ostida ishga tushadi va ikkinchi nusxa ochilmaydi.
   README: «Ubuntu'da muammo bo'lsa» va sinov matritsasi.
 - `.deb`: `/etc/xdg/autostart/bitg.desktop` conffile — foydalanuvchi o'zgarishi yangilashda saqlanadi, `purge` da o'chadi.
->>>>>>> 6282796 (docs: Ubuntu troubleshooting and test matrix; changelog for #41, #75)
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
