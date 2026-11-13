@@ -481,3 +481,13 @@ fn ambiguous_words_carry_an_alternative() {
     let (_, words) = bitg_core::convert_words("O'zbekistonda oz qoldi", &Options::default());
     assert!(words.iter().all(|w| w.alt.is_none()));
 }
+
+#[test]
+fn car_and_food_brands_are_kept() {
+    // brendlar (data/names.txt): asl yozuvida qoladi, yonidagi so'z o'giriladi
+    assert_eq!(
+        c("Chirey va Changhe mashinalari"),
+        "Chirey va Changhe maşinalari"
+    );
+    assert_eq!(c("Tchibo qahvasini ichdim"), "Tchibo qahvasini içdim");
+}

@@ -111,6 +111,8 @@ shacman
 mitsubishi
 peugeot
 skoda
+chirey
+changhe
 # kiyim, go'zallik
 skechers
 oysho
@@ -145,6 +147,7 @@ snickers
 starbucks
 shakeshack
 mcdonalds
+tchibo
 # yoqilg'i, bank, to'lov
 shinhan
 shell
