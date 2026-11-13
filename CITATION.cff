@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use bitg in research or a publication, please cite it as below."
+title: "bitg: input method and converter for the 2026 Uzbek Latin alphabet"
+type: software
+authors:
+  - name: "dtwinuz and bitg contributors"
+    website: "https://github.com/dtwinuz/bitg/graphs/contributors"
+repository-code: "https://github.com/dtwinuz/bitg"
+url: "https://bitg.uz"
+abstract: >-
+  bitg converts Uzbek text to the 2026 Latin alphabet (ö, ğ, ş, ç, ʼ) while you type. It ships input methods for
+  Windows (TSF), Linux (IBus, Fcitx5) and macOS (InputMethodKit), a command-line converter for text and documents,
+  and restores missing apostrophes from a frequency lexicon while keeping English words and brand names unchanged.
+keywords:
+  - Uzbek
+  - Latin alphabet
+  - input method
+  - transliteration
+  - keyboard
+license:
+  - MIT
+  - Apache-2.0
+version: "0.3.1"
+date-released: "2026-11-12"

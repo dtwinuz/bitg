@@ -82,9 +82,24 @@ jobs:
               --predicate-type https://spdx.dev/Document/v2.3
           done
 
+  advisories:
+    # SCA relizdan oldin (SECURITY.md): teg vaqtidagi RustSec bazasi bilan qayta tekshiriladi; zaif, qarovsiz
+    # yoki ruxsatsiz bog'liqlik bo'lsa reliz yaratilmaydi (istisnolar faqat deny.toml + VEX.openvex.json orqali).
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+        with:
+          tool: cargo-deny@0.20.2
+      - run: cargo deny --color never check advisories licenses sources
+
   publish:
     if: github.event_name == 'push'
-    needs: verify
+    needs: [verify, advisories]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

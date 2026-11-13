@@ -11,6 +11,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   Qo'lda ishga tushirilsa (`workflow_dispatch`) reliz zanjiri relizsiz sinaladi. bitg.uz deploy'i yangi imzolovchini
   talab qiladi (v0.3.1 uchun eskisi).
 - `SECURITY.md`: qo'llab-quvvatlash muddati aniq yozildi (faqat eng so'nggi minor versiya).
+- OpenSSF Baseline: har PR'da DCO (`Signed-off-by`) tekshiruvi (`dco.yml`); `cargo deny` endi crates.io'dan
+  tashqari manbani ham rad etadi va relizdan oldin (`release.yml`) qayta yuradi. `SECURITY.md` ga SCA/SAST tuzatish
+  muddatlari, VEX (`VEX.openvex.json`) va sirlar siyosati; `GOVERNANCE.md` ga kirish huquqi berish tartibi va loyiha
+  repolari ro'yxati; `CONTRIBUTING.md` ga bog'liqlik siyosati. `.github/security-insights.yml`, `CITATION.cff`,
+  `.zenodo.json` qo'shildi.
 
 ### Qo'shildi
 - **Chocolatey paketi** (`packaging/chocolatey`, `tools/release/packaging.py` yaratadi): `choco install bitg`. MSI GitHub

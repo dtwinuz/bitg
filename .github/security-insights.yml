@@ -1,0 +1,137 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# OpenSSF Security Insights v2 (https://github.com/ossf/security-insights). Loyiha va repo haqidagi xavfsizlik
+# ma'lumotining mashina o'qiydigan nusxasi; manba hujjatlar: SECURITY.md, GOVERNANCE.md, CONTRIBUTING.md.
+header:
+  schema-version: 2.2.0
+  last-updated: '2026-11-13'
+  last-reviewed: '2026-11-13'
+  url: https://raw.githubusercontent.com/dtwinuz/bitg/main/.github/security-insights.yml
+
+project:
+  name: bitg
+  homepage: https://bitg.uz
+  roadmap: https://github.com/dtwinuz/bitg/blob/main/ROADMAP.md
+  steward:
+    uri: https://github.com/dtwinuz
+    comment: The dtwinuz GitHub organization hosts the repositories; maintainers are listed in GOVERNANCE.md.
+  administrators:
+    - name: XakimovNosirbek
+      social: https://github.com/XakimovNosirbek
+      primary: true
+    - name: leverow
+      social: https://github.com/leverow
+      primary: false
+  documentation:
+    quickstart-guide: https://github.com/dtwinuz/bitg#readme
+    detailed-guide: https://github.com/dtwinuz/bitg/blob/main/README.md
+    code-of-conduct: https://github.com/dtwinuz/bitg/blob/main/CODE_OF_CONDUCT.md
+    release-process: https://github.com/dtwinuz/bitg/blob/main/docs/MAINTAINING.md
+    support-policy: https://github.com/dtwinuz/bitg/blob/main/SECURITY.md
+    signature-verification: https://github.com/dtwinuz/bitg/blob/main/SECURITY.md
+  repositories:
+    - name: bitg
+      url: https://github.com/dtwinuz/bitg
+      comment: Core, input methods, CLI, website and package manifests; everything that is released.
+    - name: homebrew-tap
+      url: https://github.com/dtwinuz/homebrew-tap
+      comment: Homebrew cask for the released macOS package.
+  vulnerability-reporting:
+    reports-accepted: true
+    bug-bounty-available: false
+    policy: https://github.com/dtwinuz/bitg/blob/main/SECURITY.md
+    contact:
+      name: bitg maintainers (GitHub private vulnerability reporting)
+      social: https://github.com/dtwinuz/bitg/security/advisories/new
+      primary: true
+    comment: Report privately through GitHub; acknowledgement within 7 days.
+
+repository:
+  url: https://github.com/dtwinuz/bitg
+  status: active
+  bug-fixes-only: false
+  accepts-change-request: true
+  accepts-automated-change-request: true
+  no-third-party-packages: false
+  core-team:
+    - name: XakimovNosirbek
+      social: https://github.com/XakimovNosirbek
+      primary: true
+    - name: leverow
+      social: https://github.com/leverow
+      primary: false
+    - name: wonmors
+      social: https://github.com/wonmors
+      primary: false
+  documentation:
+    contributing-guide: https://github.com/dtwinuz/bitg/blob/main/CONTRIBUTING.md
+    review-policy: https://github.com/dtwinuz/bitg/blob/main/GOVERNANCE.md
+    security-policy: https://github.com/dtwinuz/bitg/blob/main/SECURITY.md
+    governance: https://github.com/dtwinuz/bitg/blob/main/GOVERNANCE.md
+    dependency-management-policy: https://github.com/dtwinuz/bitg/blob/main/CONTRIBUTING.md
+  license:
+    url: https://github.com/dtwinuz/bitg/blob/main/LICENSE-MIT
+    expression: MIT OR Apache-2.0
+  release:
+    changelog: https://github.com/dtwinuz/bitg/blob/main/CHANGELOG.md
+    automated-pipeline: true
+    attestations:
+      - name: SLSA build provenance
+        predicate-uri: https://slsa.dev/provenance/v1
+        location: https://github.com/dtwinuz/bitg/attestations
+        comment: Signed by .github/workflows/build.yml; verify with gh attestation verify (SECURITY.md).
+      - name: SBOM
+        predicate-uri: https://spdx.dev/Document/v2.3
+        location: https://github.com/dtwinuz/bitg/attestations
+        comment: SPDX SBOM attested for every release asset and attached to the release.
+      - name: VEX
+        predicate-uri: https://openvex.dev/ns/v0.2.0
+        location: https://github.com/dtwinuz/bitg/blob/main/VEX.openvex.json
+        comment: Dependency advisories that do not affect released artifacts.
+    distribution-points:
+      - uri: https://github.com/dtwinuz/bitg/releases
+        comment: GitHub Releases (MSI, .deb, .pkg, SBOM, attestation bundles)
+      - uri: https://bitg.uz
+        comment: Website downloads, copied from the GitHub Release after attestation check
+    license:
+      url: https://github.com/dtwinuz/bitg/blob/main/LICENSE-APACHE
+      expression: MIT OR Apache-2.0
+  security:
+    assessments:
+      self:
+        comment: Security assurance case with threat model, trust boundaries and known gaps.
+        evidence: https://github.com/dtwinuz/bitg/blob/main/docs/ASSURANCE.md
+        date: '2026-11-13'
+    champions:
+      - name: XakimovNosirbek
+        social: https://github.com/XakimovNosirbek
+        primary: true
+    tools:
+      - name: CodeQL
+        type: SAST
+        rulesets: [default]
+        integration: {adhoc: false, ci: true, release: false}
+        results: {}
+      - name: cargo-deny
+        type: SCA
+        version: 0.20.2
+        rulesets: [advisories, licenses, sources]
+        integration: {adhoc: false, ci: true, release: true}
+        results: {}
+      - name: Dependabot
+        type: SCA
+        rulesets: [default]
+        integration: {adhoc: true, ci: false, release: false}
+        results: {}
+      - name: cargo-fuzz (libFuzzer)
+        type: fuzzing
+        rulesets: [default]
+        integration: {adhoc: true, ci: true, release: false}
+        results: {}
+      - name: GitHub secret scanning with push protection
+        type: secret
+        rulesets: [default]
+        integration: {adhoc: false, ci: true, release: false}
+        results: {}
