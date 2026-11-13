@@ -67,8 +67,12 @@ Description: Uzbek input method for the new 2026 Latin alphabet
  bitg converts Uzbek text to the new Latin alphabet (o' g' sh ch to
  the new letters) as you type, in any IBus application. English words,
  links and code are left alone; Backspace right after a replacement
- restores the original word. Works offline. Includes the bitg CLI.
+ restores the original word. Works offline. Includes the bitg CLI and a
+ top-panel indicator for GNOME/Unity (on/off, exceptions editor).
 EOF
+# /etc ostidagi fayl: foydalanuvchi o'zgartirsa yangilashda saqlanadi, `purge` da o'chadi
+printf '/etc/xdg/autostart/bitg.desktop\n' > "$PKG/DEBIAN/conffiles"
+chmod 644 "$PKG/DEBIAN/conffiles"
 cat > "$PKG/DEBIAN/postinst" <<'EOF'
 #!/bin/sh
 set -e

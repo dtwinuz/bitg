@@ -80,10 +80,9 @@ def save_setting(key, enabled):
             lines[i] = "" if found else new_line
             found = True
     if not found:
-        if lines and not lines[-1].endswith("\n"):
-            lines[-1] += "\n"
         lines.append(new_line)
-    write_atomic(SETTINGS, "".join(lines))
+    text = "".join(line if line.endswith("\n") or not line else line + "\n" for line in lines)
+    write_atomic(SETTINGS, text)
 
 
 def error(text):
