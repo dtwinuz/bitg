@@ -227,6 +227,35 @@ fn already_converted_text_is_stable() {
 }
 
 #[test]
+fn brands_from_names_txt_are_kept() {
+    // brendlar (data/names.txt): asl yozuvida qoladi, yonidagi so'z o'giriladi
+    assert_eq!(
+        c("Logitechdan sichqoncha, Keychron klaviaturasini oldim"),
+        "Logitechdan siçqonça, Keychron klaviaturasini oldim"
+    );
+    assert_eq!(
+        c("Skechers krossovkasi va Sheglam kosmetikasi"),
+        "Skechers krossovkasi va Sheglam kosmetikasi"
+    );
+    assert_eq!(
+        c("Maybach va Shineray mashinalari"),
+        "Maybach va Shineray maşinalari"
+    );
+    assert_eq!(
+        c("Hochland pishlog'i, Auchanda chegirma"),
+        "Hochland pişloği, Auchanda çegirma"
+    );
+    assert_eq!(
+        c("Fintech va Edtech startaplari uchun grant"),
+        "Fintech va Edtech startaplari uçun grant"
+    );
+    assert_eq!(
+        c("Shivaki konditsioneri, Changhong televizori"),
+        "Shivaki konditsioneri, Changhong televizori"
+    );
+}
+
+#[test]
 fn exceptions() {
     let o = Options {
         exceptions: vec!["shohjahon".into()],
