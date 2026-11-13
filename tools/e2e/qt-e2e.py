@@ -250,19 +250,25 @@ def main():
         # Tartib harfi so'z kuzatuviga kiradi (Qt belgini bermaydi — navbat bo'yicha): sh keyin o'giriladi
         clear, lambda: type_keys("q[shimcha "), w, w, w, lambda: check("keymap: mapped letter tracked", "qöşimça "),
         lambda: settings(), w, w, w, w, lambda: type_keys("a "), w,
-        # 8) #41: parol maydoni — so'zlar qayta yozilmaydi
-        echo(QLineEdit.EchoMode.Password), focus_pw, w, w,
-        lambda: type_keys("choy shahar "), w, w, w, lambda: check_pw("password field untouched", "choy shahar "),
-        # 9) #41: "parolni ko'rsatish" (ko'z tugmasi) — maydon ko'rinadi, lekin ichida parol: shu fokusda
-        #    maxfiylik saqlanadi, so'z qayta yozilmaydi
-        echo(QLineEdit.EchoMode.Normal), lambda: pw.clear(), w,
-        lambda: type_keys("choy "), w, w, w, lambda: check_pw("show password: still untouched", "choy "),
-        # 10) #41: oddiy maydon fokusni o'zgartirmasdan parolga aylanadi — keyingi so'z qayta yozilmaydi
-        focus_fresh, w, w,
-        lambda: type_keys("choy "), w, w, w, lambda: check_fresh("plain line edit converts", "çoy "),
-        lambda: fresh.setEchoMode(QLineEdit.EchoMode.Password), w,
-        lambda: type_keys("shahar "), w, w, w,
-        lambda: check_fresh("field turned password: next word untouched", "çoy shahar "),
+        # Yangi yuqori oyna fokus olganda Windows profilni almashtirishi mumkin (tsf.log: "deactivate"):
+        # har oynada bitg qayta faollashtiriladi va avval oddiy so'z o'girilishi tekshiriladi — aks holda
+        # "untouched" tekshiruvlari bitg ishlamay turib ham o'tib ketadi.
+        # 8) #41: oddiy maydon fokusni o'zgartirmasdan parolga aylanadi — keyingi so'z qayta yozilmaydi
+        echo(QLineEdit.EchoMode.Normal), focus_pw,
+        lambda: log.append(f"ActivateProfile pw hr={activate_bitg():#x}"), focus_pw, w, w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_pw("line edit converts (bitg active)", "çoy "),
+        echo(QLineEdit.EchoMode.Password), w,
+        lambda: type_keys("shoshma "), w, w, w,
+        lambda: check_pw("field turned password: next word untouched", "çoy shoshma "),
+        # 9) #41: parol maydoni — so'zlar qayta yozilmaydi (shu oynada oldin nazorat so'zi o'girilgan)
+        focus_fresh, lambda: log.append(f"ActivateProfile line hr={activate_bitg():#x}"), focus_fresh, w, w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_fresh("second line edit converts (bitg active)", "çoy "),
+        lambda: fresh.clear(), lambda: fresh.setEchoMode(QLineEdit.EchoMode.Password), focus, w, focus_fresh, w, w,
+        lambda: type_keys("choy shoshma "), w, w, w, lambda: check_fresh("password field untouched", "choy shoshma "),
+        # Nazorat: xuddi shu fokus almashinuvidan keyin oddiy maydonda bitg hali ishlaydi
+        lambda: fresh.setEchoMode(QLineEdit.EchoMode.Normal), focus, w, focus_fresh, w, w,
+        lambda: type_keys("choy "), w, w, w,
+        lambda: check_fresh("after refocus plain field converts (bitg still active)", "choy shoshma çoy "),
     ]
 
     state = {"k": 0}

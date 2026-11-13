@@ -943,8 +943,6 @@ impl TextService_Impl {
             let st = self.state.borrow();
             (st.blind, st.sensitive, st.tid)
         };
-        // Maxfiy deb topilgan maydon shu fokus davomida maxfiy qoladi: "parolni ko'rsatish" maydonni oddiy
-        // qiladi, lekin ichidagi matn baribir parol (qt-e2e: "show password: still untouched").
         if !blind || known == Some(true) {
             return;
         }
