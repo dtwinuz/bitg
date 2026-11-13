@@ -8,7 +8,7 @@
 # Yangi versiya: pkgver, sha256sums, keyin `makepkg --printsrcinfo > .SRCINFO` (packaging/aur/README.md).
 pkgbase=bitg
 pkgname=(bitg fcitx5-bitg)
-pkgver=0.3.1
+pkgver=0.4.0
 pkgrel=1
 pkgdesc='Uzbek input method for the new 2026 Latin alphabet'
 arch=(x86_64 aarch64)
@@ -18,7 +18,7 @@ makedepends=(cargo ibus fcitx5 pkgconf)
 # Rust staticlib (libbitg_ime.a, o'zi LTO bilan) C/C++ qobiqqa bog'lanadi: makepkg'ning -flto'si bilan aralashtirmaymiz
 options=(!lto)
 source=("$pkgbase-$pkgver.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('304dadba6b5b871ab7ebc2246733b1cb4e4fae629a54d966b857a63a4a19a166')
+sha256sums=('46d315b2ff667789917d167d85e896145c25e7dd2c50ca4a947df96f4adaeda3')
 
 prepare() {
   cd "$pkgbase-$pkgver"
