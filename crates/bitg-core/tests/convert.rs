@@ -229,9 +229,9 @@ fn english_name_with_uzbek_suffix_is_kept() {
     assert_eq!(c("Shellga yozdim"), "Shellga yozdim");
     assert_eq!(c("Toshkentda boshda"), "Toşkentda boşda");
     // brendlar (data/names.txt): asl yozuvida qoladi, yonidagi söz ögiriladi
-    assert_eq!(c("Sheindan köylak oldim"), "Şeindan köylak oldim");
-    assert_eq!(c("Bershkada çegirma bor"), "Berşkada çegirma bor");
-    assert_eq!(c("Shiseido kremi qimmat"), "Şiseido kremi qimmat");
+    assert_eq!(c("Sheindan ko'ylak oldim"), "Sheindan köylak oldim");
+    assert_eq!(c("Bershkada chegirma bor"), "Bershkada çegirma bor");
+    assert_eq!(c("Shiseido kremi qimmat"), "Shiseido kremi qimmat");
 }
 
 #[test]
@@ -480,4 +480,14 @@ fn ambiguous_words_carry_an_alternative() {
     // muallif apostrof qo'yadi — muqobil ko'rsatilmaydi
     let (_, words) = bitg_core::convert_words("O'zbekistonda oz qoldi", &Options::default());
     assert!(words.iter().all(|w| w.alt.is_none()));
+}
+
+#[test]
+fn car_and_food_brands_are_kept() {
+    // brendlar (data/names.txt): asl yozuvida qoladi, yonidagi so'z o'giriladi
+    assert_eq!(
+        c("Chirey va Changhe mashinalari"),
+        "Chirey va Changhe maşinalari"
+    );
+    assert_eq!(c("Tchibo qahvasini ichdim"), "Tchibo qahvasini içdim");
 }

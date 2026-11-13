@@ -44,9 +44,9 @@ use windows::Win32::UI::TextServices::{
     ITfSource, ITfTextEditSink, ITfTextEditSink_Impl, ITfTextInputProcessor,
     ITfTextInputProcessor_Impl, ITfTextInputProcessorEx, ITfTextInputProcessorEx_Impl,
     ITfThreadMgr, ITfThreadMgrEventSink, ITfThreadMgrEventSink_Impl, TF_AE_END, TF_ANCHOR_END,
-    TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS, TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READWRITE,
-    TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT, TF_MOD_SHIFT, TF_PRESERVEDKEY, TF_SELECTION,
-    TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
+    TF_DEFAULT_SELECTION, TF_E_SYNCHRONOUS, TF_ES_ASYNC, TF_ES_ASYNCDONTCARE, TF_ES_READ,
+    TF_ES_READWRITE, TF_ES_SYNC, TF_IAS_QUERYONLY, TF_MOD_RALT, TF_MOD_SHIFT, TF_PRESERVEDKEY,
+    TF_SELECTION, TF_SELECTIONSTYLE, TF_SS_TRANSITORY, TS_S_ASYNC,
 };
 use windows::Win32::UI::WindowsAndMessaging::GetMessageExtraInfo;
 use windows_core::{BOOL, GUID, IUnknown, IUnknownImpl, Interface, Ref, Result, implement};
@@ -542,6 +542,8 @@ impl TextService_Impl {
         st.last.clear();
         st.session.reset();
         st.undo = None;
+        // zaxira yo'l uchun yig'ilgan harflar ham tashlanadi (#41)
+        st.typed.lost("sensitive field");
         Ok(())
     }
 
@@ -706,6 +708,12 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
                     || self.undo_ready(vk))
             {
                 return Ok(true);
+            }
+            if vk == VK_SPACE.0
+                && !own_key()
+                && let Ok(ctx) = pic.ok()
+            {
+                self.recheck_scope(ctx);
             }
             self.observe_key(vk, l, None);
             Ok(false)
@@ -925,6 +933,45 @@ impl TextService_Impl {
 
     fn remember_exception(&self, original: &str) {
         remember_exception(&self.state, original);
+    }
+
+    /// Zaxira yo'l (#41): matn bermaydigan dastur edit hodisasini yubormaydi, shuning uchun maydonning input
+    /// scope'i fokusda noma'lum qoladi yoki keyin o'zgaradi (maydon parolga aylanadi). Har so'z oxirida (probel
+    /// dasturga yetmasdan) sinxron, faqat o'qish sessiyasida qayta o'qiladi; sinxron ruxsat berilmasa o'tkaziladi.
+    fn recheck_scope(&self, ctx: &ITfContext) {
+        let (blind, known, tid) = {
+            let st = self.state.borrow();
+            (st.blind, st.sensitive, st.tid)
+        };
+        if !blind || known == Some(true) {
+            return;
+        }
+        let out = Rc::new(Cell::new(None));
+        let es: ITfEditSession = ReadScope {
+            ctx: ctx.clone(),
+            out: out.clone(),
+        }
+        .into();
+        if unsafe { ctx.RequestEditSession(tid, &es, TF_ES_SYNC | TF_ES_READ) }.is_err() {
+            return;
+        }
+        let Some((sensitive, diag)) = out.take() else {
+            return;
+        };
+        if known != Some(sensitive) {
+            log::write(&format!(
+                "input scope at word end: {diag} -> {}",
+                if sensitive {
+                    "sensitive field, off"
+                } else {
+                    "plain field"
+                }
+            ));
+        }
+        self.state.borrow_mut().sensitive = Some(sensitive);
+        if sensitive {
+            let _ = self.forget_sensitive();
+        }
     }
 
     /// AltGr qatlamidagi tugmalarni TSF'da ro'yxatga oladi (tartib o'zgarganda qayta).
@@ -1162,6 +1209,21 @@ impl TextService_Impl {
                     }
                     return;
                 };
+                // Blind rejimda edit hodisasi kelmasligi mumkin: dastur IME'ni so'z davomida o'chirgan bo'lsa
+                // (parol maydoni fokusni o'zgartirmasdan ochilgan) — har so'z oxirida qayta tekshiriladi (#41).
+                if st.sensitive != Some(true)
+                    && st
+                        .watched
+                        .as_ref()
+                        .is_some_and(|(ctx, _)| keyboard_disabled(ctx))
+                {
+                    st.sensitive = Some(true);
+                    st.last.clear();
+                    st.session.reset();
+                    st.undo = None;
+                    log::write("sensitive field: keyboard disabled at word end, off");
+                    return;
+                }
                 if !st.converting() || !st.cfg.fallback {
                     return;
                 }
@@ -1542,6 +1604,32 @@ impl Insert_Impl {
         // Kompozitsiya har holda yopiladi — aks holda dastur "yozilmoqda" holatida qoladi.
         let end = unsafe { comp.EndComposition(ec) };
         r.and(end)
+    }
+}
+
+/// Faqat o'qish: kursor turgan joyning input scope'i maxfiymi (`sensitive_scope`). Matn o'qilmaydi.
+#[implement(ITfEditSession)]
+struct ReadScope {
+    ctx: ITfContext,
+    out: Rc<Cell<Option<(bool, String)>>>,
+}
+
+impl ITfEditSession_Impl for ReadScope_Impl {
+    fn DoEditSession(&self, ec: u32) -> Result<()> {
+        guard("read scope", || {
+            let mut sel = [TF_SELECTION::default()];
+            let mut fetched = 0u32;
+            unsafe {
+                self.ctx
+                    .GetSelection(ec, TF_DEFAULT_SELECTION, &mut sel, &mut fetched)?
+            };
+            let [s] = sel;
+            let range = std::mem::ManuallyDrop::into_inner(s.range);
+            if let (1, Some(caret)) = (fetched, range) {
+                self.out.set(Some(sensitive_scope(&self.ctx, ec, &caret)));
+            }
+            Ok(())
+        })
     }
 }
 

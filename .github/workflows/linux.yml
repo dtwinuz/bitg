@@ -33,6 +33,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q --no-install-recommends libibus-1.0-dev ibus dbus python3-gi gir1.2-ibus-1.0 dpkg-dev lintian \
+            xvfb xauth desktop-file-utils \
             libfcitx5core-dev libfcitx5utils-dev fcitx5-modules-dev pkg-config
       - run: cargo test --locked -p bitg-ime
       - name: .deb
@@ -63,15 +64,23 @@ jobs:
         run: lintian --no-tag-display-limit --suppress-tags no-manual-page,initial-upload-closes-no-bugs target/deb/*.deb || true
       - name: O'rnatish
         run: |
+          # Recommends (panel belgisining GTK/Python bog'liqliklari) apt standarti bo'yicha o'rnatiladi
           sudo apt-get install -y -q ./target/deb/bitg_*.deb
           test -x /usr/libexec/ibus-engine-bitg && bitg "O'zbekiston shaharlari" | grep -qx "Özbekiston şaharlari"
+          test -x /usr/bin/bitg-indicator
+          desktop-file-validate /usr/share/applications/bitg.desktop /etc/xdg/autostart/bitg.desktop
       - name: Uchidan-uchiga (ibus-daemon)
         env:
           GSETTINGS_BACKEND: memory
           BITG_IBUS_LOG: ${{ runner.temp }}/ibus-daemon.log
+          BITG_INDICATOR: /usr/bin/bitg-indicator
         run: dbus-run-session -- python3 -u linux/test/ibus_e2e.py
+      - name: Panel belgisi (Xvfb)
+        run: xvfb-run -a dbus-run-session -- python3 -u linux/test/indicator_test.py
       - name: Paketni o'chirish
-        run: sudo apt-get remove -y -q bitg && test ! -e /usr/libexec/ibus-engine-bitg
+        run: |
+          sudo apt-get purge -y -q bitg
+          test ! -e /usr/libexec/ibus-engine-bitg && test ! -e /usr/bin/bitg-indicator && test ! -e /etc/xdg/autostart/bitg.desktop
       - name: fcitx5-bitg o'rnatish va yuklash
         run: |
           sudo apt-get install -y -q --no-install-recommends ./target/deb/fcitx5-bitg_*.deb
@@ -85,3 +94,31 @@ jobs:
           name: bitg-deb
           path: target/deb/*.deb*
           if-no-files-found: error
+
+  # 22.04 da yig'ilgan paket Ubuntu 24.04 da: o'rnatish, ibus-daemon e2e va panel belgisi (#75 sinov matritsasi)
+  noble:
+    needs: ibus
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: linux/test
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: bitg-deb
+          path: deb
+      - name: O'rnatish
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends dbus python3-gi gir1.2-ibus-1.0 xvfb xauth desktop-file-utils
+          sudo apt-get install -y -q ./deb/bitg_*.deb
+          bitg "O'zbekiston shaharlari" | grep -qx "Özbekiston şaharlari"
+          desktop-file-validate /usr/share/applications/bitg.desktop /etc/xdg/autostart/bitg.desktop
+      - name: Uchidan-uchiga (ibus-daemon)
+        env:
+          GSETTINGS_BACKEND: memory
+          BITG_IBUS_LOG: ${{ runner.temp }}/ibus-daemon.log
+          BITG_INDICATOR: /usr/bin/bitg-indicator
+        run: dbus-run-session -- python3 -u linux/test/ibus_e2e.py
+      - name: Panel belgisi (Xvfb)
+        run: xvfb-run -a dbus-run-session -- python3 -u linux/test/indicator_test.py

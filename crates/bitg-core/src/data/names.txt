@@ -111,6 +111,8 @@ shacman
 mitsubishi
 peugeot
 skoda
+chirey
+changhe
 # kiyim, go'zallik
 skechers
 oysho
@@ -127,6 +129,9 @@ chanel
 hermes
 lush
 nike
+shein
+bershka
+shiseido
 # oziq-ovqat va restoranlar
 hochland
 rocher
@@ -142,6 +147,7 @@ snickers
 starbucks
 shakeshack
 mcdonalds
+tchibo
 # yoqilg'i, bank, to'lov
 shinhan
 shell

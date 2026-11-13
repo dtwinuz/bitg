@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>bitg</id>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <title>bitg (Uzbek keyboard, new 2026 Latin alphabet)</title>
     <authors>dtwinuz and bitg contributors</authors>
     <owners>dtwinuz</owners>
@@ -30,7 +30,7 @@ After installing, press **Win + Space** and choose **bitg**.
 
 Example: `choco install bitg --params "'/NoAutostart /NoKeyboard'"`
 ]]></description>
-    <releaseNotes>https://github.com/dtwinuz/bitg/releases/tag/v0.3.1</releaseNotes>
+    <releaseNotes>https://github.com/dtwinuz/bitg/releases/tag/v0.4.0</releaseNotes>
   </metadata>
   <files>
     <file src="tools/**" target="tools" />

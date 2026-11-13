@@ -28,6 +28,9 @@ CLI natijasi, IBus komponenti yo'li, Fcitx5 `.so` belgilari va `pacman -R` ni te
 
 ## Yangi versiya
 
+Odatda **avtomatik**: reliz chiqqach `stores.yml` (`aur` job'i) PKGBUILD'ni yangilab, Arch'da yig'ib sinaydi va AUR'ga
+push qiladi (environment `aur`, sir `AUR_SSH_KEY`). Quyidagisi — qo'lda yo'l.
+
 ```bash
 cd packaging/aur
 # 1) pkgver=X.Y.Z, pkgrel=1

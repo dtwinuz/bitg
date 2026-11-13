@@ -1,0 +1,248 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: stores
+
+# Reliz chiqqach paket kataloglariga yuborish (release.yml publish'dan keyin o'zi chaqiradi).
+#
+# winget: Komac (versiya va binari SHA-256 shu faylda qotirilgan) microsoft/winget-pkgs ga "dtwinuz.bitg <v>" PR ochadi.
+#   Yuborishdan oldin MSI SHA-256 reliz yonidagi .sha256 bilan va SLSA attestation'i (build.yml, shu teg) tekshiriladi.
+#   Token: `winget` environment'idagi WINGET_TOKEN (classic, faqat public_repo; fork egasining tokeni) — kod
+#   kompilyatsiya qilinmaydigan bitta job'da. Token yo'q, paket hali winget-pkgs'da yo'q yoki bu versiya bor bo'lsa —
+#   job xatosiz o'tib ketadi va sababini summary'ga yozadi.
+# Chocolatey: tools/release/packaging.py relizdagi MSI'dan paket yasaydi, Windows'da o'rnatib-o'chirib sinaladi, keyin
+#   `chocolatey` environment'idagi CHOCO_API_KEY bilan community.chocolatey.org ga yuboriladi (u yerda moderatsiya).
+# AUR: packaging/aur/PKGBUILD shu teg manbasiga yangilanadi, toza Arch konteynerida yig'ilib check() o'tkaziladi,
+#   .SRCINFO qayta yoziladi va `aur` environment'idagi AUR_SSH_KEY (faqat AUR'ga yozuvchi alohida kalit; server kaliti
+#   shu faylda qotirilgan) bilan aur.archlinux.org/bitg.git ga push qilinadi.
+# Homebrew: dtwinuz/homebrew-tap o'zi yangilanadi (autobump workflow, har 3 soatda) — bu yerda token kerak emas.
+# Har job o'z siri yo'q bo'lsa yoki versiya katalogda allaqachon bo'lsa, xatosiz o'tib, sababini summary'ga yozadi.
+#
+# Qo'lda qayta yuborish: Actions -> stores -> Run workflow, version = v0.4.0.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Reliz tegi (v0.4.0)"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Reliz tegi (v0.4.0)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  KOMAC_VERSION: 2.17.2
+  KOMAC_SHA256: b03b020eec98acfb0b53e284a6e21815b884be33de6785b97e7a120f0e748966 # komac-2.17.2-x86_64-unknown-linux-gnu.tar.gz
+
+jobs:
+  winget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: winget
+    env:
+      TAG: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Shartlar
+        id: gate
+        env:
+          HAS_TOKEN: ${{ secrets.WINGET_TOKEN != '' }}
+        run: |
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "teg noto'g'ri: $TAG"; exit 1; }
+          v=${TAG#v}
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          skip() { echo "::notice title=winget::$1"; echo "### winget: o'tkazib yuborildi — $1" >> "$GITHUB_STEP_SUMMARY"; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          [ "$HAS_TOKEN" = true ] || skip "WINGET_TOKEN yo'q (Settings -> Environments -> winget)"
+          base=repos/microsoft/winget-pkgs/contents/manifests/d/dtwinuz/bitg
+          gh api "$base" --silent 2>/dev/null || skip "dtwinuz.bitg hali winget-pkgs'da yo'q (birinchi versiya PR'i merge bo'lishi kerak)"
+          if gh api "$base/$v" --silent 2>/dev/null; then skip "$v winget-pkgs'da allaqachon bor"; fi
+      - name: MSI, SHA-256 va attestation
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+        run: |
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -D rel -p "bitg-$V-x64.msi" -p "bitg-$V-x64.msi.sha256"
+          f="rel/bitg-$V-x64.msi"
+          [ "$(sha256sum < "$f" | cut -d' ' -f1)" = "$(cut -d' ' -f1 < "$f.sha256" | tr -d '\r')" ] || { echo ".sha256 mos emas"; exit 1; }
+          gh attestation verify "$f" -R "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build.yml" \
+            --source-ref "refs/tags/$TAG" --deny-self-hosted-runners
+      - name: Komac
+        if: steps.gate.outputs.skip != '1'
+        run: |
+          t="komac-$KOMAC_VERSION-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL --proto '=https' -o "$RUNNER_TEMP/$t" "https://github.com/russellbanks/Komac/releases/download/v$KOMAC_VERSION/$t"
+          echo "$KOMAC_SHA256  $RUNNER_TEMP/$t" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$t" -C "$RUNNER_TEMP" komac
+          "$RUNNER_TEMP/komac" --version
+      - name: winget-pkgs PR
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          KOMAC_CREATED_WITH: dtwinuz/bitg stores.yml
+          KOMAC_CREATED_WITH_URL: ${{ github.server_url }}/${{ github.repository }}/blob/main/.github/workflows/stores.yml
+        run: |
+          "$RUNNER_TEMP/komac" update dtwinuz.bitg --version "$V" \
+            --urls "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/bitg-$V-x64.msi" \
+            --release-notes-url "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" \
+            --submit | tee "$RUNNER_TEMP/komac.log"
+          { echo "### winget: dtwinuz.bitg $V yuborildi"; grep -Eo 'https://github.com/microsoft/winget-pkgs/pull/[0-9]+' "$RUNNER_TEMP/komac.log" | head -1; } >> "$GITHUB_STEP_SUMMARY"
+
+  chocolatey:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    environment: chocolatey
+    env:
+      TAG: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Shartlar
+        id: gate
+        shell: bash
+        env:
+          HAS_KEY: ${{ secrets.CHOCO_API_KEY != '' }}
+        run: |
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "teg noto'g'ri: $TAG"; exit 1; }
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          if [ "$HAS_KEY" != true ]; then
+            echo "::notice title=chocolatey::CHOCO_API_KEY yo'q (Settings -> Environments -> chocolatey)"
+            echo "### chocolatey: o'tkazib yuborildi — CHOCO_API_KEY yo'q" >> "$GITHUB_STEP_SUMMARY"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.gate.outputs.skip != '1'
+        with:
+          persist-credentials: false
+      - name: Reliz fayllari, SHA-256 va attestation
+        if: steps.gate.outputs.skip != '1'
+        shell: bash
+        env:
+          V: ${{ steps.gate.outputs.version }}
+        run: |
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -D rel -p "bitg-$V-x64.msi*" -p "bitg-$V-macos.pkg*"
+          for f in "rel/bitg-$V-x64.msi" "rel/bitg-$V-macos.pkg"; do
+            [ "$(sha256sum < "$f" | cut -d' ' -f1)" = "$(cut -d' ' -f1 < "$f.sha256" | tr -d '\r')" ] || { echo "$f .sha256 mos emas"; exit 1; }
+          done
+          gh attestation verify "rel/bitg-$V-x64.msi" -R "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build.yml" \
+            --source-ref "refs/tags/$TAG" --deny-self-hosted-runners
+      - name: Paket, o'rnatish, o'chirish
+        if: steps.gate.outputs.skip != '1'
+        shell: pwsh
+        env:
+          V: ${{ steps.gate.outputs.version }}
+        run: |
+          python -I tools/release/packaging.py --dist rel --out out --version $env:V
+          if ($LASTEXITCODE) { throw "packaging.py: $LASTEXITCODE" }
+          $nup = Join-Path $env:RUNNER_TEMP choco
+          New-Item -ItemType Directory -Force $nup | Out-Null
+          choco pack out/chocolatey/bitg.nuspec --outputdirectory $nup --limit-output
+          if ($LASTEXITCODE) { throw "pack: $LASTEXITCODE" }
+          choco install bitg --source $nup --version $env:V -y --no-progress --params "'/NoAutostart'"
+          if ($LASTEXITCODE -notin 0, 3010) { throw "install: $LASTEXITCODE" }
+          & "$env:ProgramFiles\bitg\bitg.exe" "O'zbekiston shaharlari"
+          if ($LASTEXITCODE) { throw "bitg.exe: $LASTEXITCODE" }
+          choco uninstall bitg -y --no-progress
+          if ($LASTEXITCODE -notin 0, 3010) { throw "uninstall: $LASTEXITCODE" }
+      - name: community.chocolatey.org
+        if: steps.gate.outputs.skip != '1'
+        shell: pwsh
+        env:
+          V: ${{ steps.gate.outputs.version }}
+          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
+        run: |
+          $nupkg = Join-Path $env:RUNNER_TEMP "choco/bitg.$env:V.nupkg"
+          $out = choco push $nupkg --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY 2>&1 | Out-String
+          $code = $LASTEXITCODE
+          $out
+          if ($code) {
+            if ($out -match '409|already exists') {
+              "::notice title=chocolatey::bitg $env:V allaqachon yuborilgan"
+              "### chocolatey: bitg $env:V allaqachon bor" >> $env:GITHUB_STEP_SUMMARY
+              exit 0
+            }
+            throw "push: $code"
+          }
+          "### chocolatey: bitg $env:V yuborildi (moderatsiya: https://community.chocolatey.org/packages/bitg/$env:V)" >> $env:GITHUB_STEP_SUMMARY
+
+  aur:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: aur
+    # aur.yml bilan bir xil Arch image (digest qotirilgan)
+    container: archlinux:base-devel@sha256:fa2d4ce3310ddd90a4208e5168be8ad367da5129af1245f38fd2d803bcbe3239
+    env:
+      TAG: ${{ inputs.version }}
+      # aur.archlinux.org ED25519 kaliti; barmoq izi SHA256:RFzBCUItH9LZS0cKB5UE6ceAYhBD5C8GeOBip8Z11+4 (aur.archlinux.org bosh sahifasida)
+      AUR_HOST_KEY: aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN
+    steps:
+      - name: Shartlar
+        id: gate
+        env:
+          HAS_KEY: ${{ secrets.AUR_SSH_KEY != '' }}
+        run: |
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "teg noto'g'ri: $TAG"; exit 1; }
+          v=${TAG#v}
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          skip() { echo "::notice title=aur::$1"; echo "### aur: o'tkazib yuborildi — $1" >> "$GITHUB_STEP_SUMMARY"; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          [ "$HAS_KEY" = true ] || skip "AUR_SSH_KEY yo'q (Settings -> Environments -> aur)"
+          cur=$(curl -fsS 'https://aur.archlinux.org/rpc/v5/info?arg[]=bitg' | sed -n 's/.*"Version":"\([0-9.]*\)-[0-9]*".*/\1/p')
+          if [ -n "$cur" ] && [ "$(printf '%s\n%s\n' "$cur" "$v" | sort -V | tail -1)" = "$cur" ]; then skip "AUR'da $cur bor (>= $v)"; fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.gate.outputs.skip != '1'
+        with:
+          persist-credentials: false
+      - name: PKGBUILD shu tegga
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+        run: |
+          pacman -Syu --noconfirm --needed namcap openssh git
+          useradd -m builder
+          echo 'builder ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/builder
+          sum=$(curl -fsSL "https://github.com/$GITHUB_REPOSITORY/archive/refs/tags/$TAG.tar.gz" | sha256sum | cut -d' ' -f1)
+          cp -r packaging/aur /home/builder/aur
+          cd /home/builder/aur
+          sed -i -e "s/^pkgver=.*/pkgver=$V/" -e "s/^pkgrel=.*/pkgrel=1/" -e "s/^sha256sums=.*/sha256sums=('$sum')/" PKGBUILD
+          grep -q "^pkgver=$V$" PKGBUILD && grep -q "$sum" PKGBUILD
+          chown -R builder: /home/builder/aur
+          sudo -u builder makepkg --printsrcinfo > .SRCINFO
+          namcap PKGBUILD
+      - name: makepkg (manbadan, check() bilan), namcap
+        if: steps.gate.outputs.skip != '1'
+        working-directory: /home/builder/aur
+        run: |
+          sudo -u builder makepkg --syncdeps --noconfirm --cleanbuild
+          for p in *.pkg.tar.zst; do namcap "$p"; done
+          pacman -U --noconfirm ./bitg-[0-9]*.pkg.tar.zst
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          pacman -R --noconfirm bitg
+      - name: aur.archlinux.org
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$AUR_SSH_KEY" > ~/.ssh/aur && chmod 600 ~/.ssh/aur
+          printf '%s\n' "$AUR_HOST_KEY" > ~/.ssh/known_hosts
+          printf 'Host aur.archlinux.org\n  User aur\n  IdentityFile ~/.ssh/aur\n  IdentitiesOnly yes\n  StrictHostKeyChecking yes\n' > ~/.ssh/config
+          git clone ssh://aur@aur.archlinux.org/bitg.git "$RUNNER_TEMP/aur-bitg"
+          cd "$RUNNER_TEMP/aur-bitg"
+          cp /home/builder/aur/PKGBUILD /home/builder/aur/.SRCINFO .
+          git config user.name "dtwinuz"
+          git config user.email "info@dtwin.uz"
+          git add PKGBUILD .SRCINFO
+          if git diff --cached --quiet; then echo "AUR'da o'zgarish yo'q"; rm -f ~/.ssh/aur; exit 0; fi
+          git commit -q -m "bitg $V" -m "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
+          git push origin HEAD:master
+          rm -f ~/.ssh/aur
+          echo "### aur: bitg $V e'lon qilindi — https://aur.archlinux.org/packages/bitg" >> "$GITHUB_STEP_SUMMARY"

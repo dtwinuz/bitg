@@ -3,7 +3,7 @@
 Foydalanuvchi uchun qisqa: har versiyada nima o'zgardi. Texnik tafsilot — [CHANGELOG.md](CHANGELOG.md).
 Bu fayldan ilovadagi «Yangiliklar» sahifasi va yangilanish oynasidagi qaydlar yig'iladi.
 
-## 0.4.0 — 2026-11-14
+## 0.4.0 — 2026-11-13
 
 ### Yangi
 - **Shaxsiy lug'at.** bitg bilmagan so'zni o'zingiz o'rgating: «shamollash» → «şamollaş». Qo'shimchali shakli ham shunday yoziladi (shamollashdan → şamollaşdan), katta-kichik harf yozganingizdek qoladi.
@@ -13,11 +13,14 @@ Bu fayldan ilovadagi «Yangiliklar» sahifasi va yangilanish oynasidagi qaydlar 
 - **Yangiliklar sahifasi.** Yangilangandan keyin nima o'zgargani bir marta ko'rsatiladi. Sozlamalarda o'chirsa bo'ladi.
 - **Lug'atni ko'chirish.** «Nusxalash» bilan ro'yxatni oling, boshqa kompyuterda «Fayldan qo'shish» bilan yuklang.
 - **Aqlli tuzatishlar uchun tayyor holat.** «Ehtiyotkor» — faqat yozganingiz o'giriladi, so'zlar tuzatilmaydi; «Tavsiya» — apostrofsiz so'zni ham o'zi tuzatadi.
+- **Ubuntu: yuqori paneldagi bitg belgisi.** Ekranning yuqori panelida bitg ikonkasi va menyusi paydo bo'ladi: yoqish/o'chirish, avtomatik o'girish va kirillni o'girishni shu yerdan almashtirasiz, dasturlarni qayta ochish shart emas. bitg ilovalar menyusida ham bor va tizimga kirganda o'zi ishga tushadi.
 
 ### Yaxshilandi
 - **Aqlli tuzatishni boshqarish.** «Tushib qolgan apostrofni tiklash» lug'at bo'yicha xato yozilgan so'zni ham tuzatadi (Qirgiziston → Qirğiziston). Endi tavsifda aniq yozilgan: yozganingiz aynan qolsin desangiz — o'chiring yoki so'zni lug'atga qo'shing.
 
 ### Tuzatildi
+- **Ko'proq xorijiy ism.** 2 000 dan ortiq yangi xorijiy ism va familiya (Chesney kabi) yozilganidek qoladi, bitg ularni o'zbekcha deb o'girmaydi.
+- **Brend va texnik atamalar.** fintech, edtech, Semrush, Genshin kabi 55 ta so'z endi buzilmaydi.
 - **Kod yoki brend yonidagi so'z.** «fetch() chaqiruvi», «Shohjahon McDonald's» kabi qisqa gapda o'zbekcha so'z inglizcha deb qolib ketardi — endi o'giriladi.
 
 ## 0.3.1 — 2026-11-13

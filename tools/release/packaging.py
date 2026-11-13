@@ -254,8 +254,11 @@ def main():
     ap.add_argument("--dist", type=Path, default=ROOT / "dist")
     ap.add_argument("--out", type=Path, default=ROOT / "packaging")
     ap.add_argument("--product-code", default=None, help="MSI ProductCode (Windows'da MSI'dan o'zi o'qiladi)")
+    ap.add_argument("--version", default=None, help="reliz versiyasi (standart: Cargo.toml); CI eski relizni yuborganda")
     a = ap.parse_args()
-    ver = re.search(r'^version = "(.+?)"', (ROOT / "Cargo.toml").read_text(encoding="utf-8"), re.M).group(1)
+    ver = a.version or re.search(r'^version = "(.+?)"', (ROOT / "Cargo.toml").read_text(encoding="utf-8"), re.M).group(1)
+    if not re.fullmatch(r"\d+\.\d+\.\d+", ver):
+        sys.exit(f"packaging: versiya noto'g'ri: {ver}")
     plist = (ROOT / "macos" / "Info.plist").read_text(encoding="utf-8")
     bundle = re.search(r"<key>CFBundleIdentifier</key>\s*<string>([^<]+)</string>", plist).group(1)
     msi, pkg = a.dist / f"bitg-{ver}-x64.msi", a.dist / f"bitg-{ver}-macos.pkg"

@@ -174,6 +174,28 @@ O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bit
 [`release`](.github/workflows/release.yml) workflow MSI, Linux `.deb` va macOS `.pkg` paketlarini
 ([`build`](.github/workflows/build.yml) reusable workflow'i yig'adi va imzolaydi, SLSA Build L3) GitHub Release'ga chiqaradi.
 
+#### Windows'da muammo bo'lsa
+
+bitg o'zi ENG ga qaytib ketsa, yozganda o'girmasa yoki biror dasturda xalaqit bersa:
+
+1. **Bir dasturda o'chirib turish.** bitg sozlamalari → **Dasturlar** → kerakli dasturni o'chiring. Boshqa dasturlarda
+   bitg ishlashda davom etadi. Hammasini to'xtatish — chap paneldagi **Yoqilgan** almashtirgichi.
+2. **Windows versiyasi.** `Win + R` → `winver` → oynadagi qatorni yozing (masalan, `24H2 (build 26100.xxxx)`).
+3. **bitg versiyasi.** Sozlamalar oynasining pastida yoki PowerShell'da `bitg --version`.
+4. **Qayerda bo'ladi.** Faqat Start menyu / qidiruvdami yoki Notepad, Chrome, Telegram'da hammi?
+5. **Log.** `Win + R` → `%LOCALAPPDATA%\bitg` → ochilgan papkadagi `tsf.log`. Start menyu va qidiruv log'ni
+   alohida joyga yozadi, uni bitta faylga yig'ish:
+
+   ```powershell
+   Get-ChildItem "$env:LOCALAPPDATA\Packages\*\AC\bitg\tsf.log" | ForEach-Object { "== $($_.FullName)"; Get-Content $_ } | Set-Content "$env:USERPROFILE\Desktop\bitg-ac.log"
+   ```
+
+6. **Xabar berish.** Sozlamalar → **Xabar berish** (skrinshot bilan), yoki
+   [GitHub issue](https://github.com/dtwinuz/bitg/issues/new) ochib 2–4 javoblarni yozing, `tsf.log` va `bitg-ac.log`
+   ni biriktiring.
+
+Log'larda yozgan matningiz yo'q: faqat dastur nomi, hodisa va xato kodi (`converted`, `word unchanged (len N)`).
+
 ### O'rnatish (Linux: Ubuntu 22.04+, Debian 12+, x64)
 
 [Releases](https://github.com/dtwinuz/bitg/releases) dan paketni oling. IBus (Ubuntu, Debian GNOME standarti):
@@ -203,10 +225,51 @@ qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 | IBus dvigateli | `/usr/libexec/ibus-engine-bitg`, `/usr/share/ibus/component/bitg.xml` |
 | Fcitx5 qo'shimchasi | `/usr/lib/<arch>/fcitx5/bitg.so`, `/usr/share/fcitx5/{addon,inputmethod}/bitg.conf` |
 | Sozlamalar | `~/.config/bitg/settings.ini`, `exceptions.txt` — Windows bilan bir xil format, o'zgarish ~1 soniyada qo'llanadi |
+| Yuqori panel belgisi | `/usr/bin/bitg-indicator`; ilovalar menyusida «bitg», sessiya bilan `/etc/xdg/autostart/bitg.desktop` |
+
+**Yuqori panel belgisi** (GNOME, Unity): menyuda yoqish/o'chirish, avtomatik o'girish, kirillni o'girish va
+istisnolar/lug'at muharriri bor; o'zgarish yozilayotgan dasturga darhol qo'llanadi. «Panel belgisini yopish» faqat
+belgini yopadi, kiritish usuli ishlashda davom etadi. Belgi `python3-gi`, `gir1.2-gtk-3.0`,
+`gir1.2-ayatanaappindicator3-0.1` ni talab qiladi (apt ularni tavsiya sifatida o'zi o'rnatadi). Ubuntu'da belgi
+standart «AppIndicator» kengaytmasi orqali ko'rinadi; toza GNOME'da shu kengaytmani yoqing. Sessiya bilan ochilishini
+o'chirish (faqat shu foydalanuvchi uchun):
+
+```bash
+mkdir -p ~/.config/autostart && printf '[Desktop Entry]\nHidden=true\n' > ~/.config/autostart/bitg.desktop
+```
 
 Matnni bermaydigan dasturlarda so'z yozilayotganda tagi chizilgan (preedit) ko'rinadi va probelda o'girilib yoziladi.
 Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linux/build-deb.sh` (`libibus-1.0-dev`,
-`libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`.
+`libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`,
+`xvfb-run -a dbus-run-session -- python3 linux/test/indicator_test.py`.
+
+#### Ubuntu'da muammo bo'lsa
+
+bitg o'zining klaviatura tartibiga ega emas (`layout=default`): u joriy kiritish manbasining harflarini oladi. Kirill
+tartibidan bitg'ga o'tsangiz kirillcha yozasiz — bu xato emas, so'z tugashi bilan u ham yangi lotinga o'giriladi
+(`чой шаҳар` → `çoy şahar`). Lotincha yozish uchun lotin tartibidan bitg'ga o'ting.
+
+1. **Tanlanganini tekshirish:** yuqori paneldagi til belgisida «ö» (bitg) turishi kerak; `ibus engine` → `bitg`.
+2. **O'girmayapti:** panel belgisi menyusida «Yoqilgan» va «Avtomatik ögiriş» belgilanganmi; yoki
+   `cat ~/.config/bitg/settings.ini`. Fayldagi o'zgarish ~1 soniyada, dasturni qayta ochmasdan qo'llanadi.
+3. **Belgi ko'rinmaydi:** `bitg-indicator` ni terminaldan ishga tushiring — xato shu yerda chiqadi. Toza GNOME'da
+   «AppIndicator and KStatusNotifierItem Support» kengaytmasi kerak.
+4. **Dvigatel logi:** `ibus restart`, so'ng `journalctl --user -b | grep -i ibus` (matningiz logga yozilmaydi).
+5. **Xabar berish:** Ubuntu versiyasi (`lsb_release -d`), sessiya (`echo $XDG_SESSION_TYPE` — wayland/x11),
+   `bitg --version`, qaysi dasturda bo'lgani — [issue](https://github.com/dtwinuz/bitg/issues/new) ga.
+
+**Sinov matritsasi** (har PR'da, [`linux.yml`](.github/workflows/linux.yml)):
+
+| | Ubuntu 22.04 | Ubuntu 24.04 |
+|---|---|---|
+| `.deb` yig'ish (reproducible), lintian, o'rnatish/purge | ✅ yig'iladi va o'rnatiladi | ✅ 22.04 paketi o'rnatiladi |
+| IBus e2e: matnli va preedit dastur, lotin/kirill kirish, Backspace, Enter, parol maydoni | ✅ | ✅ |
+| Panel belgisi: sozlama/istisno yozuvi IME'ga jonli yetadi, BOM'li `settings.ini` | ✅ | ✅ |
+| Panel belgisi GUI (Xvfb): ishga tushadi, ikkinchi nusxa ochilmaydi | ✅ | ✅ |
+| Fcitx5: paket o'rnatiladi, kutubxona yuklanadi | ✅ | — |
+
+Avtomatik sinalmaydi: haqiqiy GNOME Wayland/X11 sessiyasidagi panel ko'rinishi, Telegram/brauzerda yozish, Fcitx5'da
+yozish. Bularni sinab ko'rgan bo'lsangiz, natijani issue'ga yozing.
 
 **Arch Linux** (Manjaro, EndeavourOS): [`packaging/aur/PKGBUILD`](packaging/aur) manbadan yig'adi va ikkita paket
 beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
@@ -301,7 +364,11 @@ Telegram bilan bir xil yo'ldan (IMM32/CUAS, matn TSF'ga berilmaydi) o'tadi.
 cargo install --path crates/bitg-cli
 bitg explain "Chat with the team, keyin choy"   # har bir so'z bo'yicha qaror
 bitg cyr "O'zbekiston shaharlari"               # lotindan kirillga: Ўзбекистон шаҳарлари
+bitg --exceptions ex.txt "shahar choy"          # ex.txt dagi so'zlar o'girilmaydi: shahar çoy
 ```
+
+`--exceptions FAYL` `bitg`, `bitg explain`, `bitg file` va `bitg diff` da ishlaydi. Format kiritish usullari
+o'qiydigan `exceptions.txt` bilan bir xil: har qatorda bitta so'z, `#` bilan izoh, `so'z=yozuv` — lug'at qatori.
 
 ### Fayllar va oldindan ko'rish
 

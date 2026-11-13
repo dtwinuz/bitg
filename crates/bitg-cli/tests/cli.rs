@@ -162,3 +162,23 @@ fn eval_errors() {
     assert!(out.is_empty());
     assert!(err.starts_with(&format!("{missing}: ")), "{err}");
 }
+
+#[test]
+fn exceptions_file_keeps_words() {
+    let ex = tsv("exceptions", "# izoh\nshahar\n");
+    let p = ex.to_str().unwrap();
+    assert_eq!(bitg(&["--exceptions", p, "shahar"], None).1, "shahar\n");
+    assert_eq!(
+        bitg(&[&format!("--exceptions={p}"), "shahar choy"], None).1,
+        "shahar çoy\n"
+    );
+    let (_, out, _) = bitg(&["explain", "--exceptions", p, "shahar"], None);
+    assert!(out.contains("istisno"), "{out}");
+    assert_eq!(bitg(&["shahar"], None).1, "şahar\n");
+    let (code, _, err) = bitg(&["--exceptions"], None);
+    assert_eq!(code, 1);
+    assert!(err.contains("--exceptions"), "{err}");
+    let (code, _, _) = bitg(&["--exceptions", "/yoq/fayl.txt", "shahar"], None);
+    assert_eq!(code, 1);
+    std::fs::remove_file(ex).unwrap();
+}

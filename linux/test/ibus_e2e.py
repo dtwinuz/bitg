@@ -172,9 +172,92 @@ def password_field_untouched(bus):
     a.close()
 
 
+@case
+def acceptance_latin_and_cyrillic(bus):
+    # #75 qabul mezoni: lotin va kirill kirish bir xil natija beradi (matnli va preedit dasturda)
+    for surrounding in (True, False):
+        for typed in ("choy shahar ", "чой шаҳар "):
+            a = App(bus, surrounding=surrounding).typ(typed)
+            check(f"{typed!r} surrounding={surrounding}", (a.text, a.preedit), ("çoy şahar ", ""))
+            a.close()
+
+
+def indicator():
+    """O'rnatilgan panel belgisi moduli (`BITG_INDICATOR`), sozlamalarni u qanday yozsa shunday sinash uchun."""
+    path = os.environ.get("BITG_INDICATOR")
+    if not path:
+        return None
+    import importlib.machinery
+    import importlib.util
+    loader = importlib.machinery.SourceFileLoader("bitg_indicator", path)
+    module = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
+    loader.exec_module(module)
+    return module
+
+
+def settle():
+    # IME sozlamalarni ko'pi bilan sekundiga bir marta, keyingi tugmada qayta o'qiydi
+    time.sleep(1.2)
+
+
+@case
+def indicator_settings_apply_live(bus):
+    ind = indicator()
+    if ind is None:
+        print("     (BITG_INDICATOR berilmagan — o'tkazildi)")
+        return
+    check("config dir", str(ind.CONFIG), os.path.join(os.environ["XDG_CONFIG_HOME"], "bitg"))
+    a = App(bus)
+    try:
+        ind.save_setting("enabled", False)
+        settle()
+        a.typ("choy ")
+        check("menu: off", a.text, "choy ")
+        ind.save_setting("enabled", True)
+        settle()
+        a.typ("choy ")
+        check("menu: on", a.text, "choy çoy ")
+        ind.save_setting("cyrillic", False)
+        settle()
+        a.typ("чой ")
+        check("menu: cyrillic off", a.text, "choy çoy чой ")
+        ind.save_setting("cyrillic", True)
+        ind.write_atomic(ind.EXCEPTIONS, "# panel muharriri\nshahar\n")
+        settle()
+        a.typ("shahar choy ")
+        check("editor: exception", a.text, "choy çoy чой shahar çoy ")
+    finally:
+        ind.write_atomic(ind.EXCEPTIONS, "")
+        ind.write_atomic(ind.SETTINGS, "")
+        a.close()
+
+
+@case
+def settings_bom_read_alike(bus):
+    # Windows bloknoti BOM qo'yadi: IME ham, panel belgisi ham birinchi kalitni o'qishi kerak
+    ind = indicator()
+    path = os.path.join(os.environ["XDG_CONFIG_HOME"], "bitg", "settings.ini")
+    os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("﻿Enabled = 0\n")
+    settle()
+    a = App(bus)
+    try:
+        a.typ("choy ")
+        check("ime", a.text, "choy ")
+        if ind is not None:
+            check("indicator", ind.read_settings()["enabled"], False)
+    finally:
+        os.remove(path)
+        a.close()
+
+
 def main():
     log_path = os.environ.get("BITG_IBUS_LOG", "/tmp/bitg-ibus-daemon.log")
     log = open(log_path, "wb")
+    # Sinov sozlamalari foydalanuvchinikiga tegmasin; dvigatel daemon orqali shu muhitni oladi.
+    import tempfile
+    os.environ["XDG_CONFIG_HOME"] = tempfile.mkdtemp(prefix="bitg-e2e-config-")
     daemon = None
     if "--no-daemon" not in sys.argv:
         # X display yo'q: manzil fayldan emas, aniq beriladi (daemon dvigatelga ham shuni uzatadi)

@@ -9,7 +9,8 @@
   python3 tools/release/announce.py 0.3.0 --dry-run     # xabarlarni chiqaradi, hech narsa yubormaydi
   TG_TOKEN=... python3 tools/release/announce.py 0.3.0  # @bitguz: qisqa post, @bitgtech: to'liq ro'yxat
 
-Matn CHANGELOG.md dagi "## [<versiya>]" bo'limidan olinadi. Bot ikkala kanalda admin bo'lishi kerak.
+@bitgtech matni CHANGELOG.md dagi "## [<versiya>]" bo'limidan, @bitguz qisqa posti NEWS.md dagi "## <versiya>"
+bandlaridan (foydalanuvchi tili; NEWS.md da versiya bo'lmasa CHANGELOG'dan). Bot ikkala kanalda admin bo'lishi kerak.
 Muhit: TG_TOKEN, NEWS_CHANNEL (standart @bitguz), TECH_CHANNEL (standart @bitgtech),
 BITG_CLI (bitg binari: @bitguz posti yangi alifboga o'giriladi; bo'lmasa eski lotinda).
 Token URL ichida bo'ladi: xato matnida URL chiqarilmaydi.
@@ -32,8 +33,14 @@ LIMIT = 4096          # Telegram xabar chegarasi (ko'rinadigan belgilar)
 SHORT_ITEMS = 4
 
 
+def news_items(news: str, ver: str):
+    """NEWS.md "## <versiya> — sana" bo'limidagi bandlar; yo'q bo'lsa []."""
+    m = re.search(rf"^## {re.escape(ver)}\b[^\n]*\n(.*?)(?=^## |\Z)", news, re.S | re.M)
+    return [l[2:].strip() for l in m.group(1).splitlines() if l.startswith("- ")] if m else []
+
+
 def section(changelog: str, ver: str):
-    """[(sarlavha, [band, ...])] — davomi 2 bo'shliq bilan yozilgan qatorlar bandga qo'shiladi."""
+    """(kirish matni, [(sarlavha, [band, ...])]) — davomi 2 bo'shliq bilan yozilgan qatorlar bandga qo'shiladi."""
     m = re.search(rf"^## \[{re.escape(ver)}\][^\n]*\n(.*?)(?=^## |^\[[^\]]+\]: |\Z)", changelog, re.S | re.M)
     if not m:
         raise SystemExit(f"CHANGELOG.md da [{ver}] bo'limi yo'q")
@@ -49,22 +56,24 @@ def section(changelog: str, ver: str):
             groups[-1][1][-1] += " " + line.strip()
         elif line.strip() and not groups:
             intro.append(line.strip())
-    if intro:
-        groups.insert(0, ("", [" ".join(intro)]))
-    return [(t, items) for t, items in groups if items]
+    return " ".join(intro), [(t, items) for t, items in groups if items]
 
 
 def md(s: str) -> str:
     """CHANGELOG markdown'ining kichik qismi -> Telegram HTML."""
     out, pos = [], 0
-    for m in re.finditer(r"\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\((https?://[^)\s]+)\)", s):
+    for m in re.finditer(r"\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)", s):
         out.append(html.escape(s[pos:m.start()], quote=False))
         if m.group(1) is not None:
             out.append(f"<b>{md(m.group(1))}</b>")
         elif m.group(2) is not None:
             out.append(f"<code>{html.escape(m.group(2), quote=False)}</code>")
         else:
-            out.append(f'<a href="{html.escape(m.group(4))}">{html.escape(m.group(3), quote=False)}</a>')
+            href = m.group(4)
+            if not href.startswith(("https://", "http://")):
+                # repo ichidagi nisbiy havola (NEWS.md) Telegram'da ishlamaydi -> GitHub'dagi fayl
+                href = f"{REPO}/blob/main/{href.lstrip('./')}"
+            out.append(f'<a href="{html.escape(href)}">{html.escape(m.group(3), quote=False)}</a>')
         pos = m.end()
     out.append(html.escape(s[pos:], quote=False))
     return "".join(out)
@@ -85,8 +94,8 @@ def headline(item: str) -> str:
     return text if len(text) <= 140 else text[:137].rstrip() + "…"
 
 
-def short_post(ver, groups, tech):
-    items = [i for t, its in groups if not t.lower().startswith("sifat") for i in its]
+def short_post(ver, groups, tech, news=()):
+    items = list(news) or [i for t, its in groups if not t.lower().startswith("sifat") for i in its]
     lines = [f"🆕 <b>bitg {html.escape(ver)}</b> chiqdi", ""]
     lines += [f"• {html.escape(headline(i), quote=False)}" for i in items[:SHORT_ITEMS]]
     if len(items) > SHORT_ITEMS:
@@ -96,9 +105,11 @@ def short_post(ver, groups, tech):
     return "\n".join(lines)
 
 
-def full_post(ver, groups):
+def full_post(ver, groups, intro=""):
     url = f"{REPO}/releases/tag/v{ver}"
     head = f'📦 <b>bitg {html.escape(ver)}</b> — <a href="{url}">GitHub Release</a>\n'
+    if intro:
+        head += md(intro) + "\n"
     tail = f"\n\nFayllar, SHA-256 va attestation: {url}"
     body = []
     for title, items in groups:
@@ -162,11 +173,13 @@ def main():
     ver = a.version.lstrip("v")
     news = os.environ.get("NEWS_CHANNEL") or "@bitguz"
     tech = os.environ.get("TECH_CHANNEL") or "@bitgtech"
-    groups = section((ROOT / "CHANGELOG.md").read_text(encoding="utf-8"), ver)
-    short = short_post(ver, groups, tech)
+    intro, groups = section((ROOT / "CHANGELOG.md").read_text(encoding="utf-8"), ver)
+    news_md = ROOT / "NEWS.md"
+    items = news_items(news_md.read_text(encoding="utf-8"), ver) if news_md.exists() else []
+    short = short_post(ver, groups, tech, items)
     if os.environ.get("BITG_CLI"):
         short = to_new(short, os.environ["BITG_CLI"])
-    posts = [(news, short), (tech, full_post(ver, groups))]
+    posts = [(news, short), (tech, full_post(ver, groups, intro))]
     for chat, text in posts:
         if visible_len(text) > LIMIT:
             raise SystemExit(f"{chat}: xabar {visible_len(text)} belgi, chegara {LIMIT}")

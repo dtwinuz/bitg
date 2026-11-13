@@ -32,6 +32,9 @@ SOZLAMALAR:
   --no-guard      inglizcha so'zlarni himoya qilmaslik
   --no-cyrillic   kirill matnga tegmaslik
   --tutuq=C       chiqishdagi tutuq belgisi (standart: ʼ U+02BC)
+  --exceptions FAYL
+                  o'girilmaydigan so'zlar (exceptions.txt formati: har qatorda so'z,
+                  # izoh, so'z=yozuv — lug'at qatori)
   --dry-run, -n   (file) faylga yozmasdan o'zgarishlar ro'yxati va soni
   --in-place      (file) kirish faylining o'ziga yozish
 ";
@@ -40,6 +43,24 @@ fn main() -> ExitCode {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     let mut opts = Options::default();
     let mut ascii = false;
+    match take_exceptions(&mut args) {
+        Ok(Some(path)) => match std::fs::read_to_string(&path) {
+            Ok(text) => {
+                let (exceptions, rules) = bitg_core::user::parse(&text);
+                opts.exceptions = exceptions;
+                opts.rules = rules;
+            }
+            Err(e) => {
+                eprintln!("bitg: {path}: {e}");
+                return ExitCode::FAILURE;
+            }
+        },
+        Ok(None) => {}
+        Err(()) => {
+            eprintln!("bitg: --exceptions FAYL kerak");
+            return ExitCode::FAILURE;
+        }
+    }
     args.retain(|a| match a.as_str() {
         "--no-guard" => {
             opts.english_guard = false;
@@ -121,6 +142,30 @@ fn main() -> ExitCode {
         "convert" => out(&bitg_core::convert(&rest(1), &opts)),
         _ => out(&bitg_core::convert(&rest(0), &opts)),
     }
+}
+
+/// `--exceptions FAYL` yoki `--exceptions=FAYL` ni ro'yxatdan oladi; oxirgisi hisoblanadi.
+fn take_exceptions(args: &mut Vec<String>) -> Result<Option<String>, ()> {
+    let mut path = None;
+    let mut i = 0;
+    while i < args.len() {
+        if args[i] == "--exceptions" {
+            if i + 1 >= args.len() {
+                return Err(());
+            }
+            path = Some(args.remove(i + 1));
+            args.remove(i);
+        } else if let Some(p) = args[i].strip_prefix("--exceptions=") {
+            if p.is_empty() {
+                return Err(());
+            }
+            path = Some(p.to_string());
+            args.remove(i);
+        } else {
+            i += 1;
+        }
+    }
+    Ok(path)
 }
 
 fn out(s: &str) -> ExitCode {

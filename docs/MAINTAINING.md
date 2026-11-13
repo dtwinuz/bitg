@@ -12,7 +12,7 @@ so'ralmaydi va berilmaydi. Har bir maintainer o'z akkauntida 2FA'ni yoqib qo'yad
 |---|---|---|
 | Repo, PR, issue, reliz | [github.com/dtwinuz/bitg](https://github.com/dtwinuz/bitg) | `dtwinuz` org owner yoki repo admin |
 | `main` qoidalari (ruleset) | Settings → Rules → `main` | admin |
-| Actions secrets (`BITG_SIGN_PFX`, `CHOCO_API_KEY`, `BITG_DEVBOT_TOKEN`) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
+| Actions secrets (`BITG_SIGN_PFX`, `CHOCO_API_KEY`, `BITG_DEVBOT_TOKEN`; environment'lar: `winget` → `WINGET_TOKEN`, `chocolatey` → `CHOCO_API_KEY`, `aur` → `AUR_SSH_KEY`) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
 | Homebrew tap | [dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap) | org a'zosi |
 | Xavfsizlik xabarlari | Security → Advisories (yopiq) | admin |
 
@@ -94,14 +94,14 @@ gh release download v0.3.2 -R dtwinuz/bitg -D dist --clobber
 python tools/release/packaging.py      # winget, Chocolatey va Homebrew fayllarini yangilaydi
 ```
 
-Natijani PR qilib yuboring. `packaging` workflow'i paketni Windows'da o'rnatib sinaydi. Keyin:
+Natijani PR qilib yuboring: `packaging` workflow'i winget manifesti va Chocolatey paketini haqiqiy Windows'da o'rnatib sinaydi (repodagi nusxa — sinov va hujjat). Kanallar:
 
 | Kanal | Qanday |
 |---|---|
-| winget | `packaging/winget/manifests/d/dtwinuz/bitg/<v>/` → [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) ga PR ("Update: dtwinuz.bitg to <v>"). Oldingi versiya PR'i hali ochiq bo'lsa, kuting |
-| Chocolatey | Actions → `packaging` → Run workflow, `publish = true` |
-| Homebrew | `packaging/homebrew/Casks/bitg.rb` → `dtwinuz/homebrew-tap` ga PR |
-| AUR | `packaging/aur/PKGBUILD` va `.SRCINFO` ni yangilang (`aur` workflow'i Arch'da yig'ib sinaydi), so'ng AUR akkauntidan yuboriladi |
+| winget | **avtomatik**: `release.yml` → `stores.yml` Komac bilan [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) ga PR ochadi (MSI attestation tekshiruvidan keyin). Token: environment `winget` → `WINGET_TOKEN` (classic, faqat `public_repo`). Qayta yuborish: Actions → `stores` → Run workflow |
+| Chocolatey | **avtomatik**: `stores.yml` relizdagi MSI'dan paket yasaydi, Windows'da o'rnatib-o'chirib sinaydi va environment `chocolatey` → `CHOCO_API_KEY` bilan yuboradi (community.chocolatey.org moderatsiyasi). Qo'lda: Actions → `packaging` → `publish = true` |
+| Homebrew | **avtomatik**: `dtwinuz/homebrew-tap` dagi `autobump` (har 3 soatda) yangi relizni topadi, `.pkg` sha256 va attestation'ini tekshiradi, macOS'da o'rnatib sinab, cask'ni yangilaydi. Darhol kerak bo'lsa: tap → Actions → `autobump` → Run workflow |
+| AUR | **avtomatik**: `stores.yml` PKGBUILD'ni teg manbasiga yangilaydi, Arch konteynerida `check()` bilan yig'adi, `.SRCINFO` ni yozadi va environment `aur` → `AUR_SSH_KEY` (faqat AUR uchun alohida kalit; ochiq qismi AUR akkauntida) bilan push qiladi |
 
 ## 7. bitg.uz sayti va apt ombori
 
