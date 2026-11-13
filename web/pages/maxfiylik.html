@@ -8,14 +8,16 @@
  "crumb": "Maxfiylik",
  "card": "Matn saqlanmaydi, tarmoq yo‘q. Har qism nimani ko‘radi.",
  "lead": "Qisqasi: <b>Windows dasturi va onlayn konvertor matningizni hech qayerga yubormaydi va saqlamaydi</b>. O‘girish sizning kompyuteringizda bo‘ladi. Quyida har qism bo‘yicha aniq.",
- "updated": "2026-11-12",
+ "updated": "2026-11-13",
  "schema": ["Article"],
  "links": ["/haqida/", "/yuklab-olish/", "/konvertor/"]
 }
 ---
       <h2>Windows dasturi</h2>
       <ul>
-        <li><b>Tarmoq yo‘q.</b> O‘girish yadrosi dasturning ichida, internetga ulanmaydi.</li>
+        <li><b>Matn tarmoqqa chiqmaydi.</b> O‘girish yadrosi dasturning ichida; yozgan so‘zlaringiz hech qayerga yuborilmaydi.</li>
+        <li><b>Yangilanish tekshiruvi</b> (0.4.0 versiyadan): dastur kuniga bir marta <span data-no-conv>bitg.uz/update/stable.json</span> faylini o‘qiydi. So‘rovda faqat dastur versiyasi (<span data-no-conv>bitg/0.4.0 (Windows)</span>) bo‘ladi. Yangi versiya faqat GitHub Releases’dan, hajmi va SHA-256 mos kelsa o‘rnatiladi. Sozlamalarda o‘chirib qo‘yish mumkin.</li>
+        <li><b>«Xabar berish» oynasi</b> (0.4.0 versiyadan) faqat siz «Yuborish» ni bossangiz ishlaydi: yozgan xabaringiz, ixtiyoriy rasm va aloqa, dastur versiyasi va tasodifiy o‘rnatish raqami (ism yoki qurilma ma’lumoti emas) <span data-no-conv>bitg.uz</span> orqali bizga keladi. Diagnostika (Windows build, sozlamalar soni) faqat belgilasangiz qo‘shiladi.</li>
         <li><b>Matn saqlanmaydi.</b> Log faylida (<code>%LOCALAPPDATA%\bitg\tsf.log</code>) faqat vaqt, dastur nomi va natija bo‘ladi (masalan, «converted»). Yozgan so‘zlaringiz unga tushmaydi.</li>
         <li><b>Sozlamalar</b> sizning kompyuteringizda: <code>%APPDATA%\bitg\settings.ini</code> va istisnolar ro‘yxati <code>exceptions.txt</code>. Istisnoga faqat siz qo‘shgan yoki «qaytarilgan so‘zni yozish» yoqilganda qaytargan so‘zingiz yoziladi.</li>
         <li><b>Clipboard</b> faqat <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> bosilganda ishlatiladi: belgilangan matn olinadi, o‘giriladi, joyiga qo‘yiladi va avvalgi nusxa qaytariladi.</li>
@@ -23,15 +25,28 @@
       </ul>
 
       <h2>Onlayn konvertor</h2>
-      <p>Sahifa bitg yadrosini (WebAssembly fayli) bir marta yuklab oladi, so‘ng matn brauzerning o‘zida o‘giriladi. Matn serverga yuborilmaydi — saytning xavfsizlik siyosati (CSP) sahifaga faqat o‘z serveriga murojaat qilishga ruxsat beradi, konvertor esa matn bilan hech qanday so‘rov yubormaydi.</p>
+      <p>Sahifa bitg yadrosini (WebAssembly fayli) bir marta yuklab oladi, so‘ng matn brauzerning o‘zida o‘giriladi. Matn serverga yuborilmaydi: konvertor matn bilan hech qanday so‘rov yubormaydi. Saytning xavfsizlik siyosati (CSP) sahifaga faqat o‘z serveri va Yandex Metrica’ga murojaat qilishga ruxsat beradi; Metrica’ga matn ham, maydonlarga yozilgan narsa ham bormaydi (quyida).</p>
 
       <h2>Telegram bot</h2>
       <p>Botga yuborilgan xabar o‘girish uchun Telegram orqali botga keladi — bu Telegram’ning ishlash usuli. Bot xabar matnini saqlamaydi va logga yozmaydi; faqat umumiy sanoq yuritiladi (nechta xabar). Maxfiy matnni botga emas, konvertorga yoki Windows dasturiga bering.</p>
 
+      <h2>Brauzer kengaytmasi (Chrome, Edge, Firefox)</h2>
+      <ul>
+        <li><b>Tarmoq yo‘q.</b> bitg yadrosi kengaytma ichida (WebAssembly), matn brauzeringizda o‘giriladi va hech qayerga yuborilmaydi; kengaytmaning xavfsizlik siyosati (CSP) tashqi so‘rovlarni taqiqlaydi.</li>
+        <li>Matn saqlanmaydi. Brauzer sinxron xotirasida faqat sozlamalar: interfeys tili va «yozayotganda o‘girish» yoqilgan saytlar ro‘yxati.</li>
+        <li>Sahifaga faqat siz bosganda kiradi (kontekst menyu, tugma yoki tezkor tugma) — o‘sha bitta tab uchun. Yozayotganda o‘girish faqat siz yoqqan saytda ishlaydi; o‘chirilganda brauzer ruxsati ham olib tashlanadi.</li>
+        <li>Bufer faqat yozish uchun: belgilangan matn tahrirlanmaydigan joyda bo‘lsa, o‘girilgani buferga nusxalanadi. Kengaytma buferni o‘qimaydi.</li>
+        <li>Analitika, reklama, cookie yo‘q.</li>
+      </ul>
+
+      <h2>AI yordamchilar uchun MCP server (bitg.uz/mcp)</h2>
+      <p>ChatGPT, Claude, Gemini va boshqa AI yordamchilar <a href="/ai/">bitg’ni ulaganda</a> matnni o‘girish uchun shu serverga yuboradi. Matn faqat xotirada o‘giriladi, diskka va logga yozilmaydi. So‘rovlar sonini cheklash uchun IP manzil bir daqiqa xotirada turadi. Matnni AI xizmatining o‘zi (OpenAI, Anthropic, Google) qanday saqlashi — o‘sha xizmat shartlariga bog‘liq.</p>
+
       <h2>Sayt</h2>
       <ul>
-        <li>Cookie, reklama va tashqi analitika yo‘q.</li>
-        <li>Brauzeringizda faqat ikki sozlama saqlanadi: mavzu (yorug‘/qorong‘i) va sahifa alifbosi (eski/yangi).</li>
+        <li><b>Yandex Metrica</b> (2026-11-13 dan): qaysi sahifa ochilgani, qayerdan kelingani (qidiruv, Telegram va h.k.), qurilma turi, havola va tugmalar bosilishi. Bu Yandex’ga to‘liq IP manzil va Metrica cookie’lari (<span data-no-conv>_ym_*</span>) bilan boradi — <a href="https://yandex.com/legal/metrica_termsofuse/" rel="noopener">Yandex shartlari</a>. <b>Webvisor (ekranni yozib olish) va forma tahlili o‘chiq</b>: konvertor yoki boshqa maydonlarga yozgan matningiz yuborilmaydi. Brauzeringizda «Do Not Track» yoki Global Privacy Control yoqilgan bo‘lsa, Metrica umuman yuklanmaydi.</li>
+        <li>Reklama yo‘q.</li>
+        <li>bitg’ning o‘zi brauzeringizda faqat ikki sozlama saqlaydi: mavzu (yorug‘/qorong‘i) va sahifa alifbosi (eski/yangi).</li>
         <li>Server sahifa va fayl so‘rovlari jurnalini yuritadi: <b>qisqartirilgan</b> IP manzil (oxirgi qismi nol bilan almashtiriladi, masalan <span data-no-conv>203.0.113.0</span>), ochilgan sahifa, vaqt va brauzer turi. Jurnal 30 kundan keyin o‘chadi.</li>
         <li>Shu jurnaldan faqat <b>umumiy sonlar</b> chiqariladi: kuniga nechta tashrif, qaysi tizim uchun nechta yuklab olish. Bu sonlarda IP manzil va brauzer ma’lumoti yo‘q; ular bitg’ni qaysi tizim uchun yaxshilash kerakligini bilish uchun.</li>
         <li>Saytdagi tizim aniqlash (Windows, Mac, Linux yoki telefon) brauzeringizning o‘zida bo‘ladi va hech qayerga yuborilmaydi — faqat mos tugmani birinchi ko‘rsatadi.</li>
