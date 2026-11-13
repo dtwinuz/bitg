@@ -84,12 +84,17 @@ fn machine_flag(value: &str) -> bool {
     if let Some(v) = dword(HKEY_LOCAL_MACHINE, MACHINE_KEY, value) {
         return v == 1;
     }
+    short_sz(HKEY_LOCAL_MACHINE, MACHINE_KEY, value).as_deref() == Some("1")
+}
+
+/// Qisqa satr qiymati (`"0"`, `"1"`); yo'q yoki 7 belgidan uzun — `None`.
+fn short_sz(root: HKEY, key: &str, value: &str) -> Option<String> {
     let mut buf = [0u16; 8];
     let mut size = (buf.len() * 2) as u32;
-    let ok = unsafe {
+    unsafe {
         RegGetValueW(
-            HKEY_LOCAL_MACHINE,
-            &HSTRING::from(MACHINE_KEY),
+            root,
+            &HSTRING::from(key),
             &HSTRING::from(value),
             RRF_RT_REG_SZ,
             None,
@@ -97,8 +102,28 @@ fn machine_flag(value: &str) -> bool {
             Some(&mut size),
         )
     }
-    .is_ok();
-    ok && buf[0] == u16::from(b'1') && buf[1] == 0
+    .ok()
+    .ok()?;
+    let len = buf.iter().position(|&c| c == 0).unwrap_or(buf.len());
+    Some(String::from_utf16_lossy(&buf[..len]))
+}
+
+fn reg_flag(root: HKEY, key: &str, value: &str) -> Option<bool> {
+    crate::policy::reg_flag(
+        dword(root, key, value),
+        short_sz(root, key, value).as_deref(),
+    )
+}
+
+/// Yangilanish tekshiruvi: administrator siyosati (`SOFTWARE\Policies\bitg\UpdateCheck`, avval HKLM, keyin HKCU)
+/// va o'rnatuvchi standarti (`HKLM\SOFTWARE\bitg\UpdateCheck`, MSI `UPDATECHECK`). Ustunlik — `policy` modulida.
+pub fn update_policy() -> crate::policy::UpdatePolicy {
+    const POLICY_KEY: &str = r"SOFTWARE\Policies\bitg";
+    crate::policy::UpdatePolicy {
+        machine_default: reg_flag(HKEY_LOCAL_MACHINE, MACHINE_KEY, "UpdateCheck"),
+        forced: reg_flag(HKEY_LOCAL_MACHINE, POLICY_KEY, "UpdateCheck")
+            .or_else(|| reg_flag(HKEY_CURRENT_USER, POLICY_KEY, "UpdateCheck")),
+    }
 }
 
 fn set_dword(root: HKEY, key: &str, value: &str, v: u32) -> windows::core::Result<()> {

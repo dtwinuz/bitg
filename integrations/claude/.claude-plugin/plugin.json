@@ -1,0 +1,23 @@
+{
+  "name": "bitg",
+  "version": "0.4.0",
+  "description": "Write and convert Uzbek text in the new 2026 Latin alphabet (Ö Ğ Ş Ç) with the bitg engine.",
+  "author": {
+    "name": "dtwinuz",
+    "url": "https://github.com/dtwinuz"
+  },
+  "homepage": "https://bitg.uz",
+  "repository": "https://github.com/dtwinuz/bitg",
+  "license": "MIT OR Apache-2.0",
+  "keywords": [
+    "uzbek",
+    "alphabet",
+    "transliteration",
+    "ozbek",
+    "yangi alifbo",
+    "mcp"
+  ],
+  "privacyPolicyUrl": "https://bitg.uz/maxfiylik/",
+  "documentationUrl": "https://bitg.uz/ai/",
+  "supportUrl": "https://github.com/dtwinuz/bitg/issues"
+}

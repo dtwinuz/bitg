@@ -1,3 +1,0 @@
-// 1 — asosiy ikonka (exe, oyna, tray), 2 — o'chiq holat (tray).
-1 ICON "assets/bitg.ico"
-2 ICON "assets/bitg-off.ico"

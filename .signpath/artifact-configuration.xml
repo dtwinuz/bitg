@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+  SPDX-License-Identifier: MIT OR Apache-2.0
+
+  SignPath artifact configuration for the Windows installer (see docs/CODE_SIGNING.md).
+
+  SignPath reads this configuration from the SignPath project, not from the repository: this file is the reviewed
+  source of truth. After changing it, paste it into SignPath (project "bitg" -> Artifact configurations -> default
+  -> Edit) in the same pull request review.
+
+  Input: the GitHub Actions artifact "msi" uploaded by .github/workflows/build.yml (a ZIP archive, therefore the root
+  element is <zip-file>). It holds bitg-<version>-x64.msi and its .sha256; the .sha256 is not signed and is
+  recomputed by the workflow after signing.
+
+  Deep signing (SignPath's single-pass method for installers): SignPath signs the PE files inside the MSI,
+  re-packs the MSI and then signs the MSI itself. All four PE files are built from this repository
+  (installer/build.ps1). No third-party PE file is installed; the WiX custom action DLL lives in the MSI Binary
+  table and is not a nested file.
+
+  Metadata restrictions are a SignPath Foundation requirement (https://signpath.org/terms, "Artifact
+  configuration"): every signed PE file must carry product name "bitg" and the release version. The version is the
+  `version` parameter sent by the workflow (inputs.version, equal to Cargo.toml).
+
+  Paths inside the MSI follow the installed layout (Package.wxs):
+    <ProgramFiles64Folder>/bitg/bitg-settings.exe
+    <ProgramFiles64Folder>/bitg/bitg.exe
+    <ProgramFiles64Folder>/bitg/ime/<version>/bitg_tsf.dll       (x64 TSF IME)
+    <ProgramFiles64Folder>/bitg/ime/<version>/x86/bitg_tsf.dll   (x86 TSF IME)
+  The leading "**" absorbs the root folder name SignPath shows for the MSI; confirm it once with
+  "Update from an artifact sample" in SignPath before the first release signing.
+-->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <msi-file path="bitg-${version}-x64.msi">
+      <pe-file-set product-name="bitg" product-version="${version}">
+        <include path="**/bitg/bitg-settings.exe" />
+        <include path="**/bitg/bitg.exe" />
+        <include path="**/bitg/ime/${version}/bitg_tsf.dll" />
+        <include path="**/bitg/ime/${version}/x86/bitg_tsf.dll" />
+        <for-each>
+          <authenticode-sign description="bitg" description-url="https://bitg.uz" />
+        </for-each>
+      </pe-file-set>
+      <authenticode-sign description="bitg" description-url="https://bitg.uz" />
+    </msi-file>
+  </zip-file>
+</artifact-configuration>

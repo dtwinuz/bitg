@@ -24,6 +24,9 @@ on:
         required: false
       BITG_SIGN_PFX_PASSWORD:
         required: false
+      # SignPath Foundation (docs/CODE_SIGNING.md). Repo o'zgaruvchisi SIGNPATH_ORGANIZATION_ID bo'lmasa ishlatilmaydi.
+      SIGNPATH_API_TOKEN:
+        required: false
 
 permissions:
   contents: read
@@ -109,6 +112,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
     env:
       VERSION: ${{ inputs.version }}
     steps:
@@ -138,6 +143,7 @@ jobs:
           BITG_SIGN_PFX_PASSWORD: ${{ secrets.BITG_SIGN_PFX_PASSWORD }}
         run: if ($env:BITG_SIGN_PFX) { ./installer/build.ps1 -Version $env:VERSION -SkipCargo }
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: upload
         with:
           name: msi
           path: |
@@ -145,10 +151,86 @@ jobs:
             dist/bitg-${{ inputs.version }}-x64.msi.sha256
           if-no-files-found: error
 
+  sign-msi:
+    # SignPath Foundation Authenticode imzosi (docs/CODE_SIGNING.md, .signpath/artifact-configuration.xml).
+    # `msi` artifact'i SignPath'ga yuboriladi: u MSI ichidagi exe/dll'larni imzolaydi, MSI'ni qayta yig'adi va MSI'ning
+    # o'zini imzolaydi (deep signing, bitta o'tish). Imzolangan MSI va yangi .sha256 o'sha `msi` nomi bilan qayta
+    # yuklanadi (overwrite), shuning uchun attest, verify va publish faqat imzolangan faylni ko'radi va provenance
+    # imzolangan faylning sha256 iga yoziladi.
+    # Repo kodi checkout qilinmaydi va hech narsa kompilyatsiya qilinmaydi: SignPath API tokeni begona kodga ko'rinmaydi.
+    # Relizda (v* teg) release-signing siyosati, har bir so'rovni approver SignPath'da qo'lda tasdiqlaydi; qo'lda
+    # ishga tushirilgan sinovda test-signing siyosati (ishonchsiz test sertifikati).
+    # SIGNPATH_ORGANIZATION_ID o'zgaruvchisi bo'lmasa job Ubuntu'da bitta echo qiladi va `msi` artifact'i o'zgarmaydi.
+    needs: msi
+    runs-on: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' && 'windows-latest' || 'ubuntu-24.04' }}
+    timeout-minutes: 150
+    permissions:
+      contents: read
+      actions: read
+    env:
+      VERSION: ${{ inputs.version }}
+      RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    steps:
+      - name: SignPath sozlanmagan
+        if: vars.SIGNPATH_ORGANIZATION_ID == ''
+        run: echo "SIGNPATH_ORGANIZATION_ID yo'q - MSI imzosiz qoladi (docs/CODE_SIGNING.md)"
+      - uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        id: signpath
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'bitg' }}
+          signing-policy-slug: ${{ startsWith(github.ref, 'refs/tags/v') && 'release-signing' || 'test-signing' }}
+          github-artifact-id: ${{ needs.msi.outputs.artifact-id }}
+          wait-for-completion: true
+          # Approver'ga qo'lda tasdiqlash uchun 2 soat
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: signed
+          parameters: |
+            version: ${{ toJSON(inputs.version) }}
+      # Imzolangan MSI va undan admin-o'rnatish bilan chiqarilgan barcha exe/dll: imzo bormi, bitta sertifikatmi;
+      # relizda Windows ishonadigan zanjir (Status Valid) va nashriyotchi SignPath Foundation bo'lishi shart.
+      - name: Imzoni tekshirish
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        shell: pwsh
+        run: |
+          $msi = Join-Path $PWD "signed/bitg-$env:VERSION-x64.msi"
+          if (-not (Test-Path $msi)) { Get-ChildItem -Recurse signed | Format-Table FullName, Length; throw "$msi yo'q" }
+          $img = Join-Path $env:RUNNER_TEMP 'msi-admin'
+          $p = Start-Process msiexec.exe -ArgumentList '/a', "`"$msi`"", '/qn', "TARGETDIR=`"$img`"" -Wait -PassThru
+          if ($p.ExitCode) { throw "msiexec /a: $($p.ExitCode)" }
+          $pe = @(Get-ChildItem $img -Recurse -Include *.exe, *.dll)
+          if ($pe.Count -ne 4) { $pe.FullName; throw "MSI ichida 4 ta PE fayl kutilgan, bor: $($pe.Count)" }
+          $thumb = (Get-AuthenticodeSignature $msi).SignerCertificate.Thumbprint
+          foreach ($f in @(Get-Item $msi) + $pe) {
+            $s = Get-AuthenticodeSignature $f.FullName
+            "{0,-14} {1} | {2}" -f $s.Status, $f.Name, $s.SignerCertificate.Subject
+            if (-not $s.SignerCertificate -or $s.SignerCertificate.Thumbprint -ne $thumb) { throw "$($f.Name): imzo yo'q yoki boshqa sertifikat" }
+            if ($env:RELEASE -eq 'true') {
+              if ($s.Status -ne 'Valid') { throw "$($f.Name): $($s.Status) $($s.StatusMessage)" }
+              if ($s.SignerCertificate.Subject -notmatch 'CN="?SignPath Foundation') { throw "$($f.Name): nashriyotchi SignPath Foundation emas" }
+              if (-not $s.TimeStamperCertificate) { throw "$($f.Name): vaqt tamg'asi yo'q" }
+            }
+          }
+          $hash = (Get-FileHash $msi -Algorithm SHA256).Hash.ToLower()
+          "$hash  $(Split-Path $msi -Leaf)" | Set-Content -Encoding ascii "$msi.sha256"
+          Get-ChildItem signed -Recurse -Filter *.sha256 | Where-Object FullName -ne "$msi.sha256" | Remove-Item
+          "SHA256 $hash"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: vars.SIGNPATH_ORGANIZATION_ID != ''
+        with:
+          name: msi
+          overwrite: true
+          path: |
+            signed/bitg-${{ inputs.version }}-x64.msi
+            signed/bitg-${{ inputs.version }}-x64.msi.sha256
+          if-no-files-found: error
+
   attest:
     # Faqat shu job imzolaydi. U repo kodini ishga tushirmaydi va hech narsa kompilyatsiya qilmaydi: tayyor paketlarni
     # yuklab oladi, sha256 ni tekshiradi va attestation yozadi.
-    needs: [deb, pkg, msi]
+    needs: [deb, pkg, msi, sign-msi]
     runs-on: ubuntu-24.04
     permissions:
       contents: read

@@ -14,6 +14,9 @@
   Administrator uchun xossalar (msiexec /i bitg.msi /qn XOSSA=0):
     AUTOSTART=1|0     barcha foydalanuvchilarda Windows bilan trayda ishga tushish (har kim ilovadan o'zi o'chira oladi)
     ADDKEYBOARD=1|0   ilova birinchi ochilganda klaviaturani foydalanuvchining tillar ro'yxatiga qo'shsinmi
+    UPDATECHECK=1|0   kuniga bir marta bitg.uz/update/stable.json o'qilsinmi (standart). Foydalanuvchi ilovada
+                      o'zgartira oladi; majburlash uchun siyosat: HKLM\SOFTWARE\Policies\bitg\UpdateCheck (DWORD 0|1).
+                      Oynali o'rnatishda "Maxfiylik" oynasidagi belgi shu xossani qo'yadi.
   Tanlov HKLM\SOFTWARE\bitg da saqlanadi va yangilashda eslab qolinadi (buyruq qatoridagi qiymat ustun).
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
@@ -30,6 +33,10 @@
 
     <SummaryInformation Description="bitg $(Version): o'zbek matnini 2026 alifbosiga o'giruvchi klaviatura" />
 
+    <!-- Binarlarda VERSIONINFO bor (File jadvalida versiya, tools/winres/versioninfo.rs). afterInstallInitialize:
+         eski mahsulot fayllar o'rnatilishidan OLDIN to'liq o'chiriladi, shuning uchun fayl versiyalash qoidalari
+         (teng versiyali fayl almashtirilmaydi) yangilashga ta'sir qilmaydi: bir xil versiyani qayta qurish
+         (AllowSameVersionUpgrades) ham yangi binarlarni o'rnatadi. afterInstallExecute'ga o'tkazilsa, bu buziladi. -->
     <MajorUpgrade Schedule="afterInstallInitialize"
                   AllowSameVersionUpgrades="yes"
                   DowngradeErrorMessage="!(loc.Downgrade)" />
@@ -63,6 +70,20 @@
     <SetProperty Action="RestoreAddKeyboard" Id="ADDKEYBOARD" Value="[CMDLINE_ADDKEYBOARD]" After="AppSearch" Sequence="first" Condition="CMDLINE_ADDKEYBOARD" />
     <SetProperty Action="DefaultAutostart" Id="AUTOSTART" Value="1" After="RestoreAutostart" Sequence="first" Condition="NOT AUTOSTART" />
     <SetProperty Action="DefaultAddKeyboard" Id="ADDKEYBOARD" Value="1" After="RestoreAddKeyboard" Sequence="first" Condition="NOT ADDKEYBOARD" />
+
+    <!-- UPDATECHECK oynada (PrivacyDlg) o'zgaradi. Sequence="both": execute (server) ketma-ketligida AppSearch qayta
+         ishlaydi va reestrdagi eski qiymatni yozib qo'yadi; "first" bo'lsa Restore u yerda ishlamas va oynadagi tanlov
+         yo'qolardi. Mijoz yakuniy qiymatni (Secure) serverga beradi, server uni AppSearch'dan keyin qayta tiklaydi. -->
+    <Property Id="UPDATECHECK" Secure="yes">
+      <RegistrySearch Id="RememberUpdateCheck" Root="HKLM" Key="SOFTWARE\bitg" Name="UpdateCheck" Type="raw" Bitness="always64" />
+    </Property>
+    <SetProperty Id="CMDLINE_UPDATECHECK" Value="[UPDATECHECK]" Before="AppSearch" Sequence="both" Condition="UPDATECHECK" />
+    <SetProperty Action="RestoreUpdateCheck" Id="UPDATECHECK" Value="[CMDLINE_UPDATECHECK]" After="AppSearch" Sequence="both" Condition="CMDLINE_UPDATECHECK" />
+    <!-- 0 dan boshqa har qanday qiymat (bo'sh, "yes") — 1. -->
+    <SetProperty Action="DefaultUpdateCheck" Id="UPDATECHECK" Value="1" After="RestoreUpdateCheck" Sequence="both"
+                 Condition="UPDATECHECK &lt;&gt; &quot;0&quot;" />
+    <!-- Oynadagi belgi UPDATECHECK qiymatini ko'rsatadi; O'rnatish bosilganda UPDATECHECK'ka 1 yoki 0 yoziladi. -->
+    <SetProperty Id="UPDATECHECKBOX" Value="1" After="DefaultUpdateCheck" Sequence="ui" Condition="UPDATECHECK = &quot;1&quot;" />
 
     <!-- ===== Fayllar ===== -->
     <StandardDirectory Id="ProgramFiles64Folder">
@@ -118,6 +139,8 @@
           <RegistryValue Name="Version" Type="string" Value="$(Version)" />
           <RegistryValue Name="Autostart" Type="string" Value="[AUTOSTART]" />
           <RegistryValue Name="AddKeyboard" Type="string" Value="[ADDKEYBOARD]" />
+          <!-- Ilova uchun standart: settings.ini'da foydalanuvchi tanlovi bo'lmasa (crates/bitg-settings/src/policy.rs). -->
+          <RegistryValue Name="UpdateCheck" Type="string" Value="[UPDATECHECK]" />
         </RegistryKey>
       </Component>
 
@@ -190,6 +213,35 @@
     <UI>
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApp"
                Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+
+      <!-- Maxfiylik: litsenziyadan keyin, o'rnatishdan oldin (yangi o'rnatish va yangilashda, oynali rejimda).
+           Siyosat havolasi va bitg.uz bilan yagona aloqa (yangilanish tekshiruvi) ni o'chirish belgisi.
+           Jim o'rnatishda (/qn, /passive) oyna yo'q: UPDATECHECK=0 buyruq qatorida beriladi. -->
+      <Dialog Id="PrivacyDlg" Width="370" Height="270" Title="!(loc.PrivacyDlg_Title)">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="WixUI_Bmp_Banner" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="270" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.PrivacyDlgTitle)" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.PrivacyDlgDescription)" />
+        <Control Id="Body" Type="Text" X="20" Y="56" Width="330" Height="80" NoPrefix="yes" Text="!(loc.PrivacyDlgText)" />
+        <Control Id="Link" Type="Hyperlink" X="20" Y="138" Width="330" Height="14"
+                 Text="&lt;a href=&quot;https://bitg.uz/maxfiylik/&quot;&gt;https://bitg.uz/maxfiylik/&lt;/a&gt;" />
+        <Control Id="UpdateCheckBox" Type="CheckBox" X="20" Y="164" Width="330" Height="18" Property="UPDATECHECKBOX"
+                 CheckBoxValue="1" Text="!(loc.PrivacyDlgCheckBox)" />
+        <Control Id="CheckBoxNote" Type="Text" X="37" Y="184" Width="313" Height="40" NoPrefix="yes" Text="!(loc.PrivacyDlgCheckBoxNote)" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Install" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" ElevationShield="yes"
+                 Text="!(loc.PrivacyDlgInstall)">
+          <Publish Property="UPDATECHECK" Value="1" Condition="UPDATECHECKBOX = &quot;1&quot;" Order="1" />
+          <Publish Property="UPDATECHECK" Value="0" Condition="NOT UPDATECHECKBOX = &quot;1&quot;" Order="2" />
+          <Publish Event="EndDialog" Value="Return" Order="3" />
+        </Control>
+        <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
+        </Control>
+      </Dialog>
+      <InstallUISequence>
+        <Show Dialog="PrivacyDlg" After="WelcomeEulaDlg" Condition="NOT Installed" />
+      </InstallUISequence>
     </UI>
   </Package>
 </Wix>

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "uz.bitg/bitg",
+  "title": "bitg — new Uzbek alphabet",
+  "description": "Convert Uzbek text to the new 2026 Latin alphabet (Ö Ğ Ş Ç) from old Latin or Cyrillic.",
+  "websiteUrl": "https://bitg.uz",
+  "repository": {
+    "url": "https://github.com/dtwinuz/bitg",
+    "source": "github"
+  },
+  "version": "0.4.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://bitg.uz/mcp"
+    }
+  ]
+}

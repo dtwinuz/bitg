@@ -28,8 +28,17 @@
   <String Id="WelcomeEulaDlg_Title" Value="[ProductName] o'rnatuvchisi" />
   <String Id="WelcomeEulaDlgTitle" Value="{\WixUI_Font_Title}[ProductName] litsenziyasi" />
   <String Id="WelcomeEulaDlgLicenseAcceptedCheckBox" Value="Litsenziya shartlarini &amp;qabul qilaman" />
-  <String Id="WelcomeEulaDlgInstall" Value="&amp;O'rnatish" />
-  <String Id="WelcomeEulaDlgUpdate" Value="&amp;Yangilash" />
+  <!-- Litsenziyadan keyin "Maxfiylik" oynasi keladi (Package.wxs PrivacyDlg): o'rnatish o'sha yerda boshlanadi. -->
+  <String Id="WelcomeEulaDlgInstall" Value="&amp;Keyingi" />
+  <String Id="WelcomeEulaDlgUpdate" Value="&amp;Keyingi" />
+
+  <String Id="PrivacyDlg_Title" Value="[ProductName] o'rnatuvchisi" />
+  <String Id="PrivacyDlgTitle" Value="{\WixUI_Font_Title}Maxfiylik" />
+  <String Id="PrivacyDlgDescription" Value="bitg qanday ma'lumot yuboradi va uni qanday o'chirish mumkin." />
+  <String Id="PrivacyDlgText" Value="bitg yozgan matningizni hech qayerga yubormaydi va saqlamaydi: o'girish shu kompyuterda bo'ladi. Internetga bitta avtomatik murojaat bor: yangilanishlarni tekshirish. Yoqilgan bo'lsa, ilova kuniga bir marta bitg.uz/update/stable.json faylini (versiya raqami) o'qiydi; server so'rovni boshqa sahifalar kabi qisqartirilgan IP manzil bilan 30 kun jurnalda saqlaydi. Maxfiylik siyosati:" />
+  <String Id="PrivacyDlgCheckBox" Value="&amp;Yangilanishlarni avtomatik tekshirish (bitg.uz)" />
+  <String Id="PrivacyDlgCheckBoxNote" Value="Keyin ham o'zgartirish mumkin: bitg sozlamalari, Qoidalar, Ilova. Administrator: msiexec /i bitg.msi UPDATECHECK=0 yoki HKLM\SOFTWARE\Policies\bitg\UpdateCheck = 0." />
+  <String Id="PrivacyDlgInstall" Value="&amp;O'rnatish" />
 
   <String Id="PrepareDlg_Title" Value="[ProductName] o'rnatuvchisi" />
   <String Id="PrepareDlgTitle" Value="{\WixUI_Font_Bigger}[ProductName] o'rnatuvchisi" />

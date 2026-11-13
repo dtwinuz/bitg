@@ -1,0 +1,22 @@
+{
+  "extName": {
+    "message": "bitg — новый узбекский алфавит (Ö Ğ Ş Ç)",
+    "description": "Extension name (store limit 45)"
+  },
+  "extDescription": {
+    "message": "Переводит узбекский текст со старой латиницы и кириллицы на новый алфавит (Ö Ğ Ş Ç): выделение, страница, набор. Офлайн.",
+    "description": "Short description (store limit 132)"
+  },
+  "actionTitle": {
+    "message": "bitg — перевод в новый алфавит",
+    "description": "Toolbar button tooltip"
+  },
+  "cmdConvert": {
+    "message": "Перевести выделенный текст в новый алфавит",
+    "description": "Keyboard shortcut: convert selection"
+  },
+  "cmdPage": {
+    "message": "Показать страницу в новом алфавите / вернуть",
+    "description": "Keyboard shortcut: toggle page"
+  }
+}

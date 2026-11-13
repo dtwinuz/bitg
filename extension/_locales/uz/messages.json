@@ -1,0 +1,22 @@
+{
+  "extName": {
+    "message": "bitg — yangi o‘zbek alifbosi (Ö Ğ Ş Ç)",
+    "description": "Extension name (store limit 45)"
+  },
+  "extDescription": {
+    "message": "Eski lotin va kirill matnni yangi o‘zbek alifbosiga (Ö Ğ Ş Ç) o‘giradi: belgilangan matn, sahifa, yozayotganda. Oflayn.",
+    "description": "Short description (store limit 132)"
+  },
+  "actionTitle": {
+    "message": "bitg — yangi alifboga o‘girish",
+    "description": "Toolbar button tooltip"
+  },
+  "cmdConvert": {
+    "message": "Belgilangan matnni yangi alifboga o‘girish",
+    "description": "Keyboard shortcut: convert selection"
+  },
+  "cmdPage": {
+    "message": "Sahifani yangi alifboda ko‘rish / asl holiga qaytarish",
+    "description": "Keyboard shortcut: toggle page"
+  }
+}

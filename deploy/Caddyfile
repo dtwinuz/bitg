@@ -102,6 +102,28 @@
 		file_server
 	}
 
+	# ochiq MCP server (bot/src/mcp.rs): AI yordamchilar uchun convert_text; login yo'q, bot o'zi cheklaydi
+	handle /mcp {
+		request_body {
+			max_size 256KB
+		}
+		header {
+			Cache-Control "no-store"
+			Access-Control-Allow-Origin "*"
+			Access-Control-Allow-Methods "POST, OPTIONS"
+			Access-Control-Allow-Headers "Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id"
+		}
+		@preflight method OPTIONS
+		respond @preflight 204
+		reverse_proxy bitg-bot:8080
+	}
+
+	# MCP Registry domen tasdig'i (uz.bitg/*): ochiq kalit; maxfiy kalit repoda emas
+	handle /.well-known/mcp-registry-auth {
+		header Content-Type "text/plain; charset=utf-8"
+		respond "v=MCPv1; k=ed25519; p=TgHaJqa9kjzFB3zf6hbk+s39p4m5siiQhSDfia/wPFg=" 200
+	}
+
 	# ilovalardan fikr (bot/src/web.rs): faqat shu yo'l, tana 3 MB gacha; bot o'zi tekshiradi va cheklaydi
 	handle /api/* {
 		request_body {

@@ -24,3 +24,4 @@ Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, y
 - [Telegram kanal: @bitguz](https://t.me/bitguz)
 - [Telegram bot: @bitguzbot](https://t.me/bitguzbot) — matnni o‘giradi, /yuklash, /fikr (xato va taklif)
 - [Telegram texnik kanal: @bitgtech](https://t.me/bitgtech) — har versiyaning to‘liq o‘zgarishlar ro‘yxati
+- [MCP server: https://bitg.uz/mcp](https://bitg.uz/ai/) — AI yordamchilar (ChatGPT, Claude, Gemini, Cursor) uchun ochiq `convert_text` vositasi, login yo‘q; MCP Registry: `uz.bitg/bitg`

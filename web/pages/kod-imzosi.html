@@ -1,0 +1,85 @@
+---json
+{
+ "slug": "/kod-imzosi/",
+ "lang": "uz",
+ "title": "Kod imzosi siyosati (Code signing policy) · bitg",
+ "description": "bitg Windows o‘rnatuvchisi uchun SignPath Foundation bepul kod imzosi: nima imzolanadi, kim tasdiqlaydi, dastur nima yuboradi, imzo qanday tekshiriladi.",
+ "h1": "Kod imzosi siyosati",
+ "crumb": "Kod imzosi",
+ "card": "SignPath Foundation imzosi: nima imzolanadi, kim tasdiqlaydi, qanday tekshiriladi.",
+ "lead": "Kod imzosi — faylni kim chiqarganini va yuklab olingandan keyin o‘zgarmaganini Windows’ning o‘zi tekshira oladigan raqamli muhr. bitg uni <b>SignPath Foundation</b>’ning ochiq kodli loyihalar uchun bepul dasturi orqali oladi. <b>Holat:</b> hamma narsa tayyorlangan, ariza hali topshirilmagan — hozirgi relizlar imzosiz.",
+ "updated": "2026-11-13",
+ "schema": ["Article"],
+ "links": ["/yuklab-olish/", "/maxfiylik/", "/haqida/"],
+ "sources": [
+  {"title": "SignPath Foundation shartlari (Code of conduct) — signpath.org/terms", "url": "https://signpath.org/terms"},
+  {"title": "SignPath: GitHub Actions bilan imzolash", "url": "https://docs.signpath.io/trusted-build-systems/github"},
+  {"title": "SignPath: MSI ichidagi fayllarni imzolash (deep signing)", "url": "https://docs.signpath.io/artifact-configuration/examples"},
+  {"title": "bitg imzo siyosati (inglizcha) — docs/CODE_SIGNING.md", "url": "https://github.com/dtwinuz/bitg/blob/main/docs/CODE_SIGNING.md"},
+  {"title": "Microsoft: Windows ilovalari uchun kod imzosi variantlari", "url": "https://learn.microsoft.com/windows/apps/package-and-deploy/code-signing-options"}
+ ]
+}
+---
+      <h2>Code signing policy</h2>
+      <p data-no-conv>Free code signing provided by <a href="https://about.signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org">SignPath Foundation</a>.</p>
+      <p>Yuqoridagi inglizcha qator — SignPath Foundation talab qiladigan rasmiy matn: imzo xizmatini SignPath.io beradi, sertifikat SignPath Foundation nomiga chiqarilgan. Imzo yoqilgach, Windows nashriyotchi sifatida <b>SignPath Foundation</b> ni ko‘rsatadi, dtwinuz’ni emas — dastur shunday ishlaydi.</p>
+
+      <h2>Kod imzosi nima uchun kerak?</h2>
+      <ul>
+        <li><b>SmartScreen ogohlantirishi kamayadi.</b> Imzosiz MSI ochilganda «Windows kompyuteringizni himoya qildi» oynasi chiqadi. Imzolangan faylda nashriyotchi nomi ko‘rinadi.</li>
+        <li><b>Fayl o‘zgarmagani tekshiriladi.</b> Imzodan keyin bitta bayt o‘zgarsa ham imzo buziladi va Windows buni ko‘rsatadi.</li>
+        <li><b>Microsoft Store.</b> Store MSI o‘rnatuvchini faqat ishonchli sertifikat bilan imzolangan bo‘lsa qabul qiladi.</li>
+      </ul>
+
+      <h2>Nima imzolanadi?</h2>
+      <p>Faqat shu repodan GitHub Actions yig‘gan Windows reliz fayllari. Bitta so‘rov o‘rnatuvchini va uning ichidagi har bir dastur faylini qamraydi:</p>
+      <div class="dc-table"><table>
+        <tr><th>Fayl</th><th>Vazifasi</th></tr>
+        <tr><td><code>bitg-&lt;versiya&gt;-x64.msi</code></td><td>o‘rnatuvchi (GitHub Release’dagi fayl)</td></tr>
+        <tr><td><code>bitg-settings.exe</code></td><td>tray va sozlamalar oynasi</td></tr>
+        <tr><td><code>bitg.exe</code></td><td>buyruq qatori</td></tr>
+        <tr><td><code>bitg_tsf.dll</code> (64 va 32 bit)</td><td>klaviatura (Windows matn xizmati)</td></tr>
+      </table></div>
+      <p>Linux <code>.deb</code> paketlari (apt omborining o‘z kaliti bor), macOS <code>.pkg</code>, Telegram bot va sayt bu sertifikat bilan imzolanmaydi. Begona dasturlarning fayllari ham imzolanmaydi.</p>
+
+      <h2>Imzo qanday qo‘yiladi?</h2>
+      <ol>
+        <li>Maintainer versiya tegini qo‘yadi. Tegni faqat ko‘rib chiqilgan pull request orqali <code>main</code>’ga tushgan kodga qo‘yish mumkin.</li>
+        <li>GitHub’ning o‘z serverida (GitHub-hosted runner) MSI manba kodidan yig‘iladi.</li>
+        <li>MSI SignPath’ga yuboriladi. SignPath fayl aynan shu ochiq repodan, GitHub Actions’da yig‘ilganini tekshiradi.</li>
+        <li><b>Approver so‘rovni SignPath’da qo‘lda tasdiqlaydi</b> — har relizda.</li>
+        <li>SignPath MSI ichidagi exe va dll’larni, keyin MSI’ning o‘zini imzolaydi (SHA-256, vaqt tamg‘asi bilan).</li>
+        <li>Imzolangan MSI’ga SLSA provenance va SBOM attestation yoziladi, tekshiriladi va shundan keyingina reliz chiqadi.</li>
+      </ol>
+
+      <h2>Jamoa rollari</h2>
+      <div class="dc-table"><table>
+        <tr><th>Rol</th><th>Kim</th></tr>
+        <tr><td><span data-no-conv>Committers</span> (o‘zgarishni <code>main</code>’ga qo‘shadi)</td><td><a href="https://github.com/XakimovNosirbek" data-no-conv>@XakimovNosirbek</a>, <a href="https://github.com/leverow" data-no-conv>@leverow</a></td></tr>
+        <tr><td><span data-no-conv>Reviewers</span> (har pull request’ni ko‘rib chiqadi)</td><td>yuqoridagi ikki maintainer va <a href="https://github.com/wonmors" data-no-conv>@wonmors</a></td></tr>
+        <tr><td><span data-no-conv>Approvers</span> (har imzo so‘rovini tasdiqlaydi)</td><td><a href="https://github.com/XakimovNosirbek" data-no-conv>@XakimovNosirbek</a>, <a href="https://github.com/leverow" data-no-conv>@leverow</a></td></tr>
+      </table></div>
+      <p>Har o‘zgarish, jumladan yig‘ish skriptlari va CI sozlamalari, muallifidan boshqa odam tomonidan ko‘rib chiqiladi. Hamma hisoblarda ikki bosqichli kirish (2FA) yoqilgan. Batafsil: <a href="https://github.com/dtwinuz/bitg/blob/main/GOVERNANCE.md">GOVERNANCE.md</a>.</p>
+
+      <h2>Dastur internetga nima yuboradi?</h2>
+      <p>Klaviatura (<code>bitg_tsf.dll</code>) va buyruq qatori (<code>bitg.exe</code>) internetga umuman ulanmaydi: o‘girish kompyuteringizda bo‘ladi, yozgan matningiz saqlanmaydi va yuborilmaydi. Tray ilovasi (<code>bitg-settings.exe</code>) faqat quyidagi hollarda ulanadi:</p>
+      <div class="dc-table"><table>
+        <tr><th>Qachon</th><th>Nima ketadi</th><th>O‘chirish mumkinmi?</th></tr>
+        <tr><td><b>Yangilanish tekshiruvi</b>: ishga tushgandan 30 soniya keyin, so‘ng kuniga bir marta</td><td><span data-no-conv>bitg.uz/update/stable.json</span> faylini o‘qiydi. Server har so‘rovdagidek IP manzil va dastur versiyasini ko‘radi. Matn, sozlama yoki identifikator yo‘q.</td><td>Ha: Sozlamalar → Qoidalar → Ilova → «Yangilanishlarni tekshirish»</td></tr>
+        <tr><td><b>Yangilanishni o‘rnatish</b></td><td>faqat siz tugmani bossangiz, MSI GitHub’dan yuklanadi va hajmi hamda SHA-256 xeshi tekshiriladi</td><td>so‘ramasangiz hech narsa yuklanmaydi</td></tr>
+        <tr><td><b>«Xabar berish» shakli</b></td><td>faqat siz yuborsangiz: yozgan matningiz, ixtiyoriy aloqa va rasm, versiya, tasodifiy o‘rnatish raqami; «Texnik ma’lumot qo‘shish» yoqilgan bo‘lsa — Windows yig‘ilishi va kalitlar holati (oldindan ko‘rsatiladi)</td><td>yubormasangiz hech narsa ketmaydi</td></tr>
+      </table></div>
+      <p>Bundan boshqa hollarda SignPath shablonidagi so‘z bilan aytganda: dastur foydalanuvchi yoki uni o‘rnatgan va boshqarayotgan odam so‘ramaguncha boshqa tarmoq tizimlariga hech qanday ma’lumot yubormaydi. Sozlamalar oynasi Windows tarkibidagi Microsoft Edge WebView2’dan foydalanadi — uning ma’lumotlari <a href="https://www.microsoft.com/privacy/privacystatement">Microsoft maxfiylik bayonoti</a> bilan tartibga solinadi. Sayt va server jurnallari: <a href="/maxfiylik/">Maxfiylik</a>.</p>
+
+      <h2>Imzoni qanday tekshirish mumkin?</h2>
+      <p><b>Oddiy usul:</b> MSI faylni o‘ng tugma bilan bosing → <b>Xususiyatlar</b> (Properties) → <b>Raqamli imzolar</b> (Digital Signatures). Imzo egasi <b>SignPath Foundation</b> bo‘lishi kerak.</p>
+      <p><b>PowerShell’da:</b></p>
+      <pre data-no-conv><code>Get-AuthenticodeSignature .\bitg-*-x64.msi | Format-List Status, SignerCertificate, TimeStamperCertificate
+signtool verify /pa /all /v .\bitg-*-x64.msi</code></pre>
+      <p><code>Status</code> qiymati <code>Valid</code> bo‘lishi kerak. O‘rnatilgan fayllarni ham tekshirish mumkin:</p>
+      <pre data-no-conv><code>Get-ChildItem 'C:\Program Files\bitg' -Recurse -Include *.exe, *.dll | Get-AuthenticodeSignature | Format-Table Status, Path</code></pre>
+      <p>Imzo bilan birga faylning GitHub Actions’da shu repodan yig‘ilganini alohida isbotlash ham mumkin (<a href="https://github.com/dtwinuz/bitg/blob/main/SECURITY.md">SECURITY.md</a>):</p>
+      <pre data-no-conv><code>gh attestation verify .\bitg-*-x64.msi -R dtwinuz/bitg</code></pre>
+
+      <h2>Muammo sezsangiz</h2>
+      <p>SignPath Foundation sertifikati bilan imzolangan bitg fayli siyosatni buzayotganini sezsangiz, <a href="https://github.com/dtwinuz/bitg/blob/main/SECURITY.md">SECURITY.md</a> orqali bizga va <a href="mailto:support@signpath.io" data-no-conv>support@signpath.io</a> ga yozing.</p>

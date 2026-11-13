@@ -17,6 +17,8 @@ mod hotkey;
 mod logic;
 #[cfg(windows)]
 mod net;
+#[cfg_attr(not(windows), allow(dead_code))]
+mod policy;
 #[cfg(windows)]
 mod shot;
 #[cfg(windows)]
@@ -207,7 +209,7 @@ mod app {
                 let mut last: Option<Instant> = None;
                 loop {
                     let due = last.is_none_or(|t| t.elapsed() >= Duration::from_secs(24 * 3600));
-                    if due && bitg_tsf::config::load().update_check {
+                    if due && update_check_on() {
                         check_update(&p, false);
                         last = Some(Instant::now());
                     }
@@ -276,9 +278,9 @@ mod app {
                     let Some(t) = &tray else { return };
                     if e.id == t.enabled.id() {
                         let on = t.enabled.is_checked();
-                        let _ = logic::set_enabled(on);
+                        let _ = logic::set_enabled(&system::update_policy(), on);
                         sync_tray(t);
-                        send(&webview, &logic::load().to_string());
+                        send(&webview, &logic::load(&system::update_policy()).to_string());
                     } else if e.id == t.open.id() {
                         show(&window);
                     } else if e.id == t.feedback.id() {
@@ -334,8 +336,22 @@ mod app {
         json!({"kind": "update", "state": state, "current": VERSION})
     }
 
+    /// Avtomatik tekshiruv yoqilganmi: siyosat > foydalanuvchi tanlovi > o'rnatuvchi (`UPDATECHECK`) > yoqilgan.
+    fn update_check_on() -> bool {
+        system::update_policy().effective(&bitg_tsf::config::read_raw().0)
+    }
+
     /// Manifestni o'qiydi. `manual` — foydalanuvchi o'zi so'radi: «eng yangisi» va xato ham ko'rsatiladi.
     fn check_update(p: &EventLoopProxy<Ev>, manual: bool) {
+        if system::update_policy().blocked() {
+            // Administrator ma'lumot uzatishni taqiqlagan: qo'lda tekshirish ham yo'q.
+            if manual {
+                let mut v = update_state("error");
+                v["error"] = json!("Yangilanish tekshiruvini administrator o'chirgan.");
+                reply(p, v);
+            }
+            return;
+        }
         if manual {
             reply(p, update_state("checking"));
         }
@@ -425,7 +441,7 @@ mod app {
         let fresh = c.last_seen.is_empty() && !RAN_BEFORE.load(Ordering::Relaxed);
         if fresh {
             // Yangi o'rnatish: «nima o'zgardi» kerak emas, shu versiya ko'rilgan hisoblanadi.
-            let _ = logic::change(|c| c.last_seen = VERSION.into());
+            let _ = logic::change(&system::update_policy(), |c| c.last_seen = VERSION.into());
         }
         v["current"] = json!(VERSION);
         v["show"] = json!(c.whats_new && !fresh && c.last_seen != VERSION);
@@ -474,11 +490,11 @@ mod app {
         };
         match cmd {
             "load" => {
-                reply(p, logic::load());
+                reply(p, logic::load(&system::update_policy()));
                 reply(p, status());
             }
             "save" => {
-                reply(p, logic::save(&msg));
+                reply(p, logic::save(&msg, &system::update_policy()));
                 let _ = p.send_event(Ev::Saved);
             }
             "preview" => reply(p, logic::preview(&msg)),
@@ -493,7 +509,7 @@ mod app {
                 }
             }
             "news_seen" => {
-                let _ = logic::change(|c| c.last_seen = VERSION.into());
+                let _ = logic::change(&system::update_policy(), |c| c.last_seen = VERSION.into());
             }
             "check_update" => {
                 let p = p.clone();
