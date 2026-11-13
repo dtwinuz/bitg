@@ -542,6 +542,8 @@ impl TextService_Impl {
         st.last.clear();
         st.session.reset();
         st.undo = None;
+        // zaxira yo'l uchun yig'ilgan harflar ham tashlanadi (#41)
+        st.typed.lost("sensitive field");
         Ok(())
     }
 
@@ -1162,6 +1164,21 @@ impl TextService_Impl {
                     }
                     return;
                 };
+                // Blind rejimda edit hodisasi kelmasligi mumkin: dastur IME'ni so'z davomida o'chirgan bo'lsa
+                // (parol maydoni fokusni o'zgartirmasdan ochilgan) — har so'z oxirida qayta tekshiriladi (#41).
+                if st.sensitive != Some(true)
+                    && st
+                        .watched
+                        .as_ref()
+                        .is_some_and(|(ctx, _)| keyboard_disabled(ctx))
+                {
+                    st.sensitive = Some(true);
+                    st.last.clear();
+                    st.session.reset();
+                    st.undo = None;
+                    log::write("sensitive field: keyboard disabled at word end, off");
+                    return;
+                }
                 if !st.converting() || !st.cfg.fallback {
                     return;
                 }
