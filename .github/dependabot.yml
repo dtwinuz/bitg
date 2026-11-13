@@ -26,3 +26,11 @@ updates:
     groups:
       docker:
         patterns: ["*"]
+  # Python vositalari (xesh bilan qotirilgan): e2e sinovi (PySide6) va demo GIF (pillow)
+  - package-ecosystem: pip
+    directories: ["/tools/e2e", "/tools/demo"]
+    schedule:
+      interval: monthly
+    groups:
+      pip:
+        patterns: ["*"]
