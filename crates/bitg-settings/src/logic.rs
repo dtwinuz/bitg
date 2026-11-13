@@ -123,17 +123,25 @@ pub fn config_from(settings: &Value, exceptions: &[String]) -> Config {
             }
         }
     }
-    c.opts.exceptions = config::parse("", &exceptions.join("\n")).opts.exceptions;
+    // `exceptions` — istisno so'zlar va `so'z=yozuv` qatorlari (fayldagidek).
+    let user = config::parse("", &exceptions.join("\n")).opts;
+    c.opts.exceptions = user.exceptions;
+    c.opts.rules = user.rules;
     c
 }
 
-/// Istisnolar fayli: izohsiz, bo'sh bo'lmagan qatorlar, takrorsiz (yozilishi saqlanadi).
+/// Istisnolar fayli: izohsiz, bo'sh bo'lmagan qatorlar, takrorsiz (yozilishi saqlanadi). Lug'at qoidalari
+/// (`so'z=yozuv`) bu ro'yxatga kirmaydi — `rule_pairs`.
 pub fn exception_words(raw: &str) -> Vec<String> {
     let mut seen = Vec::new();
     let mut out = Vec::new();
     for w in raw.lines() {
         let w = w.trim().trim_start_matches('\u{FEFF}');
-        if w.is_empty() || w.starts_with('#') || w.chars().any(char::is_whitespace) {
+        if w.is_empty()
+            || w.starts_with('#')
+            || w.chars().any(char::is_whitespace)
+            || w.contains('=')
+        {
             continue;
         }
         let k = bitg_core::chars::fold_key(w);
@@ -143,6 +151,70 @@ pub fn exception_words(raw: &str) -> Vec<String> {
         }
     }
     out
+}
+
+/// Lug'at qoidasi juftligi to'g'rimi: chap tomon bitta so'z, ikkala tomonda `=` va qator oxiri yo'q.
+fn valid_rule(from: &str, to: &str) -> bool {
+    !from.is_empty()
+        && !to.is_empty()
+        && !from.contains(char::is_whitespace)
+        && !from.starts_with('#')
+        && ![from, to].iter().any(|s| s.contains(['=', '\n', '\r']))
+}
+
+/// Fayldagi `so'z=yozuv` qatorlari: (so'z, yozuv), takrorsiz (birinchisi qoladi, yozilishi saqlanadi).
+pub fn rule_pairs(raw: &str) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    for l in raw.lines() {
+        let l = l.trim().trim_start_matches('\u{FEFF}');
+        if l.starts_with('#') {
+            continue;
+        }
+        let Some((from, to)) = l.split_once('=') else {
+            continue;
+        };
+        push_rule(&mut out, from.trim(), to.trim());
+    }
+    out
+}
+
+fn push_rule(out: &mut Vec<(String, String)>, from: &str, to: &str) {
+    let key = bitg_core::chars::fold_key(from);
+    if valid_rule(from, to)
+        && !out
+            .iter()
+            .any(|(f, _)| bitg_core::chars::fold_key(f) == key)
+    {
+        out.push((from.to_string(), to.to_string()));
+    }
+}
+
+/// Oynadan: `"rules": [{"from": "shamollash", "to": "şamollaş"}]`.
+fn rules_from(v: Option<&Value>) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    for r in v.and_then(Value::as_array).into_iter().flatten() {
+        let s = |k: &str| r.get(k).and_then(Value::as_str).unwrap_or("").trim();
+        push_rule(&mut out, s("from"), s("to"));
+    }
+    out
+}
+
+fn rules_json(pairs: &[(String, String)]) -> Value {
+    Value::Array(
+        pairs
+            .iter()
+            .map(|(f, t)| json!({"from": f, "to": t}))
+            .collect(),
+    )
+}
+
+/// Oyna xabaridagi istisnolar va lug'at — fayl qatorlari ko'rinishida (`config::parse` uchun).
+fn user_lines(msg: &Value) -> (Vec<String>, Vec<(String, String)>, Vec<String>) {
+    let words = exception_words(&strings(msg.get("exceptions")).join("\n"));
+    let rules = rules_from(msg.get("rules"));
+    let mut lines = words.clone();
+    lines.extend(rules.iter().map(|(f, t)| format!("{f}={t}")));
+    (words, rules, lines)
 }
 
 fn strings(v: Option<&Value>) -> Vec<String> {
@@ -172,6 +244,7 @@ pub fn load() -> Value {
         "settings": settings_json(&c),
         "layouts": layouts,
         "exceptions": exception_words(&e),
+        "rules": rules_json(&rule_pairs(&e)),
         "default_apps": DEFAULT_DISABLED_APPS,
         "folder": config::dir().map(|d| d.display().to_string()),
     })
@@ -179,8 +252,8 @@ pub fn load() -> Value {
 
 /// Ikkala faylni yozadi. Avval vaqtinchalik faylga, so'ng almashtirish — IME yarim yozilgan faylni o'qimaydi.
 pub fn save(msg: &Value) -> Value {
-    let words = exception_words(&strings(msg.get("exceptions")).join("\n"));
-    let c = config_from(msg.get("settings").unwrap_or(&Value::Null), &words);
+    let (words, rules, lines) = user_lines(msg);
+    let c = config_from(msg.get("settings").unwrap_or(&Value::Null), &lines);
     let result = (|| -> std::io::Result<()> {
         let dir = config::dir().ok_or_else(|| std::io::Error::other("APPDATA topilmadi"))?;
         std::fs::create_dir_all(&dir)?;
@@ -188,6 +261,12 @@ pub fn save(msg: &Value) -> Value {
         for w in &words {
             ex.push_str(w);
             ex.push('\n');
+        }
+        if !rules.is_empty() {
+            ex.push_str("# Lug'at: so'z=yozuv (qo'shimchali shakli ham shunday yoziladi).\n");
+            for (f, t) in &rules {
+                ex.push_str(&format!("{f}={t}\n"));
+            }
         }
         write_atomic(&dir.join(config::EXCEPTIONS_FILE), &ex)?;
         if let Some(custom) = msg.get("custom") {
@@ -227,6 +306,7 @@ fn reason_name(r: Reason) -> &'static str {
         Reason::Protected => "protected",
         Reason::Exception => "exception",
         Reason::English => "english",
+        Reason::Rule => "rule",
     }
 }
 
@@ -234,8 +314,8 @@ fn reason_name(r: Reason) -> &'static str {
 /// (`r` = null). `convert` bo'shliqlarni aynan saqlaydi, shuning uchun kirish va chiqish bo'laklari mos keladi.
 pub fn preview(msg: &Value) -> Value {
     let text = msg.get("text").and_then(Value::as_str).unwrap_or("");
-    let words = exception_words(&strings(msg.get("exceptions")).join("\n"));
-    let c = config_from(msg.get("settings").unwrap_or(&Value::Null), &words);
+    let (_, _, lines) = user_lines(msg);
+    let c = config_from(msg.get("settings").unwrap_or(&Value::Null), &lines);
     let src = bitg_core::chars::normalize(text);
     let (out, report) = bitg_core::convert_explained(&src, &c.opts);
     let a = chunks(&src);
@@ -288,8 +368,8 @@ pub fn convert_text(msg: &Value) -> Value {
         };
         bitg_core::to_old(text, style)
     } else {
-        let words = exception_words(&strings(msg.get("exceptions")).join("\n"));
-        let mut c = config_from(msg.get("settings").unwrap_or(&Value::Null), &words);
+        let (_, _, lines) = user_lines(msg);
+        let mut c = config_from(msg.get("settings").unwrap_or(&Value::Null), &lines);
         c.opts.cyrillic = true;
         bitg_core::convert(text, &c.opts)
     };
@@ -567,5 +647,31 @@ mod tests {
             exception_words("# izoh\nShoh\n\nshoh\n  O‘zbekcha \nikki soz\n"),
             vec!["Shoh", "O‘zbekcha"]
         );
+    }
+
+    #[test]
+    fn dictionary_rules_round_trip_and_preview() {
+        let raw = "shop\nshamollash=şamollaş\nShamollash=x\nbad word=y\n=z\n# a=b\n";
+        assert_eq!(exception_words(raw), ["shop"]);
+        assert_eq!(
+            rule_pairs(raw),
+            [("shamollash".to_string(), "şamollaş".to_string())]
+        );
+        let msg = json!({
+            "text": "Shamollashdan saqlaning",
+            "exceptions": ["shop"],
+            "rules": [
+                {"from": "shamollash", "to": "şamollaş"},
+                {"from": "two words", "to": "x"},
+                {"from": "a", "to": "b=c"},
+                {"from": "", "to": "x"}
+            ]
+        });
+        let (words, rules, lines) = user_lines(&msg);
+        assert_eq!(words, ["shop"]);
+        assert_eq!(rules.len(), 1);
+        assert_eq!(lines, ["shop", "shamollash=şamollaş"]);
+        assert_eq!(preview(&msg)["out"], "Şamollaşdan saqlaning");
+        assert_eq!(rules_json(&rules)[0]["to"], "şamollaş");
     }
 }

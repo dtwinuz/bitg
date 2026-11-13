@@ -98,6 +98,7 @@ fn main() -> ExitCode {
                     Reason::Protected => "himoya (havola/kod)",
                     Reason::Exception => "istisno",
                     Reason::English => "inglizcha",
+                    Reason::Rule => "lug'at",
                 };
                 let (tok, ev) = (&w.token, w.evidence);
                 match &w.alt {

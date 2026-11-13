@@ -24,6 +24,8 @@ pub struct Settings {
     pub undo_remember: bool,
     /// Fayldagi istisnolar (`fold_key` ko'rinishida).
     pub exceptions: Vec<String>,
+    /// Fayldagi `so'z=yozuv` qoidalari (`bitg_core::user`).
+    pub rules: Vec<bitg_core::user::Rule>,
 }
 
 impl Default for Settings {
@@ -38,6 +40,7 @@ impl Default for Settings {
             undo_backspace: true,
             undo_remember: false,
             exceptions: Vec::new(),
+            rules: Vec::new(),
         }
     }
 }
@@ -57,6 +60,7 @@ impl Settings {
             cyrillic: self.cyrillic,
             exceptions,
             restore_apostrophes: self.restore_apostrophes,
+            rules: self.rules.clone(),
         }
     }
 
@@ -94,6 +98,7 @@ impl Settings {
             }
         }
         s.exceptions = parse_exceptions(exceptions);
+        s.rules = bitg_core::user::parse(exceptions).1;
         s
     }
 }
@@ -106,14 +111,9 @@ fn flag(v: &str) -> Option<bool> {
     }
 }
 
+/// Istisno so'zlar (`so'z=yozuv` qoidalarisiz), `fold_key` ko'rinishida, saralangan.
 pub fn parse_exceptions(text: &str) -> Vec<String> {
-    let mut out: Vec<String> = text
-        .trim_start_matches('\u{feff}')
-        .lines()
-        .map(str::trim)
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
-        .map(fold_key)
-        .collect();
+    let mut out = bitg_core::user::parse(text).0;
     out.sort();
     out.dedup();
     out

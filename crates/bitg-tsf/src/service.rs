@@ -213,7 +213,7 @@ impl State {
 
     /// Bu tugma bizning zaxira tahririmizmi (belgi yoki sanagich bo'yicha).
     fn take_retype(&mut self, vk: u16) -> bool {
-        if !self.retype_until.is_some_and(|t| Instant::now() < t) {
+        if self.retype_until.is_none_or(|t| Instant::now() >= t) {
             self.retype_back = 0;
             self.retype_packet = 0;
         }

@@ -22,6 +22,7 @@ mod lexicon;
 pub mod reverse;
 mod to_cyr;
 pub mod token;
+pub mod user;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
@@ -43,6 +44,8 @@ pub struct Options {
     pub exceptions: Vec<String>,
     /// Tushib qolgan apostrofni lug'atdan tiklash: "ozbek" → "özbek", "togri" → "töğri".
     pub restore_apostrophes: bool,
+    /// Foydalanuvchi lug'ati: so'z (va qo'shimchali shakli) aynan shunday yoziladi (`user::parse`).
+    pub rules: Vec<user::Rule>,
 }
 
 impl Default for Options {
@@ -53,6 +56,7 @@ impl Default for Options {
             cyrillic: true,
             exceptions: Vec::new(),
             restore_apostrophes: true,
+            rules: Vec::new(),
         }
     }
 }
@@ -74,6 +78,8 @@ pub enum Reason {
     Protected,
     Exception,
     English,
+    /// Foydalanuvchi lug'atidagi qoida bo'yicha yozildi.
+    Rule,
 }
 
 /// Bitta tokenning (bo'shliqsiz bo'lak) tahlili.
@@ -262,6 +268,10 @@ fn convert_token(
         *quote_open = false;
     }
 
+    // Foydalanuvchi lug'ati hammasidan ustun: so'zni o'zi qanday yozishni aytgan.
+    if let Some(to) = user::apply(&opts.rules, core, opts.tutuq) {
+        return (format!("{lead}{to}{trail}"), Reason::Rule);
+    }
     // Chiziqchali so'z qism-qism: C-uchli → C-uçli, MR-shartli → MR-şartli, CH-III o'zgarmaydi.
     if core.contains('-')
         && !core.starts_with('-')
@@ -776,6 +786,27 @@ mod tests {
     fn known_uzbek_word_is_decided_by_context() {
         assert!(!english_blocks("shahar", -3.0, 2.0));
         assert!(english_blocks("shahar", -3.0, 0.0));
+    }
+
+    #[test]
+    fn user_rules_win_over_everything_but_links() {
+        let (_, rules) = user::parse("shamollash=şamollaş\nbog'cha=bog'ça\nshop=şop");
+        let o = Options {
+            rules,
+            ..Options::default()
+        };
+        assert_eq!(
+            convert("Shamollashdan, bog'chaga va shop!", &o),
+            "Şamollaşdan, bog'çaga va şop!"
+        );
+        assert_eq!(convert("https://shop.uz", &o), "https://shop.uz");
+        let (_, words) = convert_words("shamollash", &o);
+        assert_eq!(words[0].reason, Reason::Rule);
+        let mut s = Session::new();
+        assert_eq!(
+            s.complete_word("Bog'cha", &o).map(|e| e.insert).as_deref(),
+            Some("Bog'ça")
+        );
     }
 
     #[test]

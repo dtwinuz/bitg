@@ -191,16 +191,10 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
             _ => {}
         }
     }
-    for w in exceptions.lines() {
-        let w = w.trim().trim_start_matches('\u{FEFF}');
-        if w.is_empty() || w.starts_with('#') {
-            continue;
-        }
-        let k = fold_key(w);
-        if !c.opts.exceptions.contains(&k) {
-            c.opts.exceptions.push(k);
-        }
-    }
+    // Istisnolar va `so'z=yozuv` qoidalari bitta faylda (`bitg_core::user`).
+    let (never, rules) = bitg_core::user::parse(exceptions);
+    c.opts.exceptions = never;
+    c.opts.rules = rules;
     c
 }
 

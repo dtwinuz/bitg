@@ -32,6 +32,7 @@ fn opts(flags: u32) -> Options {
         },
         exceptions: Vec::new(),
         restore_apostrophes: flags & BITG_NO_RESTORE == 0,
+        rules: Vec::new(),
     }
 }
 
