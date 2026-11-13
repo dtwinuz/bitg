@@ -426,6 +426,7 @@ def render(meta, ctx, by_slug, alt_groups):
   </div>
 </footer>
 <script src="/page.js" defer></script>
+<script src="/metrika.js" async></script>
 {dl_js}</body>
 </html>
 """
