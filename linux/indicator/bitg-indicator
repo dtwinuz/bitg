@@ -124,7 +124,7 @@ class App:
         dialog = Gtk.Dialog(title="bitg sozlamalari")
         dialog.add_button("Yopiş", Gtk.ResponseType.CLOSE)
         dialog.get_content_area().add(Gtk.Label(
-            label="Sozlamalarni yuqori paneldagi bitg menyusidan özg artiring."))
+            label="Sozlamalarni yuqori paneldagi bitg menyusidan özgartiring."))
         dialog.show_all()
         dialog.run()
         dialog.destroy()
