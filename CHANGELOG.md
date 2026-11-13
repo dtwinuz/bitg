@@ -40,8 +40,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - Windows zaxira yo'li (SendInput, matn bermaydigan dasturlar): dastur IME'ni so'z davomida o'chirsa (parol maydoni),
   har so'z oxirida qayta tekshiriladi va so'z o'girilmaydi; maxfiy maydon belgisi kelishi bilan yig'ilgan harflar
   xotiradan tashlanadi ([#41](https://github.com/dtwinuz/bitg/issues/41)). Shu yo'lda har so'z oxirida maydonning
-  input scope'i (parol, PIN) sinxron, faqat o'qish sessiyasida qayta o'qiladi — maydon fokusni o'zgartirmasdan
-  parolga aylansa ham keyingi so'z qayta yozilmaydi. Qt e2e: parol maydoni va parolga aylanadigan maydon.
+  input scope'i (parol, PIN) sinxron, faqat o'qish sessiyasida qayta o'qiladi — maydon turini TSF orqali beradigan
+  dasturda maydon fokusni o'zgartirmasdan parolga aylansa ham keyingi so'z qayta yozilmaydi. Qt e2e: fokus olgan
+  parol maydoni tegilmaydi (oldin va keyin nazorat so'zi bilan). Ma'lum cheklov: Qt (Telegram) maydon turini
+  bermaydi, shuning uchun fokus o'zgarmasdan parolga aylangan Qt maydonini zaxira yo'l sezmaydi.
 
 ## [0.4.0] — 2026-11-13
 
