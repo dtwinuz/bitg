@@ -15,7 +15,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - C ABI uchun tashqi integratsion test `crates/bitg-core/tests/ffi.rs` ([#38](https://github.com/dtwinuz/bitg/issues/38)).
 
 ### Tuzatildi
-- Shein, Bershka, Shiseido brend nomlari o'girilmaydi ([#66](https://github.com/dtwinuz/bitg/issues/66)).
+- Brend va nomlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
+  Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65)), 55 ta brend va texnik atama
+  ([#69](https://github.com/dtwinuz/bitg/pull/69)), 2025 ta xorijiy ism-familiya ([#71](https://github.com/dtwinuz/bitg/pull/71)).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
   standartni o'zgartirmaydi ([#84](https://github.com/dtwinuz/bitg/issues/84)).
 
