@@ -78,7 +78,9 @@ jobs:
           pacman -Fy >/dev/null && pacman -F /usr/bin/bitg | grep -q 'bitg/bitg 0'
           pacman -R --noconfirm fcitx5-bitg bitg
           # imzosi mos kelmagan paket o'rnatilmasligi kerak
-          printf 'x' >> /srv/repo/x86_64/bitg-[0-9]*.pkg.tar.zst
+          # sh redirect nishonida glob yoyilmaydi: fayl nomi avval topiladi
+          pkg=$(ls /srv/repo/x86_64/bitg-[0-9]*.pkg.tar.zst) && test -f "$pkg"
+          printf 'x' >> "$pkg"
           rm -f /var/cache/pacman/pkg/bitg-[0-9]*
           if pacman -S --noconfirm bitg; then echo "buzilgan paket o'rnatildi"; exit 1; fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
