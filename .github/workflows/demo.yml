@@ -37,6 +37,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
         run: |
+          if ($env:VERSION -and $env:VERSION -notmatch '^[0-9]+\.[0-9]+\.[0-9]+$') { throw "versiya noto'g'ri: $env:VERSION (masalan 0.3.1)" }
           $tag = if ($env:VERSION) { "v$env:VERSION" } else { gh release view -R $env:GITHUB_REPOSITORY --json tagName -q .tagName }
           gh release download $tag -R $env:GITHUB_REPOSITORY -p 'bitg-*-x64.msi' -p 'bitg-*-x64.msi.sha256' -D dist
           $msi = (Get-ChildItem dist/*.msi | Select-Object -First 1)
