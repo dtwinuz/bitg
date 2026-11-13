@@ -8,14 +8,16 @@
  "crumb": "Maxfiylik",
  "card": "Matn saqlanmaydi, tarmoq yo‘q. Har qism nimani ko‘radi.",
  "lead": "Qisqasi: <b>Windows dasturi va onlayn konvertor matningizni hech qayerga yubormaydi va saqlamaydi</b>. O‘girish sizning kompyuteringizda bo‘ladi. Quyida har qism bo‘yicha aniq.",
- "updated": "2026-11-12",
+ "updated": "2026-11-13",
  "schema": ["Article"],
  "links": ["/haqida/", "/yuklab-olish/", "/konvertor/"]
 }
 ---
       <h2>Windows dasturi</h2>
       <ul>
-        <li><b>Tarmoq yo‘q.</b> O‘girish yadrosi dasturning ichida, internetga ulanmaydi.</li>
+        <li><b>Matn tarmoqqa chiqmaydi.</b> O‘girish yadrosi dasturning ichida; yozgan so‘zlaringiz hech qayerga yuborilmaydi.</li>
+        <li><b>Yangilanish tekshiruvi</b> (0.4.0 versiyadan): dastur kuniga bir marta <span data-no-conv>bitg.uz/update/stable.json</span> faylini o‘qiydi. So‘rovda faqat dastur versiyasi (<span data-no-conv>bitg/0.4.0 (Windows)</span>) bo‘ladi. Yangi versiya faqat GitHub Releases’dan, hajmi va SHA-256 mos kelsa o‘rnatiladi. Sozlamalarda o‘chirib qo‘yish mumkin.</li>
+        <li><b>«Xabar berish» oynasi</b> (0.4.0 versiyadan) faqat siz «Yuborish» ni bossangiz ishlaydi: yozgan xabaringiz, ixtiyoriy rasm va aloqa, dastur versiyasi va tasodifiy o‘rnatish raqami (ism yoki qurilma ma’lumoti emas) <span data-no-conv>bitg.uz</span> orqali bizga keladi. Diagnostika (Windows build, sozlamalar soni) faqat belgilasangiz qo‘shiladi.</li>
         <li><b>Matn saqlanmaydi.</b> Log faylida (<code>%LOCALAPPDATA%\bitg\tsf.log</code>) faqat vaqt, dastur nomi va natija bo‘ladi (masalan, «converted»). Yozgan so‘zlaringiz unga tushmaydi.</li>
         <li><b>Sozlamalar</b> sizning kompyuteringizda: <code>%APPDATA%\bitg\settings.ini</code> va istisnolar ro‘yxati <code>exceptions.txt</code>. Istisnoga faqat siz qo‘shgan yoki «qaytarilgan so‘zni yozish» yoqilganda qaytargan so‘zingiz yoziladi.</li>
         <li><b>Clipboard</b> faqat <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> bosilganda ishlatiladi: belgilangan matn olinadi, o‘giriladi, joyiga qo‘yiladi va avvalgi nusxa qaytariladi.</li>
