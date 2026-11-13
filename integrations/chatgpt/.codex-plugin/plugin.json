@@ -1,0 +1,103 @@
+{
+  "name": "bitg",
+  "version": "0.4.0",
+  "description": "Write and convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç) with the deterministic bitg engine. Converts old Latin (o‘ g‘ sh ch, any apostrophe) and Cyrillic to the new alphabet and back, keeping English words, names, links and code intact.",
+  "author": {
+    "name": "dtwinuz",
+    "url": "https://bitg.uz/"
+  },
+  "homepage": "https://bitg.uz/en/ai/",
+  "repository": "https://github.com/dtwinuz/bitg",
+  "license": "MIT OR Apache-2.0",
+  "keywords": [
+    "uzbek",
+    "alphabet",
+    "transliteration",
+    "cyrillic",
+    "latin"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "bitg",
+    "shortDescription": "New Uzbek alphabet converter",
+    "longDescription": "bitg writes and converts Uzbek text in the new Uzbek Latin alphabet adopted in 2026 (Ö ö, Ğ ğ, Ş ş, Ç ç; in force from 22 April 2027).\n\nAI assistants often guess the new spelling: they replace every sh and ch, break English words and names, and miss apostrophe variants. bitg uses a rule-based engine with Uzbek and English dictionaries instead, the same engine as the bitg keyboard and the converter at bitg.uz.\n\n- Old Latin (o‘ g‘ sh ch, any apostrophe) or Cyrillic to the new alphabet\n- Back to old Latin or to Cyrillic\n- English words, names, links and code stay unchanged\n\nOne read-only tool, no sign-in. Text is converted in memory and not stored.",
+    "developerName": "dtwinuz",
+    "category": "Productivity",
+    "capabilities": [
+      "Convert old Latin or Cyrillic Uzbek text to the new 2026 alphabet",
+      "Convert new alphabet text back to old Latin or Cyrillic"
+    ],
+    "websiteURL": "https://bitg.uz/en/",
+    "supportURL": "https://github.com/dtwinuz/bitg/issues",
+    "privacyPolicyURL": "https://bitg.uz/en/privacy/",
+    "termsOfServiceURL": "https://bitg.uz/en/terms/",
+    "defaultPrompt": [
+      "Convert this to the new Uzbek alphabet: O‘zbekiston shaharlari"
+    ],
+    "brandColor": "#2F62C0",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png",
+    "brandColorDark": "#8FB0EA"
+  },
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Convert old Latin Uzbek text to the new alphabet",
+              "prompt": "Convert to the new Uzbek alphabet: O‘zbekiston shaharlari, choyxona va G‘afur G‘ulom ko‘chasi.",
+              "tools_triggered": "convert_text",
+              "expected_behavior": "Calls convert_text with direction to_new and returns: Özbekiston şaharlari, çoyxona va Ğafur Ğulom köçasi."
+            },
+            {
+              "description": "Convert Cyrillic Uzbek text to the new Latin alphabet",
+              "prompt": "Write this in the new Uzbek Latin alphabet: Чой ичамиз, кейин шаҳарга борамиз.",
+              "tools_triggered": "convert_text",
+              "expected_behavior": "Calls convert_text with direction to_new and returns: Çoy içamiz, keyin şaharga boramiz."
+            },
+            {
+              "description": "Mixed Uzbek and English text keeps English words",
+              "prompt": "Convert to the new Uzbek alphabet and keep the English words: Please check the schedule, keyin choy ichamiz.",
+              "tools_triggered": "convert_text",
+              "expected_behavior": "Returns: Please check the schedule, keyin çoy içamiz. The English words check, schedule are unchanged."
+            },
+            {
+              "description": "Convert new alphabet text to Uzbek Cyrillic",
+              "prompt": "Convert Özbekiston şaharlari to Uzbek Cyrillic.",
+              "tools_triggered": "convert_text",
+              "expected_behavior": "Calls convert_text with direction to_cyrillic and returns: Ўзбекистон шаҳарлари."
+            },
+            {
+              "description": "Convert new alphabet text back to old Latin with plain apostrophes",
+              "prompt": "Convert Özbekiston to the old Uzbek Latin alphabet using a plain ASCII apostrophe.",
+              "tools_triggered": "convert_text",
+              "expected_behavior": "Calls convert_text with direction to_old and old_style ascii and returns: O'zbekiston."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Translation request, not alphabet conversion. The plugin converts script only and should not be used; the assistant translates on its own.",
+              "prompt": "Translate 'Good morning, how are you?' into Japanese."
+            },
+            {
+              "description": "Non-Uzbek text. Conversion does not apply to French; the plugin should not be called.",
+              "prompt": "Fix the spelling in this French sentence: Je vais a la plage demain."
+            },
+            {
+              "description": "Request unrelated to text conversion (weather). The plugin has no such capability and should not be called.",
+              "prompt": "What is the weather in Tashkent today?"
+            }
+          ]
+        },
+        "demo_recording_url": "https://bitg.uz/media/chatgpt-demo.mp4",
+        "commerce": false,
+        "commerce_description": "No commerce. bitg is free and has no purchases."
+      },
+      "publication": {
+        "release_notes": "First release: convert_text tool for the new 2026 Uzbek Latin alphabet (to_new, to_old, to_cyrillic)."
+      }
+    }
+  }
+}
