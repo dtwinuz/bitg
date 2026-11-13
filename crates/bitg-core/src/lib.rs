@@ -87,6 +87,8 @@ struct Tok {
     clause_end: bool,
     /// Ism sifatida (`resolve_names` dan keyin `Maybe` yonida xorijiy nom bo'lsa `Foreign` ga aylanadi).
     name: NameKind,
+    /// Havola, kod, @user yoki brend (`fetch()`, `McDonald's`): gap tilini aytmaydi, kontekstda ovoz bermaydi.
+    silent: bool,
 }
 
 /// So'z bo'yicha natija (`convert_words`): token, sabab, til dalili va ikki ma'noli so'zning muqobili.
@@ -126,6 +128,7 @@ fn tokens(text: &str) -> Vec<Tok> {
                     sentence_end: false,
                     clause_end: false,
                     name: NameKind::Other,
+                    silent: false,
                 });
             }
             if (c == '\n' || c == '…')
@@ -145,6 +148,7 @@ fn tokens(text: &str) -> Vec<Tok> {
             sentence_end: false,
             clause_end: false,
             name: NameKind::Other,
+            silent: false,
         });
     }
     for t in &mut v {
@@ -170,7 +174,8 @@ fn context(toks: &[Tok], range: std::ops::Range<usize>, skip: usize) -> f32 {
     let mut weights = 0.0f32;
     for (j, t) in slice.iter().enumerate() {
         // Xorijiy nom gap tilini aytmaydi: "Chicagoda yashaydi" — o'zbekcha gap.
-        if j == skip || t.evidence == 0.0 || t.name == NameKind::Foreign {
+        // Kod, havola va brend ham: "fetch() chaqiruvi", "Shohjahon McDonald's" — o'zbekcha gap.
+        if j == skip || t.evidence == 0.0 || t.name == NameKind::Foreign || t.silent {
             continue;
         }
         let dist = j.abs_diff(skip) as f32;
@@ -181,6 +186,11 @@ fn context(toks: &[Tok], range: std::ops::Range<usize>, skip: usize) -> f32 {
         weights += w;
     }
     if weights == 0.0 { 0.0 } else { sum / weights }
+}
+
+/// Kontekstda ovoz bermaydigan token: havola, email, kod (`push()`, `snake_case`), @user, #teg yoki brend.
+fn is_silent(tok: &str, core: &str) -> bool {
+    token::is_protected(tok) || lang::is_brand(core)
 }
 
 /// Kontekst qanchalik kuchli ta'sir qiladi. Ikki tilda ham bor so'z (chat, shop) shunga qarab hal bo'ladi.
@@ -548,10 +558,12 @@ fn convert_impl(text: &str, opts: &Options, want_alts: bool) -> (String, Vec<Wor
     let text = text.as_ref();
     let mut toks = tokens(text);
     for t in &mut toks {
-        let core = token::split_edges(&text[t.start..t.end]).core;
+        let tok = &text[t.start..t.end];
+        let core = token::split_edges(tok).core;
         if opts.english_guard {
             t.evidence = lang::evidence(core);
             t.name = lang::name_kind(core);
+            t.silent = is_silent(tok, core);
         }
     }
     if opts.english_guard {
@@ -674,6 +686,7 @@ impl Session {
             } else {
                 NameKind::Other
             },
+            silent: opts.english_guard && is_silent(word_n, core),
         };
         // Yozish paytida faqat chap qo'shni ma'lum: "Charlie Chaplin" (Charlie oldin yozilgan) ushlanadi,
         // "Richard va Michelle" dagi Richard esa Michelle yozilishidan oldin o'giriladi.
@@ -747,6 +760,7 @@ mod tests {
             sentence_end,
             clause_end,
             name,
+            silent: false,
         }
     }
 
@@ -762,6 +776,23 @@ mod tests {
     fn known_uzbek_word_is_decided_by_context() {
         assert!(!english_blocks("shahar", -3.0, 2.0));
         assert!(english_blocks("shahar", -3.0, 0.0));
+    }
+
+    #[test]
+    fn code_links_and_brands_do_not_vote_for_english() {
+        let o = Options::default();
+        assert_eq!(convert("fetch() chaqiruvi", &o), "fetch() çaqiruvi");
+        assert_eq!(convert("Shohjahon McDonald's", &o), "Şohjahon McDonald's");
+        assert_eq!(convert("https://x.uz shahar", &o), "https://x.uz şahar");
+        assert_eq!(convert("push() the shop", &o), "push() the shop");
+        let mut s = Session::new();
+        assert_eq!(s.complete_word("fetch()", &o), None);
+        assert_eq!(
+            s.complete_word("chaqiruvi", &o)
+                .map(|e| e.insert)
+                .as_deref(),
+            Some("çaqiruvi")
+        );
     }
 
     #[test]
