@@ -145,6 +145,7 @@ $packageArgs = @{
   validExitCodes = @(0, 3010, 1641)
 }
 Install-ChocolateyPackage @packageArgs
+Remove-Item -LiteralPath $log -Force -ErrorAction SilentlyContinue
 """
 
 CHOCO_UNINSTALL = r"""$ErrorActionPreference = 'Stop'
@@ -171,27 +172,37 @@ def chocolatey(ver, msi_sha, out):
   <metadata>
     <id>bitg</id>
     <version>{ver}</version>
-    <title>bitg (Uzbek keyboard, new 2026 Latin alphabet)</title>
+    <title>bitg</title>
     <authors>dtwinuz and bitg contributors</authors>
-    <owners>dtwinuz</owners>
+    <owners>dtwin</owners>
     <projectUrl>https://bitg.uz/</projectUrl>
-    <iconUrl>https://cdn.jsdelivr.net/gh/dtwinuz/bitg@main/web/logo-512.png</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/dtwinuz/bitg@v{ver}/web/logo-512.png</iconUrl>
     <copyright>Copyright (c) 2026 dtwinuz</copyright>
-    <licenseUrl>{REPO}/blob/main/LICENSE-MIT</licenseUrl>
+    <licenseUrl>{REPO}/blob/v{ver}/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <projectSourceUrl>{REPO}</projectSourceUrl>
     <packageSourceUrl>{REPO}/tree/main/packaging/chocolatey</packageSourceUrl>
     <docsUrl>https://bitg.uz/yuklab-olish/</docsUrl>
     <bugTrackerUrl>{REPO}/issues</bugTrackerUrl>
-    <tags>bitg uzbek keyboard input-method ime alphabet transliteration latin foss</tags>
+    <tags>bitg uzbek keyboard input-method ime alphabet transliteration latin foss tsf</tags>
     <summary>Uzbek keyboard that converts text to the new 2026 Latin alphabet (ö ğ ş ç) as you type.</summary>
     <description><![CDATA[bitg is a Windows input method (TSF) for Uzbek. Type as you always did (o', g', sh, ch) and each word is
 converted to the new 2026 Latin alphabet when you finish it. English words, links and code are left alone,
 Backspace right after a replacement restores the original word, and everything works offline.
 
+bitg is free and open source (MIT OR Apache-2.0). This package downloads the MSI published with the
+matching GitHub release and checks it against its SHA-256; no binaries are embedded.
+
 After installing, press **Win + Space** and choose **bitg**.
 
+## Requirements
+
+* 64-bit Windows 8.1, 10 or 11
+
 ## Package parameters
+
+By default the installer starts the bitg tray app with Windows and adds the bitg keyboard to the
+current user's language list. Both can be turned off:
 
 * `/NoAutostart` - do not start the tray app with Windows (MSI `AUTOSTART=0`)
 * `/NoKeyboard` - do not add the keyboard to the user's language list (MSI `ADDKEYBOARD=0`)
