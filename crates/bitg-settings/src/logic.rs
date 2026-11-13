@@ -12,6 +12,8 @@ use bitg_tsf::config::{self, Config, DEFAULT_DISABLED_APPS};
 use bitg_tsf::keymap::{self, KEYS, Keymap, LEVELS};
 use serde_json::{Value, json};
 
+use crate::policy::UpdatePolicy;
+
 pub fn settings_json(c: &Config) -> Value {
     json!({
         "enabled": c.enabled,
@@ -242,9 +244,14 @@ fn strings(v: Option<&Value>) -> Vec<String> {
         .unwrap_or_default()
 }
 
-pub fn load() -> Value {
+/// Oynaga sozlamalar. `update_check` — yakuniy qiymat (siyosat, tanlov, o'rnatuvchi standarti);
+/// `update_check_locked` — administrator siyosati bor, tugma qulflanadi.
+pub fn load(policy: &UpdatePolicy) -> Value {
     let (s, e) = config::read_raw();
-    let c = config::parse(&s, &e);
+    let mut c = config::parse(&s, &e);
+    policy.apply(&mut c, &s);
+    let mut settings = settings_json(&c);
+    settings["update_check_locked"] = json!(policy.locked());
     let mut layouts = serde_json::Map::new();
     for name in keymap::PRESETS {
         if let Some(m) = keymap::preset(name) {
@@ -255,7 +262,7 @@ pub fn load() -> Value {
     layouts.insert(keymap::CUSTOM.into(), keymap_json(&custom));
     json!({
         "kind": "loaded",
-        "settings": settings_json(&c),
+        "settings": settings,
         "layouts": layouts,
         "exceptions": exception_words(&e),
         "rules": rules_json(&rule_pairs(&e)),
@@ -265,9 +272,13 @@ pub fn load() -> Value {
 }
 
 /// Ikkala faylni yozadi. Avval vaqtinchalik faylga, so'ng almashtirish — IME yarim yozilgan faylni o'qimaydi.
-pub fn save(msg: &Value) -> Value {
+pub fn save(msg: &Value, policy: &UpdatePolicy) -> Value {
     let (words, rules, lines) = user_lines(msg);
-    let c = config_from(msg.get("settings").unwrap_or(&Value::Null), &lines);
+    let mut c = config_from(msg.get("settings").unwrap_or(&Value::Null), &lines);
+    if policy.locked() {
+        // Oynada qulflangan qiymat ko'rsatilgan: faylda foydalanuvchining o'z tanlovi qoladi.
+        policy.for_storage(&mut c, &config::read_raw().0);
+    }
     let result = (|| -> std::io::Result<()> {
         let dir = config::dir().ok_or_else(|| std::io::Error::other("APPDATA topilmadi"))?;
         std::fs::create_dir_all(&dir)?;
@@ -298,14 +309,16 @@ pub fn save(msg: &Value) -> Value {
 }
 
 /// Tray menyusidan: faqat `enabled` ni o'zgartiradi, qolgan sozlamalar va istisnolar saqlanadi.
-pub fn set_enabled(on: bool) -> std::io::Result<()> {
-    change(|c| c.enabled = on)
+pub fn set_enabled(policy: &UpdatePolicy, on: bool) -> std::io::Result<()> {
+    change(policy, |c| c.enabled = on)
 }
 
 /// Bitta kalitni o'zgartiradi (tray, «Yangiliklar» ko'rildi): qolgan sozlamalar va istisnolar saqlanadi.
-pub fn change(f: impl FnOnce(&mut Config)) -> std::io::Result<()> {
+/// `update_check` yozilmagan bo'lsa, `parse` standarti (`1`) emas, o'rnatuvchi standarti yoziladi.
+pub fn change(policy: &UpdatePolicy, f: impl FnOnce(&mut Config)) -> std::io::Result<()> {
     let (s, e) = config::read_raw();
     let mut c = config::parse(&s, &e);
+    policy.for_storage(&mut c, &s);
     f(&mut c);
     let dir = config::dir().ok_or_else(|| std::io::Error::other("APPDATA topilmadi"))?;
     std::fs::create_dir_all(&dir)?;

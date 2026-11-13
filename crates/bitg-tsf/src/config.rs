@@ -223,6 +223,22 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
     c
 }
 
+/// `settings.ini` matnida kalit aniq yozilganmi: qiymati (`Some`) yoki yo'q/noto'g'ri (`None`). Takror kalitda
+/// oxirgisi (`parse` dagidek). Tray ilovasi shu bilan foydalanuvchi tanlovini o'rnatuvchi standartidan ajratadi.
+pub fn explicit_flag(settings: &str, key: &str) -> Option<bool> {
+    let mut found = None;
+    for line in settings.lines() {
+        let line = line.trim().trim_start_matches('\u{FEFF}');
+        if let Some((k, v)) = line.split_once('=')
+            && k.trim().eq_ignore_ascii_case(key)
+            && let Some(b) = flag(v)
+        {
+            found = Some(b);
+        }
+    }
+    found
+}
+
 /// Tugmalar birikmasi: probelsiz, kichik harflarda (`Ctrl + Shift + Y` → `ctrl+shift+y`).
 pub fn keys_value(v: &str) -> String {
     v.chars()
@@ -391,6 +407,22 @@ pub fn stamp() -> Stamp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn explicit_flag_only_when_written() {
+        assert_eq!(explicit_flag("", "update_check"), None);
+        assert_eq!(explicit_flag("enabled=1\n", "update_check"), None);
+        assert_eq!(explicit_flag("update_check=maybe", "update_check"), None);
+        assert_eq!(explicit_flag("# update_check=0", "update_check"), None);
+        assert_eq!(
+            explicit_flag("\u{FEFF}Update_Check = 0\n", "update_check"),
+            Some(false)
+        );
+        assert_eq!(
+            explicit_flag("update_check=0\nupdate_check=1", "update_check"),
+            Some(true)
+        );
+    }
 
     #[test]
     fn defaults_when_empty() {

@@ -161,6 +161,8 @@
   .sw[aria-checked="true"] { background: var(--lojuvard); border-color: var(--lojuvard); }
   .sw[aria-checked="true"]::after { transform: translateX(17px); background: var(--qogoz); }
   .sw[aria-checked="true"]:active::after { transform: translateX(13px); }
+  .sw:disabled { opacity: .45; cursor: not-allowed; }
+  .sw:disabled:active::after { width: 14px; }
   .seg { display: inline-flex; gap: 4px; padding: 3px; border-radius: 10px; background: var(--rail); border: 1px solid var(--chiziq); flex-wrap: wrap; }
   .seg button {
     display: flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 7px;
@@ -604,7 +606,7 @@
             <span class="d">bitg trayda turadi: belgini bosib bu oynani ochasiz, o'ng tugma bilan tez yoqib-o'chirasiz.</span></span>
             <button class="sw" role="switch" id="autostart" aria-labelledby="l-as"></button></div>
           <div class="row"><span><span class="t" id="l-uc">Yangilanishlarni tekshirish</span>
-            <span class="d">Kuniga bir marta bitg.uz dan versiya raqami o'qiladi. Yangisi chiqsa — taklif qilinadi, o'zi o'rnatilmaydi.</span></span>
+            <span class="d" id="d-uc">Kuniga bir marta bitg.uz dan versiya raqami o'qiladi. Yangisi chiqsa — taklif qilinadi, o'zi o'rnatilmaydi.</span></span>
             <button class="sw" role="switch" data-k="update_check" aria-labelledby="l-uc"></button></div>
           <div class="row"><span><span class="t" id="l-wn">Yangilangandan keyin yangiliklarni ko'rsatish</span>
             <span class="d">Yangi versiyada nima o'zgargani bir marta ochiladi.</span></span>
@@ -912,6 +914,12 @@
       : "Hech qayerda o'girmaydi. Trayda turibdi — istalgan payt yoqing.";
     document.body.classList.toggle("off", !s.enabled);
     for (const b of document.querySelectorAll(".sw[data-k]")) b.setAttribute("aria-checked", String(!!s[b.dataset.k]));
+    // Administrator siyosati (SOFTWARE\Policies\bitg\UpdateCheck): tugma qulflanadi.
+    const uc = document.querySelector('.sw[data-k="update_check"]');
+    uc.disabled = !!s.update_check_locked;
+    $("d-uc").textContent = s.update_check_locked
+      ? "Administrator belgilagan, bu yerda o'zgartirib bo'lmaydi."
+      : "Kuniga bir marta bitg.uz dan versiya raqami o'qiladi. Yangisi chiqsa — taklif qilinadi, o'zi o'rnatilmaydi.";
     radios($("tutuq"), s.tutuq);
     renderPreset();
     renderHotkey();
@@ -1574,7 +1582,7 @@
     notes.hidden = true; b.hidden = false; b.disabled = false; b.className = "btn ghost act";
     const cur = status.version || news?.current || "";
     const T = {
-      idle: ["Yangilanish", s && !s.update_check ? "Avtomatik tekshirish o'chiq (Qoidalar → Ilova)." : "bitg kuniga bir marta o'zi tekshiradi.", "Tekshirish"],
+      idle: ["Yangilanish", s && !s.update_check ? (s.update_check_locked ? "Tekshiruvni administrator o'chirgan." : "Avtomatik tekshirish o'chiq (Qoidalar → Ilova).") : "bitg kuniga bir marta o'zi tekshiradi.", "Tekshirish"],
       checking: ["Tekshirilmoqda…", "bitg.uz dan oxirgi versiya so'raldi.", null],
       latest: ["Sizda eng yangi versiya", `v${cur} — eng so'nggisi.`, "Qayta tekshirish"],
       error: ["Bo'lmadi", upd.error || "Keyinroq urinib ko'ring.", "Qayta urinish"],
