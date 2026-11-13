@@ -422,6 +422,9 @@
     var from = b.getAttribute('data-from'), to = b.getAttribute('data-to');
     var st = el('span', 'bg-letter__stage');
     var cap = el('span', 'bg-letter__cap');
+    // Tugma nomi aria-label'da; ko'rinadigan "o‘ → ö" bezak, ekran o'quvchi uni qaytarmaydi
+    st.setAttribute('aria-hidden', 'true');
+    cap.setAttribute('aria-hidden', 'true');
     Array.from(from).forEach(function (c) { cap.appendChild(el('kbd', null, c)); });
     cap.appendChild(el('span', 'bg-arrow', '→'));
     cap.appendChild(el('kbd', 'bg-new', to));
@@ -751,7 +754,7 @@
   presetBtns.forEach(function (b) {
     b.addEventListener('click', function () {
       preset = b.getAttribute('data-preset');
-      presetBtns.forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      presetBtns.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
       paintPreset(true);
     });
   });
