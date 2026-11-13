@@ -393,7 +393,7 @@ tayyor hash-jadval bo'lib kiradi (`crates/bitg-core/build.rs`).
 | `sh_split.tsv` | kirillda s+h alohida so'zlar (Исҳоқ, нусҳа, Мусҳаф): `sh` → ş bo'lmaydi | yuqoridagi kirill gaplar |
 | `en.tsv` | inglizcha so'z → SCOWL darajasi | [SCOWL 2020.12.07](http://wordlist.aspell.net/) (Kevin Atkinson, ruxsat beruvchi litsenziya) |
 | `names.txt` | brendlar (qo'lda) | — |
-| `foreign_names.txt` (1 394 nom) | faqat xorijiy imloda uchraydigan kishi/joy nomlari (ch/sh bor, `uz.tsv` da yo'q): `Michelle`, `Rachel`, `Sanchez` | SCOWL `*-proper-names` (daraja ≤ 80), `tools/build_foreign_names.py` |
+| `foreign_names.txt` (3 419 nom) | faqat xorijiy imloda uchraydigan kishi/joy nomlari (ch/sh bor, `uz.tsv` da yo'q): `Michelle`, `Rachel`, `Sanchez`, `Chesney` | SCOWL `*-proper-names` (daraja ≤ 80); `tools/foreign_names_extra.txt` — AQSh aholi ro'yxati familiyalari (US Census Bureau) va [NameDatabases](https://github.com/smashew/NameDatabases) (jamoat mulki), o'zbek kirill korpusida uchramaydiganlari; `tools/build_foreign_names.py` |
 
 **Nomlar.** O'zbek imlosida ham shunday yoziladigan nom (Ричард → `Richard`, `Pushkin`, `Shohruh`) o'giriladi:
 `Riçard`, `Puşkin`. Xorijiy imlodagi nom (o'zbek korpusida yo'q, inglizcha nomlar ro'yxatida bor yoki o'zbek

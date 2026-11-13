@@ -205,6 +205,20 @@ fn foreign_letters_and_german_sch_are_kept() {
 }
 
 #[test]
+fn foreign_surnames_are_kept() {
+    // tools/foreign_names_extra.txt (AQSh familiyalari): bosh harfli nom asl yozuvida qoladi
+    assert_eq!(
+        c("Chesney bilan gaplashdim, choy ichdik"),
+        "Chesney bilan gaplaşdim, çoy içdik"
+    );
+    assert_eq!(
+        c("Hochberg va Beauchamp kelishdi"),
+        "Hochberg va Beauchamp kelişdi"
+    );
+    assert_eq!(c("Shumakerning kitobi"), "Shumakerning kitobi");
+}
+
+#[test]
 fn dis_h_is_split() {
     assert_eq!(c("dishormonogenetik holat"), "dishormonogenetik holat");
 }
