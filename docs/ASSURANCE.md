@@ -162,7 +162,7 @@ path is added. Last review: 2026-11-13 (v0.3.x).
 
 | ID | Severity | Finding | Status |
 |---|---|---|---|
-| F1 | medium | Windows fallback: unknown field type treated as non-sensitive | open, G4 / #41 |
+| F1 | medium | Windows fallback: unknown field type treated as non-sensitive | partly mitigated: sign-in, UAC and password-manager processes are off by default; per-word input-scope re-check still open (needs a Qt e2e case), G4 / #41 |
 | F2 | medium | release `msi` job compiled third-party code with the write token in `.git/config` and the signing secrets in the environment | fixed (`persist-credentials: false`, separate signing step) |
 | F3 | medium | `bitg.uz` mirror not tied to the attestation | fixed: `deploy/deploy.sh` takes the files from the GitHub Release and stops unless `gh attestation verify` (signer `release.yml`, tag ref, GitHub-hosted runner) passes (#42) |
 | F4 | low | `bitg file` / `exceptions.txt` write safety | fixed (#43); overwriting an existing output file is kept on purpose |

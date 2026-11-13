@@ -64,8 +64,17 @@ pub struct Config {
 /// Belgilangan matnni o'girish tugmasining standart birikmasi.
 pub const DEFAULT_HOTKEY: &str = "ctrl+shift+y";
 
-/// Terminallar: buyruq va parol yoziladi — standart holatda tegilmaydi.
+/// Standart holatda tegilmaydigan dasturlar: terminallar (buyruq va parol yoziladi), Windows kirish/UAC oynalari
+/// va parol menejerlari (maydon turi har doim ham TSF orqali kelmaydi, #41).
 pub const DEFAULT_DISABLED_APPS: &[&str] = &[
+    "logonui.exe",
+    "consent.exe",
+    "credentialuibroker.exe",
+    "keepass.exe",
+    "keepassxc.exe",
+    "1password.exe",
+    "bitwarden.exe",
+    "enpass.exe",
     "termius.exe",
     "windowsterminal.exe",
     "openconsole.exe",

@@ -828,7 +828,10 @@
     "conhost.exe": "Konsol (conhost)", "putty.exe": "PuTTY", "kitty.exe": "KiTTY", "mintty.exe": "mintty", "alacritty.exe": "Alacritty",
     "wezterm-gui.exe": "WezTerm", "mobaxterm.exe": "MobaXterm", "explorer.exe": "Explorer", "searchhost.exe": "Windows qidiruvi",
     "slack.exe": "Slack", "discord.exe": "Discord", "whatsapp.exe": "WhatsApp", "msedgewebview2.exe": "WebView ilovalari",
-    "textinputhost.exe": "Windows matn kiritish", "bitg-settings.exe": "bitg" };
+    "textinputhost.exe": "Windows matn kiritish", "bitg-settings.exe": "bitg",
+    "logonui.exe": "Windows kirish oynasi", "consent.exe": "Windows UAC oynasi", "credentialuibroker.exe": "Windows parol oynasi",
+    "keepass.exe": "KeePass", "keepassxc.exe": "KeePassXC", "1password.exe": "1Password", "bitwarden.exe": "Bitwarden",
+    "enpass.exe": "Enpass" };
   const prettyApp = (exe) => KNOWN[exe.toLowerCase()] || exe.replace(/\.exe$/i, "");
   const HUES = ["#2a4bb0", "#0c8475", "#7a4fb5", "#b0532a", "#2a7fb0", "#5f7a1f", "#a83a6a"];
   const hue = (t) => HUES[[...t].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length];
