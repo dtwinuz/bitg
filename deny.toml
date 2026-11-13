@@ -30,3 +30,10 @@ allow = [
     "MPL-2.0",
 ]
 confidence-threshold = 0.9
+
+# Bog'liqlik faqat crates.io'dan keladi. Noma'lum registry yoki git manba (begona yoki zararli paket yo'li)
+# paydo bo'lsa CI to'xtaydi: qo'shishdan oldin maintainer ko'rib chiqadi va shu yerga asos bilan yozadi.
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

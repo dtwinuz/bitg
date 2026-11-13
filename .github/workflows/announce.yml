@@ -23,8 +23,15 @@ jobs:
   telegram:
     runs-on: ubuntu-latest
     steps:
+      # Qo'lda kiritilgan versiya faqat teg ko'rinishida bo'lsa ishlatiladi (checkout ref va skript argumenti).
+      - name: Versiyani tekshirish
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          echo "$VERSION" | grep -Eq '^v?[0-9]+\.[0-9]+\.[0-9]+$' || { echo "versiya noto'g'ri: $VERSION (masalan 0.3.1)"; exit 1; }
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ startsWith(inputs.version, 'v') && inputs.version || format('v{0}', inputs.version) }}
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:

@@ -33,6 +33,55 @@ Xabar beruvchi tuzatish ustida yopiq advisory'da ishtirok etadi. Tuzatish chiqqa
 advisory'da va `CHANGELOG.md` da minnatdorchilik bilan qayd etiladi. Xavfsizlik asoslamasi va ma'lum kamchiliklar:
 [docs/ASSURANCE.md](docs/ASSURANCE.md).
 
+## Avtomatik tekshiruvlar topgan muammolar (SCA va SAST)
+
+Har PR va `main` ga har push quyidagilardan o'tadi. `main` ruleset'i ular yashil bo'lmaguncha merge'ni to'sadi.
+
+| Turi | Vosita | Nimani to'sadi |
+|---|---|---|
+| SCA (bog'liqliklar) | `cargo deny check advisories licenses sources` (`ci.yml`, `advisories` job; qoidalar [deny.toml](deny.toml)) | RustSec'dagi zaif, unsound yoki qarovsiz paket; ruxsat ro'yxatida yo'q litsenziya; crates.io'dan tashqari registry yoki git manba |
+| SCA | Dependabot (security updates + oylik yangilash), OSV (Scorecard) | zaif versiya topilsa avtomatik PR |
+| SAST (kod) | CodeQL (Rust, C/C++, Python, JavaScript, Actions), `cargo clippy -D warnings` | xavfsizlik ogohlantirishi (code scanning qoidasi) |
+
+Tuzatish muddatlari (topilgan kundan boshlab):
+
+| Daraja | SCA (zaif bog'liqlik) | SAST (kod zaifligi) |
+|---|---|---|
+| Kritik / yuqori | 14 kun, va har holda keyingi relizdan oldin | merge to'siladi; `main` da topilsa 14 kun |
+| O'rta | 30 kun | 30 kun |
+| Past / ma'lumot (masalan "qarovsiz") | 90 kun yoki keyingi minor reliz | 90 kun |
+| Litsenziya buzilishi | merge to'siladi, paket qo'shilmaydi | — |
+
+- **Relizdan oldin** barcha SCA topilmalari hal qilingan bo'lishi kerak: `release.yml` teg vaqtida `cargo deny` ni
+  qayta yurgizadi va u o'tmasa reliz yaratilmaydi. Yagona istisno — bitg'ga ta'sir qilmasligi asoslangan topilma
+  (pastga qarang).
+- **Istisno** faqat ID, sabab va qayta ko'rib chiqish sharti bilan qo'shiladi: `deny.toml` / `osv-scanner.toml` da
+  va [VEX.openvex.json](VEX.openvex.json) da `not_affected` bayonoti bilan. CodeQL ogohlantirishini yopish
+  ("dismiss") ham sababi yozilgan izoh bilan va maintainer tomonidan bo'ladi.
+- Zararli paketdan himoya: bog'liqlik faqat crates.io'dan, `Cargo.lock` bilan (`--locked`) olinadi; yangi bog'liqlik
+  qo'shadigan PR'ni maintainer alohida ko'rib chiqadi ([CONTRIBUTING.md](CONTRIBUTING.md), "Bog'liqliklar").
+
+## Ta'sir qilmaydigan zaifliklar (VEX)
+
+Bog'liqliklarda topilgan, lekin bitg yetkazadigan fayllarga ta'sir qilmaydigan zaifliklar
+[VEX.openvex.json](VEX.openvex.json) da (OpenVEX) sababi bilan yozilgan. Istisno o'chirilsa yoki yangisi qo'shilsa,
+VEX hujjati o'sha PR'da yangilanadi.
+
+## Sirlar va kalitlar
+
+| Nima | Qayerda saqlanadi | Kim foydalanadi | Almashtirish |
+|---|---|---|---|
+| Reliz imzosi (SLSA provenance, SBOM) | uzoq muddatli kalit yo'q: GitHub Actions OIDC + Sigstore, har relizda yangi qisqa muddatli sertifikat | faqat `build.yml` workflow'i | kerak emas |
+| CI sirlari (Telegram e'lon boti tokeni; kod-imzo sertifikati qo'shilsa u ham) | GitHub Actions secrets | faqat shu sirni ishlatadigan job (`announce.yml`, `build.yml`) | har 12 oyda, maintainer ketganda yoki sizib chiqish shubhasida darhol |
+| Shaxsiy kirish tokenlari (PAT) | maintainer'ning o'zida, repoda emas | maintainer | muddati ko'pi bilan 1 yil; fine-grained, minimal huquq |
+| apt ombori imzo kaliti | shifrlangan oflayn zaxira | bosh maintainer | har 12 oyda ko'rib chiqiladi; sizib chiqsa darhol yangi kalit va e'lon |
+
+- Sirlar repoga yozilmaydi: GitHub secret scanning va push protection yoqilgan, sir bilan push rad etiladi.
+- Workflow'lar sukut bo'yicha faqat `contents: read` huquqi bilan ishlaydi; sir faqat kerakli job'ga beriladi.
+  Fork'dan kelgan PR'lar sirlarni ko'rmaydi (`pull_request` ishlatiladi, `pull_request_target` emas).
+- Maintainer loyihadan ketsa, uning kirish huquqi olinadi va u ko'rgan barcha sirlar almashtiriladi
+  ([GOVERNANCE.md](GOVERNANCE.md)).
+
 ## bitg nimani qilmaydi
 
 - Yozilgan matnni tarmoqqa yubormaydi va saqlamaydi (faqat siz qo'shgan istisno so'zlar `exceptions.txt` ga yoziladi).

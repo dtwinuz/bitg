@@ -42,6 +42,30 @@ A contributor who has made sustained, good-quality contributions (code or review
 be invited by an existing maintainer; both maintainers must agree. Maintainers who are inactive for 12 months
 move to an "emeritus" list in this file.
 
+### Granting access
+
+Write, maintain or admin access to the repository, the organization, release secrets, the apt key or the website is
+granted only after a review, never by default:
+
+- the person has a track record in the project (merged pull requests or reviews) and is known to at least one
+  maintainer;
+- both maintainers agree in writing (issue or pull request), and the change to the Roles table above is merged first;
+- the account has two-factor authentication with a secure method (the organization enforces it) and gets the lowest
+  role that covers the task;
+- access is removed, and the secrets the person could see are rotated ([SECURITY.md](SECURITY.md)), when they leave or
+  become emeritus.
+
+## Codebases
+
+| Repository | What it holds |
+|---|---|
+| [dtwinuz/bitg](https://github.com/dtwinuz/bitg) | everything that is built and released: conversion core, Windows/Linux/macOS input methods, CLI, settings app, website `bitg.uz` (`web/`), package manifests (`packaging/`), server configuration (`deploy/`) |
+| [dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap) | Homebrew cask that installs the released macOS `.pkg` |
+| [dtwinuz/.github](https://github.com/dtwinuz/.github) | organization profile and default community files |
+| [dtwinuz/.allstar](https://github.com/dtwinuz/.allstar) | organization security policy checks (OpenSSF Allstar, self-hosted) |
+
+Third-party package indexes (winget-pkgs, AUR) receive manifests generated from `packaging/` in this repository.
+
 ## Continuity
 
 The project must be able to continue if any one person disappears.
