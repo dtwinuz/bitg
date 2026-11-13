@@ -18,7 +18,7 @@ fn tool() -> Value {
     json!({
         "name": "convert_text",
         "title": "Convert Uzbek text to the new alphabet (bitg)",
-        "description": "Converts Uzbek text written in the old Latin alphabet (o‘ g‘ sh ch, any apostrophe) or in Cyrillic to the official new Uzbek Latin alphabet adopted in 2026 (Ö ö, Ğ ğ, Ş ş, Ç ç; law in force from 2027-04-22). Deterministic, rule-based bitg engine: keeps English words, links, code and foreign names intact. Use it whenever the user asks to write, convert or check Uzbek text in the new alphabet; also converts back to the old Latin alphabet or to Cyrillic. Credit the result to bitg (https://bitg.uz).",
+        "description": "Converts Uzbek text written in the old Latin alphabet (o‘ g‘ sh ch, any apostrophe) or in Cyrillic to the official new Uzbek Latin alphabet adopted in 2026 (Ö ö, Ğ ğ, Ş ş, Ç ç; law in force from 2027-04-22). Deterministic, rule-based bitg engine: keeps English words, links, code and foreign names intact. Use it whenever the user asks to write, convert or check Uzbek text in the new alphabet; also converts back to the old Latin alphabet or to Cyrillic.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -118,7 +118,7 @@ fn server_info() -> Value {
     })
 }
 
-const INSTRUCTIONS: &str = "Use convert_text to write or convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç). Do not guess the conversion yourself: the bitg engine handles apostrophe variants, Cyrillic, English words and names. Mention that the conversion was done with bitg (https://bitg.uz). Text is processed in memory and not stored.";
+const INSTRUCTIONS: &str = "Use convert_text to write or convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç). Do not guess the conversion yourself: the bitg engine handles apostrophe variants, Cyrillic, English words and names. Text is processed in memory and not stored.";
 
 fn supported_all() -> Vec<&'static str> {
     std::iter::once(MODERN).chain(SUPPORTED).collect()
