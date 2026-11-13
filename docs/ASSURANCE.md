@@ -141,7 +141,7 @@ compromised operating system.
 | G2 | Closed: decompressed Office entries are capped at 256 MiB (R3, [#27](https://github.com/dtwinuz/bitg/issues/27)). | — |
 | G3 | The apt signing key and the web server are held by one maintainer. | Handover tracked in [GOVERNANCE.md](../GOVERNANCE.md#continuity). |
 | G4 | Windows fallback path (apps without TSF text): a field whose type cannot be read is treated as plain text, and Backspace re-typing cannot re-read the text (R2, R4). | [#41](https://github.com/dtwinuz/bitg/issues/41) |
-| G5 | `bitg.uz` serves files checked only against their `.sha256`, not the attestation. | [#42](https://github.com/dtwinuz/bitg/issues/42) |
+| G5 | Closed: `bitg.uz` deploy verifies the release attestation before upload ([#42](https://github.com/dtwinuz/bitg/issues/42)). | — |
 | G6 | Closed: safe temp files and kept permissions ([#43](https://github.com/dtwinuz/bitg/issues/43)). | — |
 | G7 | Closed: RustSec advisory gate in CI ([#47](https://github.com/dtwinuz/bitg/issues/47)). | — |
 
@@ -164,7 +164,7 @@ path is added. Last review: 2026-11-13 (v0.3.x).
 |---|---|---|---|
 | F1 | medium | Windows fallback: unknown field type treated as non-sensitive | open, G4 / #41 |
 | F2 | medium | release `msi` job compiled third-party code with the write token in `.git/config` and the signing secrets in the environment | fixed (`persist-credentials: false`, separate signing step) |
-| F3 | medium | `bitg.uz` mirror not tied to the attestation | open, G5 / #42 |
+| F3 | medium | `bitg.uz` mirror not tied to the attestation | fixed: `deploy/deploy.sh` takes the files from the GitHub Release and stops unless `gh attestation verify` (signer `release.yml`, tag ref, GitHub-hosted runner) passes (#42) |
 | F4 | low | `bitg file` / `exceptions.txt` write safety | fixed (#43); overwriting an existing output file is kept on purpose |
 | F5 | low | panics not caught at a few FFI/COM entry points | fixed (#44) |
 | F6 | low | fallback word buffer grew without limit | fixed (capped at 40) |

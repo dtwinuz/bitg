@@ -21,6 +21,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - C ABI (`bitg-core`) va TSF COM eksportlarida panik ushlanadi: ilova yopilib qolmaydi ([#44](https://github.com/dtwinuz/bitg/issues/44)).
 - `bitg file`: vaqtinchalik fayl oldindan bilib bo'lmaydigan nom bilan, faqat yangi fayl sifatida ochiladi, fayl
   ruxsatlari saqlanadi; Linux/macOS'da `exceptions.txt` atomik va faqat egasi o'qiydigan (0600) yoziladi ([#43](https://github.com/dtwinuz/bitg/issues/43)).
+- bitg.uz deploy: reliz fayllari GitHub Release'dan olinadi va `gh attestation verify` (release.yml, teg) dan o'tmasa deploy to'xtaydi; SECURITY.md: MSI imzosiz, `.pkg` ad-hoc ([#42](https://github.com/dtwinuz/bitg/issues/42)).
 - IBus va Fcitx5: kursor oldidagi matn faqat kerak bo'lganda va oxirgi 128 belgi olinadi (macOS kabi) ([#46](https://github.com/dtwinuz/bitg/issues/46)).
 - CI: `cargo deny check advisories` (RustSec), Python paketlari xesh bilan qotirilgan ([#47](https://github.com/dtwinuz/bitg/issues/47)).
 

@@ -6,7 +6,7 @@
 
 # bitg.uz: faqat origin/main deploy qilinadi.
 # web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI + Linux .deb
-# + Mac .pkg (dist/ da, GitHub Release'dan) + imzolangan apt ombori + statistika xizmati
+# + Mac .pkg (GitHub Release'dan, attestatsiya tekshiruvi bilan) + imzolangan apt ombori + statistika xizmati
 # -> /opt/bitg-site -> health -> IndexNow.
 set -euo pipefail
 
@@ -35,24 +35,31 @@ git worktree add --quiet --detach "$STAGE/src" "$SHA"
 WASM="$ROOT/target/site/wasm32-unknown-unknown/release/bitg_core.wasm"
 
 VER="$(sed -n 's/^version = "\(.*\)"/\1/p' "$STAGE/src/Cargo.toml" | head -1)"
-MSI="dist/bitg-$VER-x64.msi"
-[ -f "$MSI" ] || fail "$MSI yo'q (installer/build.ps1)"
-[ "$(sha256sum < "$MSI" | cut -d' ' -f1)" = "$(tr -d '\r' < "$MSI.sha256" | cut -d' ' -f1)" ] || fail "$MSI sha256 mos emas"
-PKGS="dist/bitg_${VER}_amd64.deb dist/fcitx5-bitg_${VER}_amd64.deb dist/bitg-${VER}-macos.pkg"
-for d in $PKGS; do
-  [ -f "$d" ] || fail "$d yo'q (GitHub Release v$VER dan yuklang)"
+# Reliz fayllari faqat GitHub Release v$VER dan olinadi va CI qurganiga attestatsiya bilan tekshiriladi:
+# sayt aynan release.yml yig'gan faylni tarqatadi, lokal yig'ilgan yoki almashtirilgan faylni emas.
+DIST="$STAGE/dist"
+MSI="$DIST/bitg-$VER-x64.msi"
+PKGS="$DIST/bitg_${VER}_amd64.deb $DIST/fcitx5-bitg_${VER}_amd64.deb $DIST/bitg-${VER}-macos.pkg"
+gh release download "v$VER" -R dtwinuz/bitg -D "$DIST" -p '*.msi' -p '*.msi.sha256' -p '*.deb' -p '*.deb.sha256' \
+  -p '*.pkg' -p '*.pkg.sha256' || fail "GitHub Release v$VER yuklanmadi (gh auth status?)"
+for d in $MSI $PKGS; do
+  [ -f "$d" ] || fail "$(basename "$d") Release v$VER da yo'q"
   [ "$(sha256sum < "$d" | cut -d' ' -f1)" = "$(tr -d '\r' < "$d.sha256" | cut -d' ' -f1)" ] || fail "$d sha256 mos emas"
+  gh attestation verify "$d" -R dtwinuz/bitg --signer-workflow dtwinuz/bitg/.github/workflows/release.yml \
+    --source-ref "refs/tags/v$VER" --deny-self-hosted-runners >/dev/null \
+    || fail "$(basename "$d"): attestatsiya tekshiruvi o'tmadi (release.yml v$VER qurmagan)"
 done
+echo "reliz fayllari tekshirildi: attestatsiya (release.yml, v$VER)"
 
 SITE="$STAGE/out/site"
 # css/js uzoq keshlanadi: har deployda manzil yangilansin (?v=<sha8>)
 V="${SHA:0:8}"
 # sahifalar web/pages/ dan yig'iladi: shablon, sitemap, 404, JSON-LD (tools/site/build.py)
-"${PYTHON:-python}" -I "$STAGE/src/tools/site/build.py" --out "$SITE" --v "$V" --msi "$ROOT/$MSI" \
+"${PYTHON:-python}" -I "$STAGE/src/tools/site/build.py" --out "$SITE" --v "$V" --msi "$MSI" \
   || fail "sayt yig'ilmadi (tools/site/build.py)"
 mkdir -p "$SITE/download"
 cp "$WASM" "$SITE/bitg_core.wasm"
-cp "$MSI" "dist/bitg-$VER-x64.msi.sha256" "$SITE/download/"
+cp "$MSI" "$MSI.sha256" "$SITE/download/"
 for d in $PKGS; do cp "$d" "$d.sha256" "$SITE/download/"; done
 printf '%s\n' "$SHA" > "$SITE/version.txt"
 
@@ -60,7 +67,7 @@ printf '%s\n' "$SHA" > "$SITE/version.txt"
 APT_GNUPG="${BITG_APT_GNUPG:-$HOME/.bitg-apt-gnupg}"
 [ -d "$APT_GNUPG" ] || fail "apt imzo kaliti yo'q: $APT_GNUPG (zaxiradan tiklang yoki tools/apt/genkey.sh)"
 "${PYTHON:-python}" -I "$STAGE/src/tools/apt/apt_repo.py" --out "$SITE/apt" --gnupg "$APT_GNUPG" \
-  "dist/bitg_${VER}_amd64.deb" "dist/fcitx5-bitg_${VER}_amd64.deb" || fail "apt ombori yig'ilmadi"
+  "$DIST/bitg_${VER}_amd64.deb" "$DIST/fcitx5-bitg_${VER}_amd64.deb" || fail "apt ombori yig'ilmadi"
 
 cp "$STAGE/src/deploy/docker-compose.yml" "$STAGE/src/deploy/Caddyfile" "$STAGE/src/deploy/set-stats-env.sh" \
   "$STAGE/src/deploy/remote.sh" "$STAGE/out/"

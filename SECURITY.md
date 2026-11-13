@@ -55,5 +55,12 @@ Internetsiz (GitHub API'siz) tekshirish uchun relizdagi bundle fayli:
 gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg --bundle bitg-0.3.1.intoto.jsonl
 ```
 
+bitg.uz dagi fayllar ham aynan shu reliz fayllari: deploy skripti ularni GitHub Release'dan oladi va attestation
+tekshiruvidan o'tmasa to'xtaydi.
+
+**Imzo haqida:** Windows MSI kod-imzo sertifikati bilan imzolanmagan (SmartScreen "noma'lum nashriyotchi" deydi),
+macOS `.pkg` faqat ad-hoc imzolangan (Developer ID emas, notarizatsiya yo'q). Shuning uchun faylning haqiqiyligini
+yuqoridagi `gh attestation verify` va `.sha256` bilan tekshiring.
+
 bitg kodi muntazam fuzz qilinadi (`fuzz/`, libFuzzer): ixtiyoriy matnda yadro panic bermasligi va IME tahriri
 so'zdan tashqariga chiqmasligi tekshiriladi.
