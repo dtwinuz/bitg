@@ -10,3 +10,23 @@ ignore = [
     # Zaiflik emas, faqat "qarovsiz"; gtk-rs 0.18 tarmog'i almashtirilmaguncha.
     { id = "RUSTSEC-2024-0370", reason = "proc-macro-error unmaintained, build-time only, via gtk3-macros (Linux deps of wry/tray-icon)" },
 ]
+
+# Bog'liqliklar litsenziyasi bitg litsenziyasi (MIT OR Apache-2.0) bilan birga tarqatilishi mumkin bo'lsin.
+# Ro'yxatda yo'q litsenziya (masalan GPL) paydo bo'lsa CI to'xtaydi: avval moslik tekshiriladi.
+[licenses]
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "0BSD",
+    "CC0-1.0",
+    "Unlicense",
+    "Unicode-3.0",
+    # fayl darajasidagi copyleft: o'zgartirilmagan crates.io manbasi, faqat Linux sozlamalar oynasida (wry/selectors)
+    "MPL-2.0",
+]
+confidence-threshold = 0.9

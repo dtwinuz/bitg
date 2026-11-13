@@ -99,7 +99,7 @@ jobs:
           MIN_LINES: 95
           MIN_BRANCHES: 90
 
-  # RustSec: zaif, unsound yoki qarovsiz bog'liqlik bo'lsa to'xtaydi (istisnolar sababi bilan deny.toml'da).
+  # RustSec: zaif, unsound yoki qarovsiz bog'liqlik, yoki ruxsat etilmagan litsenziya bo'lsa to'xtaydi (deny.toml).
   advisories:
     runs-on: ubuntu-latest
     steps:
@@ -109,4 +109,4 @@ jobs:
       - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
         with:
           tool: cargo-deny@0.20.2
-      - run: cargo deny --color never check advisories
+      - run: cargo deny --color never check advisories licenses
