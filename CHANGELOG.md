@@ -5,21 +5,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [Unreleased]
 
 ### Qo'shildi
-- **Linux: yuqori panel belgisi** ([#75](https://github.com/dtwinuz/bitg/issues/75), [#81](https://github.com/dtwinuz/bitg/pull/81),
-  [#84](https://github.com/dtwinuz/bitg/issues/84)): GNOME/Unity panelida bitg belgisi (Ayatana AppIndicator) — yoqish/o'chirish,
-  avtomatik o'girish, kirillni o'girish va istisnolar/lug'at muharriri; ilovalar menyusida «bitg», sessiya bilan
-  avtomatik ochiladi. GTK/Python bog'liqliklari `Recommends`: IBus dvigateli va CLI ularsiz ham o'rnatiladi.
+- **Linux panel belgisi: istisnolar va lug'at muharriri** ([#84](https://github.com/dtwinuz/bitg/issues/84)): menyudagi
+  «Istisnolar va lugʼat…» `exceptions.txt` ni tahrirlaydi (atomik yozuv, IME jonli oladi). «Panel belgisini yopish»
+  nomi aniqlashtirildi: kiritish usuli ishlashda davom etadi.
 - **CLI `--exceptions FAYL`** ([#39](https://github.com/dtwinuz/bitg/issues/39)): `bitg`, `explain`, `file`, `diff` da
   `exceptions.txt` formatidagi istisnolar va lug'at qatorlari.
 - README: «Windows'da muammo bo'lsa» bo'limi ([#51](https://github.com/dtwinuz/bitg/issues/51)).
 - C ABI uchun tashqi integratsion test `crates/bitg-core/tests/ffi.rs` ([#38](https://github.com/dtwinuz/bitg/issues/38)).
 
 ### Tuzatildi
-- Brend va nomlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
-  Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65)), 55 ta brend va texnik atama
-  ([#69](https://github.com/dtwinuz/bitg/pull/69)), 2025 ta xorijiy ism-familiya ([#71](https://github.com/dtwinuz/bitg/pull/71)).
+- Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
+  Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65)).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
   standartni o'zgartirmaydi ([#84](https://github.com/dtwinuz/bitg/issues/84)).
+- `.deb`: indikatorning GTK/Python bog'liqliklari `Depends` dan `Recommends` ga — IBus dvigateli va CLI ularsiz ham
+  o'rnatiladi ([#84](https://github.com/dtwinuz/bitg/issues/84)).
 
 ### Xavfsizlik
 - Windows zaxira yo'li (SendInput, matn bermaydigan dasturlar): dastur IME'ni so'z davomida o'chirsa (parol maydoni),
