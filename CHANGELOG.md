@@ -12,6 +12,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   `exceptions.txt` formatidagi istisnolar va lug'at qatorlari.
 - README: «Windows'da muammo bo'lsa» bo'limi ([#51](https://github.com/dtwinuz/bitg/issues/51)).
 - C ABI uchun tashqi integratsion test `crates/bitg-core/tests/ffi.rs` ([#38](https://github.com/dtwinuz/bitg/issues/38)).
+- **winget va Homebrew avtomatik yangilanadi.** `stores.yml` (release.yml chaqiradi): Komac (versiya va SHA-256
+  qotirilgan) MSI attestation'i tekshirilgach winget-pkgs'ga PR ochadi; token faqat `winget` environment'ida.
+  `dtwinuz/homebrew-tap` `autobump`: har 3 soatda yangi relizni topib, sha256 + attestation + macOS'da o'rnatish
+  sinovidan keyin cask'ni yangilaydi (repolararo token yo'q). `packaging/` 0.4.0 ga yangilandi.
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),

@@ -153,3 +153,13 @@ jobs:
       version: ${{ github.ref_name }}
     secrets:
       BITG_DEVBOT_TOKEN: ${{ secrets.BITG_DEVBOT_TOKEN }}
+
+  # winget-pkgs'ga PR (stores.yml; token `winget` environment'ida). Homebrew tap o'zi yangilanadi (autobump).
+  stores:
+    if: github.event_name == 'push'
+    needs: publish
+    permissions:
+      contents: read
+    uses: ./.github/workflows/stores.yml
+    with:
+      version: ${{ github.ref_name }}
