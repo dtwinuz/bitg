@@ -203,6 +203,23 @@ def main():
     def echo(mode):
         return lambda: pw.setEchoMode(mode)
 
+    fresh = QLineEdit()
+    fresh.setWindowTitle("bitg e2e qt line")
+    fresh.setFont(QFont("Segoe UI", 14))
+    fresh.resize(500, 60)
+
+    def focus_fresh():
+        fresh.show()
+        fresh.raise_()
+        fresh.activateWindow()
+        user32.SetForegroundWindow(int(fresh.winId()))
+        fresh.setFocus()
+        log.append(f"foreground line={user32.GetForegroundWindow() == int(fresh.winId())}")
+
+    def check_fresh(name, want):
+        got = fresh.text()
+        log.append(f"PASS {name}" if got == want else f"FAIL {name} got=[{got}] want=[{want}]")
+
     steps = [
         focus,
         lambda: log.append(f"ActivateProfile hr={activate_bitg():#x}"),
@@ -236,13 +253,16 @@ def main():
         # 8) #41: parol maydoni — so'zlar qayta yozilmaydi
         echo(QLineEdit.EchoMode.Password), focus_pw, w, w,
         lambda: type_keys("choy shahar "), w, w, w, lambda: check_pw("password field untouched", "choy shahar "),
-        # 9) #41: oddiy maydon fokusni o'zgartirmasdan parolga aylanadi — keyingi so'z qayta yozilmaydi
+        # 9) #41: "parolni ko'rsatish" (ko'z tugmasi) — maydon ko'rinadi, lekin ichida parol: shu fokusda
+        #    maxfiylik saqlanadi, so'z qayta yozilmaydi
         echo(QLineEdit.EchoMode.Normal), lambda: pw.clear(), w,
-        lambda: type_keys("a "), w, lambda: pw.clear(), w,
-        lambda: type_keys("choy "), w, w, w, lambda: check_pw("plain line edit converts", "çoy "),
-        echo(QLineEdit.EchoMode.Password), w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_pw("show password: still untouched", "choy "),
+        # 10) #41: oddiy maydon fokusni o'zgartirmasdan parolga aylanadi — keyingi so'z qayta yozilmaydi
+        focus_fresh, w, w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_fresh("plain line edit converts", "çoy "),
+        lambda: fresh.setEchoMode(QLineEdit.EchoMode.Password), w,
         lambda: type_keys("shahar "), w, w, w,
-        lambda: check_pw("field turned password: next word untouched", "çoy shahar "),
+        lambda: check_fresh("field turned password: next word untouched", "çoy shahar "),
     ]
 
     state = {"k": 0}
