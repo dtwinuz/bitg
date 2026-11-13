@@ -15,8 +15,7 @@ const MAX_BYTES: u64 = 512 * 1024;
 fn path() -> Option<&'static PathBuf> {
     static P: OnceLock<Option<PathBuf>> = OnceLock::new();
     P.get_or_init(|| {
-        let base = std::env::var_os("LOCALAPPDATA")?;
-        let dir = PathBuf::from(base).join("bitg");
+        let dir = crate::config::local_dir()?;
         std::fs::create_dir_all(&dir).ok()?;
         Some(dir.join("tsf.log"))
     })

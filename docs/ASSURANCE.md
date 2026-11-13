@@ -169,7 +169,7 @@ path is added. Last review: 2026-11-13 (v0.3.x).
 | F5 | low | panics not caught at a few FFI/COM entry points | fixed (#44) |
 | F6 | low | fallback word buffer grew without limit | fixed (capped at 40) |
 | F7 | low | `LoadLibraryW("input.dll")` searched the application directory | fixed (System32 only) |
-| F8 | low | `%APPDATA%` taken from the host's environment | open, #45 |
+| F8 | low | `%APPDATA%` taken from the host's environment | fixed: `SHGetKnownFolderPath` (`config::roaming_app_data` / `local_app_data`); tests use an in-process override, not the real folder (#45) |
 | F9 | low | tag name interpolated into release scripts | fixed (passed through `env`) |
 | F10 | low | IBus copies the whole surrounding text on every key | fixed: IBus and Fcitx5 ask only when `bitg_ime_wants_before` needs it, last 128 characters (#46) |
 | F11 | info | no advisory gate in CI; `pip install` not hash-pinned | fixed (#47) |

@@ -240,9 +240,7 @@ mod win {
     fn log(msg: &str) {
         use std::io::Write;
         let _g = LOG.lock();
-        let Some(dir) =
-            std::env::var_os("LOCALAPPDATA").map(|d| std::path::PathBuf::from(d).join("bitg"))
-        else {
+        let Some(dir) = bitg_tsf::config::local_dir() else {
             return;
         };
         let _ = std::fs::create_dir_all(&dir);

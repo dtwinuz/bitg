@@ -232,9 +232,63 @@ pub fn to_ini(c: &Config) -> String {
     )
 }
 
-/// `%APPDATA%\bitg`.
+#[cfg(test)]
+thread_local! {
+    /// Testlar uchun `%APPDATA%` o'rnini bosuvchi papka: `Some(None)` — papka yo'q holati.
+    static TEST_BASE: std::cell::RefCell<Option<Option<std::path::PathBuf>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Windows bilim papkasi (`FOLDERID_*`). Jarayon muhitidagi `%APPDATA%` ishlatilmaydi: uni bitg yuklangan
+/// ilovani ishga tushirgan jarayon o'zgartira oladi.
+#[cfg(windows)]
+fn known_folder(id: &windows::core::GUID) -> Option<std::path::PathBuf> {
+    use windows::Win32::System::Com::CoTaskMemFree;
+    use windows::Win32::UI::Shell::{KF_FLAG_DONT_VERIFY, SHGetKnownFolderPath};
+    // SAFETY: qaytgan satr CoTaskMemAlloc bilan ajratilgan; nusxa olingach bo'shatiladi.
+    unsafe {
+        let p = SHGetKnownFolderPath(id, KF_FLAG_DONT_VERIFY, None).ok()?;
+        let s = p.to_string().ok();
+        CoTaskMemFree(Some(p.0 as *const core::ffi::c_void));
+        s.filter(|s| !s.is_empty()).map(std::path::PathBuf::from)
+    }
+}
+
+/// Foydalanuvchining Roaming AppData papkasi (`%APPDATA%`).
+pub fn roaming_app_data() -> Option<std::path::PathBuf> {
+    #[cfg(windows)]
+    {
+        known_folder(&windows::Win32::UI::Shell::FOLDERID_RoamingAppData)
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("APPDATA").map(std::path::PathBuf::from)
+    }
+}
+
+/// Foydalanuvchining Local AppData papkasi (`%LOCALAPPDATA%`).
+pub fn local_app_data() -> Option<std::path::PathBuf> {
+    #[cfg(windows)]
+    {
+        known_folder(&windows::Win32::UI::Shell::FOLDERID_LocalAppData)
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("LOCALAPPDATA").map(std::path::PathBuf::from)
+    }
+}
+
+/// `%APPDATA%\bitg`: sozlamalar, istisnolar, klaviatura xaritasi.
 pub fn dir() -> Option<std::path::PathBuf> {
-    std::env::var_os("APPDATA").map(|b| std::path::PathBuf::from(b).join("bitg"))
+    #[cfg(test)]
+    if let Some(base) = TEST_BASE.with(|b| b.borrow().clone()) {
+        return base.map(|b| b.join("bitg"));
+    }
+    roaming_app_data().map(|b| b.join("bitg"))
+}
+
+/// `%LOCALAPPDATA%\bitg`: loglar va WebView ma'lumotlari.
+pub fn local_dir() -> Option<std::path::PathBuf> {
+    local_app_data().map(|b| b.join("bitg"))
 }
 
 pub const SETTINGS_FILE: &str = "settings.ini";
@@ -452,19 +506,27 @@ layout=Turkish",
         assert_eq!(parse("tutuq=ab", "").opts.tutuq, '\u{02BC}');
     }
 
+    /// Faqat shu oqimdagi `dir()` ga ta'sir qiladi; haqiqiy `%APPDATA%\bitg` ga yozilmaydi.
     fn set_appdata(v: Option<&std::ffi::OsStr>) {
-        // SAFETY: shu test binaridagi boshqa testlar APPDATA'ni o'qimaydi.
-        unsafe {
-            match v {
-                Some(v) => std::env::set_var("APPDATA", v),
-                None => std::env::remove_var("APPDATA"),
-            }
+        TEST_BASE.with(|b| *b.borrow_mut() = Some(v.map(std::path::PathBuf::from)));
+    }
+
+    #[test]
+    fn known_folders_are_absolute() {
+        for d in [roaming_app_data(), local_app_data()].into_iter().flatten() {
+            assert!(d.is_absolute(), "{}", d.display());
+        }
+        assert_eq!(local_dir(), local_app_data().map(|b| b.join("bitg")));
+        #[cfg(windows)]
+        {
+            // muhitdagi qiymat emas, Windows'ning o'zi beradi
+            assert!(roaming_app_data().is_some_and(|d| d.exists()));
+            assert!(local_app_data().is_some_and(|d| d.exists()));
         }
     }
 
     #[test]
     fn files_in_appdata_dir() {
-        let saved = std::env::var_os("APPDATA");
         let base = std::env::temp_dir().join(format!(
             "bitg-config-test-{}-{}",
             std::process::id(),
@@ -527,7 +589,7 @@ layout=Turkish",
             "Shoh\nchoy\nNon\nolma\n"
         );
 
-        set_appdata(saved.as_deref());
+        TEST_BASE.with(|b| *b.borrow_mut() = None);
         std::fs::remove_dir_all(&base).unwrap();
     }
 }

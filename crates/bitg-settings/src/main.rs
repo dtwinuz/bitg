@@ -180,8 +180,7 @@ mod app {
         let dark = window.theme() == Theme::Dark;
 
         // WebView2 ma'lumotlari: Program Files'ga yozib bo'lmaydi — foydalanuvchi papkasiga.
-        let data = std::env::var_os("LOCALAPPDATA")
-            .map(|d| std::path::PathBuf::from(d).join("bitg").join("webview"));
+        let data = bitg_tsf::config::local_dir().map(|d| d.join("webview"));
         let mut ctx = WebContext::new(data);
         let ipc_proxy = proxy.clone();
         let webview = WebViewBuilder::new_with_web_context(&mut ctx)
@@ -293,8 +292,8 @@ mod app {
             "convert" => reply(p, logic::convert_text(&msg)),
             "status" => reply(p, status()),
             "stats" => {
-                let log = std::env::var_os("LOCALAPPDATA")
-                    .map(|d| std::path::PathBuf::from(d).join("bitg").join("tsf.log"))
+                let log = bitg_tsf::config::local_dir()
+                    .map(|d| d.join("tsf.log"))
                     .and_then(|f| std::fs::read_to_string(f).ok())
                     .unwrap_or_default();
                 let now = std::time::SystemTime::now()
