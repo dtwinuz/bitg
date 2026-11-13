@@ -1,0 +1,11 @@
+{
+  "name": "bitg",
+  "version": "0.4.0",
+  "description": "Write and convert Uzbek text in the new 2026 Latin alphabet (Ö Ğ Ş Ç) with the bitg engine.",
+  "mcpServers": {
+    "bitg": {
+      "httpUrl": "https://bitg.uz/mcp"
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

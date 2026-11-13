@@ -1,0 +1,14 @@
+{
+  "name": "bitg",
+  "owner": {
+    "name": "dtwinuz",
+    "url": "https://github.com/dtwinuz"
+  },
+  "plugins": [
+    {
+      "name": "bitg",
+      "source": "./integrations/claude",
+      "description": "Uzbek new-alphabet (Ö Ğ Ş Ç) converter: MCP tool + skill."
+    }
+  ]
+}

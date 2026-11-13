@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "bitg": {
+      "type": "http",
+      "url": "https://bitg.uz/mcp"
+    }
+  }
+}

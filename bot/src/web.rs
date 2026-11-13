@@ -27,6 +27,8 @@ const TIMEOUT: Duration = Duration::from_secs(10);
 const BY_IP: (usize, u64) = (5, 3600);
 const BY_ID: (usize, u64) = (10, 86_400);
 const ALL: (usize, u64) = (300, 86_400);
+const MCP_IP: (usize, u64) = (120, 60);
+const MCP_ALL: (usize, u64) = (3000, 60);
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Head {
@@ -253,6 +255,8 @@ pub struct Limits {
     ip: HashMap<String, VecDeque<u64>>,
     id: HashMap<String, VecDeque<u64>>,
     all: VecDeque<u64>,
+    mcp_ip: HashMap<String, VecDeque<u64>>,
+    mcp_all: VecDeque<u64>,
 }
 
 fn prune(q: &mut VecDeque<u64>, window: u64, now: u64) {
@@ -294,6 +298,29 @@ impl Limits {
         qi.push_back(now);
         qd.push_back(now);
         self.all.push_back(now);
+        Ok(())
+    }
+}
+
+impl Limits {
+    /// MCP: bitta IP — daqiqasiga 120, hammasi — daqiqasiga 3000 (AI xizmatlari umumiy IP'lardan keladi).
+    pub fn check_mcp(&mut self, ip: &str, now: u64) -> Result<(), u64> {
+        if self.mcp_ip.len() > 20_000 {
+            self.mcp_ip
+                .retain(|_, q| q.back().is_some_and(|&t| now - t < MCP_IP.1));
+        }
+        let qi = self.mcp_ip.entry(ip.to_string()).or_default();
+        prune(qi, MCP_IP.1, now);
+        prune(&mut self.mcp_all, MCP_ALL.1, now);
+        if let Some(w) = [full(qi, MCP_IP, now), full(&self.mcp_all, MCP_ALL, now)]
+            .into_iter()
+            .flatten()
+            .max()
+        {
+            return Err(w);
+        }
+        qi.push_back(now);
+        self.mcp_all.push_back(now);
         Ok(())
     }
 }
@@ -381,8 +408,17 @@ pub fn route(
     forward: &mut dyn FnMut(&Feedback, &str) -> bool,
 ) -> (u16, Value) {
     let err = |code: u16, e: &str| (code, json!({"ok": false, "error": e}));
+    // Caddy haqiqiy mijoz IP'sini X-Forwarded-For boshida beradi.
+    let ip = head
+        .header("x-forwarded-for")
+        .and_then(|x| x.split(',').next())
+        .map(str::trim)
+        .filter(|x| !x.is_empty())
+        .unwrap_or(peer);
     match (head.method.as_str(), head.path.as_str()) {
         ("GET", "/api/health") => return (200, json!({"ok": true})),
+        ("POST", "/mcp") => return mcp_route(head, body, ip, limits, now),
+        (_, "/mcp") => return err(405, "method"),
         (_, "/api/feedback") if head.method != "POST" => return err(405, "method"),
         ("POST", "/api/feedback") => {}
         _ => return err(404, "not_found"),
@@ -403,13 +439,6 @@ pub fn route(
         Ok(f) => f,
         Err(field) => return err(400, field),
     };
-    // Caddy haqiqiy mijoz IP'sini X-Forwarded-For boshida beradi.
-    let ip = head
-        .header("x-forwarded-for")
-        .and_then(|x| x.split(',').next())
-        .map(str::trim)
-        .filter(|x| !x.is_empty())
-        .unwrap_or(peer);
     if let Err(retry) = limits.check(ip, &f.id, now) {
         return (429, json!({"ok": false, "error": "rate", "retry": retry}));
     }
@@ -420,9 +449,37 @@ pub fn route(
     (200, json!({"ok": true, "ticket": t}))
 }
 
+/// `POST /mcp`: JSON-RPC (`mcp::handle`). Bildirishnoma — 202, tana yo'q (`Value::Null`).
+fn mcp_route(head: &Head, body: &[u8], ip: &str, limits: &mut Limits, now: u64) -> (u16, Value) {
+    let rpc_err = |code: i64, m: &str| json!({"jsonrpc": "2.0", "id": null, "error": {"code": code, "message": m}});
+    if !head
+        .header("content-type")
+        .is_some_and(|t| t.to_ascii_lowercase().starts_with("application/json"))
+    {
+        return (
+            415,
+            rpc_err(-32700, "Content-Type must be application/json"),
+        );
+    }
+    if let Err(retry) = limits.check_mcp(ip, now) {
+        return (
+            429,
+            rpc_err(-32000, &format!("Rate limited, retry in {retry} s")),
+        );
+    }
+    let Ok(v) = serde_json::from_slice::<Value>(body) else {
+        return (400, rpc_err(-32700, "Parse error"));
+    };
+    match crate::mcp::handle(&v) {
+        Some(r) => (200, r),
+        None => (202, Value::Null),
+    }
+}
+
 fn reason(code: u16) -> &'static str {
     match code {
         200 => "OK",
+        202 => "Accepted",
         400 => "Bad Request",
         404 => "Not Found",
         405 => "Method Not Allowed",
@@ -436,7 +493,11 @@ fn reason(code: u16) -> &'static str {
 }
 
 fn respond(s: &mut TcpStream, code: u16, body: &Value) -> io::Result<()> {
-    let b = body.to_string();
+    let b = if body.is_null() {
+        String::new()
+    } else {
+        body.to_string()
+    };
     write!(
         s,
         "HTTP/1.1 {code} {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{b}",
@@ -754,6 +815,128 @@ mod tests {
             &mut fail,
         );
         assert_eq!(c, 502);
+    }
+
+    #[test]
+    fn mcp_routes() {
+        let mut l = Limits::default();
+        let mut fwd = |_: &Feedback, _: &str| true;
+        let js = Some("application/json");
+        let call = r#"{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"convert_text","arguments":{"text":"shahar"}}}"#;
+        let (c, v) = route(
+            &head("POST", "/mcp", js),
+            call.as_bytes(),
+            "1.1.1.1",
+            false,
+            &mut l,
+            0,
+            1,
+            &mut fwd,
+        );
+        assert_eq!(c, 200);
+        assert_eq!(
+            v["result"]["structuredContent"]["converted_by"],
+            "bitg (https://bitg.uz)"
+        );
+        let note = r#"{"jsonrpc":"2.0","method":"notifications/initialized"}"#;
+        let (c, v) = route(
+            &head("POST", "/mcp", js),
+            note.as_bytes(),
+            "1.1.1.1",
+            false,
+            &mut l,
+            0,
+            1,
+            &mut fwd,
+        );
+        assert_eq!((c, v.is_null()), (202, true));
+        assert_eq!(
+            route(
+                &head("GET", "/mcp", None),
+                b"",
+                "1.1.1.1",
+                false,
+                &mut l,
+                0,
+                1,
+                &mut fwd
+            )
+            .0,
+            405
+        );
+        assert_eq!(
+            route(
+                &head("POST", "/mcp", Some("text/plain")),
+                b"{}",
+                "1.1.1.1",
+                false,
+                &mut l,
+                0,
+                1,
+                &mut fwd
+            )
+            .0,
+            415
+        );
+        assert_eq!(
+            route(
+                &head("POST", "/mcp", js),
+                b"{",
+                "1.1.1.1",
+                false,
+                &mut l,
+                0,
+                1,
+                &mut fwd
+            )
+            .0,
+            400
+        );
+        let mut l = Limits::default();
+        for _ in 0..MCP_IP.0 {
+            assert_eq!(
+                route(
+                    &head("POST", "/mcp", js),
+                    call.as_bytes(),
+                    "2.2.2.2",
+                    false,
+                    &mut l,
+                    5,
+                    1,
+                    &mut fwd
+                )
+                .0,
+                200
+            );
+        }
+        assert_eq!(
+            route(
+                &head("POST", "/mcp", js),
+                call.as_bytes(),
+                "2.2.2.2",
+                false,
+                &mut l,
+                5,
+                1,
+                &mut fwd
+            )
+            .0,
+            429
+        );
+        assert_eq!(
+            route(
+                &head("POST", "/mcp", js),
+                call.as_bytes(),
+                "2.2.2.2",
+                false,
+                &mut l,
+                70,
+                1,
+                &mut fwd
+            )
+            .0,
+            200
+        );
     }
 
     #[test]

@@ -21,6 +21,7 @@ use std::{env, fs, io, process, thread};
 use bitg_core::{OldStyle, Options, convert, to_old};
 use serde_json::{Value, json};
 
+mod mcp;
 mod web;
 
 /// Telegram xabar chegarasi 4096; UTF-16 hisobidagi farq uchun zaxira.
