@@ -22,7 +22,7 @@ if os.environ.get("GITHUB_ACTIONS") != "true":
 
 from PySide6.QtCore import QTimer  # noqa: E402
 from PySide6.QtGui import QFont  # noqa: E402
-from PySide6.QtWidgets import QApplication, QTextEdit  # noqa: E402
+from PySide6.QtWidgets import QApplication, QLineEdit, QTextEdit  # noqa: E402
 
 user32 = ctypes.WinDLL("user32", use_last_error=True)
 ole32 = ctypes.WinDLL("ole32")
@@ -182,6 +182,27 @@ def main():
     def w():
         pass
 
+    # #41: parol maydoni (QLineEdit Password) — zaxira yo'l so'zni qayta yozmasligi kerak
+    pw = QLineEdit()
+    pw.setWindowTitle("bitg e2e qt password")
+    pw.setFont(QFont("Segoe UI", 14))
+    pw.resize(500, 60)
+
+    def focus_pw():
+        pw.show()
+        pw.raise_()
+        pw.activateWindow()
+        user32.SetForegroundWindow(int(pw.winId()))
+        pw.setFocus()
+        log.append(f"foreground pw={user32.GetForegroundWindow() == int(pw.winId())}")
+
+    def check_pw(name, want):
+        got = pw.text()
+        log.append(f"PASS {name}" if got == want else f"FAIL {name} got=[{got}] want=[{want}]")
+
+    def echo(mode):
+        return lambda: pw.setEchoMode(mode)
+
     steps = [
         focus,
         lambda: log.append(f"ActivateProfile hr={activate_bitg():#x}"),
@@ -212,6 +233,16 @@ def main():
         # Tartib harfi so'z kuzatuviga kiradi (Qt belgini bermaydi — navbat bo'yicha): sh keyin o'giriladi
         clear, lambda: type_keys("q[shimcha "), w, w, w, lambda: check("keymap: mapped letter tracked", "qöşimça "),
         lambda: settings(), w, w, w, w, lambda: type_keys("a "), w,
+        # 8) #41: parol maydoni — so'zlar qayta yozilmaydi
+        echo(QLineEdit.EchoMode.Password), focus_pw, w, w,
+        lambda: type_keys("choy shahar "), w, w, w, lambda: check_pw("password field untouched", "choy shahar "),
+        # 9) #41: oddiy maydon fokusni o'zgartirmasdan parolga aylanadi — keyingi so'z qayta yozilmaydi
+        echo(QLineEdit.EchoMode.Normal), lambda: pw.clear(), w,
+        lambda: type_keys("a "), w, lambda: pw.clear(), w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_pw("plain line edit converts", "çoy "),
+        echo(QLineEdit.EchoMode.Password), w,
+        lambda: type_keys("shahar "), w, w, w,
+        lambda: check_pw("field turned password: next word untouched", "çoy shahar "),
     ]
 
     state = {"k": 0}
