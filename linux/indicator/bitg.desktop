@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=bitg
+Comment=Özbek lotin yozuvi uçun kiritish usuli
+Exec=/usr/bin/bitg-indicator
+Icon=bitg
+Terminal=false
+Categories=Settings;Utility;
+StartupNotify=false

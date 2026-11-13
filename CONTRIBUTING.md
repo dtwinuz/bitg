@@ -83,6 +83,22 @@ Har commit oxirida `Signed-off-by: Ism <email>` bo'lsin (`git commit -s`). Bu bi
 [DCO 1.1](https://developercertificate.org/) ni tasdiqlaysiz: hissani yuborishga haqqingiz bor va u loyiha
 litsenziyasi ostida tarqatiladi.
 
+CI'dagi `dco` tekshiruvi PR'dagi har commitni ko'radi, qator bo'lmasa PR merge qilinmaydi. Unutgan bo'lsangiz:
+`git rebase --signoff origin/main` va `git push --force-with-lease`. Brauzerda (GitHub ✏️ Edit) commit qilsangiz,
+"Extended description" maydoniga `Signed-off-by: Ism <email>` qatorini yozing.
+
+## Bog'liqliklar
+
+Yangi bog'liqlik (crate, Python paketi, GitHub Action) qo'shishdan oldin:
+
+- **Tanlash:** avval standart kutubxona yoki mavjud bog'liqlik bilan qilib bo'ladimi, ko'ring. Kerak bo'lsa —
+  faol qo'llab-quvvatlanadigan (oxirgi yilda reliz bor), keng ishlatiladigan, RustSec'da ochiq muammosi yo'q va
+  litsenziyasi [deny.toml](deny.toml) ruxsat ro'yxatida bo'lgan paket. PR tavsifida nega kerakligini yozing.
+- **Olish:** Rust paketlari faqat crates.io'dan, `Cargo.lock` bilan (`cargo ... --locked`); git yoki boshqa registry
+  manbasini CI rad etadi. GitHub Action'lar to'liq commit SHA bilan pin qilinadi.
+- **Kuzatish:** Dependabot oylik guruhli yangilash va zaiflik PR'larini ochadi; `cargo deny` har PR'da va relizdan
+  oldin tekshiradi; har relizda SBOM (`bitg-<versiya>.spdx.json`) chiqadi. Topilma muddatlari: [SECURITY.md](SECURITY.md).
+
 ## Litsenziya
 
 Yuborgan hissangiz loyiha litsenziyasi (MIT yoki Apache-2.0, foydalanuvchi tanlovi) ostida tarqatiladi.

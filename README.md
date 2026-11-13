@@ -6,6 +6,8 @@
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#litsenziya)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dtwinuz/bitg/badge)](https://scorecard.dev/viewer/?uri=github.com/dtwinuz/bitg)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16620/badge)](https://www.bestpractices.dev/projects/16620)
+[![REUSE status](https://api.reuse.software/badge/github.com/dtwinuz/bitg)](https://api.reuse.software/info/github.com/dtwinuz/bitg)
+[![crates.io](https://img.shields.io/crates/v/bitg-core?label=crates.io)](https://crates.io/crates/bitg-core)
 [![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
 
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
@@ -177,7 +179,7 @@ O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bit
 [Releases](https://github.com/dtwinuz/bitg/releases) dan paketni oling. IBus (Ubuntu, Debian GNOME standarti):
 
 ```bash
-sudo apt install ./bitg_0.3.1_amd64.deb      # IBus dvigateli + bitg CLI
+sudo apt install ./bitg_0.4.0_amd64.deb      # IBus dvigateli + bitg CLI
 ibus restart                                  # yoki tizimdan chiqib qayta kiring
 ```
 
@@ -193,7 +195,7 @@ sudo apt update && sudo apt install bitg     # Fcitx5: fcitx5-bitg
 ```
 
 So'ng **Sozlamalar → Klaviatura → Kiritish manbasi qo'shish → O'zbek → bitg** va **Super + Probel** bilan tanlang.
-Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.3.1_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
+Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.4.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
 qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 
 | Nima | Qayerda |
@@ -231,7 +233,7 @@ sahifada va [Releases](https://github.com/dtwinuz/bitg/releases) da): bitta univ
 Baribir ochish**, yoki terminalda:
 
 ```bash
-sudo installer -pkg ~/Downloads/bitg-0.3.1-macos.pkg -target /
+sudo installer -pkg ~/Downloads/bitg-0.4.0-macos.pkg -target /
 ```
 
 bitg `/Library/Input Methods/bitg.app` ga yoziladi va kiritish manbalariga o'zi qo'shiladi (ko'rinmasa — tizimdan

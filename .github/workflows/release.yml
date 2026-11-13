@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Cargo.toml dagi versiya (masalan 0.3.1); reliz yaratilmaydi"
+        description: "Cargo.toml dagi versiya (masalan 0.4.0); reliz yaratilmaydi"
         type: string
         required: true
 
@@ -82,9 +82,24 @@ jobs:
               --predicate-type https://spdx.dev/Document/v2.3
           done
 
+  advisories:
+    # SCA relizdan oldin (SECURITY.md): teg vaqtidagi RustSec bazasi bilan qayta tekshiriladi; zaif, qarovsiz
+    # yoki ruxsatsiz bog'liqlik bo'lsa reliz yaratilmaydi (istisnolar faqat deny.toml + VEX.openvex.json orqali).
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+        with:
+          tool: cargo-deny@0.20.2
+      - run: cargo deny --color never check advisories licenses sources
+
   publish:
     if: github.event_name == 'push'
-    needs: verify
+    needs: [verify, advisories]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -104,6 +119,29 @@ jobs:
           # MSI + sha256, 2 deb + 2 sha256, pkg + sha256, SBOM, provenance va SBOM bundle'lari
           [ "$n" -eq 11 ] || { ls -l; echo "reliz fayllari 11 ta bo'lishi kerak, bor: $n"; exit 1; }
           gh release create "$TAG" ./* -R "$REPO" --title "bitg ${TAG#v}" --generate-notes --verify-tag
+
+  crates-io:
+    # bitg-core crates.io'ga Trusted Publishing (OIDC) bilan chiqadi: repoda token saqlanmaydi.
+    # crates.io sozlamasi: dtwinuz/bitg, release.yml, environment crates-io (faqat v* teglar).
+    if: github.event_name == 'push'
+    needs: publish
+    runs-on: ubuntu-24.04
+    environment: crates-io
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+        id: auth
+      - run: cargo publish -p bitg-core --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
 
   announce:
     if: github.event_name == 'push'

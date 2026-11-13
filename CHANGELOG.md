@@ -4,6 +4,29 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-11-13
+
+Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» shu fayldan).
+
+### Qo'shildi
+- **Shaxsiy lug'at** ([#77](https://github.com/dtwinuz/bitg/issues/77)): `exceptions.txt` da `so'z=yozuv` qatori so'zni
+  aynan shunday yozadi (`shamollash=şamollaş`), qo'shimchali shakli ham (`shamollashdan` → `şamollaşdan`), registr
+  yozilgandek. Bitta harfni saqlash: `bog'cha=bog'ça`. Uch platformada bitta fayl (`bitg_core::user`). Oynada
+  «Istisnolar» o'rniga «Lug'at»: har o'/g'/sh/ch — yoqib-o'chiriladigan chip, fayldan qo'shish va nusxalash.
+- **Ilova ichidan xabar berish** ([#78](https://github.com/dtwinuz/bitg/issues/78)): xato, taklif yoki noto'g'ri
+  o'girish, ekran parchasi yoki rasm, ixtiyoriy diagnostika. `POST bitg.uz/api/feedback` — bot ichidagi HTTP oqim
+  (`bot/src/web.rs`): tekshiruv, IP/o'rnatish/umumiy chegara, adminlarga Telegram orqali, chipta raqami.
+- **Yangilanish** ([#79](https://github.com/dtwinuz/bitg/issues/79)): `bitg.uz/update/stable.json`; ilova kuniga bir marta
+  tekshiradi, MSI faqat GitHub Releases'dan, hajm va SHA-256 mos kelsa `msiexec /passive`. Tarmoq — WinHTTP.
+- **«Yangiliklar» sahifasi** ([#80](https://github.com/dtwinuz/bitg/issues/80)): `NEWS.md` dan versiyalar lentasi,
+  yangilangandan keyin bir marta ochiladi (`whats_new`, `last_seen`).
+- Qoidalar: «Ehtiyotkor / Tavsiya / Maxsus» tayyor holatlari; apostrof tiklash lug'at so'zini ham tuzatishi yozildi.
+
+### Tuzatildi
+- Havola, kod, `@user` va brend gap kontekstida inglizcha deb ovoz bermaydi: «fetch() chaqiruvi», «Shohjahon
+  McDonald's» endi o'giriladi ([#76](https://github.com/dtwinuz/bitg/issues/76)). Baholash o'zgarmadi.
+- TSF: `take_retype()` sharti soddalashtirildi ([#37](https://github.com/dtwinuz/bitg/issues/37)).
+
 ### Xavfsizlik
 - **SLSA Build L3:** reliz paketlarini reusable `build.yml` yig'adi va imzolaydi. Kod kompilyatsiya qiladigan
   job'larda imzo tokeni (`id-token`) yo'q, attestation'ni alohida `attest` job yozadi. `release.yml` relizni faqat
@@ -11,8 +34,16 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   Qo'lda ishga tushirilsa (`workflow_dispatch`) reliz zanjiri relizsiz sinaladi. bitg.uz deploy'i yangi imzolovchini
   talab qiladi (v0.3.1 uchun eskisi).
 - `SECURITY.md`: qo'llab-quvvatlash muddati aniq yozildi (faqat eng so'nggi minor versiya).
+- OpenSSF Baseline: har PR'da DCO (`Signed-off-by`) tekshiruvi (`dco.yml`); `cargo deny` endi crates.io'dan
+  tashqari manbani ham rad etadi va relizdan oldin (`release.yml`) qayta yuradi. `SECURITY.md` ga SCA/SAST tuzatish
+  muddatlari, VEX (`VEX.openvex.json`) va sirlar siyosati; `GOVERNANCE.md` ga kirish huquqi berish tartibi va loyiha
+  repolari ro'yxati; `CONTRIBUTING.md` ga bog'liqlik siyosati. `.github/security-insights.yml`, `CITATION.cff`,
+  `.zenodo.json` qo'shildi.
 
 ### Qo'shildi
+- **crates.io:** `bitg-core` kutubxonasi crates.io'da (`cargo add bitg-core`; 0.3.1 v0.3.1 tegidan qo'lda chiqarildi).
+  Keyingi relizlarda `release.yml` dagi `crates-io` job uni Trusted Publishing (OIDC, `crates-io` environment) bilan
+  chiqaradi: repoda crates.io tokeni saqlanmaydi.
 - **Chocolatey paketi** (`packaging/chocolatey`, `tools/release/packaging.py` yaratadi): `choco install bitg`. MSI GitHub
   Release'dan SHA-256 bilan olinadi; `/NoAutostart`, `/NoKeyboard` parametrlari. `packaging` workflow paketni haqiqiy
   Windows'da o'rnatib, parametrni tekshirib, o'chiradi; nashr — qo'lda (`publish`, `CHOCO_API_KEY`).

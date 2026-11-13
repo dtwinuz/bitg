@@ -1,0 +1,41 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/dtwinuz/bitg/blob/main/VEX.openvex.json",
+  "author": "dtwinuz and bitg contributors",
+  "role": "Project maintainers",
+  "timestamp": "2026-11-13T00:00:00Z",
+  "version": 1,
+  "tooling": "Hand-written; mirrors the justified exceptions in deny.toml and osv-scanner.toml",
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "RUSTSEC-2024-0429",
+        "description": "glib 0.18: unsoundness in VariantStrIter"
+      },
+      "products": [
+        {
+          "@id": "pkg:github/dtwinuz/bitg",
+          "subcomponents": [{ "@id": "pkg:cargo/glib@0.18.5" }]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "glib is pulled only by tray-icon -> gtk, and tray-icon is a target.'cfg(windows)' dependency of bitg-settings. Cargo.lock lists every target, but glib is never compiled into any released artifact (MSI, .deb, .pkg, container image). bitg does not use glib::VariantStrIter."
+    },
+    {
+      "vulnerability": {
+        "name": "RUSTSEC-2024-0370",
+        "description": "proc-macro-error is unmaintained (informational, no known vulnerability)"
+      },
+      "products": [
+        {
+          "@id": "pkg:github/dtwinuz/bitg",
+          "subcomponents": [{ "@id": "pkg:cargo/proc-macro-error@1.0.4" }]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "Build-time procedural macro reached only through glib-macros on the same Linux-only tray-icon -> gtk path, which is never compiled for a released artifact."
+    }
+  ]
+}

@@ -39,6 +39,10 @@
 	@aptpool path /apt/pool/*
 	header @aptpool Cache-Control "public, max-age=86400"
 
+	# avto-yangilanish manifesti (tools/site/build.py): ilovalar kuniga bir tekshiradi, kesh yo'q
+	@update path /update/*
+	header @update Cache-Control "no-cache"
+
 	@html path / /index.html /version.txt */ *.html
 	header @html Cache-Control "no-cache"
 
@@ -54,7 +58,7 @@
 	# to'liq IP'li sarlavhalar o'chiriladi, 30 kundan keyin fayl o'chadi (web/pages/maxfiylik.html).
 	# deploy/stats/stats.py shu jurnaldan umumiy sonlarni chiqaradi.
 	@nolog {
-		path /*.js /*.css /*.wasm /fonts/* /og/* /*.png /*.svg /*.ico /*.txt /*.xml /stats.json
+		path /*.js /*.css /*.wasm /fonts/* /og/* /*.png /*.svg /*.ico /*.txt /*.xml /stats.json /api/* /update/*
 		not path /robots.txt
 	}
 	log_skip @nolog
@@ -95,6 +99,15 @@
 		root * /stats-public
 		header Cache-Control "public, max-age=600"
 		file_server
+	}
+
+	# ilovalardan fikr (bot/src/web.rs): faqat shu yo'l, tana 3 MB gacha; bot o'zi tekshiradi va cheklaydi
+	handle /api/* {
+		request_body {
+			max_size 3MB
+		}
+		header Cache-Control "no-store"
+		reverse_proxy bitg-bot:8080
 	}
 
 	file_server

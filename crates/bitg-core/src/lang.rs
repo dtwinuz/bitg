@@ -416,6 +416,11 @@ fn is_suffix_chain(s: &str, depth: u8) -> bool {
             })
 }
 
+/// Bo'sh bo'lmagan o'zbek qo'shimchalari zanjiri (`dan`, `larda`, `imizning`): foydalanuvchi qoidasi o'zagi uchun.
+pub(crate) fn is_suffix(s: &str) -> bool {
+    !s.is_empty() && is_suffix_chain(s, 0)
+}
+
 /// `key` (apostrofsiz) va `cand` (apostrofli) bir xil qo'shimcha bilan ikki haqiqiy o'zakdan yasalgan:
 /// och|maydi / o'ch|maydi. o't|kazdi esa yo'q — "kazdi" qo'shimcha emas.
 fn ambiguous_roots(key: &str, cand: &str) -> bool {

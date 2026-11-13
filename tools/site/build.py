@@ -476,7 +476,76 @@ def pkg_info(path, key):
             key + "Sha": hashlib.sha256(data).hexdigest(), key + "SizeUz": size}
 
 
+RELEASES = "https://github.com/dtwinuz/bitg/releases"
+NOTES_MAX = 6
+
+
+def plain(md):
+    """Markdown qatori -> oddiy matn: havola -> matni, ** va ` olib tashlanadi."""
+    s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", md)
+    return re.sub(r"\s+", " ", s.replace("**", "").replace("`", "")).strip()
+
+
+def news_entry(text, version):
+    """NEWS.md dan versiya bo'limi: (sana yoki None, birinchi NOTES_MAX band). Bo'lim yo'q — (None, [])."""
+    m = re.search(rf"^## {re.escape(version)}(?:\s+[—-]\s+(\d{{4}}-\d{{2}}-\d{{2}}))?[ \t]*$", text, re.M)
+    if not m:
+        return None, []
+    nxt = re.search(r"^## ", text[m.end():], re.M)
+    body = text[m.end():m.end() + nxt.start()] if nxt else text[m.end():]
+    notes = [plain(l[2:]) for l in body.splitlines() if l.startswith("- ")]
+    return m.group(1), [n for n in notes if n][:NOTES_MAX]
+
+
+def update_manifest(version, msi, news_text, today):
+    """Ilovalar avto-yangilanishi uchun update/stable.json. URL — GitHub Release'dagi asl fayl (ilova faqat
+    shu prefiksga ruxsat beradi), sha256 — shu MSI'dan. MSI nomi reliz nomiga mos kelmasa — None (yozilmaydi)."""
+    name = f"bitg-{version}-x64.msi"
+    if msi.name != name or not msi.exists():
+        return None
+    data = msi.read_bytes()
+    date, notes = news_entry(news_text, version)
+    return {
+        "version": version,
+        "date": date or today,
+        "notes": notes,
+        "page": f"{RELEASES}/tag/v{version}",
+        "windows": {"url": f"{RELEASES}/download/v{version}/{name}",
+                    "sha256": hashlib.sha256(data).hexdigest(), "size": len(data)},
+    }
+
+
+def selftest():
+    news = ("# x\n\n## 0.4.0 — 2026-11-14\n\n### Yangi\n- **Lug'at.** `a=b` [sayt](https://bitg.uz) bor.\n"
+            + "".join(f"- n{i}\n" for i in range(8)) + "\n## 0.3.1 — 2026-11-13\n- eski\n## 0.3.0\n- **Bir.** ikki\n")
+    d, n = news_entry(news, "0.4.0")
+    assert d == "2026-11-14" and len(n) == NOTES_MAX and n[0] == "Lug'at. a=b sayt bor.", (d, n)
+    assert news_entry(news, "0.3.1") == ("2026-11-13", ["eski"])
+    assert news_entry(news, "0.3.0") == (None, ["Bir. ikki"])
+    assert news_entry(news, "0.9.0") == (None, [])
+    assert news_entry(news, "0.4") == (None, [])
+    import tempfile
+    with tempfile.TemporaryDirectory() as t:
+        msi = Path(t) / "bitg-0.4.0-x64.msi"
+        msi.write_bytes(b"abc")
+        m = update_manifest("0.4.0", msi, news, "2026-01-01")
+        assert m["windows"] == {"url": f"{RELEASES}/download/v0.4.0/bitg-0.4.0-x64.msi", "size": 3,
+                                "sha256": hashlib.sha256(b"abc").hexdigest()}, m
+        assert m["date"] == "2026-11-14" and m["page"].endswith("/tag/v0.4.0")
+        assert update_manifest("0.9.0", Path(t) / "bitg-0.9.0-x64.msi", news, "2026-01-01") is None
+        other = Path(t) / "ci.msi"
+        other.write_bytes(b"x")
+        assert update_manifest("0.4.0", other, news, "2026-01-01") is None
+        msi9 = Path(t) / "bitg-0.9.0-x64.msi"
+        msi9.write_bytes(b"x")
+        m = update_manifest("0.9.0", msi9, news, "2026-01-01")
+        assert m["notes"] == [] and m["date"] == "2026-01-01"
+    print("build selftest: OK")
+
+
 def main():
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--v", default="", help="kesh versiyasi (git sha qisqa)")
@@ -556,6 +625,16 @@ def main():
         + "\n".join(f"  <url><loc>{SITE}{s}</loc><lastmod>{by_slug[s]['updated']}</lastmod></url>" for s in listed)
         + "\n</urlset>\n", encoding="utf-8", newline="\n")
     (out / "urls.txt").write_text("\n".join(SITE + s for s in listed) + "\n", encoding="utf-8", newline="\n")
+    news = ROOT / "NEWS.md"
+    manifest = update_manifest(version, msi, news.read_text(encoding="utf-8") if news.exists() else "",
+                               ctx["buildDate"])
+    if manifest:
+        (out / "update").mkdir()
+        (out / "update" / "stable.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1) + "\n",
+                                                    encoding="utf-8", newline="\n")
+        print(f"build: update/stable.json {version} ({len(manifest['notes'])} qayd)")
+    else:
+        print(f"build: update/stable.json yozilmadi ({msi.name} reliz nomi bitg-{version}-x64.msi emas)")
     print(f"build: {len(pages)} sahifa + bosh sahifa, sitemap {len(listed)} URL -> {out}")
 
 

@@ -233,6 +233,116 @@
   .chips li.new { animation: land .5s var(--ease); }
   @keyframes land { from { transform: translateY(-6px); opacity: 0; } }
 
+  /* Lug'at */
+  .dict-add { max-width: 760px; padding: 18px; border-radius: 14px; border: 1px solid var(--chiziq); background: var(--qogoz); display: grid; gap: 14px; }
+  .dict-add .pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
+  .dict-add label { display: grid; gap: 4px; font-size: 12.5px; color: var(--kul); }
+  .dict-add input.text { font: 400 19px/1.3 Bahnschrift, "Segoe UI", sans-serif; padding: 9px 12px; }
+  .dict-add .arrow { font: 400 22px/44px Bahnschrift, "Segoe UI", sans-serif; color: var(--kul); }
+  .units { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 34px; }
+  .units .lbl { color: var(--kul); font-size: 12.5px; margin-right: 4px; }
+  .unit {
+    display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--chiziq); background: var(--tosh); font: 500 16px/1.2 Bahnschrift, "Segoe UI", sans-serif;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .unit .from { color: var(--kul); }
+  .unit .to { color: var(--firuza); font-weight: 600; }
+  .unit[aria-pressed="false"] { border-style: dashed; }
+  .unit[aria-pressed="false"] .to { color: var(--kul); text-decoration: line-through; font-weight: 400; }
+  .unit[aria-pressed="true"] { border-color: color-mix(in srgb, var(--firuza) 50%, var(--chiziq)); background: var(--firuza-och); }
+  .dict-add .foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .dict-add .foot .grow { flex: 1; }
+  .sample { color: var(--kul); font-size: 13px; }
+  .sample b { color: var(--siyoh); font-weight: 600; font-family: Bahnschrift, "Segoe UI", sans-serif; }
+  .dict-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; max-width: 760px; margin: 22px 0 10px; }
+  .dict-tools input.text { flex: 1; min-width: 180px; }
+  .rules { list-style: none; padding: 0; margin: 0 0 18px; max-width: 760px; border-top: 1px solid var(--chiziq); }
+  .rules li { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 32px; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--chiziq); font: 400 16px Bahnschrift, "Segoe UI", sans-serif; }
+  .rules li .a { color: var(--kul); }
+  .rules li .b { color: var(--firuza); font-weight: 600; }
+  .rules li .ar { color: var(--kul); text-align: center; }
+  .rules li button { border: 0; background: none; cursor: pointer; color: var(--kul); width: 28px; height: 28px; border-radius: 6px; font-size: 17px; }
+  .rules li button:hover { background: var(--lojuvard-och); color: var(--siyoh); }
+  .rules li.new { animation: land .5s var(--ease); }
+  .w[data-r="rule"] { box-shadow: inset 0 -2px 0 var(--lojuvard); }
+  .legend .r::before { background: none; border-bottom: 2px solid var(--lojuvard); border-radius: 0; height: 6px; }
+
+  /* Yangiliklar */
+  .upd {
+    max-width: 760px; display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+    padding: 16px 18px; border-radius: 14px; border: 1px solid var(--chiziq); background: var(--qogoz); margin-bottom: 26px;
+  }
+  .upd .ic { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--rail); }
+  .upd .ic svg { width: 20px; height: 20px; stroke: var(--kul); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .upd .t { font-weight: 600; display: block; }
+  .upd .d { color: var(--kul); font-size: 12.5px; display: block; }
+  .upd[data-state="available"] {
+    background: linear-gradient(var(--qogoz), var(--qogoz)) padding-box,
+      conic-gradient(from var(--spin, 0deg), var(--lojuvard), var(--firuza), var(--lojuvard)) border-box;
+    border: 1.5px solid transparent; animation: spin 6s linear infinite;
+  }
+  .upd[data-state="available"] .ic { background: var(--firuza-och); }
+  .upd[data-state="available"] .ic svg { stroke: var(--firuza); }
+  .upd[data-state="downloading"] .ic svg, .upd[data-state="checking"] .ic svg, .upd[data-state="installing"] .ic svg { animation: turn 1s linear infinite; }
+  .upd[data-state="error"] .ic svg { stroke: var(--xato); }
+  .upd ul { grid-column: 1 / -1; margin: 2px 0 0; padding-left: 20px; color: var(--siyoh); font-size: 13px; }
+  @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  @keyframes spin { to { --spin: 360deg; } }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  .timeline { position: relative; max-width: 760px; display: grid; gap: 18px; padding-left: 26px; }
+  .timeline::before { content: ""; position: absolute; left: 6px; top: 10px; bottom: 10px; width: 2px; border-radius: 1px; background: var(--chiziq); }
+  .ver { position: relative; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--chiziq); background: var(--qogoz); }
+  .ver::before { content: ""; position: absolute; left: -26px; top: 24px; width: 14px; height: 14px; border-radius: 50%; background: var(--tosh); border: 2px solid var(--chiziq); }
+  .ver.cur { border-color: color-mix(in srgb, var(--lojuvard) 45%, var(--chiziq)); box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--lojuvard) 70%, transparent); }
+  .ver.cur::before { background: var(--lojuvard); border-color: var(--lojuvard); box-shadow: 0 0 0 5px var(--lojuvard-och); }
+  .ver .head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .ver .v { font: 600 26px/1 Bahnschrift, "Segoe UI", sans-serif; letter-spacing: -.01em; }
+  .ver .date { color: var(--kul); font-size: 12.5px; }
+  .ver .badge { font-size: 11.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--lojuvard-och); color: var(--lojuvard); }
+  .ver .grp { margin-top: 10px; }
+  .chip { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .02em; padding: 2px 9px; border-radius: 6px; margin-bottom: 6px; }
+  .chip.new { background: var(--firuza-och); color: var(--firuza); }
+  .chip.better { background: var(--lojuvard-och); color: var(--lojuvard); }
+  .chip.fixed { background: color-mix(in srgb, var(--oxra) 16%, transparent); color: var(--oxra); }
+  .chip.other { background: var(--rail); color: var(--kul); }
+  .ver ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .ver li { line-height: 1.5; }
+  .ver li b { font-weight: 600; }
+  .ver li span { color: var(--kul); }
+  .ver.old li span { display: none; }
+  .ver.old li { color: var(--kul); }
+  .rise { animation: rise .42s var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+  /* Xabar berish */
+  .fb { max-width: 760px; display: grid; gap: 16px; }
+  .fb > .seg { justify-self: start; }
+  .fb label.f { display: grid; gap: 4px; font-size: 12.5px; color: var(--kul); }
+  .fb textarea { min-height: 130px; }
+  .fb .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .fb .trio input { font-family: Bahnschrift, "Segoe UI", sans-serif; font-size: 16px; }
+  .drop {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 14px; border-radius: 12px;
+    border: 1.5px dashed var(--chiziq); background: var(--qogoz); transition: border-color .15s, background .15s;
+  }
+  .drop.over { border-color: var(--lojuvard); background: var(--lojuvard-och); }
+  .drop .thumb { width: 120px; height: 76px; border-radius: 8px; background: var(--rail) center / cover no-repeat; display: grid; place-items: center; color: var(--kul); font-size: 22px; }
+  .drop .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .drop .d { color: var(--kul); font-size: 12.5px; width: 100%; }
+  .diag details { color: var(--kul); font-size: 12.5px; margin-top: 4px; }
+  .diag pre { margin: 8px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--rail); color: var(--siyoh); font: 12px/1.5 Consolas, monospace; white-space: pre-wrap; max-height: 220px; overflow: auto; }
+  .fb .send { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .fb .send .meta { flex: 1; }
+  .fb .send .err { color: var(--xato); }
+  .fb-done { max-width: 760px; padding: 28px; border-radius: 14px; border: 1px solid var(--chiziq); background: var(--qogoz); text-align: center; display: grid; gap: 6px; justify-items: center; }
+  .fb-done .tick { width: 56px; height: 56px; border-radius: 50%; background: var(--firuza); display: grid; place-items: center; animation: pop .5s var(--ease); }
+  .fb-done .tick svg { width: 28px; height: 28px; stroke: var(--qogoz); stroke-width: 2.6; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: draw .5s .2s var(--ease) forwards; }
+  .fb-done .num { font-size: 20px; letter-spacing: .08em; }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .navdot { position: absolute; left: 25px; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--firuza); box-shadow: 0 0 0 2px var(--rail); }
+
   /* Klaviatura */
   .modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 860px; }
   .mode {
@@ -332,6 +442,11 @@
     .key { height: 40px; border-radius: 6px; } .key .b { font-size: 15px; } .key .s, .key .a { font-size: 9.5px; }
     .key.fx { font-size: 0; }
     .levels { grid-template-columns: repeat(2, 1fr); }
+    .dict-add .pair { grid-template-columns: 1fr; }
+    .dict-add .arrow { display: none; }
+    .fb .trio { grid-template-columns: 1fr; }
+    .upd { grid-template-columns: auto 1fr; }
+    .upd > .btn, .upd > .act { grid-column: 1 / -1; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -353,7 +468,9 @@
       <button data-page="rules"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lbl">Qoidalar</span></button>
       <button data-page="kb"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg><span class="lbl">Klaviatura</span></button>
       <button data-page="apps"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="lbl">Dasturlar</span></button>
-      <button data-page="ex"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/></svg><span class="lbl">Istisnolar</span></button>
+      <button data-page="ex"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg><span class="lbl">Lug'at</span></button>
+      <button data-page="news"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 19l-5-3-5 3 1.4-6.2L4 9l5.8-.7z"/></svg><span class="lbl">Yangiliklar</span></button>
+      <button data-page="fb"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Xabar berish</span></button>
       <button data-page="about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/></svg><span class="lbl">Haqida</span></button>
     </nav>
     <div id="saveState" aria-live="polite"></div>
@@ -398,11 +515,11 @@
     <section class="page try" id="p-try" aria-labelledby="h-try">
       <div class="inner">
         <h1 id="h-try">Sinab ko'ring</h1>
-        <p class="lead">Bu yerda yozilgani hech qayerga saqlanmaydi. Natijadagi so'zni bossangiz, u istisnoga qo'shiladi.</p>
+        <p class="lead">Bu yerda yozilgani hech qayerga saqlanmaydi. Natijadagi so'zni bossangiz, u Lug'atda o'girilmaydigan bo'ladi.</p>
         <div class="samples" id="samples"></div>
         <textarea id="input" spellcheck="false" aria-label="Eski yozuvdagi matn">Ozbekiston shaharlari: Toshkent, Samarqand. Please check the schedule, keyin choy ichamiz. Togri yoldan bor, ma'no</textarea>
         <div class="result" id="result" aria-live="polite"></div>
-        <div class="legend"><span class="c">yangi harf</span><span class="e">inglizcha yoki kod — tegilmadi</span><span class="x">istisno</span></div>
+        <div class="legend"><span class="c">yangi harf</span><span class="e">inglizcha yoki kod — tegilmadi</span><span class="r">lug'atingizdan</span><span class="x">o'girilmaydigan so'z</span></div>
       </div>
     </section>
 
@@ -437,12 +554,19 @@
       <div class="inner">
         <h1 id="h-rules">Qoidalar</h1>
         <p class="lead">O'zgarish darhol saqlanadi va ochiq dasturlarda bir soniyada ishga tushadi.</p>
+        <div class="row" style="max-width:760px;border-bottom:0;padding-top:0"><span><span class="t" id="l-pr">Aqlli tuzatishlar</span>
+            <span class="d" id="presetDesc"></span></span>
+          <div class="seg" role="radiogroup" aria-labelledby="l-pr" id="preset">
+            <button role="radio" data-v="safe">Ehtiyotkor</button>
+            <button role="radio" data-v="smart">Tavsiya</button>
+            <button role="radio" data-v="custom">Maxsus</button>
+          </div></div>
         <div class="group">
           <div class="row"><span><span class="t" id="l-eg">Inglizcha so'zlarga tegmaslik</span>
             <span class="d">check, show, Obama's o'zgarmaydi. O'zbekcha gap ichidagi «chat» esa çat bo'ladi.</span></span>
             <button class="sw" role="switch" data-k="english_guard" aria-labelledby="l-eg"></button></div>
           <div class="row"><span><span class="t" id="l-ra">Tushib qolgan apostrofni tiklash</span>
-            <span class="d">ozbek → özbek, togri → töğri. Ikki ma'noli so'zlar (qol, oz, yoq) tegilmaydi.</span></span>
+            <span class="d">ozbek → özbek, togri → töğri. Lug'atdagi so'zni ham tuzatadi: Qirgiziston → Qirğiziston. Ikki ma'noli so'zlar (qol, oz, yoq) tegilmaydi. Yozganingiz aynan qolsin desangiz — o'chiring yoki so'zni Lug'atga qo'shing.</span></span>
             <button class="sw" role="switch" data-k="restore_apostrophes" aria-labelledby="l-ra"></button></div>
           <div class="row"><span><span class="t" id="l-cy">Kirill harflarni ham o'girish</span>
             <span class="d">шаҳар → şahar. O'chirilsa, kirillcha so'zlar o'zgarmaydi.</span></span>
@@ -451,7 +575,7 @@
             <span class="d">So'z o'girilgandan keyin darhol Backspace — asl so'z qaytadi (shu dasturda boshqa o'girilmaydi).</span></span>
             <button class="sw" role="switch" data-k="undo_backspace" aria-labelledby="l-ub"></button></div>
           <div class="row"><span><span class="t" id="l-ur">Qaytarilgan so'zni istisnoga yozish</span>
-            <span class="d">Backspace bilan qaytarilgan so'z «Istisnolar» ro'yxatiga doimiy qo'shiladi.</span></span>
+            <span class="d">Backspace bilan qaytarilgan so'z «Lug'at» ga doimiy qo'shiladi (o'girilmaydigan so'z sifatida).</span></span>
             <button class="sw" role="switch" data-k="undo_remember" aria-labelledby="l-ur"></button></div>
           <div class="row"><span><span class="t" id="l-tq">Tutuq belgisi</span>
             <span class="d">ma'no, san'at so'zlaridagi belgi. Standart — U+02BC.</span></span>
@@ -479,6 +603,12 @@
           <div class="row"><span><span class="t" id="l-as">Windows bilan ishga tushish</span>
             <span class="d">bitg trayda turadi: belgini bosib bu oynani ochasiz, o'ng tugma bilan tez yoqib-o'chirasiz.</span></span>
             <button class="sw" role="switch" id="autostart" aria-labelledby="l-as"></button></div>
+          <div class="row"><span><span class="t" id="l-uc">Yangilanishlarni tekshirish</span>
+            <span class="d">Kuniga bir marta bitg.uz dan versiya raqami o'qiladi. Yangisi chiqsa — taklif qilinadi, o'zi o'rnatilmaydi.</span></span>
+            <button class="sw" role="switch" data-k="update_check" aria-labelledby="l-uc"></button></div>
+          <div class="row"><span><span class="t" id="l-wn">Yangilangandan keyin yangiliklarni ko'rsatish</span>
+            <span class="d">Yangi versiyada nima o'zgargani bir marta ochiladi.</span></span>
+            <button class="sw" role="switch" data-k="whats_new" aria-labelledby="l-wn"></button></div>
           <div class="row"><span><span class="t" id="l-th">Ko'rinish</span></span>
             <div class="seg" role="radiogroup" aria-labelledby="l-th" id="theme">
               <button role="radio" data-v="system">Tizim</button>
@@ -573,17 +703,97 @@
       </div>
     </section>
 
-    <!-- Istisnolar -->
+    <!-- Lug'at -->
     <section class="page" id="p-ex" aria-labelledby="h-ex">
       <div class="inner">
-        <h1 id="h-ex">Istisnolar</h1>
-        <p class="lead">Bu so'zlar hech qachon o'girilmaydi: ismlar, brendlar, atamalar. Katta-kichik harf va apostrof turi farq qilmaydi.</p>
-        <form class="add" id="exForm" style="margin:0 0 16px">
-          <input class="text" id="exInput" placeholder="So'z, masalan Shohruh" aria-label="Istisno so'z" autocomplete="off">
-          <button class="btn" type="submit">Qo'shish</button>
+        <h1 id="h-ex">Lug'at</h1>
+        <p class="lead">bitg'ga o'z so'zlaringizni o'rgating. So'zni eski yozuvda kiriting, har bir harfni bosib qaysi biri o'girilishini tanlang. Qo'shimchali shakli ham shunday yoziladi, katta-kichik harf yozganingizdek qoladi.</p>
+        <form class="dict-add" id="exForm" autocomplete="off">
+          <div class="pair">
+            <label>So'z (eski yozuvda)<input class="text" id="exInput" placeholder="shamollash" spellcheck="false"></label>
+            <span class="arrow" aria-hidden="true">→</span>
+            <label>Qanday yozilsin<input class="text" id="exTo" placeholder="şamollaş" spellcheck="false"></label>
+          </div>
+          <div class="units" id="units" role="group" aria-label="O'giriladigan harflar"></div>
+          <div class="foot">
+            <span class="sample grow" id="exSample">Masalan: shamollash → şamollaş, bog'cha → bog'ça (g' qoladi), Shohruh → Shohruh (umuman o'girilmaydi).</span>
+            <button class="btn" type="submit" id="exAdd">Qo'shish</button>
+          </div>
         </form>
-        <input class="text" id="exFilter" placeholder="Qidirish" aria-label="Istisnolar ichida qidirish" style="max-width:520px;margin-bottom:14px" hidden>
-        <ul class="chips" id="exceptions" aria-label="Istisno so'zlar"></ul>
+        <div class="dict-tools">
+          <input class="text" id="exFilter" placeholder="Lug'atdan qidirish" aria-label="Lug'at ichida qidirish">
+          <button class="btn ghost" type="button" id="exImport">Fayldan qo'shish</button>
+          <button class="btn ghost" type="button" id="exCopy">Nusxalash</button>
+          <input type="file" id="exFile" accept=".txt,text/plain" hidden>
+        </div>
+        <h2 id="h-rules-list">O'z yozuvi bilan</h2>
+        <ul class="rules" id="rulesList" aria-labelledby="h-rules-list"></ul>
+        <h2 id="h-never">O'girilmaydigan so'zlar</h2>
+        <ul class="chips" id="exceptions" aria-labelledby="h-never"></ul>
+      </div>
+    </section>
+
+    <!-- Yangiliklar -->
+    <section class="page" id="p-news" aria-labelledby="h-news">
+      <div class="inner">
+        <h1 id="h-news">Yangiliklar</h1>
+        <p class="lead">Har versiyada nima o'zgardi. bitg yangi versiyani o'zi tekshiradi va taklif qiladi — o'rnatish faqat siz bosganda.</p>
+        <div class="upd" id="upd" data-state="idle" aria-live="polite">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></span>
+          <span><span class="t" id="updT">Yangilanish</span><span class="d" id="updD"></span></span>
+          <button class="btn ghost act" type="button" id="updBtn">Tekshirish</button>
+          <ul id="updNotes" hidden></ul>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <!-- Xabar berish -->
+    <section class="page" id="p-fb" aria-labelledby="h-fb">
+      <div class="inner">
+        <h1 id="h-fb">Xabar berish</h1>
+        <p class="lead">Xato, taklif yoki noto'g'ri o'girilgan so'z haqida yozing — to'g'ridan-to'g'ri jamoaga yetadi. Yozgan matnlaringiz o'zi yuborilmaydi: faqat shu shaklga yozganingiz ketadi.</p>
+        <form class="fb" id="fbForm" autocomplete="off">
+          <div class="seg" role="radiogroup" aria-label="Xabar turi" id="fbType">
+            <button role="radio" type="button" data-v="bug">Xato</button>
+            <button role="radio" type="button" data-v="idea">Taklif</button>
+            <button role="radio" type="button" data-v="conversion">Noto'g'ri o'girildi</button>
+          </div>
+          <div class="trio" id="fbTrio" hidden>
+            <label class="f">Nima yozdingiz<input class="text" id="fbTyped" placeholder="bog'cha" spellcheck="false"></label>
+            <label class="f">bitg nima qildi<input class="text" id="fbGot" placeholder="boğça" spellcheck="false"></label>
+            <label class="f">Qanday bo'lishi kerak<input class="text" id="fbExp" placeholder="bog'ça" spellcheck="false"></label>
+          </div>
+          <label class="f"><span id="fbTextLbl">Nima bo'ldi</span><textarea id="fbText" maxlength="4000" placeholder="Qaysi dasturda, nima qildingiz, nima kutgandingiz"></textarea></label>
+          <div class="drop" id="fbDrop">
+            <span class="thumb" id="fbThumb" aria-hidden="true">＋</span>
+            <span class="acts">
+              <button class="btn ghost" type="button" id="fbShot">Ekran parchasi</button>
+              <button class="btn ghost" type="button" id="fbPick">Rasm tanlash</button>
+              <button class="link" type="button" id="fbClear" hidden>Olib tashlash</button>
+              <span class="d" id="fbImgD">Yoki rasmni shu yerga tashlang / Ctrl+V bilan joylang. Rasm siqiladi (2 MB gacha).</span>
+            </span>
+            <input type="file" id="fbFile" accept="image/png,image/jpeg,image/webp,image/bmp" hidden>
+          </div>
+          <label class="f">Aloqa uchun (ixtiyoriy)<input class="text" id="fbContact" maxlength="200" placeholder="Telegram @username yoki email — javob kerak bo'lsa"></label>
+          <div class="group diag">
+            <div class="row"><span><span class="t" id="l-dg">Texnik ma'lumot qo'shish</span>
+              <span class="d">Versiya, Windows yig'ilishi va kalitlar holati. Matn, lug'at so'zlari va dastur nomlari yo'q.</span>
+              <details id="fbDiagBox"><summary>Nima yuboriladi?</summary><pre id="fbDiag">…</pre></details></span>
+              <button class="sw" role="switch" id="fbDiagOn" aria-checked="true" aria-labelledby="l-dg"></button></div>
+          </div>
+          <div class="send">
+            <span class="meta" id="fbState" aria-live="polite"></span>
+            <button class="btn" type="submit" id="fbSend">Yuborish</button>
+          </div>
+        </form>
+        <div class="fb-done" id="fbDone" hidden>
+          <span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <h2 style="margin:10px 0 0">Rahmat! Xabaringiz yetdi.</h2>
+          <span class="meta">Raqami</span><span class="num" id="fbTicket"></span>
+          <span class="meta" id="fbDoneD"></span>
+          <button class="btn ghost" type="button" id="fbAgain" style="margin-top:10px">Yana yozish</button>
+        </div>
       </div>
     </section>
 
@@ -605,7 +815,8 @@
           <div class="row"><span class="t">Versiya</span><span class="v num" id="ver">—</span></div>
           <div class="row"><span class="t">Sayt</span><button class="link" type="button" data-url="https://bitg.uz">bitg.uz</button></div>
           <div class="row"><span class="t">Manba kodi</span><button class="link" type="button" data-url="https://github.com/dtwinuz/bitg">github.com/dtwinuz/bitg</button></div>
-          <div class="row"><span class="t">Xato yoki taklif</span><button class="link" type="button" data-url="https://bitg.uz/fikr/">Xabar berish</button></div>
+          <div class="row"><span class="t">Yangiliklar</span><button class="link" type="button" data-go="news">Nima o'zgardi va yangilanish</button></div>
+          <div class="row"><span class="t">Xato yoki taklif</span><button class="link" type="button" data-go="fb">Xabar berish</button></div>
           <div class="row"><span class="t">Sozlamalar fayllari</span><button class="link" type="button" id="openFolder">Papkani ochish</button></div>
           <div class="row"><span><span class="t">bitg'dan chiqish</span><span class="d">Tray belgisi yopiladi. Klaviatura ishlashda davom etadi.</span></span>
             <button class="btn ghost" type="button" id="quit">Chiqish</button></div>
@@ -627,7 +838,7 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   };
 
-  let s = null, ex = [], defaultApps = [], status = {}, stats = null;
+  let s = null, ex = [], rules = [], defaultApps = [], status = {}, stats = null;
   let seq = 0, shown = 0, lastOut = [], saveTimer = 0, previewTimer = 0, convTimer = 0, convSeq = 0;
   let page = "home";
   const fold = (w) => w.toLowerCase().replace(/[‘’ʻʼ`´]/g, "'");
@@ -702,6 +913,7 @@
     document.body.classList.toggle("off", !s.enabled);
     for (const b of document.querySelectorAll(".sw[data-k]")) b.setAttribute("aria-checked", String(!!s[b.dataset.k]));
     radios($("tutuq"), s.tutuq);
+    renderPreset();
     renderHotkey();
     renderApps(); renderEx(); renderKb();
     morph && morph.setActive(s.enabled);
@@ -711,7 +923,7 @@
     render();
     const st = $("saveState"); st.dataset.state = ""; st.textContent = "Saqlanmoqda…";
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => send({ cmd: "save", settings: s, exceptions: ex, custom: layouts.custom || {} }), 220);
+    saveTimer = setTimeout(() => send({ cmd: "save", settings: s, exceptions: ex, rules, custom: layouts.custom || {} }), 220);
     if (msg) toast(msg);
     preview(); convert();
   }
@@ -719,6 +931,28 @@
   $("enabled").onclick = () => { s.enabled = !s.enabled; changed(s.enabled ? "bitg yoqildi" : "bitg o'chirildi"); };
   for (const b of document.querySelectorAll(".sw[data-k]")) b.onclick = () => { s[b.dataset.k] = !s[b.dataset.k]; changed(); };
   radioGroup($("tutuq"), (v) => { s.tutuq = v; changed(); });
+
+  /* ---------- Aqlli tuzatishlar: tayyor to'plamlar ---------- */
+  const PRESETS = {
+    safe: { restore_apostrophes: false, english_guard: true, undo_backspace: true },
+    smart: { restore_apostrophes: true, english_guard: true, undo_backspace: true },
+  };
+  const PRESET_DESC = {
+    safe: "Faqat yozganingiz o'giriladi: tushib qolgan apostrof qo'yilmaydi, so'zlar tuzatilmaydi.",
+    smart: "Tavsiya: inglizchaga tegmaydi va apostrofsiz yozilgan so'zni (ozbek → özbek) o'zi tuzatadi.",
+    custom: "Pastdagi kalitlarni o'zingiz tanlagansiz.",
+  };
+  const presetOf = () => Object.keys(PRESETS).find((k) => Object.entries(PRESETS[k]).every(([key, v]) => s[key] === v)) || "custom";
+  function renderPreset() {
+    const p = presetOf();
+    radios($("preset"), p);
+    $("presetDesc").textContent = PRESET_DESC[p];
+  }
+  radioGroup($("preset"), (v) => {
+    if (!PRESETS[v]) { renderPreset(); return; }
+    Object.assign(s, PRESETS[v]);
+    changed(v === "safe" ? "Ehtiyotkor: so'zlar tuzatilmaydi" : "Tavsiya etilgan holat");
+  });
 
   /* ---------- Belgilangan matn tugmasi ---------- */
   const keyLabel = (v) => v.split("+").map((p) => p.length <= 1 ? p.toUpperCase() : p[0].toUpperCase() + p.slice(1)).join("+");
@@ -878,15 +1112,31 @@
     changed("Terminallar o'chirib qo'yildi");
   };
 
-  /* ---------- Istisnolar ---------- */
+  /* ---------- Lug'at: o'girilmaydigan so'zlar va o'z yozuvi ---------- */
   let justAdded = null;
+  const emptyNote = (ul, text) => {
+    const p = document.createElement("li"); p.className = "empty";
+    p.style.cssText = "border:0;background:none;padding:6px 0;font-family:inherit;font-size:14px;color:var(--kul);display:block";
+    p.textContent = text; ul.append(p);
+  };
   function renderEx() {
-    const ul = $("exceptions"); ul.replaceChildren();
-    $("exFilter").hidden = ex.length === 0;
     const q = fold($("exFilter").value.trim());
-    const items = ex.map((w, i) => [w, i]).filter(([w]) => !q || fold(w).includes(q));
-    if (!ex.length) { const p = document.createElement("li"); p.className = "empty"; p.style.cssText = "border:0;background:none;padding:0;font-family:inherit;color:var(--kul)"; p.textContent = "Hozircha yo'q. Sinash sahifasida so'zni bosib ham qo'shish mumkin."; ul.append(p); return; }
-    for (const [w, i] of items) {
+    const hit = (w) => !q || fold(w).includes(q);
+    const rl = $("rulesList"); rl.replaceChildren();
+    const rs = rules.map((r, i) => [r, i]).filter(([r]) => hit(r.from) || hit(r.to));
+    if (!rules.length) emptyNote(rl, "Hozircha yo'q. Yuqorida so'z qo'shing: bitg uni siz yozgandek yozadi.");
+    for (const [r, i] of rs) {
+      const li = document.createElement("li");
+      if (justAdded && fold(justAdded) === fold(r.from)) li.className = "new";
+      li.innerHTML = `<span class="a"></span><span class="ar">→</span><span class="b"></span>`;
+      li.querySelector(".a").textContent = r.from; li.querySelector(".b").textContent = r.to;
+      const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", `${r.from} — olib tashlash`);
+      x.onclick = () => { rules.splice(i, 1); changed(`«${r.from}» lug'atdan olindi`); };
+      li.append(x); rl.append(li);
+    }
+    const ul = $("exceptions"); ul.replaceChildren();
+    if (!ex.length) emptyNote(ul, "Hozircha yo'q. Ismlar, brendlar, atamalar — Sinash sahifasida so'zni bosib ham qo'shish mumkin.");
+    for (const [w, i] of ex.map((w, i) => [w, i]).filter(([w]) => hit(w))) {
       const li = document.createElement("li"); li.append(w);
       if (justAdded && fold(justAdded) === fold(w)) li.className = "new";
       const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", `${w} — olib tashlash`);
@@ -896,14 +1146,98 @@
     justAdded = null;
   }
   $("exFilter").oninput = renderEx;
+
+  // Eski yozuvdagi o'zgaradigan harflar: o' g' sh ch (har bittasini alohida yoqib-o'chirish mumkin).
+  const UNIT = /([oOgG])['‘’ʻʼ`]|([sScC])([hH])/g;
+  const NEWL = { o: "ö", g: "ğ", s: "ş", c: "ç" };
+  function unitsOf(w) {
+    const out = []; let m; UNIT.lastIndex = 0;
+    while ((m = UNIT.exec(w))) {
+      const base = m[1] || m[2], to = NEWL[base.toLowerCase()];
+      out.push({ at: m.index, len: m[0].length, from: m[0], to: base === base.toUpperCase() ? to.toUpperCase() : to });
+    }
+    return out;
+  }
+  let units = [], unitOn = [], toEdited = false;
+  function buildTo(w) {
+    let out = "", i = 0;
+    units.forEach((u, k) => { out += w.slice(i, u.at) + (unitOn[k] ? u.to : u.from); i = u.at + u.len; });
+    return out + w.slice(i);
+  }
+  function renderUnits() {
+    const w = $("exInput").value.trim(), box = $("units"); box.replaceChildren();
+    if (units.length) {
+      const l = document.createElement("span"); l.className = "lbl"; l.textContent = "O'girilsinmi:"; box.append(l);
+    }
+    units.forEach((u, k) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "unit";
+      b.setAttribute("aria-pressed", String(unitOn[k]));
+      b.innerHTML = `<span class="from"></span><span class="to"></span>`;
+      b.querySelector(".from").textContent = u.from; b.querySelector(".to").textContent = u.to;
+      b.setAttribute("aria-label", `${u.from} → ${u.to}: ${unitOn[k] ? "o'giriladi" : "qoladi"}`);
+      b.onclick = () => { unitOn[k] = !unitOn[k]; toEdited = false; $("exTo").value = buildTo(w); renderUnits(); };
+      box.append(b);
+    });
+    const to = $("exTo").value.trim(), same = !!w && (to === w || !to);
+    $("exAdd").textContent = same ? "O'girilmasin" : "Qo'shish";
+    const sm = $("exSample"); sm.replaceChildren();
+    if (!w) { sm.textContent = "Masalan: shamollash → şamollaş, bog'cha → bog'ça (g' qoladi), Shohruh → Shohruh (umuman o'girilmaydi)."; return; }
+    if (same) { sm.append("«", Object.assign(document.createElement("b"), { textContent: w }), "» hech qachon o'girilmaydi."); return; }
+    const long = [...fold(w)].length >= 4;
+    sm.append(Object.assign(document.createElement("b"), { textContent: w }), " → ", Object.assign(document.createElement("b"), { textContent: to }));
+    if (long) sm.append(",  ", Object.assign(document.createElement("b"), { textContent: w + "dan" }), " → ",
+      Object.assign(document.createElement("b"), { textContent: to + "dan" }));
+  }
+  $("exInput").oninput = () => {
+    const w = $("exInput").value.trim();
+    units = unitsOf(w); unitOn = units.map(() => true);
+    const known = rules.find((r) => fold(r.from) === fold(w));
+    if (known) { toEdited = true; $("exTo").value = known.to; }
+    else if (!toEdited || !w) { toEdited = false; $("exTo").value = w ? buildTo(w) : ""; }
+    renderUnits();
+  };
+  $("exTo").oninput = () => { toEdited = true; renderUnits(); };
   $("exForm").onsubmit = (e) => {
     e.preventDefault();
-    const v = $("exInput").value.trim();
-    if (!v) return;
-    if (/\s/.test(v)) { toast("Istisno — bitta so'z, bo'shliqsiz"); return; }
-    if (!ex.some((w) => fold(w) === fold(v))) { ex.push(v); justAdded = v; }
-    $("exInput").value = ""; changed(`«${v}» istisnoga qo'shildi`);
+    const w = $("exInput").value.trim(), to = $("exTo").value.trim() || w;
+    if (!w) { $("exInput").focus(); return; }
+    if (/\s|=/.test(w)) { toast("Bitta so'z kiriting, bo'shliq va = belgisisiz"); return; }
+    if (/\s/.test(to)) { toast("Natija ham bitta so'z bo'lsin"); return; }
+    rules = rules.filter((r) => fold(r.from) !== fold(w));
+    ex = ex.filter((x) => fold(x) !== fold(w));
+    if (to === w) { ex.push(w); changed(`«${w}» o'girilmaydi`); }
+    else { rules.unshift({ from: w, to }); changed(`«${w}» → «${to}» lug'atga qo'shildi`); }
+    justAdded = w; toEdited = false;
+    $("exInput").value = ""; $("exTo").value = ""; units = []; unitOn = []; renderUnits(); renderEx();
+    $("exInput").focus();
   };
+  function dictText() {
+    return ["# bitg lug'ati: so'z — o'girilmaydi, so'z=yozuv — shunday yoziladi", ...ex, ...rules.map((r) => `${r.from}=${r.to}`)].join("\n") + "\n";
+  }
+  $("exCopy").onclick = async () => {
+    try { await navigator.clipboard.writeText(dictText()); toast("Lug'at nusxalandi — boshqa kompyuterda «Fayldan qo'shish»"); }
+    catch { toast("Nusxalab bo'lmadi"); }
+  };
+  $("exImport").onclick = () => $("exFile").click();
+  $("exFile").onchange = async () => {
+    const f = $("exFile").files[0]; $("exFile").value = "";
+    if (!f) return;
+    if (f.size > 512 * 1024) { toast("Fayl juda katta"); return; }
+    let added = 0;
+    for (let line of (await f.text()).split(/\r?\n/)) {
+      line = line.replace(/^﻿/, "").trim();
+      if (!line || line.startsWith("#")) continue;
+      const eq = line.indexOf("=");
+      if (eq < 0) { if (!/\s/.test(line) && !ex.some((x) => fold(x) === fold(line))) { ex.push(line); added++; } continue; }
+      const from = line.slice(0, eq).trim(), to = line.slice(eq + 1).trim();
+      if (!from || !to || /\s/.test(from) || /\s/.test(to) || rules.some((r) => fold(r.from) === fold(from))) continue;
+      rules.push({ from, to }); added++;
+    }
+    changed(added ? `${added} ta so'z qo'shildi` : "Yangi so'z topilmadi");
+  };
+  function editWord(word) {
+    go("ex"); $("exInput").value = word; $("exInput").dispatchEvent(new Event("input")); $("exTo").focus();
+  }
 
   /* ---------- Sinash ---------- */
   const SAMPLES = [
@@ -921,7 +1255,7 @@
   function preview() {
     if (!s) return;
     clearTimeout(previewTimer);
-    previewTimer = setTimeout(() => send({ cmd: "preview", id: ++seq, text: $("input").value, settings: { ...s, enabled: true }, exceptions: ex }), 50);
+    previewTimer = setTimeout(() => send({ cmd: "preview", id: ++seq, text: $("input").value, settings: { ...s, enabled: true }, exceptions: ex, rules }), 50);
   }
   function marks(a, b) {
     a = [...a]; b = [...b];
@@ -938,8 +1272,9 @@
     }
     return out;
   }
-  const TITLES = { converted: "O'girildi. Bosing — istisnoga qo'shiladi", english: "Inglizcha deb qoldirildi",
-    protected: "Havola, kod yoki ism — tegilmadi", exception: "Istisno. Bosing — ro'yxatdan olinadi" };
+  const TITLES = { converted: "O'girildi. Bosing — o'girilmaydigan bo'ladi", english: "Inglizcha deb qoldirildi",
+    protected: "Havola, kod yoki ism — tegilmadi", exception: "O'girilmaydi. Bosing — lug'atdan olinadi",
+    rule: "Lug'atingizdan. Bosing — tahrirlash" };
   function showPreview(p) {
     if (p.id < shown) return;
     shown = p.id;
@@ -950,19 +1285,20 @@
       if (!g.r) { box.append(g.d); return; }
       const span = document.createElement("span"); span.className = "w"; span.dataset.r = g.r;
       if (TITLES[g.r]) span.title = TITLES[g.r];
-      if (g.r === "converted") {
+      if (g.r === "converted" || g.r === "rule") {
         for (const [ch, isNew] of marks(g.s, g.d)) {
           if (isNew) { const mk = document.createElement("mark"); mk.textContent = ch; span.append(mk); } else span.append(ch);
         }
         if (lastOut[idx] !== g.d) span.classList.add("anim");
       } else span.textContent = g.d;
       const word = core(g.s);
-      if (word && (g.r === "converted" || g.r === "exception")) {
+      if (word && (g.r === "converted" || g.r === "exception" || g.r === "rule")) {
         span.classList.add("click"); span.tabIndex = 0; span.setAttribute("role", "button");
         const toggle = () => {
+          if (g.r === "rule") { editWord(word); return; }
           const i = ex.findIndex((e) => fold(e) === fold(word));
-          if (i >= 0) { ex.splice(i, 1); changed(`«${word}» istisnodan olindi`); }
-          else { ex.push(word); justAdded = word; changed(`«${word}» istisnoga qo'shildi`); }
+          if (i >= 0) { ex.splice(i, 1); changed(`«${word}» endi o'giriladi`); }
+          else { ex.push(word); justAdded = word; changed(`«${word}» o'girilmaydi`); }
         };
         span.onclick = toggle;
         span.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } };
@@ -978,7 +1314,7 @@
   function convert() {
     if (!s) return;
     clearTimeout(convTimer);
-    convTimer = setTimeout(() => send({ cmd: "convert", id: ++convSeq, text: $("convIn").value, dir, style: oldStyle, settings: { ...s, enabled: true }, exceptions: ex }), 80);
+    convTimer = setTimeout(() => send({ cmd: "convert", id: ++convSeq, text: $("convIn").value, dir, style: oldStyle, settings: { ...s, enabled: true }, exceptions: ex, rules }), 80);
   }
   function renderDir() {
     radios($("dir"), dir); radios($("oldStyle"), oldStyle);
@@ -1196,17 +1532,182 @@
   addEventListener("blur", () => { shiftHeld = false; for (const b of document.querySelectorAll(".key.down")) b.classList.remove("down"); if (s) renderKb(); });
   buildKbd();
 
+  /* ---------- Yangiliklar va yangilanish ---------- */
+  let news = null, upd = { state: "idle" };
+  const GROUP = { new: "Yangi", better: "Yaxshilandi", fixed: "Tuzatildi" };
+  const human = (d) => { const m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(d || ""); return m ? `${+m[3]}-${MONTHS[+m[2] - 1]}, ${m[1]}` : ""; };
+  function renderNews() {
+    if (!news) return;
+    const tl = $("timeline"); tl.replaceChildren();
+    let i = 0;
+    news.versions.forEach((v, vi) => {
+      const card = document.createElement("article");
+      card.className = "ver rise" + (v.version === news.current ? " cur" : "") + (vi > 1 ? " old" : "");
+      card.style.setProperty("--i", i++);
+      const head = document.createElement("div"); head.className = "head";
+      head.innerHTML = `<span class="v"></span><span class="date"></span>`;
+      head.querySelector(".v").textContent = "v" + v.version;
+      head.querySelector(".date").textContent = human(v.date);
+      if (v.version === news.current) head.append(Object.assign(document.createElement("span"), { className: "badge", textContent: "Sizda" }));
+      card.append(head);
+      for (const g of v.groups) {
+        const grp = document.createElement("div"); grp.className = "grp";
+        grp.append(Object.assign(document.createElement("span"), { className: "chip " + g.kind, textContent: GROUP[g.kind] || g.title }));
+        const ul = document.createElement("ul");
+        for (const it of g.items) {
+          const li = document.createElement("li");
+          if (vi < 2) { li.className = "rise"; li.style.setProperty("--i", i++); }
+          if (it.lead) li.append(Object.assign(document.createElement("b"), { textContent: it.lead }), " ");
+          li.append(Object.assign(document.createElement("span"), { textContent: it.text }));
+          if (!it.lead) li.querySelector("span").style.display = "inline";
+          ul.append(li);
+        }
+        grp.append(ul); card.append(grp);
+      }
+      tl.append(card);
+    });
+  }
+  const mb = (n) => (n / 1048576).toFixed(1).replace(".", ",") + " MB";
+  function renderUpd() {
+    const box = $("upd"), b = $("updBtn"), notes = $("updNotes"), u = upd.update;
+    box.dataset.state = upd.state;
+    notes.hidden = true; b.hidden = false; b.disabled = false; b.className = "btn ghost act";
+    const cur = status.version || news?.current || "";
+    const T = {
+      idle: ["Yangilanish", s && !s.update_check ? "Avtomatik tekshirish o'chiq (Qoidalar → Ilova)." : "bitg kuniga bir marta o'zi tekshiradi.", "Tekshirish"],
+      checking: ["Tekshirilmoqda…", "bitg.uz dan oxirgi versiya so'raldi.", null],
+      latest: ["Sizda eng yangi versiya", `v${cur} — eng so'nggisi.`, "Qayta tekshirish"],
+      error: ["Bo'lmadi", upd.error || "Keyinroq urinib ko'ring.", "Qayta urinish"],
+      downloading: ["Yuklab olinmoqda…", u ? `v${u.version}, ${mb(u.size)}. Fayl GitHub'dan olinadi va SHA-256 bilan tekshiriladi.` : "", null],
+      installing: ["O'rnatilmoqda…", "Windows ruxsat so'rashi mumkin. bitg bir necha soniyada qayta ochiladi.", null],
+      available: [u ? `v${u.version} chiqdi` : "Yangi versiya", u ? [`Sizda v${cur}`, human(u.date), mb(u.size)].filter(Boolean).join(" · ") : "", "Yangilash"],
+    }[upd.state] || ["Yangilanish", "", "Tekshirish"];
+    $("updT").textContent = T[0]; $("updD").textContent = T[1];
+    if (!T[2]) b.hidden = true; else b.textContent = T[2];
+    if (upd.state === "available") {
+      b.className = "btn act";
+      if (u.notes?.length) {
+        notes.replaceChildren(...u.notes.map((n) => Object.assign(document.createElement("li"), { textContent: n.replace(/\*\*/g, "") })));
+        notes.hidden = false;
+      }
+    }
+    const dot = document.querySelector('nav [data-page="news"] .navdot');
+    if (upd.state === "available" && !dot) document.querySelector('nav [data-page="news"]').append(Object.assign(document.createElement("span"), { className: "navdot" }));
+    if (upd.state !== "available" && dot) dot.remove();
+  }
+  $("updBtn").onclick = () => {
+    if (upd.state === "available") { upd = { ...upd, state: "downloading" }; renderUpd(); send({ cmd: "install_update" }); }
+    else send({ cmd: "check_update" });
+  };
+
+  /* ---------- Xabar berish ---------- */
+  let fbType = store.get("bitg.fbType") || "bug", fbImage = "";
+  const FB_LBL = { bug: ["Nima bo'ldi", "Qaysi dasturda, nima qildingiz, nima kutgandingiz"],
+    idea: ["Taklifingiz", "Nima qo'shilsa yoki o'zgarsa qulay bo'lardi"],
+    conversion: ["Izoh (ixtiyoriy)", "Qaysi dasturda yoki qanday gapda bo'ldi"] };
+  function renderFb() {
+    radios($("fbType"), fbType);
+    $("fbTrio").hidden = fbType !== "conversion";
+    $("fbTextLbl").textContent = FB_LBL[fbType][0]; $("fbText").placeholder = FB_LBL[fbType][1];
+    const t = $("fbThumb");
+    t.style.backgroundImage = fbImage ? `url("${fbImage}")` : ""; t.textContent = fbImage ? "" : "＋";
+    $("fbClear").hidden = !fbImage;
+    $("fbImgD").textContent = fbImage ? `Rasm qo'shildi (${mb(fbImage.length * 0.75)}).` : "Yoki rasmni shu yerga tashlang / Ctrl+V bilan joylang. Rasm siqiladi (2 MB gacha).";
+  }
+  radioGroup($("fbType"), (v) => { fbType = v; store.set("bitg.fbType", v); renderFb(); });
+  for (const id of ["fbText", "fbContact", "fbTyped", "fbGot", "fbExp"]) {
+    const el = $(id); el.value = store.get("bitg.fb." + id) || "";
+    el.addEventListener("input", () => store.set("bitg.fb." + id, el.value));
+  }
+  // Har qanday rasm → JPEG (eng uzun tomoni 1920 px, ~2 MB gacha).
+  function compress(src) {
+    return new Promise((ok, no) => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1920 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        let q = 0.85, out = c.toDataURL("image/jpeg", q);
+        while (out.length > 2.6e6 && q > 0.4) { q -= 0.15; out = c.toDataURL("image/jpeg", q); }
+        out.length > 3.3e6 ? no() : ok(out);
+      };
+      img.onerror = no; img.src = src;
+    });
+  }
+  async function setImage(src) {
+    try { fbImage = await compress(src); renderFb(); } catch { toast("Bu rasmni ochib bo'lmadi"); }
+  }
+  const readFile = (f) => new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(f); });
+  $("fbPick").onclick = () => $("fbFile").click();
+  $("fbFile").onchange = async () => { const f = $("fbFile").files[0]; $("fbFile").value = ""; if (f) setImage(await readFile(f)); };
+  $("fbClear").onclick = () => { fbImage = ""; renderFb(); };
+  $("fbShot").onclick = () => { $("fbImgD").textContent = "Ekrandan kerakli joyni belgilang…"; send({ cmd: "screenshot" }); };
+  const drop = $("fbDrop");
+  drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = async (e) => {
+    e.preventDefault(); drop.classList.remove("over");
+    const f = [...e.dataTransfer.files].find((x) => x.type.startsWith("image/"));
+    if (f) setImage(await readFile(f));
+  };
+  addEventListener("paste", async (e) => {
+    if (page !== "fb") return;
+    const f = [...(e.clipboardData?.files || [])].find((x) => x.type.startsWith("image/"));
+    if (f) { e.preventDefault(); setImage(await readFile(f)); }
+  });
+  $("fbDiagOn").onclick = () => { const b = $("fbDiagOn"); b.setAttribute("aria-checked", String(b.getAttribute("aria-checked") !== "true")); };
+  $("fbDiagBox").ontoggle = () => { if ($("fbDiagBox").open) send({ cmd: "feedback_diag" }); };
+  $("fbForm").onsubmit = (e) => {
+    e.preventDefault();
+    const v = (id) => $(id).value.trim();
+    if (fbType === "conversion" ? !(v("fbTyped") && v("fbGot")) : v("fbText").length < 3) {
+      const st = $("fbState"); st.className = "meta err";
+      st.textContent = fbType === "conversion" ? "Nima yozganingizni va bitg nima chiqarganini kiriting." : "Bir-ikki gap yozing.";
+      return;
+    }
+    $("fbSend").disabled = true; $("fbState").className = "meta"; $("fbState").textContent = "Yuborilmoqda…";
+    send({ cmd: "feedback", type: fbType, text: v("fbText"), contact: v("fbContact"), typed: v("fbTyped"), got: v("fbGot"),
+      expected: v("fbExp"), image: fbImage, diag: $("fbDiagOn").getAttribute("aria-checked") === "true" });
+  };
+  $("fbAgain").onclick = () => { $("fbDone").hidden = true; $("fbForm").hidden = false; };
+  function fbResult(m) {
+    $("fbSend").disabled = false;
+    if (!m.ok) { $("fbState").className = "meta err"; $("fbState").textContent = m.error; return; }
+    $("fbState").textContent = "";
+    for (const id of ["fbText", "fbTyped", "fbGot", "fbExp"]) { $(id).value = ""; store.set("bitg.fb." + id, ""); }
+    fbImage = ""; renderFb();
+    $("fbTicket").textContent = m.ticket || "";
+    $("fbDoneD").textContent = $("fbContact").value.trim() ? "Javob kerak bo'lsa, ko'rsatgan manzilingizga yozamiz." : "Jamoa har xabarni o'qiydi.";
+    $("fbForm").hidden = true; $("fbDone").hidden = false;
+  }
+  for (const b of document.querySelectorAll("[data-go]")) b.onclick = () => go(b.dataset.go);
+  renderFb();
+
   /* ---------- Rust'dan kelgan javoblar ---------- */
   let firstLoad = true;
   window.bitg = {
     recv(m) {
       switch (m.kind) {
         case "loaded":
-          s = m.settings; ex = m.exceptions; defaultApps = m.default_apps; layouts = m.layouts || {};
-          render(); preview(); convert();
-          if (firstLoad) { firstLoad = false; askStats(); }
+          s = m.settings; ex = m.exceptions; rules = m.rules || []; defaultApps = m.default_apps; layouts = m.layouts || {};
+          render(); preview(); convert(); renderUpd();
+          if (firstLoad) { firstLoad = false; askStats(); send({ cmd: "news" }); }
           break;
-        case "status": status = m; renderStatus(); break;
+        case "status": status = m; renderStatus(); renderUpd(); break;
+        case "news":
+          news = m; renderNews();
+          if (m.show) {
+            // Yangilangandan keyin bir marta: «nima o'zgardi».
+            go("news"); send({ cmd: "news_seen" }); if (s) s.last_seen = m.current;
+          }
+          break;
+        case "update": upd = m; renderUpd(); if (m.state === "available" && page !== "news") toast(`bitg v${m.update.version} chiqdi — Yangiliklar bo'limida`); break;
+        case "goto": go(m.page); break;
+        case "feedback_result": fbResult(m); break;
+        case "feedback_diag": $("fbDiag").textContent = JSON.stringify(m.diag, null, 2); break;
+        case "screenshot":
+          if (m.image) setImage(m.image); else { renderFb(); toast(m.error || "Rasm olinmadi"); }
+          break;
         case "stats": stats = m; renderStats(); break;
         case "saved": $("saveState").dataset.state = "saved"; $("saveState").textContent = "Saqlandi"; break;
         case "save_failed":

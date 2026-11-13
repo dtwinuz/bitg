@@ -47,12 +47,13 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          head -c 4096 /dev/zero > "$RUNNER_TEMP/ci.msi"
-          # build.py Linux va macOS paketlarini MSI yonidan qidiradi (nom Cargo.toml versiyasidan)
+          # build.py Linux va macOS paketlarini MSI yonidan qidiradi (nom Cargo.toml versiyasidan);
+          # MSI reliz nomida bo'lgani uchun update/stable.json ham yoziladi
           ver=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
-          for p in "bitg_${ver}_amd64.deb" "fcitx5-bitg_${ver}_amd64.deb" "bitg-${ver}-macos.pkg"; do head -c 4096 /dev/zero > "$RUNNER_TEMP/$p"; done
-          python3 -I tools/site/build.py --out "$RUNNER_TEMP/site" --v ci --msi "$RUNNER_TEMP/ci.msi"
+          for p in "bitg-${ver}-x64.msi" "bitg_${ver}_amd64.deb" "fcitx5-bitg_${ver}_amd64.deb" "bitg-${ver}-macos.pkg"; do head -c 4096 /dev/zero > "$RUNNER_TEMP/$p"; done
+          python3 -I tools/site/build.py --out "$RUNNER_TEMP/site" --v ci --msi "$RUNNER_TEMP/bitg-${ver}-x64.msi"
           test -f "$RUNNER_TEMP/site/404.html" && test -f "$RUNNER_TEMP/site/sitemap.xml"
+          python3 -I -c 'import json,sys; m=json.load(open(sys.argv[1])); assert m["version"]==sys.argv[2] and m["windows"]["size"]==4096 and m["windows"]["url"].startswith("https://github.com/dtwinuz/bitg/releases/download/"), m' "$RUNNER_TEMP/site/update/stable.json" "$ver"
           test -f "$RUNNER_TEMP/site/yuklab-olish/rahmat/index.html" && test -f "$RUNNER_TEMP/site/fikr/index.html"
           grep -q 'dl.js' "$RUNNER_TEMP/site/index.html" && grep -q 'data-dl="win"' "$RUNNER_TEMP/site/index.html"
       - name: Site tools
@@ -60,6 +61,7 @@ jobs:
         shell: bash
         run: |
           python3 -I deploy/stats/stats.py --selftest
+          python3 -I tools/site/build.py --selftest
           python3 -I -m py_compile tools/apt/apt_repo.py tools/release/packaging.py tools/release/announce.py tools/telegram/setup.py
           python3 -I tools/telegram/setup.py --check
           # har reliz e'loni CHANGELOG'dan to'g'ri chiqadimi va Telegram chegarasiga sig'adimi
@@ -70,7 +72,8 @@ jobs:
         shell: bash
         run: |
           cargo fmt --manifest-path bot/Cargo.toml --check
-          cargo clippy --manifest-path bot/Cargo.toml --locked --release -- -D warnings
+          cargo clippy --manifest-path bot/Cargo.toml --locked --release --all-targets -- -D warnings
+          cargo test --manifest-path bot/Cargo.toml --locked
           cargo build --manifest-path bot/Cargo.toml --locked --release
           python3 -I bot/test/e2e.py bot/target/release/bitg-bot
           sh -n bot/set-token.sh && bash -n deploy/deploy-bot.sh
@@ -99,7 +102,7 @@ jobs:
           MIN_LINES: 95
           MIN_BRANCHES: 90
 
-  # RustSec: zaif, unsound yoki qarovsiz bog'liqlik, yoki ruxsat etilmagan litsenziya bo'lsa to'xtaydi (deny.toml).
+  # RustSec: zaif, unsound yoki qarovsiz bog'liqlik, ruxsat etilmagan litsenziya yoki crates.io dan tashqari manba bo'lsa to'xtaydi (deny.toml).
   advisories:
     runs-on: ubuntu-latest
     steps:
@@ -109,4 +112,4 @@ jobs:
       - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
         with:
           tool: cargo-deny@0.20.2
-      - run: cargo deny --color never check advisories licenses
+      - run: cargo deny --color never check advisories licenses sources

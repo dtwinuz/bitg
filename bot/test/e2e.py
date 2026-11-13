@@ -14,6 +14,9 @@ Ssenariy: /start fikr -> rasmli fikr adminga nusxa bo'lib boradi -> admin reply 
 """
 import json
 import os
+import socket
+import urllib.error
+import urllib.request
 import shutil
 import subprocess
 import tempfile
@@ -50,7 +53,13 @@ class H(BaseHTTPRequestHandler):
 
     def do_POST(self):
         method = self.path.rsplit("/", 1)[-1]
-        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
+        raw = self.rfile.read(int(self.headers.get("Content-Length", 0)))
+        if self.headers.get("Content-Type", "").startswith("multipart/form-data"):
+            # sendPhoto: chat_id va fayl borligini tekshirish kifoya
+            chat = raw.split(b'name="chat_id"\r\n\r\n', 1)[1].split(b"\r\n", 1)[0]
+            body = {"chat_id": int(chat), "multipart": True, "photo": b'name="photo"' in raw}
+        else:
+            body = json.loads(raw or b"{}")
         ok, result = True, True
         if method == "getMe":
             result = {"id": 1, "is_bot": True, "username": "bitguzbot"}
@@ -114,9 +123,23 @@ def main():
     srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     state = tempfile.mkdtemp(prefix="bitg-bot-state-")
+    probe = socket.socket()
+    probe.bind(("127.0.0.1", 0))
+    api_port = probe.getsockname()[1]
+    probe.close()
     env = {**os.environ, "BOT_TOKEN": "1:TEST", "API_URL": f"http://127.0.0.1:{srv.server_port}",
            "ADMIN_IDS": f"{BLOCKED},{ADMIN}", "NEWS_CHANNEL": "@bitguz", "SITE_URL": "https://bitg.uz",
-           "STATE_DIR": state}
+           "STATE_DIR": state, "HTTP_PORT": str(api_port)}
+
+    def api(method, path, body=None, ctype="application/json", xff="203.0.113.7"):
+        data = json.dumps(body).encode() if isinstance(body, dict) else body
+        req = urllib.request.Request(f"http://127.0.0.1:{api_port}{path}", data=data, method=method,
+                                     headers={"Content-Type": ctype, "X-Forwarded-For": xff})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return r.status, json.loads(r.read())
+        except urllib.error.HTTPError as e:
+            return e.code, json.loads(e.read())
 
     def start():
         return subprocess.Popen([exe], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -195,6 +218,24 @@ def main():
         wait_for(sent(ADMIN, "çoy"), "admin o'girish")
         time.sleep(0.3)
         assert count_to(USER) == n_user
+
+        # 7b) ilovadan fikr (HTTP_PORT): matn + rasm adminlarga; bloklagan admin bo'lsa ham yetadi
+        assert api("GET", "/api/health") == (200, {"ok": True})
+        fb = {"v": 1, "kind": "conversion", "typed": "shahar", "got": "shahar", "expected": "şahar",
+              "image": "data:image/png;base64,iVBORw0KGgo=", "app": "windows", "version": "0.4.0",
+              "id": "e2e-install-1", "diag": {"os": "10.0.26100"}}
+        code, r = api("POST", "/api/feedback", fb)
+        assert code == 200 and len(r["ticket"]) == 6, (code, r)
+        wait_for(sent(ADMIN, f"Noto'g'ri o'girish · #{r['ticket']}"), "ilova fikri matni")
+        wait_for(lambda c: c[0] == "sendPhoto" and c[1]["chat_id"] == ADMIN and c[1]["photo"], "ilova fikri rasmi")
+        assert api("POST", "/api/feedback", {**fb, "kind": "x"}) == (400, {"ok": False, "error": "kind"})
+        assert api("POST", "/api/feedback", b"{}", ctype="text/plain")[0] == 415
+        assert api("GET", "/nope")[0] == 404
+        for _ in range(4):
+            assert api("POST", "/api/feedback", fb)[0] == 200
+        code, r = api("POST", "/api/feedback", fb)
+        assert code == 429 and r["error"] == "rate" and r["retry"] > 0, (code, r)
+        assert api("POST", "/api/feedback", fb, xff="198.51.100.9")[0] == 200
 
         # 8) STATE_DIR: /fikr bosilgandan keyin bot qayta ishga tushsa ham keyingi xabar fikr bo'ladi;
         #    tiriklik belgisi (alive) yoziladi — bitg-stats shu fayl bilan kuzatadi

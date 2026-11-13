@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# DCO: PR'dagi har commitda muallif imzosi (`Signed-off-by:`) bo'lishi shart (CONTRIBUTING.md, "DCO").
+# Merge commitlari va Dependabot commitlari tekshirilmaydi. PR kodi faqat o'qiladi, hech narsa ishga tushirilmaydi.
+name: dco
+
+on:
+  pull_request:
+
+concurrency:
+  group: dco-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Signed-off-by
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for c in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            email=$(git log -1 --format='%ae' "$c")
+            case "$email" in
+              *"dependabot[bot]@users.noreply.github.com") continue ;;
+            esac
+            if git log -1 --format='%B' "$c" | grep -qE '^Signed-off-by: .+ <[^>]+@[^>]+>$'; then
+              echo "ok      $c"
+            else
+              echo "::error::commit $c: 'Signed-off-by: Ism <email>' qatori yo'q (git commit -s)"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Tuzatish: git rebase --signoff origin/main && git push --force-with-lease"
+            echo "yoki brauzerda: commit izohining oxiriga 'Signed-off-by: Ism <email>' qatorini yozing."
+            exit 1
+          fi

@@ -73,6 +73,7 @@ pub unsafe extern "C" fn bitg_run(p: *const u8, len: usize, mode: u32, flags: u3
                     Reason::Protected => ",\"p\"",
                     Reason::Exception => ",\"x\"",
                     Reason::English => ",\"e\"",
+                    Reason::Rule => ",\"r\"",
                 });
                 if let Some(alt) = &w.alt {
                     json.push(',');

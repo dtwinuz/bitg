@@ -31,6 +31,11 @@
 //!
 //! `hotkey` — tray ilovasining global tugmasi: belgilangan matnni yangi alifboga o'giradi (`hotkey_keys`).
 //! `hotkey_old_keys` — teskari yo'nalish (yangi → eski), bo'sh = o'chiq. IME bu kalitlarni ishlatmaydi.
+//!
+//! `update_check` — tray ilovasi kuniga bir marta `bitg.uz/update/stable.json` ni o'qiydi. `whats_new` —
+//! yangilangandan keyin «Yangiliklar» bir marta ochiladi; `last_seen` — ko'rilgan oxirgi versiya.
+//!
+//! `exceptions.txt`: `so'z` — o'girilmaydi, `so'z=yozuv` — shaxsiy lug'at (`bitg_core::user`).
 
 use bitg_core::Options;
 use bitg_core::chars::fold_key;
@@ -59,6 +64,12 @@ pub struct Config {
     pub hotkey_keys: String,
     /// Teskari yo'nalish (yangi → eski) tugmasi; bo'sh — o'chiq.
     pub hotkey_old_keys: String,
+    /// Tray ilovasi kuniga bir marta yangi versiyani tekshiradi (IME ishlatmaydi).
+    pub update_check: bool,
+    /// Yangilangandan keyin «Yangiliklar» sahifasi bir marta ochiladi.
+    pub whats_new: bool,
+    /// Foydalanuvchi «Yangiliklar» ni ko'rgan oxirgi versiya (bo'sh — hali hech qaysi).
+    pub last_seen: String,
 }
 
 /// Belgilangan matnni o'girish tugmasining standart birikmasi.
@@ -121,6 +132,9 @@ impl Default for Config {
             hotkey: true,
             hotkey_keys: DEFAULT_HOTKEY.into(),
             hotkey_old_keys: String::new(),
+            update_check: true,
+            whats_new: true,
+            last_seen: String::new(),
         }
     }
 }
@@ -175,6 +189,17 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
                 }
             }
             "hotkey_old_keys" => c.hotkey_old_keys = keys_value(v),
+            "update_check" => c.update_check = flag(v).unwrap_or(c.update_check),
+            "whats_new" => c.whats_new = flag(v).unwrap_or(c.whats_new),
+            "last_seen" => {
+                let v = v.trim();
+                if v.len() <= 32
+                    && v.chars()
+                        .all(|c| c.is_ascii_alphanumeric() || ".-+".contains(c))
+                {
+                    c.last_seen = v.to_string();
+                }
+            }
             "disabled_apps" => {
                 c.disabled_apps = v
                     .split([',', ';'])
@@ -191,16 +216,10 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
             _ => {}
         }
     }
-    for w in exceptions.lines() {
-        let w = w.trim().trim_start_matches('\u{FEFF}');
-        if w.is_empty() || w.starts_with('#') {
-            continue;
-        }
-        let k = fold_key(w);
-        if !c.opts.exceptions.contains(&k) {
-            c.opts.exceptions.push(k);
-        }
-    }
+    // Istisnolar va `so'z=yozuv` qoidalari bitta faylda (`bitg_core::user`).
+    let (never, rules) = bitg_core::user::parse(exceptions);
+    c.opts.exceptions = never;
+    c.opts.rules = rules;
     c
 }
 
@@ -222,7 +241,7 @@ pub fn to_ini(c: &Config) -> String {
         "# bitg sozlamalari. Sozlamalar oynasi yozadi; qo'lda tahrirlash ham mumkin.\n\
          enabled={}\nenglish_guard={}\ncyrillic={}\nrestore_apostrophes={}\ntutuq={}\n\
          undo_backspace={}\nundo_remember={}\nfallback={}\ndisabled_apps={}\nauto_convert={}\nkeymap={}\nlayout={}\n\
-         hotkey={}\nhotkey_keys={}\nhotkey_old_keys={}\n",
+         hotkey={}\nhotkey_keys={}\nhotkey_old_keys={}\nupdate_check={}\nwhats_new={}\nlast_seen={}\n",
         bit(c.enabled),
         bit(c.opts.english_guard),
         bit(c.opts.cyrillic),
@@ -238,6 +257,9 @@ pub fn to_ini(c: &Config) -> String {
         bit(c.hotkey),
         keys_value(&c.hotkey_keys),
         keys_value(&c.hotkey_old_keys),
+        bit(c.update_check),
+        bit(c.whats_new),
+        c.last_seen,
     )
 }
 
@@ -450,6 +472,31 @@ fallback=0",
         assert_eq!(back.disabled_apps, vec!["a.exe", "b.exe"]);
         let empty = parse(&to_ini(&parse("disabled_apps=", "")), "");
         assert!(empty.disabled_apps.is_empty());
+    }
+
+    #[test]
+    fn update_and_news_keys() {
+        let d = parse("", "");
+        assert!(d.update_check && d.whats_new && d.last_seen.is_empty());
+        let c = parse("update_check=0\nwhats_new=off\nlast_seen=0.4.0-rc1", "");
+        assert!(!c.update_check && !c.whats_new);
+        assert_eq!(c.last_seen, "0.4.0-rc1");
+        let back = parse(&to_ini(&c), "");
+        assert_eq!(
+            (back.update_check, back.whats_new, back.last_seen.as_str()),
+            (false, false, "0.4.0-rc1")
+        );
+        // Yaroqsiz qiymat — e'tiborsiz (fayl qo'lda buzilgan bo'lsa ham qator buzilmaydi).
+        for bad in [
+            "last_seen=1 2",
+            "last_seen=<x>",
+            &format!("last_seen={}", "9".repeat(40)),
+        ] {
+            assert_eq!(parse(bad, "").last_seen, "", "{bad}");
+        }
+        let rules = parse("", "shop\nbog'cha=bog'ça\n");
+        assert_eq!(rules.opts.exceptions, ["shop"]);
+        assert_eq!(rules.opts.rules[0].to, "bog'ça");
     }
 
     #[test]
