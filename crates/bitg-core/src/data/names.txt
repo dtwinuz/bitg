@@ -127,6 +127,9 @@ chanel
 hermes
 lush
 nike
+shein
+bershka
+shiseido
 # oziq-ovqat va restoranlar
 hochland
 rocher

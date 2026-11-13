@@ -229,9 +229,9 @@ fn english_name_with_uzbek_suffix_is_kept() {
     assert_eq!(c("Shellga yozdim"), "Shellga yozdim");
     assert_eq!(c("Toshkentda boshda"), "Toşkentda boşda");
     // brendlar (data/names.txt): asl yozuvida qoladi, yonidagi söz ögiriladi
-    assert_eq!(c("Sheindan köylak oldim"), "Şeindan köylak oldim");
-    assert_eq!(c("Bershkada çegirma bor"), "Berşkada çegirma bor");
-    assert_eq!(c("Shiseido kremi qimmat"), "Şiseido kremi qimmat");
+    assert_eq!(c("Sheindan ko'ylak oldim"), "Sheindan köylak oldim");
+    assert_eq!(c("Bershkada chegirma bor"), "Bershkada çegirma bor");
+    assert_eq!(c("Shiseido kremi qimmat"), "Shiseido kremi qimmat");
 }
 
 #[test]
