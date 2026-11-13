@@ -18,6 +18,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   sinovidan keyin cask'ni yangilaydi (repolararo token yo'q). `packaging/` 0.4.0 ga yangilandi.
   Chocolatey (Windows'da o'rnatish sinovi, `CHOCO_API_KEY`) va AUR (Arch'da `check()` bilan yig'ish, alohida SSH
   kalit, server kaliti qotirilgan) ham `stores.yml` da; `packaging/aur` 0.4.0.
+  Chocolatey paketi moderatsiya qoidalariga moslandi: title = `bitg`, owners = `dtwin` (community akkaunti),
+  ikonka va litsenziya havolasi reliz tegiga qotirildi, tizim talablari va parametrlar tavsifda, o'rnatish logi
+  muvaffaqiyatli o'rnatishdan keyin o'chiriladi.
 - **Ubuntu sinov matritsasi** ([#75](https://github.com/dtwinuz/bitg/issues/75)): CI'da 22.04 da yig'ilgan paket
   24.04 da ham o'rnatilib, IBus e2e va panel belgisi sinovidan o'tadi. Yangi e2e: lotin va kirill kirish bir xil
   natija beradi (matnli va preedit dasturda), panel belgisi yozgan sozlama va istisno IME'ga jonli yetadi, BOM'li
