@@ -30,8 +30,7 @@ test('yadro: eski lotin va kirill → yangi alifbo', { skip: !have && `wasm yo'q
 test('yadro: havola, pochta va inglizcha so\'z himoyalanadi; toks sabablari', { skip: !have }, async () => {
   const core = await bitgCore.load(fs.readFileSync(WASM));
   const r = core.toNew('Shu hafta push qilaman: https://chat.example.uz/shahar');
-  assert.ok(r.out.includes('https://chat.example.uz/shahar'), r.out);
-  assert.ok(r.out.startsWith('Şu hafta push'), r.out);
+  assert.equal(r.out, 'Şu hafta push qilaman: https://chat.example.uz/shahar');
   const reasons = Object.fromEntries(r.toks.map((k) => [k[0], k[1]]));
   assert.equal(reasons.Shu, 'c');
   assert.equal(reasons.push, 'e');
