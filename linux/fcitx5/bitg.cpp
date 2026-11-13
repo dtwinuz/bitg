@@ -38,7 +38,10 @@ bool suspendedFor(const fcitx::InputContext *ic) {
            caps.test(fcitx::CapabilityFlag::Email) || caps.test(fcitx::CapabilityFlag::Terminal);
 }
 
-// Kursor oldidagi matn: dastur bermasa yoki tanlov bo'lsa — yo'q.
+// Kursor oldidan olinadigan belgilar soni. So'z ko'pi bilan 40 belgi; macOS va IBus ham 128 oladi.
+constexpr size_t kBeforeWindow = 128;
+
+// Kursor oldidagi oxirgi kBeforeWindow belgi: dastur bermasa yoki tanlov bo'lsa — yo'q.
 std::optional<std::string> textBeforeCursor(fcitx::InputContext *ic) {
     if (!ic->capabilityFlags().test(fcitx::CapabilityFlag::SurroundingText)) {
         return std::nullopt;
@@ -52,8 +55,10 @@ std::optional<std::string> textBeforeCursor(fcitx::InputContext *ic) {
     if (len == fcitx::utf8::INVALID_LENGTH || s.cursor() > len) {
         return std::nullopt;
     }
-    auto end = fcitx::utf8::nextNChar(text.begin(), s.cursor());
-    return std::string(text.begin(), end);
+    const size_t skip = s.cursor() > kBeforeWindow ? s.cursor() - kBeforeWindow : 0;
+    auto start = fcitx::utf8::nextNChar(text.begin(), skip);
+    auto end = fcitx::utf8::nextNChar(start, s.cursor() - skip);
+    return std::string(start, end);
 }
 
 uint32_t keyKind(const fcitx::Key &key, uint32_t &cp) {
@@ -117,7 +122,9 @@ public:
         apply(ic, bitg_ime_set_suspended(st->ime, suspendedFor(ic)));
         uint32_t cp = 0;
         const uint32_t kind = keyKind(event.key(), cp);
-        const auto before = textBeforeCursor(ic);
+        // matn faqat dvigatelga kerak bo'lganda so'raladi: katta hujjatda har tugmada nusxa olinmaydi
+        const auto before =
+            bitg_ime_wants_before(st->ime, kind, cp) ? textBeforeCursor(ic) : std::optional<std::string>{};
         const BitgImeOut *o = bitg_ime_key(st->ime, kind, cp, before ? before->c_str() : nullptr);
         apply(ic, o);
         if (o != nullptr && o->consumed) {

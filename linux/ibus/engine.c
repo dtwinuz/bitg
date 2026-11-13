@@ -39,7 +39,11 @@ static gboolean has_surrounding(IBusEngine *e)
     return (e->client_capabilities & IBUS_CAP_SURROUNDING_TEXT) != 0;
 }
 
-/* Kursor oldidagi matn (yangi satr, chaqiruvchi g_free qiladi) yoki NULL: dastur bermasa yoki tanlov bo'lsa. */
+/* Kursor oldidan olinadigan belgilar soni. So'z ko'pi bilan 40 belgi; macOS ham 128 oladi (Session.swift). */
+#define BEFORE_WINDOW 128
+
+/* Kursor oldidagi oxirgi BEFORE_WINDOW belgi (yangi satr, chaqiruvchi g_free qiladi) yoki NULL: dastur bermasa
+ * yoki tanlov bo'lsa. */
 static gchar *text_before_cursor(IBusEngine *e)
 {
     if (!has_surrounding(e))
@@ -53,8 +57,11 @@ static gchar *text_before_cursor(IBusEngine *e)
     if (cursor == anchor) {
         const gchar *s = ibus_text_get_text(text);
         glong n = g_utf8_strlen(s, -1);
-        if ((glong)cursor <= n)
-            out = g_strndup(s, g_utf8_offset_to_pointer(s, cursor) - s);
+        if ((glong)cursor <= n) {
+            const gchar *end = g_utf8_offset_to_pointer(s, cursor);
+            const gchar *start = cursor > BEFORE_WINDOW ? g_utf8_offset_to_pointer(s, cursor - BEFORE_WINDOW) : s;
+            out = g_strndup(start, end - start);
+        }
     }
     g_object_unref(text);
     return out;
@@ -139,9 +146,10 @@ static gboolean bitg_engine_process_key_event(IBusEngine *e, guint keyval, guint
     BitgEngine *self = BITG_ENGINE(e);
     if (self->ime == NULL || (state & IBUS_RELEASE_MASK) || is_modifier(keyval))
         return FALSE;
-    guint32 cp;
+    guint32 cp = 0;
     guint kind = key_kind(keyval, state, &cp);
-    gchar *before = text_before_cursor(e);
+    /* matn faqat dvigatelga kerak bo'lganda so'raladi: katta hujjatda har tugmada nusxa olinmaydi */
+    gchar *before = bitg_ime_wants_before(self->ime, kind, cp) ? text_before_cursor(e) : NULL;
     const BitgImeOut *o = bitg_ime_key(self->ime, kind, cp, before);
     g_free(before);
     apply(e, o);
