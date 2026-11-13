@@ -31,6 +31,12 @@ body:
     validations:
       required: true
   - type: input
+    id: build
+    attributes:
+      label: Tizim versiyasi
+      description: "Windows: `Win + R` → `winver` oynasidagi qator. Linux: `lsb_release -d`. macOS: Apple menyusi → About This Mac."
+      placeholder: "24H2 (build 26100.4061)"
+  - type: input
     id: app
     attributes:
       label: Qaysi dasturda?
@@ -48,4 +54,4 @@ body:
     id: extra
     attributes:
       label: Qo'shimcha
-      description: "`bitg explain \"<so'z>\"` natijasi, skrinshot yoki log (Windows: %LOCALAPPDATA%\\bitg\\tsf.log)."
+      description: "`bitg explain \"<so'z>\"` natijasi, skrinshot yoki log (Windows: `Win + R` → %LOCALAPPDATA%\\bitg\\tsf.log; logda yozgan matningiz yo'q, faqat dastur nomlari va hodisalar)."
