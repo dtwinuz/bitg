@@ -29,6 +29,9 @@ pub fn settings_json(c: &Config) -> Value {
         "hotkey": c.hotkey,
         "hotkey_keys": c.hotkey_keys,
         "hotkey_old_keys": c.hotkey_old_keys,
+        "update_check": c.update_check,
+        "whats_new": c.whats_new,
+        "last_seen": c.last_seen,
     })
 }
 
@@ -91,6 +94,17 @@ pub fn config_from(settings: &Value, exceptions: &[String]) -> Config {
     c.auto_convert = b("auto_convert", c.auto_convert);
     c.keymap = b("keymap", c.keymap);
     c.hotkey = b("hotkey", c.hotkey);
+    c.update_check = b("update_check", c.update_check);
+    c.whats_new = b("whats_new", c.whats_new);
+    if let Some(v) = settings.get("last_seen").and_then(Value::as_str) {
+        // Shu kalit orqali tekshiriladi (uzunlik, belgilar): yaroqsiz qiymat — bo'sh. Yangi qator — boshqa kalit
+        // qo'shib yuborish urinishi, rad etiladi.
+        c.last_seen = if v.contains(['\n', '\r']) {
+            String::new()
+        } else {
+            config::parse(&format!("last_seen={v}"), "").last_seen
+        };
+    }
     // Tugmalar: faqat to'g'ri birikma qabul qilinadi (oynada ro'yxatdan tanlanadi, ini'da qo'lda ham).
     if let Some(k) = settings.get("hotkey_keys").and_then(Value::as_str)
         && crate::hotkey::parse(k).is_some()
@@ -285,9 +299,14 @@ pub fn save(msg: &Value) -> Value {
 
 /// Tray menyusidan: faqat `enabled` ni o'zgartiradi, qolgan sozlamalar va istisnolar saqlanadi.
 pub fn set_enabled(on: bool) -> std::io::Result<()> {
+    change(|c| c.enabled = on)
+}
+
+/// Bitta kalitni o'zgartiradi (tray, «Yangiliklar» ko'rildi): qolgan sozlamalar va istisnolar saqlanadi.
+pub fn change(f: impl FnOnce(&mut Config)) -> std::io::Result<()> {
     let (s, e) = config::read_raw();
     let mut c = config::parse(&s, &e);
-    c.enabled = on;
+    f(&mut c);
     let dir = config::dir().ok_or_else(|| std::io::Error::other("APPDATA topilmadi"))?;
     std::fs::create_dir_all(&dir)?;
     write_atomic(&dir.join(config::SETTINGS_FILE), &config::to_ini(&c))
@@ -673,5 +692,25 @@ mod tests {
         assert_eq!(lines, ["shop", "shamollash=şamollaş"]);
         assert_eq!(preview(&msg)["out"], "Şamollaşdan saqlaning");
         assert_eq!(rules_json(&rules)[0]["to"], "şamollaş");
+    }
+
+    #[test]
+    fn update_switches_and_last_seen_from_window() {
+        let c = config_from(
+            &json!({"update_check": false, "whats_new": false, "last_seen": "0.4.0"}),
+            &[],
+        );
+        assert!(!c.update_check && !c.whats_new);
+        assert_eq!(c.last_seen, "0.4.0");
+        let j = settings_json(&c);
+        assert_eq!(
+            (j["update_check"].as_bool(), j["last_seen"].as_str()),
+            (Some(false), Some("0.4.0"))
+        );
+        assert_eq!(
+            config_from(&json!({"last_seen": "x\ny=1"}), &[]).last_seen,
+            ""
+        );
+        assert!(config_from(&json!({}), &[]).update_check);
     }
 }

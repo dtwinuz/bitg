@@ -4,11 +4,12 @@
 
 //! @bitguzbot: matnni bitg yadrosi bilan yangi alifboga (yoki /eski bilan eski lotinga) o'giradi,
 //! /yuklash bilan kompyuter dasturiga yo'l ko'rsatadi, /fikr bilan xato va takliflarni adminlarga yetkazadi.
-//! Long polling (getUpdates) — serverda kiruvchi port kerak emas.
+//! Long polling (getUpdates) — Telegram uchun kiruvchi port kerak emas; HTTP_PORT faqat docker tarmog'ida.
 //! Muhit: BOT_TOKEN (majburiy), ADMIN_IDS (vergul bilan; fikrlar shu chatlarga keladi, ular botga /start
 //! yozgan bo'lishi kerak), NEWS_CHANNEL (standart bitguz), SITE_URL (standart https://bitg.uz),
 //! STATE_DIR (ixtiyoriy: /fikr kutish holati va admin suhbatlari state.json da, tiriklik belgisi `alive`
-//! faylida — bitg-stats shu fayl bilan kuzatadi), API_URL (faqat sinov).
+//! faylida — bitg-stats shu fayl bilan kuzatadi), API_URL (faqat sinov), HTTP_PORT (standart 8080, 0 —
+//! o'chiq: ilovalarning "Xabar berish" oynasi uchun `POST /api/feedback`, faqat Caddy orqali — `web.rs`).
 //! Token URL ichida bo'ladi, shuning uchun xato matnida URL hech qachon chiqarilmaydi.
 
 use std::collections::{HashMap, VecDeque};
@@ -19,6 +20,8 @@ use std::{env, fs, io, process, thread};
 
 use bitg_core::{OldStyle, Options, convert, to_old};
 use serde_json::{Value, json};
+
+mod web;
 
 /// Telegram xabar chegarasi 4096; UTF-16 hisobidagi farq uchun zaxira.
 const CHUNK: usize = 4000;
@@ -624,6 +627,32 @@ fn article(id: &str, title: &str, text: &str) -> Value {
     })
 }
 
+/// HTTP_PORT (standart 8080; 0 — o'chiq): ilovalardan fikr qabul qiluvchi `web` oqimi.
+fn api_port(v: Option<&str>) -> Option<u16> {
+    match v.map(str::trim) {
+        None | Some("") => Some(8080),
+        Some(p) => p.parse().ok().filter(|&p| p != 0),
+    }
+}
+
+fn start_api(bot: &Bot) {
+    let Some(port) = api_port(env::var("HTTP_PORT").ok().as_deref()) else {
+        return;
+    };
+    match std::net::TcpListener::bind(("0.0.0.0", port)) {
+        Ok(l) => {
+            println!("fikr API: :{port}");
+            let ctx = web::Ctx {
+                agent: bot.agent.clone(),
+                base: bot.base.clone(),
+                admins: bot.admins.clone(),
+            };
+            thread::spawn(move || web::serve(l, ctx));
+        }
+        Err(e) => eprintln!("fikr API ochilmadi (:{port}): {:?}", e.kind()),
+    }
+}
+
 fn main() {
     let token = env::var("BOT_TOKEN").unwrap_or_default();
     if token.trim().is_empty() {
@@ -685,6 +714,7 @@ fn main() {
         }
     }
     bot.setup();
+    start_api(&bot);
 
     let mut offset: i64 = 0;
     let mut logged = 0u64;
@@ -734,5 +764,19 @@ fn main() {
                 thread::sleep(Duration::from_secs(5));
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::api_port;
+
+    #[test]
+    fn http_port_default_and_off() {
+        assert_eq!(api_port(None), Some(8080));
+        assert_eq!(api_port(Some(" ")), Some(8080));
+        assert_eq!(api_port(Some("9000")), Some(9000));
+        assert_eq!(api_port(Some("0")), None);
+        assert_eq!(api_port(Some("x")), None);
     }
 }

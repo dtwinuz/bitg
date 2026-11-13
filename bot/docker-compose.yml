@@ -6,7 +6,9 @@
 # /opt/bitg-bot/.env: BOT_TOKEN=... (repoda yo'q; set-token.sh bilan qo'yiladi), ixtiyoriy SITE_URL=...,
 # ADMIN_IDS=778806941[,ID2] — /fikr xabarlari keladigan shaxsiy chatlar (har biri @bitguzbot'ga /start yozgan bo'lsin),
 # NEWS_CHANNEL=bitguz. ADMIN_IDS bo'lmasa /fikr GitHub Issues'ga yo'naltiradi.
-# Long polling: kiruvchi port va edge kerak emas.
+# Telegram long polling bilan ishlaydi (kiruvchi port yo'q). HTTP_PORT=8080 — ilovalarning "Xabar berish" oynasi
+# uchun POST /api/feedback: hostga ochilmaydi, faqat docker tarmog'ida; bitg-site (Caddy) bitg.uz/api/* ni shu
+# yerga uzatadi. 0 — o'chiq.
 services:
   bitg-bot:
     image: bitg-bot:latest
@@ -17,6 +19,7 @@ services:
     environment:
       SITE_URL: ${SITE_URL:-https://bitg.uz}
       STATE_DIR: /data
+      HTTP_PORT: 8080
     # /fikr kutish holati, admin suhbatlari (state.json) va tiriklik belgisi (alive). bitg-stats alive'ni
     # faqat o'qiydi; papka egasi 65534 (deploy-bot.sh yaratadi).
     volumes:
@@ -33,3 +36,11 @@ services:
       options:
         max-size: 5m
         max-file: "3"
+    networks:
+      - edge
+
+# bitg-site bilan bir tarmoq (deploy/docker-compose.yml): Caddy bitg-bot:8080 ga ulanadi
+networks:
+  edge:
+    external: true
+    name: dtwin-prod_default
