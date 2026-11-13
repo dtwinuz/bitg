@@ -69,7 +69,8 @@ jobs:
           python -I "$GITHUB_WORKSPACE/tools/arch/pacman_repo.py" --out /srv/repo --gnupg "$GNUPGHOME" --fingerprint "$fpr" \
             ./bitg-[0-9]*.pkg.tar.zst ./fcitx5-bitg-[0-9]*.pkg.tar.zst
           ls -lR /srv/repo
-          pacman-key --add /srv/repo/bitg.asc && pacman-key --lsign-key "$fpr"
+          # archlinux image'ida lokal master kalit yo'q: --lsign-key undan imzolaydi
+          pacman-key --init && pacman-key --add /srv/repo/bitg.asc && pacman-key --lsign-key "$fpr"
           printf '\n[bitg]\nSigLevel = Required DatabaseRequired\nServer = file:///srv/repo/$arch\n' >> /etc/pacman.conf
           pacman -Sy --noconfirm bitg fcitx5-bitg
           pacman -Si bitg | grep -q '^Repository *: bitg$'
