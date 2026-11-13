@@ -36,7 +36,7 @@ sed "s/@VERSION@/$VER/" linux/ibus/bitg.xml > "$PKG/usr/share/ibus/component/bit
 chmod 644 "$PKG/usr/share/ibus/component/bitg.xml"
 install -m 644 web/icon.svg "$PKG/usr/share/icons/hicolor/scalable/apps/bitg.svg"
 install -m 644 linux/indicator/bitg-disabled.svg "$PKG/usr/share/icons/hicolor/scalable/apps/bitg-disabled.svg"
-install -m 755 linux/indicator/bitg-indicator "$PKG/usr/bin/bitg-indicator"
+install -m 755 linux/indicator/bitg-indicator.py "$PKG/usr/bin/bitg-indicator"
 install -m 644 linux/indicator/bitg.desktop "$PKG/usr/share/applications/bitg.desktop"
 install -m 644 linux/indicator/bitg-autostart.desktop "$PKG/etc/xdg/autostart/bitg.desktop"
 install -m 644 linux/copyright "$PKG/usr/share/doc/bitg/copyright"
