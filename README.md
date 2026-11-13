@@ -124,11 +124,13 @@ foydalanuvchilar uchun ishlaydi. Oxirida bitg ochiladi va klaviaturani O'zbek (l
 **Win + Probel** bilan «bitg» ni tanlang. Yangilash ham shu fayl bilan qilinadi: ochiq dasturlarni (Chrome, Telegram)
 yopish va kompyuterni qayta yuklash shart emas.
 
-**Paket menejeri bilan** (qisqa nom hamma joyda `bitg`):
+**Paket menejeri bilan** (paket nomi hamma joyda `bitg`):
 
 ```powershell
-winget install bitg     # Microsoft katalogida ko'rib chiqilmoqda: microsoft/winget-pkgs#478645
-choco install bitg      # Chocolatey: paket tayyor (packaging/chocolatey), e'lon qilinishi kutilmoqda
+scoop bucket add dtwinuz https://github.com/dtwinuz/scoop-bucket
+scoop install dtwinuz/bitg   # Scoop: ishlaydi, relizdan keyin o'zi yangilanadi
+winget install bitg          # Microsoft katalogida ko'rib chiqilmoqda: microsoft/winget-pkgs#478645
+choco install bitg           # Chocolatey: community.chocolatey.org moderatsiyasida
 ```
 
 Chocolatey parametrlari: `--params "'/NoAutostart /NoKeyboard'"` (MSI'dagi `AUTOSTART=0`, `ADDKEYBOARD=0`).
