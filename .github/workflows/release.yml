@@ -120,6 +120,29 @@ jobs:
           [ "$n" -eq 11 ] || { ls -l; echo "reliz fayllari 11 ta bo'lishi kerak, bor: $n"; exit 1; }
           gh release create "$TAG" ./* -R "$REPO" --title "bitg ${TAG#v}" --generate-notes --verify-tag
 
+  crates-io:
+    # bitg-core crates.io'ga Trusted Publishing (OIDC) bilan chiqadi: repoda token saqlanmaydi.
+    # crates.io sozlamasi: dtwinuz/bitg, release.yml, environment crates-io (faqat v* teglar).
+    if: github.event_name == 'push'
+    needs: publish
+    runs-on: ubuntu-24.04
+    environment: crates-io
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+        id: auth
+      - run: cargo publish -p bitg-core --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+
   announce:
     if: github.event_name == 'push'
     needs: publish
