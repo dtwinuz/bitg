@@ -18,7 +18,7 @@ makedepends=(cargo ibus fcitx5 pkgconf)
 # Rust staticlib (libbitg_ime.a, o'zi LTO bilan) C/C++ qobiqqa bog'lanadi: makepkg'ning -flto'si bilan aralashtirmaymiz
 options=(!lto)
 source=("$pkgbase-$pkgver.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('46d315b2ff667789917d167d85e896145c25e7dd2c50ca4a947df96f4adaeda3')
+sha256sums=('7ddabac2501919996d37b7b0c0d9e1fd79d9723a413c45de1c76592db4e84b0e')
 
 prepare() {
   cd "$pkgbase-$pkgver"
