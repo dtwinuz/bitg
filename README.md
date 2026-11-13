@@ -6,6 +6,7 @@
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#litsenziya)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dtwinuz/bitg/badge)](https://scorecard.dev/viewer/?uri=github.com/dtwinuz/bitg)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16620/badge)](https://www.bestpractices.dev/projects/16620)
+[![REUSE status](https://api.reuse.software/badge/github.com/dtwinuz/bitg)](https://api.reuse.software/info/github.com/dtwinuz/bitg)
 [![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
 
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
