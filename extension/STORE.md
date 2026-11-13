@@ -116,6 +116,10 @@ Note: Google Docs draws text on a canvas, so convert-while-typing does not work 
 
 ## Skrinshotlar
 
+Tayyor uz to'plami: `store-assets/` (shot-1-popup, shot-2-selection, shot-3-page 1280×800; promo-small 440×280,
+promo-marquee 1400×560; 24-bit RGB, alfa yo'q). Qayta yaratish — `tools/store-assets.cjs` (haqiqiy kengaytma
+Chromium'da, smoke.cjs bilan bir xil sozlama).
+
 Chrome/Edge: 1280×800 (yoki 640×400), PNG, 3–5 ta; AMO: istalgan o'lcham, 1280×800 tavsiya. Har til uchun alohida
 (interfeys tilini popup'da almashtirib). Popup'ning o'zi `SHOTS=<papka> node extension/test/smoke.cjs` bilan
 olinadi; to'liq kadr uchun brauzer oynasida qo'lda.
