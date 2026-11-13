@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 {
-	admin off
+	# faqat konteyner ichida (port ochilmagan): deploy.sh `caddy reload` uchun ishlatadi
+	admin localhost:2019
+	# grace_period ataylab yo'q: reload'da eski ulanishlar oxirigacha kutiladi (sekin yuklash uzilmaydi);
+	# to'xtatish esa compose'dagi stop_grace_period bilan chegaralangan
 	auto_https off
 	servers {
 		# dtwin edge (docker tarmog'i, xususiy IP) haqiqiy mijoz IP'sini X-Forwarded-For'da beradi
@@ -13,7 +16,8 @@
 }
 
 :80 {
-	root * /srv
+	# symlink: deploy.sh har relizda atomik almashtiradi
+	root * /www/current
 	encode zstd gzip
 
 	# tools/site/build.py css/js manzillariga, page.js/app.js wasm'ga ?v=<sha> qo'shadi — uzoq kesh xavfsiz

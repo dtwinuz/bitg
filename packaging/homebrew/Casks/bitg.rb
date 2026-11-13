@@ -1,6 +1,6 @@
 cask "bitg" do
-  version "0.3.0"
-  sha256 "e9e0046317ef9a83439fe3bf913556759054133f7fb393722238d2dafce6d9fd"
+  version "0.3.1"
+  sha256 "ec0d84412f1a5b440c41c4a17d1a12d8f76f73ec6ea32846df3a2c7961b207c4"
 
   url "https://github.com/dtwinuz/bitg/releases/download/v#{version}/bitg-#{version}-macos.pkg",
       verified: "github.com/dtwinuz/bitg/"

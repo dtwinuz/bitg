@@ -32,6 +32,37 @@ jobs:
       - run: cargo test --locked -p bitg-ime
       - name: bitg.app va .pkg
         run: macos/build.sh
+      - name: Reproducible build
+        run: |
+          b="$RUNNER_TEMP/second"
+          git worktree add --detach "$b" HEAD
+          (cd "$b" && macos/build.sh >/dev/null)
+          n=$(basename target/macos/bitg-*-macos.pkg)
+          a=$(shasum -a 256 < "target/macos/$n" | cut -d' ' -f1); c=$(shasum -a 256 < "$b/target/macos/$n" | cut -d' ' -f1)
+          echo "$n  $a  $c"
+          { echo '### Reproducible .pkg'; echo '```'; echo "$a  $n"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$a" != "$c" ]; then
+            # ikki nusxa: xar TOC, xar ichidagi fayllar (siqilgan Payload ham), ochilgan Payload va stage binarlari
+            for d in 1 2; do
+              t="$PWD"; [ $d = 2 ] && t="$b"
+              x="$RUNNER_TEMP/x$d"; mkdir -p "$x/raw"
+              xar --dump-toc="$x/toc.xml" -f "$t/target/macos/$n"
+              (cd "$x/raw" && xar -xf "$t/target/macos/$n")
+              pkgutil --expand-full "$t/target/macos/$n" "$x/full"
+              (cd "$t/target/macos" && find bin stage -type f -exec shasum -a 256 {} + | sort -k2) > "$x/stage.txt"
+            done
+            echo '--- TOC'; diff "$RUNNER_TEMP/x1/toc.xml" "$RUNNER_TEMP/x2/toc.xml" || true
+            for p in raw full; do
+              echo "--- $p"
+              diff <(cd "$RUNNER_TEMP/x1/$p" && find . -type f -exec shasum -a 256 {} + | sort -k2) \
+                   <(cd "$RUNNER_TEMP/x2/$p" && find . -type f -exec shasum -a 256 {} + | sort -k2) || true
+            done
+            echo '--- stage'; diff "$RUNNER_TEMP/x1/stage.txt" "$RUNNER_TEMP/x2/stage.txt" || true
+            for f in raw/Payload raw/Bom raw/PackageInfo raw/Scripts; do
+              cmp -l "$RUNNER_TEMP/x1/$f" "$RUNNER_TEMP/x2/$f" 2>/dev/null | head -8 | sed "s|^|$f |" || true
+            done
+            exit 1
+          fi
       - name: Sinov (Session.swift + dvigatel)
         run: target/macos/bitg-test
       - name: O'rnatish

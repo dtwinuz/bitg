@@ -28,13 +28,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
-          components: clippy, rustfmt, llvm-tools-preview
+          components: clippy, rustfmt
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Install cargo-llvm-cov
-        if: runner.os == 'Linux'
-        uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
-        with:
-          tool: cargo-llvm-cov@0.9.1
       # har faylda litsenziya va copyright (REUSE 3.3): kod — SPDX sarlavha, qolgani — REUSE.toml
       - name: REUSE
         if: runner.os == 'Linux'
@@ -42,15 +37,6 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
-      # satr qamrovi (Linux'da kompilyatsiya bo'ladigan kod): pastga tushsa CI qizil; hisobot — job summary
-      - name: Coverage
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          cargo llvm-cov --workspace --summary-only --fail-under-lines "$MIN_LINES" | tee "$RUNNER_TEMP/cov.txt"
-          { echo '### Test coverage'; echo '```'; tail -n 25 "$RUNNER_TEMP/cov.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-        env:
-          MIN_LINES: 90
       - run: cargo build --release -p bitg-cli
       - name: Smoke
         shell: bash
@@ -88,3 +74,27 @@ jobs:
           cargo build --manifest-path bot/Cargo.toml --locked --release
           python3 -I bot/test/e2e.py bot/target/release/bitg-bot
           sh -n bot/set-token.sh && bash -n deploy/deploy-bot.sh
+
+  # Satr va tarmoq (branch) qamrovi, Linux'da kompilyatsiya bo'ladigan kod. --branch hozircha faqat nightly'da:
+  # sana qotirilgan. Chegaradan pastga tushsa CI qizil; fayllar jadvali — job summary.
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: nightly-2026-10-30
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
+        with:
+          tool: cargo-llvm-cov@0.9.1
+      - name: Coverage
+        shell: bash
+        run: |
+          cargo llvm-cov --workspace --branch --json --summary-only --output-path "$RUNNER_TEMP/cov.json"
+          { echo '### Test coverage'; echo; python3 -I tools/coverage_gate.py "$RUNNER_TEMP/cov.json" \
+              --min-lines "$MIN_LINES" --min-branches "$MIN_BRANCHES"; } | tee -a "$GITHUB_STEP_SUMMARY"
+        env:
+          MIN_LINES: 95
+          MIN_BRANCHES: 90

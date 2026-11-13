@@ -239,6 +239,67 @@ mod tests {
     }
 
     #[test]
+    fn ignores_malformed_lines() {
+        let s = Settings::parse(
+            "\n\nenabled\nauto_convert = no\ntutuq=ab\ntutuq=\nrestore_apostrophes=off\nundo_backspace=false\n",
+            "\n#x\n  Choy  \n\n",
+        );
+        assert_eq!(
+            s,
+            Settings {
+                auto_convert: false,
+                restore_apostrophes: false,
+                undo_backspace: false,
+                exceptions: vec!["choy".to_string()],
+                ..Settings::default()
+            }
+        );
+        assert!(!s.converting());
+    }
+
+    fn temp(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("bitg-ime-{name}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        dir
+    }
+
+    #[test]
+    fn refresh_reads_only_changed_files() {
+        let dir = temp("refresh");
+        fs::create_dir_all(&dir).unwrap();
+        let mut w = Watched::new(Some(dir.clone()));
+        assert!(!w.refresh(), "bir sekund ichida tekshirilmaydi");
+        w.checked = None;
+        assert!(!w.refresh());
+        fs::write(dir.join("settings.ini"), "cyrillic=0\n").unwrap();
+        assert!(!w.refresh());
+        w.checked = None;
+        assert!(w.refresh());
+        assert!(!w.settings.cyrillic);
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn remember_without_dir_or_trailing_newline() {
+        let mut w = Watched::new(None);
+        w.remember("choy").unwrap();
+        assert_eq!(w.settings, Settings::default());
+
+        let dir = temp("append");
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("exceptions.txt"), "shop").unwrap();
+        let mut w = Watched::new(Some(dir.clone()));
+        w.remember("chat").unwrap();
+        w.remember("bog'").unwrap();
+        assert_eq!(
+            fs::read_to_string(dir.join("exceptions.txt")).unwrap(),
+            "shop\nchat\nbog'\n"
+        );
+        assert_eq!(w.settings.exceptions, ["bog'", "chat", "shop"]);
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn remembers_exception_once() {
         let dir = std::env::temp_dir().join(format!("bitg-ime-test-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);

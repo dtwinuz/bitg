@@ -131,14 +131,10 @@ pub fn is_protected(token: &str) -> bool {
         .iter()
         .filter(|c| c.is_alphabetic())
         .all(|c| c.is_uppercase());
-    if !all_upper
+    !all_upper
         && chars
             .windows(2)
             .any(|w| is_apostrophe(w[0]) && w[1].is_uppercase())
-    {
-        return true;
-    }
-    false
 }
 
 /// Ism bosh harflari + familiya: "A.Lukashenko", "Sh.Sharipov", "O'.Turmatov", "A.B.Karimov".
@@ -228,5 +224,13 @@ mod tests {
         ] {
             assert!(!is_protected(t), "{t}");
         }
+    }
+
+    #[test]
+    fn protected_domain_after_apostrophe_and_number_suffix() {
+        assert!(is_protected("bog'.uz"));
+        assert!(!is_protected("bog'.xx"));
+        assert!(is_protected("5-sinf2"));
+        assert!(!is_protected("3-o'rin"));
     }
 }

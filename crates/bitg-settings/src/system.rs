@@ -9,7 +9,9 @@
 //! o'rnatish, ishlab chiqish) — eski yo'l: `HKCU\...\Run`.
 
 use windows::Win32::Foundation::{ERROR_ALREADY_EXISTS, GetLastError, HANDLE};
-use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
+use windows::Win32::System::LibraryLoader::{
+    GetProcAddress, LOAD_LIBRARY_SEARCH_SYSTEM32, LoadLibraryExW,
+};
 use windows::Win32::System::Registry::{
     HKEY, HKEY_CLASSES_ROOT, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, REG_DWORD, REG_SZ, RRF_RT_ANY,
     RRF_RT_REG_DWORD, RRF_RT_REG_SZ, RegDeleteKeyValueW, RegGetValueW, RegSetKeyValueW,
@@ -182,7 +184,9 @@ pub fn set_autostart(on: bool) -> windows::core::Result<()> {
 /// kerak bo'lsa O'zbek (lotin) tilini ham qo'shadi).
 pub fn add_keyboard() -> bool {
     type InstallLayoutOrTip = unsafe extern "system" fn(PCWSTR, u32) -> BOOL;
-    let Ok(lib) = (unsafe { LoadLibraryW(w!("input.dll")) }) else {
+    // Faqat System32 dan: ilova papkasi yoki joriy papkadagi soxta input.dll yuklanmasin.
+    let Ok(lib) = (unsafe { LoadLibraryExW(w!("input.dll"), None, LOAD_LIBRARY_SEARCH_SYSTEM32) })
+    else {
         return false;
     };
     let Some(p) = (unsafe { GetProcAddress(lib, s!("InstallLayoutOrTip")) }) else {

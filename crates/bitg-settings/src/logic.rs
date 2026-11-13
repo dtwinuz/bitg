@@ -430,14 +430,21 @@ mod tests {
     #[test]
     fn hotkey_settings_round_trip() {
         let c = config_from(&json!({}), &[]);
-        assert!(c.hotkey && c.hotkey_keys == "ctrl+shift+y" && c.hotkey_old_keys.is_empty());
+        assert_eq!(
+            (c.hotkey, c.hotkey_keys.as_str(), c.hotkey_old_keys.as_str()),
+            (true, "ctrl+shift+y", "")
+        );
         let c = config_from(
             &json!({"hotkey": false, "hotkey_keys": "Ctrl+Shift+B", "hotkey_old_keys": "ctrl+shift+o"}),
             &[],
         );
-        assert!(
-            !c.hotkey && c.hotkey_keys == "ctrl+shift+b" && c.hotkey_old_keys == "ctrl+shift+o"
+        assert_eq!(
+            (c.hotkey, c.hotkey_keys.as_str(), c.hotkey_old_keys.as_str()),
+            (false, "ctrl+shift+b", "ctrl+shift+o")
         );
+        let mut v = settings_json(&c);
+        v["hotkey_old_keys"] = json!(" ");
+        assert_eq!(config_from(&v, &[]).hotkey_old_keys, "");
         let v = settings_json(&c);
         assert_eq!(v["hotkey"], false);
         let back = config_from(&v, &[]);
@@ -468,8 +475,35 @@ mod tests {
             &json!({"layout": "custom", "keymap": true, "auto_convert": false}),
             &[],
         );
-        assert!(c.keymap && !c.auto_convert && c.layout == "custom");
+        assert_eq!(
+            (c.keymap, c.auto_convert, c.layout.as_str()),
+            (true, false, "custom")
+        );
         assert_eq!(config_from(&json!({"layout": "x"}), &[]).layout, "tilmoch");
+        assert!(keymap_from(&json!(null)).is_empty());
+        assert!(keymap_from(&json!(["["])).is_empty());
+        let own = custom_keymap("[ x X - -\n");
+        assert_eq!(own.get(0x1A, 0), Some('x'));
+        assert_eq!(own.get(0x1B, 0), None);
+    }
+
+    #[test]
+    fn config_from_drops_duplicate_apps() {
+        let c = config_from(
+            &json!({"disabled_apps": ["a.exe", "A.EXE", "b.exe"], "tutuq": "'"}),
+            &["Choy".to_string()],
+        );
+        assert_eq!(c.disabled_apps, vec!["a.exe", "b.exe"]);
+        assert_eq!(c.opts.tutuq, '\'');
+        assert_eq!(c.opts.exceptions, vec!["choy"]);
+    }
+
+    #[test]
+    fn preview_of_empty_text() {
+        let v = preview(&json!({"text": ""}));
+        assert_eq!(v["out"], "");
+        assert_eq!(v["id"], Value::Null);
+        assert_eq!(v["segments"], json!([]));
     }
 
     #[test]
@@ -499,6 +533,21 @@ mod tests {
         assert_eq!(code.unwrap()["n"], 1);
         // UTC+5: 01:00 UTC = 06:00 mahalliy, "kecha" o'sha-o'sha.
         assert_eq!(stats(&log, now, 5 * 3600)["today"], 1);
+    }
+
+    #[test]
+    fn stats_skip_malformed_lines() {
+        let log = "abc pid=1 Telegram.exe converted\n\
+                   5 proc=1 Telegram.exe converted\n\
+                   6 pid=1 yolgiz\n\
+                   7 pid=1 app converted\n";
+        let v = stats(log, 7, 0);
+        assert_eq!(v["total"], 1);
+        assert_eq!(v["since"], 7);
+        assert_eq!(v["apps"], json!([{"exe": "app", "n": 1, "last": 7}]));
+        let empty = stats("", 7, 0);
+        assert_eq!(empty["total"], 0);
+        assert_eq!(empty["since"], Value::Null);
     }
 
     #[test]

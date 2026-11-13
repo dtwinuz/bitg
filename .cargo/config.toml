@@ -5,11 +5,13 @@
 # Statik CRT: IME DLL har qanday dastur ichida yuklanadi — VC++ Redistributable o'rnatilmagan toza
 # kompyuterda ham (VCRUNTIME140.dll yo'q) ishlashi kerak.
 [target.x86_64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=/Brepro", "-C", "link-arg=/PDBALTPATH:%_PDB%"]
+
+# /Brepro va /PDBALTPATH: PE vaqt belgisi, PDB GUID va PDB yo'li qurilishdan qurilishga o'zgarmasin (takrorlanuvchan MSI).
 
 # 32-bit dasturlar (eski 1C, ba'zi bank mijozlari) faqat 32-bit IME DLL'ni yuklaydi.
 [target.i686-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=/Brepro", "-C", "link-arg=/PDBALTPATH:%_PDB%"]
 
 [target.aarch64-pc-windows-msvc]
-rustflags = ["-C", "target-feature=+crt-static"]
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=/Brepro", "-C", "link-arg=/PDBALTPATH:%_PDB%"]

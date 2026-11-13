@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: aur
+
+# packaging/aur/PKGBUILD AUR'ga yuborishdan oldin toza Arch konteynerida manbadan yig'iladi (check() bilan),
+# namcap, .SRCINFO mosligi, o'rnatish, ishlatish va o'chirish tekshiriladi.
+on:
+  pull_request:
+    paths: ["packaging/aur/**", ".github/workflows/aur.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  makepkg:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # archlinux:base-devel (rolling) — digest qotirilgan; pacman -Syu baribir eng yangi paketlarni oladi
+    container: archlinux:base-devel@sha256:fa2d4ce3310ddd90a4208e5168be8ad367da5129af1245f38fd2d803bcbe3239
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Paketlar va yig'uvchi foydalanuvchi
+        run: |
+          pacman -Syu --noconfirm --needed namcap
+          useradd -m builder
+          echo 'builder ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/builder
+          cp -r packaging/aur /home/builder/aur && chown -R builder: /home/builder/aur
+      - name: .SRCINFO PKGBUILD bilan bir xil
+        working-directory: /home/builder/aur
+        run: |
+          sudo -u builder makepkg --printsrcinfo > /tmp/SRCINFO
+          diff -u .SRCINFO /tmp/SRCINFO
+      - name: namcap (PKGBUILD)
+        working-directory: /home/builder/aur
+        run: namcap PKGBUILD
+      - name: makepkg (manbadan, check() bilan)
+        working-directory: /home/builder/aur
+        run: sudo -u builder makepkg --syncdeps --noconfirm --cleanbuild
+      - name: namcap (paketlar)
+        working-directory: /home/builder/aur
+        run: for p in *.pkg.tar.zst; do echo "== $p"; namcap "$p"; done
+      - name: O'rnatish, sinov, o'chirish
+        working-directory: /home/builder/aur
+        run: |
+          pacman -U --noconfirm ./bitg-[0-9]*.pkg.tar.zst ./fcitx5-bitg-[0-9]*.pkg.tar.zst
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          test -x /usr/lib/ibus/ibus-engine-bitg
+          grep -q '<exec>/usr/lib/ibus/ibus-engine-bitg --ibus</exec>' /usr/share/ibus/component/bitg.xml
+          # `! cmd` bash -e ni to'xtatmaydi, shuning uchun if bilan
+          if grep -q '@VERSION@' /usr/share/ibus/component/bitg.xml /usr/share/fcitx5/addon/bitg.conf; then exit 1; fi
+          ldd -r /usr/lib/fcitx5/bitg.so 2>&1 | tee /tmp/ldd.txt
+          if grep -q 'undefined symbol' /tmp/ldd.txt; then exit 1; fi
+          nm -D --defined-only /usr/lib/fcitx5/bitg.so | grep -q ' fcitx_addon_factory_instance$'
+          pacman -R --noconfirm fcitx5-bitg bitg
+          test ! -e /usr/bin/bitg && test ! -e /usr/lib/fcitx5/bitg.so
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        with:
+          name: aur
+          path: |
+            /home/builder/aur/*.pkg.tar.zst
+            /tmp/SRCINFO
+          if-no-files-found: warn

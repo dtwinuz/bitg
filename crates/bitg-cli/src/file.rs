@@ -321,4 +321,12 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn line_count_change_falls_back_to_words() {
+        assert_eq!(
+            line_changes("choy\nbor", "çoy bor"),
+            [(0, "choy\nbor".into(), "çoy bor".into())]
+        );
+    }
 }

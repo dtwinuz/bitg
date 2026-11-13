@@ -22,6 +22,7 @@
   <Package Name="bitg"
            Manufacturer="dtwinuz"
            Version="$(Version)"
+           ProductCode="$(ProductCode)"
            UpgradeCode="{80B9514E-EB2C-4EA5-B42A-CECB40A16979}"
            Scope="perMachine"
            Language="1033"

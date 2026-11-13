@@ -6,13 +6,16 @@
 //! /yuklash bilan kompyuter dasturiga yo'l ko'rsatadi, /fikr bilan xato va takliflarni adminlarga yetkazadi.
 //! Long polling (getUpdates) — serverda kiruvchi port kerak emas.
 //! Muhit: BOT_TOKEN (majburiy), ADMIN_IDS (vergul bilan; fikrlar shu chatlarga keladi, ular botga /start
-//! yozgan bo'lishi kerak), NEWS_CHANNEL (standart bitguz), SITE_URL (standart https://bitg.uz), API_URL (faqat sinov).
+//! yozgan bo'lishi kerak), NEWS_CHANNEL (standart bitguz), SITE_URL (standart https://bitg.uz),
+//! STATE_DIR (ixtiyoriy: /fikr kutish holati va admin suhbatlari state.json da, tiriklik belgisi `alive`
+//! faylida — bitg-stats shu fayl bilan kuzatadi), API_URL (faqat sinov).
 //! Token URL ichida bo'ladi, shuning uchun xato matnida URL hech qachon chiqarilmaydi.
 
 use std::collections::{HashMap, VecDeque};
 use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::time::{Duration, Instant};
-use std::{env, process, thread};
+use std::path::{Path, PathBuf};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::{env, fs, io, process, thread};
 
 use bitg_core::{OldStyle, Options, convert, to_old};
 use serde_json::{Value, json};
@@ -25,6 +28,8 @@ const FEEDBACK_WAIT: Duration = Duration::from_secs(15 * 60);
 const FEEDBACK_GAP: Duration = Duration::from_secs(20);
 /// Adminga yuborilgan xabar -> foydalanuvchi: shuncha oxirgi yozuv eslab qolinadi.
 const THREADS_MAX: usize = 2000;
+/// `alive` fayli shuncha vaqtda bir yangilanadi (getUpdates muvaffaqiyatli bo'lsa).
+const BEAT: Duration = Duration::from_secs(30);
 const ISSUES: &str = "https://github.com/dtwinuz/bitg/issues/new/choose";
 
 struct Bot {
@@ -35,13 +40,17 @@ struct Bot {
     news: String,
     opts: Options,
     admins: Vec<i64>,
-    waiting: HashMap<i64, Instant>,
+    /// chat -> /fikr bosilgan vaqt (unix soniya; qayta ishga tushishdan keyin ham tiklanadi)
+    waiting: HashMap<i64, u64>,
     last_feedback: HashMap<i64, Instant>,
     /// (admin chat, admindagi xabar id) -> foydalanuvchi chat id
     threads: VecDeque<((i64, i64), i64)>,
     seen_msg: u64,
     seen_inline: u64,
     seen_feedback: u64,
+    state_dir: Option<PathBuf>,
+    state_err: bool,
+    last_beat: Option<Instant>,
 }
 
 impl Bot {
@@ -146,7 +155,8 @@ impl Bot {
             );
             return;
         }
-        self.waiting.insert(chat, Instant::now());
+        self.waiting.insert(chat, unix_now());
+        self.persist();
         self.send(
             chat,
             None,
@@ -161,6 +171,81 @@ impl Bot {
             self.threads.pop_front();
         }
         self.threads.push_back(((admin, msg), user));
+        self.persist();
+    }
+
+    // ------------------------------------------------------------------ holat (STATE_DIR)
+
+    fn io_result(&mut self, what: &str, r: io::Result<()>) {
+        match r {
+            Ok(()) => self.state_err = false,
+            // bir marta yoziladi: disk to'lsa har 30 s da jurnalni to'ldirmasin
+            Err(e) if !self.state_err => {
+                eprintln!("xato: {what} yozilmadi: {e}");
+                self.state_err = true;
+            }
+            Err(_) => {}
+        }
+    }
+
+    fn persist(&mut self) {
+        let Some(dir) = self.state_dir.clone() else {
+            return;
+        };
+        let waiting: Vec<Value> = self.waiting.iter().map(|(c, t)| json!([c, t])).collect();
+        let threads: Vec<Value> = self
+            .threads
+            .iter()
+            .map(|((a, m), u)| json!([a, m, u]))
+            .collect();
+        let body = json!({ "waiting": waiting, "threads": threads }).to_string();
+        let r = write_atomic(&dir.join("state.json"), &body);
+        self.io_result("state.json", r);
+    }
+
+    fn restore(&mut self) {
+        let Some(dir) = &self.state_dir else { return };
+        let Ok(raw) = fs::read_to_string(dir.join("state.json")) else {
+            return;
+        };
+        let Ok(v) = serde_json::from_str::<Value>(&raw) else {
+            eprintln!("xato: state.json o'qilmadi, bo'sh holatdan boshlanadi");
+            return;
+        };
+        let now = unix_now();
+        for w in v["waiting"].as_array().into_iter().flatten() {
+            if let (Some(c), Some(t)) = (w[0].as_i64(), w[1].as_u64())
+                && now.saturating_sub(t) < FEEDBACK_WAIT.as_secs()
+            {
+                self.waiting.insert(c, t);
+            }
+        }
+        for t in v["threads"].as_array().into_iter().flatten() {
+            if let (Some(a), Some(m), Some(u)) = (t[0].as_i64(), t[1].as_i64(), t[2].as_i64()) {
+                self.threads.push_back(((a, m), u));
+            }
+        }
+        while self.threads.len() > THREADS_MAX {
+            self.threads.pop_front();
+        }
+        println!(
+            "holat tiklandi: {} fikr kutilmoqda, {} suhbat",
+            self.waiting.len(),
+            self.threads.len()
+        );
+    }
+
+    /// Tiriklik belgisi: bitg-stats `alive` eskirsa @bitgdevbot orqali ogohlantiradi.
+    fn heartbeat(&mut self) {
+        if self.last_beat.is_some_and(|t| t.elapsed() < BEAT) {
+            return;
+        }
+        let Some(dir) = self.state_dir.clone() else {
+            return;
+        };
+        self.last_beat = Some(Instant::now());
+        let r = write_atomic(&dir.join("alive"), &format!("{}\n", unix_now()));
+        self.io_result("alive", r);
     }
 
     /// Admin qaysi foydalanuvchiga javob beryapti: eslab qolingan xabar yoki sarlavhadagi "id 123".
@@ -317,10 +402,12 @@ impl Bot {
         if private
             && !command
             && let Some(t) = self.waiting.remove(&chat)
-            && t.elapsed() < FEEDBACK_WAIT
         {
-            self.deliver(m);
-            return;
+            self.persist();
+            if unix_now().saturating_sub(t) < FEEDBACK_WAIT.as_secs() {
+                self.deliver(m);
+                return;
+            }
         }
 
         let Some(text) = text else { return };
@@ -369,6 +456,9 @@ impl Bot {
                 }
                 "bekor" => {
                     let had = self.waiting.remove(&chat).is_some();
+                    if had {
+                        self.persist();
+                    }
                     self.send(chat, reply_to, if had { "Bekor qilindi." } else { "Bekor qiladigan narsa yo‘q." }, false);
                 }
                 "yuklash" | "download" => self.downloads(chat, reply_to),
@@ -481,6 +571,19 @@ fn parse_ids(s: &str) -> Vec<i64> {
     s.split(',').filter_map(|x| x.trim().parse().ok()).collect()
 }
 
+fn unix_now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs())
+}
+
+/// Yarim yozilgan fayl qolmasin: vaqtinchalik faylga yozib, nomini almashtiramiz.
+fn write_atomic(path: &Path, body: &str) -> io::Result<()> {
+    let tmp = path.with_extension("tmp");
+    fs::write(&tmp, body)?;
+    fs::rename(&tmp, path)
+}
+
 fn has_new(s: &str) -> bool {
     s.chars().any(|c| "öğşçÖĞŞÇ".contains(c))
 }
@@ -555,7 +658,14 @@ fn main() {
         seen_msg: 0,
         seen_inline: 0,
         seen_feedback: 0,
+        state_dir: env::var("STATE_DIR")
+            .ok()
+            .filter(|s| !s.trim().is_empty())
+            .map(PathBuf::from),
+        state_err: false,
+        last_beat: None,
     };
+    bot.restore();
 
     match bot.call("getMe", json!({})) {
         Ok(me) => {
@@ -582,6 +692,7 @@ fn main() {
         let poll = json!({ "offset": offset, "timeout": 50, "allowed_updates": ["message", "inline_query"] });
         match bot.call("getUpdates", poll) {
             Ok(Value::Array(updates)) => {
+                bot.heartbeat();
                 for u in updates {
                     if let Some(id) = u["update_id"].as_i64() {
                         offset = offset.max(id + 1);
@@ -607,8 +718,13 @@ fn main() {
                     );
                 }
                 let now = Instant::now();
+                let unix = unix_now();
+                let before = bot.waiting.len();
                 bot.waiting
-                    .retain(|_, t| now.duration_since(*t) < FEEDBACK_WAIT);
+                    .retain(|_, t| unix.saturating_sub(*t) < FEEDBACK_WAIT.as_secs());
+                if bot.waiting.len() != before {
+                    bot.persist();
+                }
                 bot.last_feedback
                     .retain(|_, t| now.duration_since(*t) < FEEDBACK_GAP);
             }

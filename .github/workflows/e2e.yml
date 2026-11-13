@@ -30,6 +30,27 @@ jobs:
         shell: pwsh
         run: ./installer/build.ps1
 
+      - name: Reproducible build
+        shell: pwsh
+        run: |
+          $b = Join-Path $env:RUNNER_TEMP 'second'
+          git worktree add --detach $b HEAD
+          if ($LASTEXITCODE) { throw 'git worktree' }
+          Push-Location $b
+          ./installer/build.ps1 | Out-Null
+          Pop-Location
+          $n = (Get-ChildItem dist/*.msi | Select-Object -First 1).Name
+          $a = (Get-FileHash "dist/$n").Hash.ToLower(); $c = (Get-FileHash "$b/dist/$n").Hash.ToLower()
+          "$n  $a  $c"
+          "### Reproducible .msi`n``````n$a  $n`n``````" | Add-Content $env:GITHUB_STEP_SUMMARY
+          if ($a -ne $c) {
+            foreach ($f in 'release/bitg_tsf.dll', 'release/bitg-settings.exe', 'release/bitg.exe',
+                           'i686-pc-windows-msvc/release/bitg_tsf.dll') {
+              "$f  $((Get-FileHash "target/$f").Hash)  $((Get-FileHash "$b/target/$f").Hash)"
+            }
+            throw 'MSI takrorlanmadi'
+          }
+
       - name: O'rnatish
         shell: pwsh
         run: |

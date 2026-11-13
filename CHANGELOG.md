@@ -5,6 +5,33 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [Unreleased]
 
 ### Qo'shildi
+- CI `coverage` job'i: tarmoq (branch) qamrovi ≥ 90 % va satrlar ≥ 95 % (hozir 94.8 % va 97.2 %) (`cargo llvm-cov --branch`, nightly sanasi
+  qotirilgan; fayllar jadvali job summary'da). Yadro, CLI, IME va sozlamalar uchun yangi testlar.
+- **Takrorlanadigan MSI va `.pkg`:** `.deb` kabi, bir commit'dan istalgan papkada bayt-mayt bir xil o'rnatuvchi.
+  MSI: `/Brepro`, yo'l prefikslari, fayl vaqtlari commit vaqtida, ProductCode/PackageCode versiya va fayllardan
+  (UUIDv5). `.pkg`: yo'l prefikslari (Rust, Swift `#file`), fayl vaqtlari, xar TOC vaqtlari
+  (`tools/xar_normalize.py`). `macos` va `e2e` workflow'lari ikki marta yig'ib solishtiradi.
+- Xavfsizlik tekshiruvi 2026-11-13 (`docs/ASSURANCE.md` 8-bo'lim): 11 topilma, kritik va yuqori yo'q.
+
+### Xavfsizlik
+- Reliz job'i: token `.git/config`da qolmaydi, imzo kaliti faqat kompilyatsiya qilmaydigan qadamda, teg nomi
+  skriptga `env` orqali beriladi.
+- `input.dll` faqat System32 dan yuklanadi; zaxira yo'lda so'z buferi 40 belgidan oshmaydi.
+
+### Tuzatildi
+- **`bitg file`: zip-bomba himoyasi** ([#27](https://github.com/dtwinuz/bitg/issues/27)). O'giriladigan har XML
+  qism ochilganda 256 MiB dan oshsa, o'girish xato bilan to'xtaydi (xotira to'lib qolmaydi). O'girilmaydigan
+  qismlar avvalgidek ochilmasdan ko'chiriladi.
+
+## [0.3.1] — 2026-11-13
+
+Asosiysi: Windows'da bitg o'z-o'zidan inglizcha klaviaturaga o'tib ketmaydi ([#13](https://github.com/dtwinuz/bitg/issues/13)),
+parol, PIN va email maydonlariga tegmaydi ([#26](https://github.com/dtwinuz/bitg/issues/26)),
+har reliz fayli imzolangan kelib chiqish (provenance) bilan tekshiriladi.
+
+### Qo'shildi
+- **Takrorlanadigan `.deb`:** bir commit'dan istalgan papkada bayt-mayt bir xil paket (`SOURCE_DATE_EPOCH`, yo'l
+  prefikslari); `linux` workflow har PR'da ikki marta yig'ib solishtiradi.
 - **Reliz fayllarini tekshirish:** har MSI, `.deb` va `.pkg` uchun SLSA build provenance va SBOM attestation'i (`gh attestation verify <fayl> -R dtwinuz/bitg`), relizga `bitg-<versiya>.spdx.json` qo'shiladi.
 - OpenSSF Scorecard (haftalik, README belgisi), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1).
 - **Fuzzing:** `fuzz/` (cargo-fuzz, libFuzzer) — `convert` va `session` target'lari, boshlang'ich korpus `eval/` dan; `fuzz` workflow haftalik va yadro o'zgargan PR'da.
@@ -33,6 +60,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   har akkauntga logotipning o'z rangli varianti. @bitguz posti bitg'ning o'zi bilan yangi alifboga o'giriladi.
 - **@bitgapp** (mobil ilova kanali): "tez kunda" posti, telefonda hozir ishlaydigan yo'llar (@bitguzbot, Tilmoch),
   binafsha logotip; @bitguz tavsifidan havola.
+- **@bitguzbot qayta ishga tushsa ham `/fikr` yo'qolmaydi:** kutish holati va admin suhbatlari `STATE_DIR/state.json`
+  da saqlanadi. Bot har 30 soniyada tiriklik belgisini yozadi; `bitg-stats` u 5 daqiqadan eskirsa @bitgdevbot orqali
+  ogohlantiradi (kuzatuv jadvalida ham ko'rinadi).
+- **@bitguz rejali postlari:** `deploy/stats/posts/YYYY-MM-DD-nom.html` o'sha kuni 10:00 dan keyin bir marta chiqadi
+  (`bitg-stats`, @bitgdevbot). Birinchi seriya — sayt sahifalaridagi manbali faktlardan 8 ta post (alifbo, qonun
+  sanalari, hujjatlar, kompyuter va telefonda yozish, tutuq belgisi, maktab, inglizcha so'zlar).
 
 ### O'zgardi
 - Saytdagi "Telegram'da yozing" havolalari kanal (@bitguz, u yerga yozib bo'lmaydi) o'rniga @bitguzbot `/fikr` ga
@@ -41,6 +74,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   (`set-stats-env.sh` tokenni so'raydi; bir nechta admin chat — vergul bilan).
 
 ### Tuzatildi
+- **Windows maxfiy maydonlar ([#26](https://github.com/dtwinuz/bitg/issues/26)):** bitg maydon turini (`InputScope`) o'zi o'qiydi va parol, PIN, email maydonlarida, shuningdek dastur klaviatura kiritishini o'chirganda so'zlarni o'zgartirmaydi.
 - Docker image'lari digest bilan, `rustup-init` versiya va SHA-256 bilan qotirildi; Dependabot Docker'ni ham kuzatadi. `osv-scanner.toml`: Linux'da hech qachon yig'ilmaydigan glib zanjiri uchun asoslangan istisno.
 - `bot/Cargo.lock` bitg-core 0.3.0 ga yangilandi: eskisi bilan bot Docker'da (`--locked`) yig'ilmas edi.
 - `SECURITY.md`: qo'llab-quvvatlanadigan versiya 0.3.x; `release.yml` umumiy ruxsati `contents: read` ga tushirildi.
@@ -116,6 +150,7 @@ Birinchi ommaviy beta (Windows 10/11, x64).
 - MSI o'rnatuvchi (WiX 5): barcha foydalanuvchilar uchun, jim o'rnatish, `AUTOSTART` / `ADDKEYBOARD` xossalari.
 - O'lchov: o'zbekcha gaplar 98,87 %, inglizcha gaplar o'zgarmay qolishi 99,73 % (har biri 3 000 gap).
 
+[0.3.1]: https://github.com/dtwinuz/bitg/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dtwinuz/bitg/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dtwinuz/bitg/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/dtwinuz/bitg/releases/tag/v0.1.0

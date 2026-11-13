@@ -46,6 +46,9 @@ yozilmaydi, COM/FFI chegarasidan panic chiqmaydi.
 - Bitta PR — bitta mavzu; commit sarlavhasi qisqa va inglizcha yoki o'zbekcha (lotin).
 - CI (`ci`, `e2e`, `linux`) yashil bo'lishi kerak. Merge faqat squash.
 - Yangi xulq — test bilan; tuzatilgan xato — uni qaytaradigan regression test bilan.
+- Test qamrovi (Linux'da kompilyatsiya bo'ladigan kod): satrlar ≥ 95 %, tarmoqlar (branch) ≥ 90 % — CI `coverage`
+  job'i tekshiradi (`tools/coverage_gate.py`). Lokal: `cargo +nightly llvm-cov --workspace --branch`.
+  Faqat Windows/macOS qobig'i (TSF COM, IMK) real ilovada `e2e` va `linux` workflow'lari bilan sinanadi.
 - Har PR'ni muallifdan boshqa maintainer ko'rib chiqadi ([GOVERNANCE.md](GOVERNANCE.md)). Reviewer tekshiradi:
   testlar, `eval/` natijasi (yadro o'zgarsa), xavfsizlik talablari, hujjat (`README`, `CHANGELOG`).
 

@@ -187,6 +187,42 @@ mod tests {
         assert_eq!(apply(old, &hunks(old, new)), new);
     }
 
+    fn h(start: usize, end: usize, insert: &str) -> Hunk {
+        Hunk {
+            start,
+            end,
+            insert: insert.to_string(),
+        }
+    }
+
+    #[test]
+    fn empty_and_equal() {
+        assert!(hunks("", "").is_empty());
+        assert!(changed_words("", "").is_empty());
+        assert!(word_hunks(&['a', 'b'], &['a', 'b']).is_empty());
+    }
+
+    #[test]
+    fn deletion_and_different_segment_count() {
+        assert_eq!(hunks("a b", "ab"), [h(1, 2, "")]);
+        assert_eq!(hunks("abc", "b"), [h(0, 1, ""), h(2, 3, "")]);
+    }
+
+    #[test]
+    fn whitespace_moved_is_one_pair() {
+        assert_eq!(
+            changed_words("a ", " a"),
+            [("a ".to_string(), " a".to_string())]
+        );
+        assert_eq!(apply("a ", &hunks("a ", " a")), " a");
+    }
+
+    #[test]
+    fn long_word_is_one_hunk() {
+        let (a, b) = ("x".repeat(300), "y".repeat(300));
+        assert_eq!(hunks(&a, &b), [h(0, 300, &b)]);
+    }
+
     #[test]
     fn words_trim_punctuation() {
         assert_eq!(

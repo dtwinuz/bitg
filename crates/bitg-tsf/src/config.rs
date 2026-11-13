@@ -310,8 +310,29 @@ mod tests {
     #[test]
     fn defaults_when_empty() {
         let c = parse("", "");
-        assert!(c.enabled && c.undo_backspace && c.opts.english_guard && c.opts.cyrillic);
+        assert_eq!(
+            (
+                c.enabled,
+                c.undo_backspace,
+                c.opts.english_guard,
+                c.opts.cyrillic
+            ),
+            (true, true, true, true)
+        );
         assert_eq!(c.opts.tutuq, '\u{02BC}');
+    }
+
+    #[test]
+    fn skips_blank_and_semicolon_lines_and_bad_flags() {
+        let c = parse(
+            "\n; izoh\nenabled=maybe\nfallback=no\n   \nundo_remember=ha\n",
+            "\n\nChoy\n",
+        );
+        assert_eq!(
+            (c.enabled, c.fallback, c.undo_remember),
+            (true, false, true)
+        );
+        assert_eq!(c.opts.exceptions, vec!["choy".to_string()]);
     }
 
     #[test]
@@ -320,7 +341,10 @@ mod tests {
             "\u{FEFF}[bitg]\n# izoh\nenabled=0\nenglish_guard = off\ntutuq='\nundo_backspace=yo'q\nfoo=bar\nbroken\n",
             "Shoh\n# izoh\n  O‘zbekcha \nshoh\n",
         );
-        assert!(!c.enabled && !c.opts.english_guard && !c.undo_backspace);
+        assert_eq!(
+            (c.enabled, c.opts.english_guard, c.undo_backspace),
+            (false, false, false)
+        );
         assert!(c.opts.cyrillic);
         assert_eq!(c.opts.tutuq, '\'');
         assert_eq!(
@@ -332,15 +356,18 @@ mod tests {
     #[test]
     fn disabled_apps_default_and_override() {
         let c = parse("", "");
-        assert!(c.app_disabled("Termius.exe") && !c.app_disabled("Telegram.exe"));
+        assert!(c.app_disabled("Termius.exe"));
+        assert!(!c.app_disabled("Telegram.exe"));
         let c = parse(
             "disabled_apps=
 fallback=0",
             "",
         );
-        assert!(!c.app_disabled("Termius.exe") && !c.fallback);
+        assert!(!c.app_disabled("Termius.exe"));
+        assert!(!c.fallback);
         let c = parse("disabled_apps = Foo.exe; bar.exe", "");
-        assert!(c.app_disabled("foo.EXE") && c.app_disabled("bar.exe"));
+        assert!(c.app_disabled("foo.EXE"));
+        assert!(c.app_disabled("bar.exe"));
     }
 
     #[test]
@@ -351,8 +378,11 @@ fallback=0",
         );
         c.opts.restore_apostrophes = false;
         let back = parse(&to_ini(&c), "");
-        assert!(!back.enabled && !back.fallback && !back.opts.restore_apostrophes);
-        assert!(back.opts.english_guard && back.undo_backspace);
+        assert_eq!(
+            (back.enabled, back.fallback, back.opts.restore_apostrophes),
+            (false, false, false)
+        );
+        assert_eq!((back.opts.english_guard, back.undo_backspace), (true, true));
         assert_eq!(back.opts.tutuq, '\'');
         assert_eq!(back.disabled_apps, vec!["a.exe", "b.exe"]);
         let empty = parse(&to_ini(&parse("disabled_apps=", "")), "");
@@ -362,35 +392,52 @@ fallback=0",
     #[test]
     fn keymap_settings() {
         let c = parse("", "");
-        assert!(c.auto_convert && !c.keymap && c.layout == "tilmoch");
+        assert_eq!(
+            (c.auto_convert, c.keymap, c.layout.as_str()),
+            (true, false, "tilmoch")
+        );
         let c = parse(
             "auto_convert=0
 keymap=1
 layout=Turkish",
             "",
         );
-        assert!(!c.auto_convert && c.keymap && c.layout == "turkish");
+        assert_eq!(
+            (c.auto_convert, c.keymap, c.layout.as_str()),
+            (false, true, "turkish")
+        );
         let back = parse(&to_ini(&c), "");
-        assert!(!back.auto_convert && back.keymap && back.layout == "turkish");
+        assert_eq!(
+            (back.auto_convert, back.keymap, back.layout.as_str()),
+            (false, true, "turkish")
+        );
         assert_eq!(parse("layout=dvorak", "").layout, "tilmoch");
         let mut c = parse("layout=custom", "");
         assert_eq!(c.resolve_keymap("[ x X - -").get(0x1A, 0), Some('x'));
         c.layout = "altgr".into();
         assert_eq!(c.resolve_keymap("").get(0x18, 2), Some('ö'));
+        c.layout = "nope".into();
+        assert_eq!(c.resolve_keymap(""), keymap::preset("tilmoch").unwrap());
     }
 
     #[test]
     fn hotkey_settings() {
         let c = parse("", "");
-        assert!(c.hotkey && c.hotkey_keys == DEFAULT_HOTKEY && c.hotkey_old_keys.is_empty());
+        assert_eq!(
+            (c.hotkey, c.hotkey_keys.as_str(), c.hotkey_old_keys.as_str()),
+            (true, DEFAULT_HOTKEY, "")
+        );
         let c = parse(
             "hotkey=0\nhotkey_keys = Ctrl + Shift + B\nhotkey_old_keys=ctrl+shift+o",
             "",
         );
-        assert!(!c.hotkey && c.hotkey_keys == "ctrl+shift+b");
+        assert_eq!((c.hotkey, c.hotkey_keys.as_str()), (false, "ctrl+shift+b"));
         assert_eq!(c.hotkey_old_keys, "ctrl+shift+o");
         let back = parse(&to_ini(&c), "");
-        assert!(!back.hotkey && back.hotkey_keys == "ctrl+shift+b");
+        assert_eq!(
+            (back.hotkey, back.hotkey_keys.as_str()),
+            (false, "ctrl+shift+b")
+        );
         assert_eq!(back.hotkey_old_keys, "ctrl+shift+o");
         assert_eq!(parse("hotkey_keys=", "").hotkey_keys, DEFAULT_HOTKEY);
         assert!(
@@ -403,5 +450,84 @@ layout=Turkish",
     #[test]
     fn bad_tutuq_keeps_default() {
         assert_eq!(parse("tutuq=ab", "").opts.tutuq, '\u{02BC}');
+    }
+
+    fn set_appdata(v: Option<&std::ffi::OsStr>) {
+        // SAFETY: shu test binaridagi boshqa testlar APPDATA'ni o'qimaydi.
+        unsafe {
+            match v {
+                Some(v) => std::env::set_var("APPDATA", v),
+                None => std::env::remove_var("APPDATA"),
+            }
+        }
+    }
+
+    #[test]
+    fn files_in_appdata_dir() {
+        let saved = std::env::var_os("APPDATA");
+        let base = std::env::temp_dir().join(format!(
+            "bitg-config-test-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        set_appdata(Some(base.as_os_str()));
+        let d = base.join("bitg");
+        let ex = d.join(EXCEPTIONS_FILE);
+
+        assert_eq!(dir(), Some(d.clone()));
+        assert_eq!(read_raw(), (String::new(), String::new()));
+        assert_eq!(read_keymap(), "");
+        assert_eq!(stamp(), [None, None, None]);
+
+        add_exception("   ").unwrap();
+        add_exception("a\nb").unwrap();
+        add_exception("a\rb").unwrap();
+        assert!(!d.exists());
+
+        add_exception(" Shoh ").unwrap();
+        assert_eq!(std::fs::read_to_string(&ex).unwrap(), "Shoh\n");
+        add_exception("shoh").unwrap();
+        assert_eq!(std::fs::read_to_string(&ex).unwrap(), "Shoh\n");
+
+        std::fs::write(&ex, "Shoh\nchoy").unwrap();
+        add_exception("Non").unwrap();
+        add_exception("olma").unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&ex).unwrap(),
+            "Shoh\nchoy\nNon\nolma\n"
+        );
+
+        std::fs::write(d.join(SETTINGS_FILE), "enabled=0\n").unwrap();
+        std::fs::write(d.join(KEYMAP_FILE), "[ x X - -\n").unwrap();
+        let (s, e) = read_raw();
+        assert_eq!(s, "enabled=0\n");
+        assert_eq!(e, "Shoh\nchoy\nNon\nolma\n");
+        let c = load();
+        assert!(!c.enabled);
+        assert_eq!(c.opts.exceptions, vec!["shoh", "choy", "non", "olma"]);
+        assert_eq!(read_keymap(), "[ x X - -\n");
+        let st = stamp();
+        assert_eq!(
+            st.map(|s| s.map(|(len, _)| len)),
+            [Some(10), Some(19), Some(10)]
+        );
+
+        set_appdata(None);
+        assert_eq!(dir(), None);
+        assert_eq!(read_raw(), (String::new(), String::new()));
+        assert_eq!(read_keymap(), "");
+        assert_eq!(stamp(), [None, None, None]);
+        add_exception("yangi").unwrap();
+        assert!(load().opts.exceptions.is_empty());
+        assert_eq!(
+            std::fs::read_to_string(&ex).unwrap(),
+            "Shoh\nchoy\nNon\nolma\n"
+        );
+
+        set_appdata(saved.as_deref());
+        std::fs::remove_dir_all(&base).unwrap();
     }
 }

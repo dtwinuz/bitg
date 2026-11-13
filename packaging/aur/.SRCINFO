@@ -1,0 +1,28 @@
+pkgbase = bitg
+	pkgdesc = Uzbek input method for the new 2026 Latin alphabet
+	pkgver = 0.3.1
+	pkgrel = 1
+	url = https://bitg.uz
+	arch = x86_64
+	arch = aarch64
+	license = MIT OR Apache-2.0
+	makedepends = cargo
+	makedepends = ibus
+	makedepends = fcitx5
+	makedepends = pkgconf
+	options = !lto
+	source = bitg-0.3.1.tar.gz::https://github.com/dtwinuz/bitg/archive/refs/tags/v0.3.1.tar.gz
+	sha256sums = 304dadba6b5b871ab7ebc2246733b1cb4e4fae629a54d966b857a63a4a19a166
+
+pkgname = bitg
+	depends = ibus
+	depends = glib2
+	depends = gcc-libs
+	depends = glibc
+	optdepends = fcitx5-bitg: the same input method for Fcitx5
+
+pkgname = fcitx5-bitg
+	pkgdesc = Uzbek input method for the new 2026 Latin alphabet (Fcitx5)
+	depends = fcitx5
+	depends = gcc-libs
+	depends = glibc

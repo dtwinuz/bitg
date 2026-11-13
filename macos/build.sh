@@ -16,6 +16,16 @@ OUT="$ROOT/target/macos"
 APP="$OUT/stage/bitg.app"
 export MACOSX_DEPLOYMENT_TARGET=11.0
 FRAMEWORKS=(-framework Cocoa -framework InputMethodKit -framework Carbon)
+# Takrorlanuvchan qurilish: vaqt — commit vaqti, binarlarda qurilish papkasi va cargo kesh yo'li yo'q
+# (Swift #file ham), statik kutubxona a'zolari vaqtsiz. Kafolat ad-hoc imzo uchun; Developer ID imzosi
+# (BITG_MAC_SIGN_ID) vaqt va sertifikat ma'lumotini qo'shadi.
+export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct)}"
+export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=$ROOT=/build/bitg --remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
+export ZERO_AR_DATE=1
+# -Xlinker -S: debug map (N_OSO) yozilmaydi — u libbitg_ime.a ning to'liq yo'lini va vaqtinchalik obyekt fayllar
+# nomini saqlaydi; belgilar jadvali qoladi.
+SWIFT_REPRO=(-file-prefix-map "$ROOT=/build/bitg" -Xlinker -S)
+STAMP="$(date -u -r "$SOURCE_DATE_EPOCH" +%Y%m%d%H%M.%S)"
 
 rm -rf "$OUT"
 mkdir -p "$OUT/bin"
@@ -24,10 +34,10 @@ for pair in "aarch64-apple-darwin arm64" "x86_64-apple-darwin x86_64"; do
   set -- $pair
   cargo build --release --locked -p bitg-ime --target "$1"
   LIB="$ROOT/target/$1/release"
-  swiftc -O -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
+  swiftc -O "${SWIFT_REPRO[@]}" -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
     macos/Sources/*.swift -L "$LIB" -lbitg_ime "${FRAMEWORKS[@]}" -o "$OUT/bin/bitg-$2"
   # sinov: IMK'siz — Session.swift, Keys.swift va soxta matn maydoni
-  swiftc -O -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
+  swiftc -O "${SWIFT_REPRO[@]}" -target "$2-apple-macos11.0" -import-objc-header linux/include/bitg_ime.h \
     macos/Sources/Session.swift macos/Sources/Keys.swift macos/Sources/Prefs.swift macos/test/main.swift \
     -L "$LIB" -lbitg_ime -framework AppKit -o "$OUT/bin/bitg-test-$2"
 done
@@ -55,8 +65,14 @@ COMP="$OUT/component.plist"
 pkgbuild --analyze --root "$OUT/stage" "$COMP"
 plutil -replace 0.BundleIsRelocatable -bool NO "$COMP"
 PKG="$OUT/bitg-$VER-macos.pkg"
+# Payload (cpio) va Bom fayl vaqtlarini saqlaydi: stage va skriptlar commit vaqtiga tenglanadi.
+SCRIPTS="$OUT/pkg-scripts"
+cp -R macos/pkg-scripts "$SCRIPTS"
+find "$OUT/stage" "$SCRIPTS" -exec touch -h -t "$STAMP" {} +
 pkgbuild --root "$OUT/stage" --component-plist "$COMP" --install-location "/Library/Input Methods" \
-  --identifier uz.bitg.inputmethod.pkg --version "$VER" --scripts macos/pkg-scripts "$PKG"
+  --identifier uz.bitg.inputmethod.pkg --version "$VER" --scripts "$SCRIPTS" "$PKG"
+python3 -I tools/xar_normalize.py "$PKG"
+pkgutil --payload-files "$PKG" >/dev/null # normallashtirilgan TOC o'qiladimi
 (cd "$OUT" && shasum -a 256 "$(basename "$PKG")" > "$(basename "$PKG").sha256")
 lipo -info "$APP/Contents/MacOS/bitg"
 ls -l "$PKG"

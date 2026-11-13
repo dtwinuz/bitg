@@ -454,6 +454,37 @@ mod tests {
         assert_eq!(m.get(0x1B, 0), None);
         assert_eq!(m.get(0x27, 1), Some('Ş'));
         assert_eq!(m.get(QUOTE, 0), None);
+        let m = Keymap::parse("\n   \n[ ö\n");
+        assert_eq!(m.get(LBR, 0), Some('ö'));
+    }
+
+    #[test]
+    fn cells_and_bounds() {
+        assert_eq!(parse_cell("U+"), None);
+        assert_eq!(parse_cell("u+00f6"), Some(Some('ö')));
+        assert_eq!(parse_cell("U+ZZ"), None);
+        assert_eq!(parse_cell(""), Some(None));
+        let mut m = Keymap::default();
+        m.set(LBR, LEVELS, Some('x'));
+        m.set(u8::MAX, 0, Some('x'));
+        m.set(LBR, 0, Some('\u{7}'));
+        assert!(m.is_empty());
+        assert_eq!(m.get(u8::MAX, 0), None);
+        assert_eq!(m.lookup(u8::MAX, false, false, false), None);
+        assert_eq!(m.row("nope"), [None; LEVELS]);
+        m.set(LBR, 0, Some('\u{200B}'));
+        m.set(LBR, 1, Some('-'));
+        assert!(m.to_text().contains("[  U+200B  U+002D  -  -\n"));
+        assert_eq!(Keymap::parse(&m.to_text()), m);
+    }
+
+    #[test]
+    fn caps_ignored_when_shift_layer_is_not_uppercase() {
+        let mut m = Keymap::default();
+        m.set(LBR, 0, Some('a'));
+        m.set(LBR, 1, Some('1'));
+        assert_eq!(m.lookup(LBR, false, true, false), Some('a'));
+        assert_eq!(m.lookup(LBR, true, true, false), Some('1'));
     }
 
     #[test]

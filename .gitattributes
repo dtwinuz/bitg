@@ -1,3 +1,8 @@
 # Linux serverda ishlaydigan skriptlar: Windows (core.autocrlf=true) checkout ham LF qoldirsin.
 # deploy.sh git worktree orqali yig'adi; CRLF bilan set-stats-env.sh "required file not found" berardi.
 *.sh text eol=lf
+# AUR'ga shu fayllar o'zi push qilinadi; makepkg CRLF bilan buziladi.
+packaging/aur/PKGBUILD text eol=lf
+packaging/aur/.SRCINFO text eol=lf
+# Demo GIF: ikkilik
+*.gif binary

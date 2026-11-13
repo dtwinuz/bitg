@@ -33,10 +33,13 @@ impl Typed {
         self.why = why;
     }
 
+    /// MAX dan uzun so'z baribir o'girilmaydi, shuning uchun ortiqcha belgilar xotirada saqlanmaydi
+    /// (bo'sh joysiz uzun parol yoki kalit cheksiz to'planmasin).
     pub fn push(&mut self, c: char) {
         if self.word.len() >= MAX {
             self.trusted = false;
             self.why = "word too long";
+            return;
         }
         self.word.push(c);
     }
@@ -156,5 +159,25 @@ mod tests {
         let mut t = Typed::default();
         "choy".chars().for_each(|c| t.push(c));
         assert_eq!(t.finish(), None);
+        assert_eq!(t.why(), "no word start seen");
+    }
+
+    #[test]
+    fn too_long_or_empty_word_is_not_returned() {
+        let mut t = typed(&"a".repeat(MAX));
+        assert_eq!(t.len(), MAX);
+        t.push('b');
+        assert_eq!(t.len(), MAX);
+        assert_eq!(t.finish(), None);
+        assert_eq!(t.why(), "word too long");
+        assert!(t.is_empty());
+
+        let mut t = typed("");
+        assert_eq!(t.finish(), None);
+        t.lost("mouse");
+        assert_eq!(t.why(), "mouse");
+        t.boundary();
+        t.backspace();
+        assert_eq!(t.why(), "backspace past word start");
     }
 }
