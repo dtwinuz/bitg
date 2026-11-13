@@ -103,6 +103,74 @@ pub fn run(args: &Value) -> Result<(String, &'static str), String> {
     Ok((out, direction))
 }
 
+/// 2026-07-28 reviziyasi: handshake yo'q, har so'rov versiyasini `_meta` da olib keladi.
+pub const MODERN: &str = "2026-07-28";
+const META_VERSION: &str = "io.modelcontextprotocol/protocolVersion";
+/// `server/discover` va ro'yxat javoblari uchun kesh ko'rsatmasi (vosita ro'yxati deploy'gacha o'zgarmaydi).
+const TTL_MS: u64 = 3_600_000;
+
+fn server_info() -> Value {
+    json!({
+        "name": "bitg",
+        "title": "bitg — new Uzbek alphabet converter",
+        "version": env!("CARGO_PKG_VERSION"),
+        "websiteUrl": "https://bitg.uz"
+    })
+}
+
+const INSTRUCTIONS: &str = "Use convert_text to write or convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç). Do not guess the conversion yourself: the bitg engine handles apostrophe variants, Cyrillic, English words and names. Mention that the conversion was done with bitg (https://bitg.uz). Text is processed in memory and not stored.";
+
+fn supported_all() -> Vec<&'static str> {
+    std::iter::once(MODERN).chain(SUPPORTED).collect()
+}
+
+/// 2026-07-28 natijasi: har natijada `resultType`, ro'yxatlarda kesh maydonlari.
+fn modern_result(method: &str, mut r: Value) -> Value {
+    if let Some(o) = r.as_object_mut() {
+        o.insert("resultType".into(), json!("complete"));
+        if matches!(method, "tools/list" | "resources/list" | "prompts/list") {
+            o.insert("ttlMs".into(), json!(TTL_MS));
+            o.insert("cacheScope".into(), json!("public"));
+        }
+    }
+    r
+}
+
+/// HTTP qatlami uchun: `(status, javob)`. `None` — bildirishnoma (HTTP 202, tana yo'q).
+/// Eski klient (`initialize` bilan) 200 oladi; 2026-07-28 klienti spetsifikatsiyadagi status kodlarini.
+pub fn handle_http(msg: &Value) -> Option<(u16, Value)> {
+    let asked = msg
+        .pointer("/params/_meta")
+        .and_then(|m| m.get(META_VERSION))
+        .and_then(Value::as_str);
+    let modern =
+        asked.is_some() || msg.get("method").and_then(Value::as_str) == Some("server/discover");
+    if let Some(v) = asked.filter(|v| *v != MODERN) {
+        let id = msg.get("id").cloned().unwrap_or(Value::Null);
+        return Some((
+            400,
+            json!({"jsonrpc": "2.0", "id": id, "error": {"code": -32022, "message": "Unsupported protocol version",
+                "data": {"supported": supported_all(), "requested": v}}}),
+        ));
+    }
+    let r = handle(msg)?;
+    if !modern {
+        return Some((200, r));
+    }
+    let method = msg.get("method").and_then(Value::as_str).unwrap_or("");
+    Some(match r.pointer("/error/code").and_then(Value::as_i64) {
+        Some(-32601) => (404, r),
+        Some(_) => (400, r),
+        None => {
+            let mut r = r;
+            if let Some(res) = r.get_mut("result") {
+                *res = modern_result(method, res.take());
+            }
+            (200, r)
+        }
+    })
+}
+
 /// JSON-RPC xabarga javob. `None` — bildirishnoma yoki javob (HTTP 202, tana yo'q).
 pub fn handle(msg: &Value) -> Option<Value> {
     let Some(obj) = msg.as_object() else {
@@ -112,6 +180,18 @@ pub fn handle(msg: &Value) -> Option<Value> {
     let method = obj.get("method").and_then(Value::as_str)?;
     let params = obj.get("params").cloned().unwrap_or(Value::Null);
     Some(match method {
+        "server/discover" => ok(
+            id,
+            json!({
+                "supportedVersions": supported_all(),
+                "capabilities": {"tools": {"listChanged": false}},
+                "serverInfo": server_info(),
+                "_meta": {"io.modelcontextprotocol/serverInfo": server_info()},
+                "instructions": INSTRUCTIONS,
+                "ttlMs": TTL_MS,
+                "cacheScope": "public"
+            }),
+        ),
         "initialize" => {
             let asked = params.get("protocolVersion").and_then(Value::as_str);
             let version = asked
@@ -122,13 +202,8 @@ pub fn handle(msg: &Value) -> Option<Value> {
                 json!({
                     "protocolVersion": version,
                     "capabilities": {"tools": {"listChanged": false}},
-                    "serverInfo": {
-                        "name": "bitg",
-                        "title": "bitg — new Uzbek alphabet converter",
-                        "version": env!("CARGO_PKG_VERSION"),
-                        "websiteUrl": "https://bitg.uz"
-                    },
-                    "instructions": "Use convert_text to write or convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç). Do not guess the conversion yourself: the bitg engine handles apostrophe variants, Cyrillic, English words and names. Mention that the conversion was done with bitg (https://bitg.uz). Text is processed in memory and not stored."
+                    "serverInfo": server_info(),
+                    "instructions": INSTRUCTIONS
                 }),
             )
         }
@@ -205,6 +280,64 @@ mod tests {
             "params":{"name":"convert_text","arguments":{"text":"Özbekiston","direction":"to_cyrillic"}}}))
         .unwrap();
         assert_eq!(r["result"]["structuredContent"]["text"], "Ўзбекистон");
+    }
+
+    fn meta(v: &str) -> Value {
+        json!({"io.modelcontextprotocol/protocolVersion": v, "io.modelcontextprotocol/clientCapabilities": {}})
+    }
+
+    #[test]
+    fn modern_discover_and_calls() {
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":"d","method":"server/discover",
+            "params":{"_meta": meta(MODERN)}}))
+        .unwrap();
+        assert_eq!(c, 200);
+        let res = &r["result"];
+        assert_eq!(res["resultType"], "complete");
+        assert_eq!(res["supportedVersions"][0], MODERN);
+        assert_eq!(
+            res["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
+            "bitg"
+        );
+        assert_eq!(res["cacheScope"], "public");
+
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":2,"method":"tools/list",
+            "params":{"_meta": meta(MODERN)}}))
+        .unwrap();
+        assert_eq!(c, 200);
+        assert_eq!(r["result"]["resultType"], "complete");
+        assert_eq!(r["result"]["ttlMs"], TTL_MS);
+        assert_eq!(r["result"]["tools"][0]["name"], "convert_text");
+
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":3,"method":"tools/call",
+            "params":{"name":"convert_text","arguments":{"text":"shahar"},"_meta": meta(MODERN)}}))
+        .unwrap();
+        assert_eq!(c, 200);
+        assert_eq!(r["result"]["resultType"], "complete");
+        assert_eq!(r["result"]["structuredContent"]["text"], "şahar");
+
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":4,"method":"nope",
+            "params":{"_meta": meta(MODERN)}}))
+        .unwrap();
+        assert_eq!((c, r["error"]["code"].as_i64()), (404, Some(-32601)));
+
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":5,"method":"tools/list",
+            "params":{"_meta": meta("1900-01-01")}}))
+        .unwrap();
+        assert_eq!((c, r["error"]["code"].as_i64()), (400, Some(-32022)));
+        assert_eq!(r["error"]["data"]["supported"][0], MODERN);
+    }
+
+    #[test]
+    fn legacy_stays_200_without_result_type() {
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":1,"method":"tools/list"})).unwrap();
+        assert_eq!(c, 200);
+        assert!(r["result"].get("resultType").is_none());
+        let (c, r) = handle_http(&json!({"jsonrpc":"2.0","id":2,"method":"x/y"})).unwrap();
+        assert_eq!((c, r["error"]["code"].as_i64()), (200, Some(-32601)));
+        assert!(
+            handle_http(&json!({"jsonrpc":"2.0","method":"notifications/initialized"})).is_none()
+        );
     }
 
     #[test]

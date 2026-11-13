@@ -5,6 +5,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ## [Unreleased]
 
 ### Qo'shildi
+- **MCP serveri 2026-07-28 reviziyasini qo'llaydi**: `server/discover`, so'rovdagi `_meta` versiyasi, `resultType` va
+  ro'yxat keshi (`ttlMs`, `cacheScope`), noma'lum metodga 404, qo'llanmagan versiyaga 400/-32022. Eski klientlar
+  (`initialize`, 2024-11-05…2025-11-25) avvalgidek ishlaydi. Claude connector'i endi ulanadi.
 - **Linux panel belgisi: istisnolar va lug'at muharriri** ([#84](https://github.com/dtwinuz/bitg/issues/84)): menyudagi
   «Istisnolar va lugʼat…» `exceptions.txt` ni tahrirlaydi (atomik yozuv, IME jonli oladi). «Panel belgisini yopish»
   nomi aniqlashtirildi: kiritish usuli ishlashda davom etadi.

@@ -470,10 +470,7 @@ fn mcp_route(head: &Head, body: &[u8], ip: &str, limits: &mut Limits, now: u64) 
     let Ok(v) = serde_json::from_slice::<Value>(body) else {
         return (400, rpc_err(-32700, "Parse error"));
     };
-    match crate::mcp::handle(&v) {
-        Some(r) => (200, r),
-        None => (202, Value::Null),
-    }
+    crate::mcp::handle_http(&v).unwrap_or((202, Value::Null))
 }
 
 fn reason(code: u16) -> &'static str {
