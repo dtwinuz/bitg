@@ -22,7 +22,7 @@ if os.environ.get("GITHUB_ACTIONS") != "true":
 
 from PySide6.QtCore import QTimer  # noqa: E402
 from PySide6.QtGui import QFont  # noqa: E402
-from PySide6.QtWidgets import QApplication, QTextEdit  # noqa: E402
+from PySide6.QtWidgets import QApplication, QLineEdit, QTextEdit  # noqa: E402
 
 user32 = ctypes.WinDLL("user32", use_last_error=True)
 ole32 = ctypes.WinDLL("ole32")
@@ -182,6 +182,47 @@ def main():
     def w():
         pass
 
+    # #41: parol maydoni (QLineEdit Password) — zaxira yo'l so'zni qayta yozmasligi kerak
+    pw = QLineEdit()
+    pw.setWindowTitle("bitg e2e qt password")
+    pw.setFont(QFont("Segoe UI", 14))
+    pw.resize(500, 60)
+
+    def focus_pw():
+        pw.show()
+        pw.raise_()
+        pw.activateWindow()
+        user32.SetForegroundWindow(int(pw.winId()))
+        pw.setFocus()
+        log.append(f"foreground pw={user32.GetForegroundWindow() == int(pw.winId())}")
+
+    def check_pw(name, want):
+        got = pw.text()
+        log.append(f"PASS {name}" if got == want else f"FAIL {name} got=[{got}] want=[{want}]")
+
+    def echo(mode):
+        return lambda: pw.setEchoMode(mode)
+
+    fresh = QLineEdit()
+    fresh.setWindowTitle("bitg e2e qt line")
+    fresh.setFont(QFont("Segoe UI", 14))
+    fresh.resize(500, 60)
+
+    def focus_fresh():
+        fresh.show()
+        fresh.raise_()
+        fresh.activateWindow()
+        user32.SetForegroundWindow(int(fresh.winId()))
+        fresh.setFocus()
+        log.append(f"foreground line={user32.GetForegroundWindow() == int(fresh.winId())}")
+
+    def act(tag):
+        return lambda: log.append(f"ActivateProfile {tag} hr={activate_bitg():#x}")
+
+    def check_fresh(name, want):
+        got = fresh.text()
+        log.append(f"PASS {name}" if got == want else f"FAIL {name} got=[{got}] want=[{want}]")
+
     steps = [
         focus,
         lambda: log.append(f"ActivateProfile hr={activate_bitg():#x}"),
@@ -212,6 +253,23 @@ def main():
         # Tartib harfi so'z kuzatuviga kiradi (Qt belgini bermaydi — navbat bo'yicha): sh keyin o'giriladi
         clear, lambda: type_keys("q[shimcha "), w, w, w, lambda: check("keymap: mapped letter tracked", "qöşimça "),
         lambda: settings(), w, w, w, w, lambda: type_keys("a "), w,
+        # CI VM'da har yuqori oyna fokusida Windows profilni qaytaradi (tsf.log: "deactivate"), shuning uchun
+        # har fokusdan keyin bitg qayta tanlanadi; "untouched" tekshiruvi oldidan va keyin shu oynada nazorat
+        # so'zi o'giriladi — aks holda u bitg ishlamay turib ham o'tib ketadi.
+        # 8) Qt maydon turini TSF'ga bermaydi (tsf.log: "vt=0 no scopes"): fokus o'zgarmasdan parolga aylangan
+        #    maydonni zaxira yo'l sezmaydi. Ma'lum cheklov (#41) — natija faqat yoziladi, sinov yiqilmaydi.
+        echo(QLineEdit.EchoMode.Normal), focus_pw, act("pw"), focus_pw, w, w,
+        lambda: type_keys("choy "), w, w, w, lambda: check_pw("line edit converts (bitg active)", "çoy "),
+        echo(QLineEdit.EchoMode.Password), w,
+        lambda: type_keys("shoshma "), w, w, w,
+        lambda: log.append(f"INFO field turned password without refocus (known limit, #41): got=[{pw.text()}]"),
+        # 9) #41: fokus olayotgan parol maydoni — so'zlar qayta yozilmaydi
+        lambda: fresh.setEchoMode(QLineEdit.EchoMode.Password), focus_fresh, act("password"), focus_fresh, w, w,
+        lambda: type_keys("choy shoshma "), w, w, w, lambda: check_fresh("password field untouched", "choy shoshma "),
+        # Nazorat: o'sha oyna oddiy rejimda qayta fokus olsa bitg ishlaydi
+        lambda: fresh.setEchoMode(QLineEdit.EchoMode.Normal), focus, w, focus_fresh, act("line"), focus_fresh, w, w,
+        lambda: type_keys("choy "), w, w, w,
+        lambda: check_fresh("same field back to normal converts (bitg active)", "choy shoshma çoy "),
     ]
 
     state = {"k": 0}

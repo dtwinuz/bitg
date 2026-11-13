@@ -23,6 +23,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   `HKLM\SOFTWARE\Policies\bitg\UpdateCheck` (DWORD 0|1) — tugma qulflanadi, 0 da qo'lda tekshirish ham yo'q.
 - Windows binarlarida (`bitg-settings.exe`, `bitg.exe`, 64/32-bit `bitg_tsf.dll`) `VERSIONINFO`: ProductName,
   versiya Cargo'dan, CompanyName, LegalCopyright (`tools/winres/versioninfo.rs`) — SignPath imzolash sharti.
+- **winget va Homebrew avtomatik yangilanadi.** `stores.yml` (release.yml chaqiradi): Komac (versiya va SHA-256
+  qotirilgan) MSI attestation'i tekshirilgach winget-pkgs'ga PR ochadi; token faqat `winget` environment'ida.
+  `dtwinuz/homebrew-tap` `autobump`: har 3 soatda yangi relizni topib, sha256 + attestation + macOS'da o'rnatish
+  sinovidan keyin cask'ni yangilaydi (repolararo token yo'q). `packaging/` 0.4.0 ga yangilandi.
+  Chocolatey (Windows'da o'rnatish sinovi, `CHOCO_API_KEY`) va AUR (Arch'da `check()` bilan yig'ish, alohida SSH
+  kalit, server kaliti qotirilgan) ham `stores.yml` da; `packaging/aur` 0.4.0.
+- **Ubuntu sinov matritsasi** ([#75](https://github.com/dtwinuz/bitg/issues/75)): CI'da 22.04 da yig'ilgan paket
+  24.04 da ham o'rnatilib, IBus e2e va panel belgisi sinovidan o'tadi. Yangi e2e: lotin va kirill kirish bir xil
+  natija beradi (matnli va preedit dasturda), panel belgisi yozgan sozlama va istisno IME'ga jonli yetadi, BOM'li
+  `settings.ini` ikkalasida bir xil o'qiladi; panel belgisi Xvfb ostida ishga tushadi va ikkinchi nusxa ochilmaydi.
+  README: «Ubuntu'da muammo bo'lsa» va sinov matritsasi.
+- `.deb`: `/etc/xdg/autostart/bitg.desktop` conffile — foydalanuvchi o'zgarishi yangilashda saqlanadi, `purge` da o'chadi.
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
@@ -35,7 +47,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ### Xavfsizlik
 - Windows zaxira yo'li (SendInput, matn bermaydigan dasturlar): dastur IME'ni so'z davomida o'chirsa (parol maydoni),
   har so'z oxirida qayta tekshiriladi va so'z o'girilmaydi; maxfiy maydon belgisi kelishi bilan yig'ilgan harflar
-  xotiradan tashlanadi ([#41](https://github.com/dtwinuz/bitg/issues/41)).
+  xotiradan tashlanadi ([#41](https://github.com/dtwinuz/bitg/issues/41)). Shu yo'lda har so'z oxirida maydonning
+  input scope'i (parol, PIN) sinxron, faqat o'qish sessiyasida qayta o'qiladi — maydon turini TSF orqali beradigan
+  dasturda maydon fokusni o'zgartirmasdan parolga aylansa ham keyingi so'z qayta yozilmaydi. Qt e2e: fokus olgan
+  parol maydoni tegilmaydi (oldin va keyin nazorat so'zi bilan). Ma'lum cheklov: Qt (Telegram) maydon turini
+  bermaydi, shuning uchun fokus o'zgarmasdan parolga aylangan Qt maydonini zaxira yo'l sezmaydi.
 
 ## [0.4.0] — 2026-11-13
 

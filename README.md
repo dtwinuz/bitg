@@ -240,7 +240,36 @@ mkdir -p ~/.config/autostart && printf '[Desktop Entry]\nHidden=true\n' > ~/.con
 
 Matnni bermaydigan dasturlarda so'z yozilayotganda tagi chizilgan (preedit) ko'rinadi va probelda o'girilib yoziladi.
 Parol, PIN, email maydonlari va terminallarda bitg o'chiq turadi. Yig'ish: `linux/build-deb.sh` (`libibus-1.0-dev`,
-`libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`.
+`libfcitx5core-dev`); sinov: `dbus-run-session -- python3 linux/test/ibus_e2e.py`,
+`xvfb-run -a dbus-run-session -- python3 linux/test/indicator_test.py`.
+
+#### Ubuntu'da muammo bo'lsa
+
+bitg o'zining klaviatura tartibiga ega emas (`layout=default`): u joriy kiritish manbasining harflarini oladi. Kirill
+tartibidan bitg'ga o'tsangiz kirillcha yozasiz — bu xato emas, so'z tugashi bilan u ham yangi lotinga o'giriladi
+(`чой шаҳар` → `çoy şahar`). Lotincha yozish uchun lotin tartibidan bitg'ga o'ting.
+
+1. **Tanlanganini tekshirish:** yuqori paneldagi til belgisida «ö» (bitg) turishi kerak; `ibus engine` → `bitg`.
+2. **O'girmayapti:** panel belgisi menyusida «Yoqilgan» va «Avtomatik ögiriş» belgilanganmi; yoki
+   `cat ~/.config/bitg/settings.ini`. Fayldagi o'zgarish ~1 soniyada, dasturni qayta ochmasdan qo'llanadi.
+3. **Belgi ko'rinmaydi:** `bitg-indicator` ni terminaldan ishga tushiring — xato shu yerda chiqadi. Toza GNOME'da
+   «AppIndicator and KStatusNotifierItem Support» kengaytmasi kerak.
+4. **Dvigatel logi:** `ibus restart`, so'ng `journalctl --user -b | grep -i ibus` (matningiz logga yozilmaydi).
+5. **Xabar berish:** Ubuntu versiyasi (`lsb_release -d`), sessiya (`echo $XDG_SESSION_TYPE` — wayland/x11),
+   `bitg --version`, qaysi dasturda bo'lgani — [issue](https://github.com/dtwinuz/bitg/issues/new) ga.
+
+**Sinov matritsasi** (har PR'da, [`linux.yml`](.github/workflows/linux.yml)):
+
+| | Ubuntu 22.04 | Ubuntu 24.04 |
+|---|---|---|
+| `.deb` yig'ish (reproducible), lintian, o'rnatish/purge | ✅ yig'iladi va o'rnatiladi | ✅ 22.04 paketi o'rnatiladi |
+| IBus e2e: matnli va preedit dastur, lotin/kirill kirish, Backspace, Enter, parol maydoni | ✅ | ✅ |
+| Panel belgisi: sozlama/istisno yozuvi IME'ga jonli yetadi, BOM'li `settings.ini` | ✅ | ✅ |
+| Panel belgisi GUI (Xvfb): ishga tushadi, ikkinchi nusxa ochilmaydi | ✅ | ✅ |
+| Fcitx5: paket o'rnatiladi, kutubxona yuklanadi | ✅ | — |
+
+Avtomatik sinalmaydi: haqiqiy GNOME Wayland/X11 sessiyasidagi panel ko'rinishi, Telegram/brauzerda yozish, Fcitx5'da
+yozish. Bularni sinab ko'rgan bo'lsangiz, natijani issue'ga yozing.
 
 **Arch Linux** (Manjaro, EndeavourOS): [`packaging/aur/PKGBUILD`](packaging/aur) manbadan yig'adi va ikkita paket
 beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
