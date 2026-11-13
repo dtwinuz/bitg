@@ -29,12 +29,16 @@ make -C linux/ibus VERSION="$VER"
 
 rm -rf "$PKG"
 install -d "$PKG/DEBIAN" "$PKG/usr/bin" "$PKG/usr/libexec" "$PKG/usr/share/ibus/component" \
-  "$PKG/usr/share/icons/hicolor/scalable/apps" "$PKG/usr/share/doc/bitg"
+  "$PKG/usr/share/icons/hicolor/scalable/apps" "$PKG/usr/share/doc/bitg" "$PKG/usr/share/applications" "$PKG/etc/xdg/autostart"
 install -m 755 -s linux/ibus/ibus-engine-bitg "$PKG/usr/libexec/ibus-engine-bitg"
 install -m 755 -s target/release/bitg "$PKG/usr/bin/bitg"
 sed "s/@VERSION@/$VER/" linux/ibus/bitg.xml > "$PKG/usr/share/ibus/component/bitg.xml"
 chmod 644 "$PKG/usr/share/ibus/component/bitg.xml"
 install -m 644 web/icon.svg "$PKG/usr/share/icons/hicolor/scalable/apps/bitg.svg"
+install -m 644 linux/indicator/bitg-disabled.svg "$PKG/usr/share/icons/hicolor/scalable/apps/bitg-disabled.svg"
+install -m 755 linux/indicator/bitg-indicator "$PKG/usr/bin/bitg-indicator"
+install -m 644 linux/indicator/bitg.desktop "$PKG/usr/share/applications/bitg.desktop"
+install -m 644 linux/indicator/bitg-autostart.desktop "$PKG/etc/xdg/autostart/bitg.desktop"
 install -m 644 linux/copyright "$PKG/usr/share/doc/bitg/copyright"
 # native paket: changelog git tarixidan emas — release sahifasiga havola
 printf 'bitg (%s) stable; urgency=medium\n\n  * Release %s: https://github.com/dtwinuz/bitg/releases\n\n -- dtwinuz <info@dtwin.uz>  %s\n' \
@@ -54,7 +58,7 @@ Version: $VER
 Architecture: $ARCH
 Maintainer: dtwinuz <info@dtwin.uz>
 Installed-Size: $SIZE
-Depends: $DEPS, ibus (>= 1.5.20)
+Depends: $DEPS, ibus (>= 1.5.20), python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
 Section: utils
 Priority: optional
 Homepage: https://bitg.uz
