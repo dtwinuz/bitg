@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=bitg indicator
+Comment=bitg yuqori panel belgisi
+Exec=/usr/bin/bitg-indicator
+Icon=bitg
+Terminal=false
+X-GNOME-Autostart-enabled=true
+OnlyShowIn=GNOME;Unity;
