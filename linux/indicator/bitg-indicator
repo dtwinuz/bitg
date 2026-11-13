@@ -1,0 +1,147 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+"""bitg StatusNotifier indicator for Ubuntu/GNOME (Ayatana AppIndicator)."""
+import fcntl
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import webbrowser
+
+import gi
+gi.require_version("Gtk", "3.0")
+gi.require_version("AyatanaAppIndicator3", "0.1")
+from gi.repository import Gtk, GLib, AyatanaAppIndicator3 as Indicator
+
+KEYS = ("enabled", "auto_convert", "cyrillic")
+LABELS = {"enabled": "Yoqilgan", "auto_convert": "Avtomatik ögiriş",
+          "cyrillic": "Kirillçani ögiriş"}
+CONFIG = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "bitg"
+SETTINGS = CONFIG / "settings.ini"
+
+
+def read_settings():
+    values = {key: True for key in KEYS}
+    try:
+        lines = SETTINGS.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return values
+    for line in lines:
+        if "=" not in line or line.lstrip().startswith(("#", ";", "[")):
+            continue
+        key, val = (part.strip() for part in line.split("=", 1))
+        if key in values:
+            values[key] = val.lower() not in ("0", "false", "no", "off", "yoq", "yo'q", "yo‘q")
+    return values
+
+
+def save_setting(key, enabled):
+    CONFIG.mkdir(mode=0o700, parents=True, exist_ok=True)
+    try:
+        lines = SETTINGS.read_text(encoding="utf-8").splitlines(keepends=True)
+    except FileNotFoundError:
+        lines = []
+    new_line = f"{key}={'1' if enabled else '0'}\n"
+    found = False
+    for i, line in enumerate(lines):
+        if "=" in line and line.split("=", 1)[0].strip().lower() == key:
+            if not found:
+                lines[i] = new_line
+                found = True
+            else:
+                lines[i] = ""
+    if not found:
+        if lines and not lines[-1].endswith("\n"):
+            lines[-1] += "\n"
+        lines.append(new_line)
+    fd, name = tempfile.mkstemp(prefix=".settings-", dir=CONFIG)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as output:
+            output.writelines(lines)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(name, SETTINGS)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+class App:
+    def __init__(self):
+        self.indicator = Indicator.Indicator.new(
+            "bitg", "bitg", Indicator.IndicatorCategory.APPLICATION_STATUS)
+        self.indicator.set_status(Indicator.IndicatorStatus.ACTIVE)
+        self.menu = Gtk.Menu()
+        self.items = {}
+        for key in KEYS:
+            item = Gtk.CheckMenuItem(label=LABELS[key])
+            item.connect("toggled", self.toggle, key)
+            self.menu.append(item)
+            self.items[key] = item
+        self.menu.append(Gtk.SeparatorMenuItem())
+        settings = Gtk.MenuItem(label="Sozlamalar")
+        settings.connect("activate", self.show_settings)
+        self.menu.append(settings)
+        report = Gtk.MenuItem(label="Xato haqida xabar beriş")
+        report.connect("activate", lambda *_: webbrowser.open(
+            "https://github.com/dtwinuz/bitg/issues/new"))
+        self.menu.append(report)
+        quit_item = Gtk.MenuItem(label="Çiqiş")
+        quit_item.connect("activate", lambda *_: Gtk.main_quit())
+        self.menu.append(quit_item)
+        self.menu.show_all()
+        self.indicator.set_menu(self.menu)
+        self.sync()
+        GLib.timeout_add_seconds(2, self.sync)
+
+    def sync(self):
+        values = read_settings()
+        for key, item in self.items.items():
+            item.handler_block_by_func(self.toggle)
+            item.set_active(values[key])
+            item.handler_unblock_by_func(self.toggle)
+        self.indicator.set_icon_full(
+            "bitg" if values["enabled"] else "bitg-disabled",
+            "bitg yoqilgan" if values["enabled"] else "bitg öçirilgan")
+        return True
+
+    def toggle(self, item, key):
+        try:
+            save_setting(key, item.get_active())
+        except OSError as exc:
+            dialog = Gtk.MessageDialog(message_type=Gtk.MessageType.ERROR,
+                                       buttons=Gtk.ButtonsType.CLOSE,
+                                       text=f"Sozlamani saqlab bölmadi: {exc}")
+            dialog.run()
+            dialog.destroy()
+        self.sync()
+
+    def show_settings(self, *_):
+        dialog = Gtk.Dialog(title="bitg sozlamalari")
+        dialog.add_button("Yopiş", Gtk.ResponseType.CLOSE)
+        dialog.get_content_area().add(Gtk.Label(
+            label="Sozlamalarni yuqori paneldagi bitg menyusidan özg artiring."))
+        dialog.show_all()
+        dialog.run()
+        dialog.destroy()
+
+
+def main():
+    runtime = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/tmp/bitg-{os.getuid()}")
+    runtime.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lock = open(runtime / "bitg-indicator.lock", "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return 0
+    App()
+    Gtk.main()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
