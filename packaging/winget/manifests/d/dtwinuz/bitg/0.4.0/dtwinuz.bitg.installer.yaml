@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.28.0.schema.json
+
+PackageIdentifier: dtwinuz.bitg
+PackageVersion: 0.4.0
+MinimumOSVersion: 10.0.17763.0
+InstallerType: wix
+Scope: machine
+ElevationRequirement: elevatesSelf
+UpgradeBehavior: install
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/dtwinuz/bitg/releases/download/v0.4.0/bitg-0.4.0-x64.msi
+    InstallerSha256: 5BDDCDAFE8E780FEE3D9C869861B04B61A3E7CF6C637976834C659C5695C7171
+    ProductCode: "{4D9E03FF-0A0E-5D30-9CAF-DD032758F7A2}"
+    AppsAndFeaturesEntries:
+      - DisplayName: bitg
+        Publisher: dtwinuz
+        DisplayVersion: 0.4.0
+        ProductCode: "{4D9E03FF-0A0E-5D30-9CAF-DD032758F7A2}"
+        UpgradeCode: "{80B9514E-EB2C-4EA5-B42A-CECB40A16979}"
+ManifestType: installer
+ManifestVersion: 1.28.0

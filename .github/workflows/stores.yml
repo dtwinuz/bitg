@@ -1,0 +1,91 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: stores
+
+# Reliz chiqqach paket kataloglariga yuborish (release.yml publish'dan keyin o'zi chaqiradi).
+#
+# winget: Komac (versiya va binari SHA-256 shu faylda qotirilgan) microsoft/winget-pkgs ga "dtwinuz.bitg <v>" PR ochadi.
+#   Yuborishdan oldin MSI SHA-256 reliz yonidagi .sha256 bilan va SLSA attestation'i (build.yml, shu teg) tekshiriladi.
+#   Token: `winget` environment'idagi WINGET_TOKEN (classic, faqat public_repo; fork egasining tokeni) — kod
+#   kompilyatsiya qilinmaydigan bitta job'da. Token yo'q, paket hali winget-pkgs'da yo'q yoki bu versiya bor bo'lsa —
+#   job xatosiz o'tib ketadi va sababini summary'ga yozadi.
+# Homebrew: dtwinuz/homebrew-tap o'zi yangilanadi (autobump workflow, har 3 soatda) — bu yerda token kerak emas.
+#
+# Qo'lda qayta yuborish: Actions -> stores -> Run workflow, version = v0.4.0.
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Reliz tegi (v0.4.0)"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Reliz tegi (v0.4.0)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  KOMAC_VERSION: 2.17.2
+  KOMAC_SHA256: b03b020eec98acfb0b53e284a6e21815b884be33de6785b97e7a120f0e748966 # komac-2.17.2-x86_64-unknown-linux-gnu.tar.gz
+
+jobs:
+  winget:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: winget
+    env:
+      TAG: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Shartlar
+        id: gate
+        env:
+          HAS_TOKEN: ${{ secrets.WINGET_TOKEN != '' }}
+        run: |
+          echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "teg noto'g'ri: $TAG"; exit 1; }
+          v=${TAG#v}
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          skip() { echo "::notice title=winget::$1"; echo "### winget: o'tkazib yuborildi — $1" >> "$GITHUB_STEP_SUMMARY"; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          [ "$HAS_TOKEN" = true ] || skip "WINGET_TOKEN yo'q (Settings -> Environments -> winget)"
+          base=repos/microsoft/winget-pkgs/contents/manifests/d/dtwinuz/bitg
+          gh api "$base" --silent 2>/dev/null || skip "dtwinuz.bitg hali winget-pkgs'da yo'q (birinchi versiya PR'i merge bo'lishi kerak)"
+          if gh api "$base/$v" --silent 2>/dev/null; then skip "$v winget-pkgs'da allaqachon bor"; fi
+      - name: MSI, SHA-256 va attestation
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+        run: |
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" -D rel -p "bitg-$V-x64.msi" -p "bitg-$V-x64.msi.sha256"
+          f="rel/bitg-$V-x64.msi"
+          [ "$(sha256sum < "$f" | cut -d' ' -f1)" = "$(cut -d' ' -f1 < "$f.sha256" | tr -d '\r')" ] || { echo ".sha256 mos emas"; exit 1; }
+          gh attestation verify "$f" -R "$GITHUB_REPOSITORY" \
+            --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/build.yml" \
+            --source-ref "refs/tags/$TAG" --deny-self-hosted-runners
+      - name: Komac
+        if: steps.gate.outputs.skip != '1'
+        run: |
+          t="komac-$KOMAC_VERSION-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL --proto '=https' -o "$RUNNER_TEMP/$t" "https://github.com/russellbanks/Komac/releases/download/v$KOMAC_VERSION/$t"
+          echo "$KOMAC_SHA256  $RUNNER_TEMP/$t" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$t" -C "$RUNNER_TEMP" komac
+          "$RUNNER_TEMP/komac" --version
+      - name: winget-pkgs PR
+        if: steps.gate.outputs.skip != '1'
+        env:
+          V: ${{ steps.gate.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+          KOMAC_CREATED_WITH: dtwinuz/bitg stores.yml
+          KOMAC_CREATED_WITH_URL: ${{ github.server_url }}/${{ github.repository }}/blob/main/.github/workflows/stores.yml
+        run: |
+          "$RUNNER_TEMP/komac" update dtwinuz.bitg --version "$V" \
+            --urls "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/bitg-$V-x64.msi" \
+            --release-notes-url "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" \
+            --submit | tee "$RUNNER_TEMP/komac.log"
+          { echo "### winget: dtwinuz.bitg $V yuborildi"; grep -Eo 'https://github.com/microsoft/winget-pkgs/pull/[0-9]+' "$RUNNER_TEMP/komac.log" | head -1; } >> "$GITHUB_STEP_SUMMARY"
