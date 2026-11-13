@@ -4,7 +4,7 @@
 
 name: release
 
-# Versiya tegi (v0.3.2) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), macOS .pkg va MSI ni yig'adi va ularga SLSA
+# Versiya tegi (v0.3.2) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), Arch .pkg.tar.zst, macOS .pkg va MSI ni yig'adi va ularga SLSA
 # build provenance + SBOM attestation'ini yozadi (SLSA Build L3, imzolovchi = build.yml). Reliz faqat attestation'ni
 # shu teg uchun build.yml imzolagani tekshirilgandan keyin yaratiladi.
 #
@@ -77,7 +77,7 @@ jobs:
           cd dist
           ls -l
           signer="$REPO/.github/workflows/build.yml"
-          for f in ./*.msi ./*.deb ./*.pkg; do
+          for f in ./*.msi ./*.deb ./*.pkg ./*.pkg.tar.zst; do
             gh attestation verify "$f" -R "$REPO" --signer-workflow "$signer" --source-ref "$REF" --deny-self-hosted-runners
             gh attestation verify "$f" -R "$REPO" --signer-workflow "$signer" --source-ref "$REF" --deny-self-hosted-runners \
               --bundle ./*.intoto.jsonl
@@ -120,8 +120,8 @@ jobs:
         run: |
           cd dist
           n=$(ls | wc -l)
-          # MSI + sha256, 2 deb + 2 sha256, pkg + sha256, SBOM, provenance va SBOM bundle'lari
-          [ "$n" -eq 11 ] || { ls -l; echo "reliz fayllari 11 ta bo'lishi kerak, bor: $n"; exit 1; }
+          # MSI + sha256, 2 deb + 2 sha256, 2 Arch + 2 sha256, pkg + sha256, SBOM, provenance va SBOM bundle'lari
+          [ "$n" -eq 15 ] || { ls -l; echo "reliz fayllari 15 ta bo'lishi kerak, bor: $n"; exit 1; }
           # SignPath Foundation shartlari: yuklab olish/reliz sahifasida "Code signing policy" bo'lishi kerak
           notes=()
           if [ -n "$SIGNPATH" ]; then

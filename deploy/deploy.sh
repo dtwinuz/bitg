@@ -6,7 +6,8 @@
 
 # bitg.uz: faqat origin/main deploy qilinadi.
 # web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI + Linux .deb
-# + Mac .pkg (GitHub Release'dan, attestatsiya tekshiruvi bilan) + imzolangan apt ombori + statistika xizmati
+# + Mac .pkg + Arch .pkg.tar.zst (GitHub Release'dan, attestatsiya tekshiruvi bilan) + imzolangan apt va pacman
+# omborlari + statistika xizmati
 # -> /opt/bitg-site -> health -> IndexNow.
 set -euo pipefail
 
@@ -22,7 +23,7 @@ ROOT="$(pwd)"
 git fetch --quiet origin main
 SHA="$(git rev-parse origin/main)"
 [ "$(git rev-parse HEAD)" = "$SHA" ] || fail "faqat origin/main (HEAD $(git rev-parse --short HEAD))"
-[ -z "$(git status --porcelain -- web deploy tools/site tools/apt)" ] || fail "web/, deploy/ yoki tools/ da commit qilinmagan o'zgarish bor"
+[ -z "$(git status --porcelain -- web deploy tools/site tools/apt tools/arch)" ] || fail "web/, deploy/ yoki tools/ da commit qilinmagan o'zgarish bor"
 
 STAGE="$(mktemp -d)"
 cleanup() { git -C "$ROOT" worktree remove --force "$STAGE/src" 2>/dev/null || true; rm -rf "$STAGE"; }
@@ -45,8 +46,15 @@ esac
 DIST="$STAGE/dist"
 MSI="$DIST/bitg-$VER-x64.msi"
 PKGS="$DIST/bitg_${VER}_amd64.deb $DIST/fcitx5-bitg_${VER}_amd64.deb $DIST/bitg-${VER}-macos.pkg"
+# Arch paketlari 0.4.1 dan boshlab relizda (build.yml `arch`); oldingi relizlarda pacman ombori yig'ilmaydi
+ARCH_PKGS="$DIST/bitg-${VER}-1-x86_64.pkg.tar.zst $DIST/fcitx5-bitg-${VER}-1-x86_64.pkg.tar.zst"
+case "$VER" in
+  0.3.*|0.4.0) ARCH_REPO=0 ;;
+  *) ARCH_REPO=1; PKGS="$PKGS $ARCH_PKGS" ;;
+esac
 gh release download "v$VER" -R dtwinuz/bitg -D "$DIST" -p '*.msi' -p '*.msi.sha256' -p '*.deb' -p '*.deb.sha256' \
-  -p '*.pkg' -p '*.pkg.sha256' || fail "GitHub Release v$VER yuklanmadi (gh auth status?)"
+  -p '*.pkg' -p '*.pkg.sha256' -p '*.pkg.tar.zst' -p '*.pkg.tar.zst.sha256' \
+  || fail "GitHub Release v$VER yuklanmadi (gh auth status?)"
 for d in $MSI $PKGS; do
   [ -f "$d" ] || fail "$(basename "$d") Release v$VER da yo'q"
   [ "$(sha256sum < "$d" | cut -d' ' -f1)" = "$(tr -d '\r' < "$d.sha256" | cut -d' ' -f1)" ] || fail "$d sha256 mos emas"
@@ -60,12 +68,12 @@ SITE="$STAGE/out/site"
 # css/js uzoq keshlanadi: har deployda manzil yangilansin (?v=<sha8>)
 V="${SHA:0:8}"
 # sahifalar web/pages/ dan yig'iladi: shablon, sitemap, 404, JSON-LD (tools/site/build.py)
-"${PYTHON:-python}" -I "$STAGE/src/tools/site/build.py" --out "$SITE" --v "$V" --msi "$MSI" \
+"${PYTHON:-python}" -I "$STAGE/src/tools/site/build.py" --out "$SITE" --v "$V" --msi "$MSI" --arch-repo "$ARCH_REPO" \
   || fail "sayt yig'ilmadi (tools/site/build.py)"
 mkdir -p "$SITE/download"
 cp "$WASM" "$SITE/bitg_core.wasm"
 cp "$MSI" "$MSI.sha256" "$SITE/download/"
-for d in $PKGS; do cp "$d" "$d.sha256" "$SITE/download/"; done
+for d in $PKGS; do case "$d" in *.pkg.tar.zst) ;; *) cp "$d" "$d.sha256" "$SITE/download/" ;; esac; done
 printf '%s\n' "$SHA" > "$SITE/version.txt"
 
 # apt ombori (bitg.uz/apt): .deb'lar imzolangan indeks bilan. Maxfiy kalit faqat shu kompyuterda (tools/apt/genkey.sh).
@@ -73,6 +81,14 @@ APT_GNUPG="${BITG_APT_GNUPG:-$HOME/.bitg-apt-gnupg}"
 [ -d "$APT_GNUPG" ] || fail "apt imzo kaliti yo'q: $APT_GNUPG (zaxiradan tiklang yoki tools/apt/genkey.sh)"
 "${PYTHON:-python}" -I "$STAGE/src/tools/apt/apt_repo.py" --out "$SITE/apt" --gnupg "$APT_GNUPG" \
   "$DIST/bitg_${VER}_amd64.deb" "$DIST/fcitx5-bitg_${VER}_amd64.deb" || fail "apt ombori yig'ilmadi"
+# pacman ombori (bitg.uz/arch): o'sha kalit bilan paket va baza imzolari (tools/arch/pacman_repo.py)
+if [ "$ARCH_REPO" = 1 ]; then
+  # shellcheck disable=SC2086
+  "${PYTHON:-python}" -I "$STAGE/src/tools/arch/pacman_repo.py" --out "$SITE/arch" --gnupg "$APT_GNUPG" $ARCH_PKGS \
+    || fail "pacman ombori yig'ilmadi"
+else
+  echo "pacman ombori: v$VER relizida Arch paketi yo'q (0.4.1 dan boshlab), o'tkazib yuborildi"
+fi
 
 cp "$STAGE/src/deploy/docker-compose.yml" "$STAGE/src/deploy/Caddyfile" "$STAGE/src/deploy/set-stats-env.sh" \
   "$STAGE/src/deploy/remote.sh" "$STAGE/out/"

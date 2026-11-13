@@ -47,6 +47,9 @@ CHANNELS = [
      "url": "#brew"},
     {"os": "Ubuntu, Debian", "tool": "apt", "cmd": "sudo apt install bitg", "live": True,
      "note": "omborni bir marta ulang", "url": "#apt"},
+    # live — deploy.sh --arch-repo 1 (bitg.uz/arch yig'ilgan bo'lsa); channels_html() da almashtiriladi
+    {"os": "Arch Linux", "tool": "pacman", "cmd": "sudo pacman -S bitg", "live": False, "arch_repo": True,
+     "note": "omborni bir marta ulang", "soon": "keyingi relizda", "url": "#pacman"},
     {"os": "Arch Linux", "tool": "AUR", "cmd": "yay -S bitg", "live": False,
      "soon": "tez orada", "url": "https://github.com/dtwinuz/bitg/tree/main/packaging/aur"},
 ]
@@ -439,10 +442,26 @@ def version_assets(text, v):
     return text.replace('data-v=""', f'data-v="{v}"')
 
 
-def channels_html():
+def pacman_section(fpr_spaced):
+    """bitg.uz/arch ko'rsatmasi ({{pacmanSection}}); ombor yig'ilmagan bo'lsa bo'sh (ishlamaydigan buyruq berilmaydi)."""
+    fpr = fpr_spaced.replace(" ", "")
+    return f'''<h3 id="pacman">Arch Linux: pacman ombori</h3>
+      <p>Arch, Manjaro va EndeavourOS uchun. Bir marta ulang — keyingi versiyalar <code data-no-conv>sudo pacman -Syu</code> bilan keladi. Paket va ombor bazasi bizning kalitimiz bilan imzolangan; pacman imzosi mos kelmagan faylni o‘rnatmaydi.</p>
+      <pre><code data-no-conv>curl -fsSL https://bitg.uz/arch/bitg.asc | sudo pacman-key --add -
+sudo pacman-key --lsign-key {fpr}
+printf '\\n[bitg]\\nServer = https://bitg.uz/arch/$arch\\n' | sudo tee -a /etc/pacman.conf
+sudo pacman -Sy bitg
+ibus restart</code></pre>
+      <p>Fcitx5 uchun: <code data-no-conv>sudo pacman -S fcitx5-bitg</code>. Kalit apt ombori bilan bir xil, izi: <code data-no-conv>{fpr_spaced}</code>. Omborni olib tashlash: <code data-no-conv>/etc/pacman.conf</code> dan <code data-no-conv>[bitg]</code> bo‘limini o‘chiring va <code data-no-conv>sudo pacman-key --delete {fpr}</code>.</p>'''
+
+
+def channels_html(arch_repo=False):
     """CHANNELS -> yuklab olish sahifasidagi «bitta buyruq» ro'yxati ({{pkgChannels}})."""
     rows = []
     for c in CHANNELS:
+        if c.get("arch_repo"):
+            # ombor hali yo'q: #pacman bo'limi ham chiqmaydi, holat havolasi relizlar sahifasiga
+            c = dict(c, live=arch_repo, url=c["url"] if arch_repo else RELEASES)
         cmd, url = html.escape(c["cmd"]), html.escape(c["url"])
         ext = "" if url.startswith("#") else ' rel="noopener"'
         if c["live"]:
@@ -553,7 +572,9 @@ def main():
     ap.add_argument("--v", default="", help="kesh versiyasi (git sha qisqa)")
     ap.add_argument("--msi", type=Path, default=None)
     ap.add_argument("--today", default=None, help="kunlar hisobi uchun sana (standart: bugun)")
+    ap.add_argument("--arch-repo", default="0", choices=("0", "1"), help="1 — bitg.uz/arch pacman ombori yig'ilgan")
     a = ap.parse_args()
+    arch_repo = a.arch_repo == "1"
 
     version = re.search(r'^version = "(.+?)"', (ROOT / "Cargo.toml").read_text(encoding="utf-8"), re.M).group(1)
     msi = a.msi or ROOT / "dist" / f"bitg-{version}-x64.msi"
@@ -571,8 +592,9 @@ def main():
         "version": version,
         "daysLeft": max((dt.date.fromisoformat(CONFIG["lawDate"]) - today).days, 0),
         "buildDate": today.isoformat(),
-        "pkgChannels": channels_html(),
+        "pkgChannels": channels_html(arch_repo),
     })
+    ctx["pacmanSection"] = pacman_section(ctx["aptFingerprint"]) if arch_repo else ""
     for lg in ("Uz", "Ru", "En"):
         ctx["lawDate" + lg] = human_date(CONFIG["lawDate"], lg.lower())
         ctx["signedDate" + lg] = human_date(CONFIG["signedDate"], lg.lower())

@@ -39,6 +39,12 @@
 	@aptpool path /apt/pool/*
 	header @aptpool Cache-Control "public, max-age=86400"
 
+	# pacman ombori (bitg.uz/arch): baza va kalit tez yangilansin, paket nomida versiya bor
+	@archidx path /arch/bitg.asc /arch/*/bitg.db /arch/*/bitg.db.* /arch/*/bitg.files /arch/*/bitg.files.*
+	header @archidx Cache-Control "no-cache"
+	@archpkg path /arch/*/*.pkg.tar.zst /arch/*/*.pkg.tar.zst.sig
+	header @archpkg Cache-Control "public, max-age=86400"
+
 	# avto-yangilanish manifesti (tools/site/build.py): ilovalar kuniga bir tekshiradi, kesh yo'q
 	@update path /update/*
 	header @update Cache-Control "no-cache"
@@ -55,7 +61,7 @@
 		-Server
 	}
 
-	# Kirish jurnali: faqat sahifalar, yuklab olishlar va apt. IP qisqartiriladi (/24, /48),
+	# Kirish jurnali: faqat sahifalar, yuklab olishlar, apt va pacman. IP qisqartiriladi (/24, /48),
 	# to'liq IP'li sarlavhalar o'chiriladi, 30 kundan keyin fayl o'chadi (web/pages/maxfiylik.html).
 	# deploy/stats/stats.py shu jurnaldan umumiy sonlarni chiqaradi.
 	@nolog {

@@ -80,6 +80,7 @@ BOT_RE = re.compile(
     r"httpclient|axios|node-fetch|undici|scrapy|ahrefs|semrush|mj12|dataforseo|bitg-stats|^$", re.I)
 CLI_RE = re.compile(r"^(curl|wget|powershell|winget|homebrew|aria2)", re.I)
 APT_RE = re.compile(r"\bAPT-HTTP|\bapt\b|Debian APT", re.I)
+PACMAN_RE = re.compile(r"^pacman/", re.I)
 
 
 def log(msg):
@@ -110,6 +111,8 @@ def ua_os(ua):
 
 
 def dl_kind(name):
+    if name.endswith(".pkg.tar.zst"):
+        return "fcitx" if name.startswith("fcitx5-bitg") else "linux"
     if name.endswith(".msi"):
         return "win"
     if name.endswith(".pkg"):
@@ -129,7 +132,7 @@ def site_host(h):
 def new_day():
     return {"visitors": 0, "pageviews": 0, "pages": Counter(), "os": Counter(), "refs": Counter(),
             "dl": Counter(), "dl_files": Counter(), "dl_cli": 0, "intents": Counter(),
-            "apt_pkg": Counter(), "apt_clients": 0, "notfound": Counter()}
+            "apt_pkg": Counter(), "apt_clients": 0, "pac_pkg": Counter(), "pac_clients": 0, "notfound": Counter()}
 
 
 def aggregate(lines):
@@ -138,6 +141,7 @@ def aggregate(lines):
     visitors = defaultdict(set)
     seen_dl = defaultdict(set)
     apt_clients = defaultdict(set)
+    pac_clients = defaultdict(set)
     for raw in lines:
         try:
             e = json.loads(raw)
@@ -158,7 +162,8 @@ def aggregate(lines):
         # to'liq fayl: 200 yoki boshidan boshlangan qismli (206 + Range: bytes=0-)
         full = status == 200 or (status == 206 and header(req, "Range").replace(" ", "").startswith("bytes=0-"))
 
-        if path.startswith("/download/") or path.startswith("/apt/pool/"):
+        pac_pkg = path.startswith("/arch/") and path.endswith(".pkg.tar.zst")
+        if path.startswith("/download/") or path.startswith("/apt/pool/") or pac_pkg:
             name = path.rsplit("/", 1)[-1]
             kind = dl_kind(name)
             if not kind or not full:
@@ -169,6 +174,9 @@ def aggregate(lines):
             seen_dl[day].add(key)
             if path.startswith("/apt/"):
                 d["apt_pkg"][kind] += 1
+                continue
+            if pac_pkg:
+                d["pac_pkg"][kind] += 1
                 continue
             cli = bool(CLI_RE.search(ua))
             if BOT_RE.search(ua) and not cli:
@@ -181,6 +189,12 @@ def aggregate(lines):
         if path.startswith("/apt/dists/"):
             if path.endswith("/InRelease") and status in (200, 304) and APT_RE.search(ua):
                 apt_clients[day].add(who)
+            continue
+
+        # pacman -Sy har safar bitg.db ni so'raydi (o'zgarmagan bo'lsa 304)
+        if path.startswith("/arch/"):
+            if path.endswith("/bitg.db") and status in (200, 304) and PACMAN_RE.search(ua):
+                pac_clients[day].add(who)
             continue
 
         is_page = path.endswith("/") or path.endswith(".html")
@@ -207,6 +221,8 @@ def aggregate(lines):
                 d["refs"][re.sub(r"^(www\.|m\.|l\.)", "", host)] += 1
     for day, s in apt_clients.items():
         days[day]["apt_clients"] = len(s)
+    for day, s in pac_clients.items():
+        days[day]["pac_clients"] = len(s)
     return {k: {f: (dict(v) if isinstance(v, Counter) else v) for f, v in d.items()} for k, d in days.items()}
 
 
@@ -348,6 +364,9 @@ def digest(state, day):
     if d.get("apt_clients") or total([d], "apt_pkg"):
         rows.append(f"🐧 apt: {d.get('apt_clients', 0)} qurilma yangilanish tekshirdi, "
                     f"{total([d], 'apt_pkg')} paket o'rnatildi yoki yangilandi")
+    if d.get("pac_clients") or total([d], "pac_pkg"):
+        rows.append(f"🐧 pacman: {d.get('pac_clients', 0)} qurilma yangilanish tekshirdi, "
+                    f"{total([d], 'pac_pkg')} paket o'rnatildi yoki yangilandi")
     os_mix = sum_counter(w7, "os")
     if os_mix:
         vt = sum(n for _, n in os_mix)
@@ -628,6 +647,7 @@ def dashboard(state, now):
     up_rows = [(f"{'✅' if s.get('ok', True) else '🔴'} {k} — {s.get('note', '')}", 0)
                for k, s in state.get("uptime", {}).items()]
     apt7 = max((d.get("apt_clients", 0) for d in w7), default=0)
+    pac7 = max((d.get("pac_clients", 0) for d in w7), default=0)
     return f"""<!doctype html><html lang="uz"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>bitg.uz statistika</title>
 <style>{CSS}</style></head><body><main>
@@ -639,6 +659,7 @@ def dashboard(state, now):
 <div class="tile"><b>{pct(d7, v7)}</b><span>tashrifdan yuklashga, 7 kun</span></div>
 <div class="tile"><b>{fmt(site + gh)}</b><span>jami yuklab olish (sayt {fmt(site)} + GitHub {fmt(gh)})</span></div>
 <div class="tile"><b>{fmt(apt7)}</b><span>apt orqali yangilanadigan Linux qurilma (7 kunda eng ko'p)</span></div>
+<div class="tile"><b>{fmt(pac7)}</b><span>pacman orqali yangilanadigan Arch qurilma (7 kunda eng ko'p)</span></div>
 </div>
 <h2>Tashrif buyuruvchilar, kunlik (90 kun)</h2><div class="card">{bar_chart(vis, "Kunlik tashrif")}</div>
 <h2>Yuklab olishlar, kunlik (90 kun)</h2><div class="card">{bar_chart(dls, "Kunlik yuklab olish")}</div>
@@ -740,6 +761,7 @@ def selftest():
     mac = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605"
     andr = "Mozilla/5.0 (Linux; Android 14) Mobile Chrome/130"
     apt = "Debian APT-HTTP/1.3 (2.7.14)"
+    pac = "pacman/7.0.0 (Linux x86_64) libalpm/15.0.0"
     lines = [
         line("/", win, ref="https://www.google.com/search?q=bitg"),
         line("/yuklab-olish/", win),
@@ -759,6 +781,12 @@ def selftest():
         line("/apt/dists/stable/InRelease", apt, ip="203.0.115.0"),
         line("/apt/dists/stable/InRelease", apt, ip="203.0.116.0", status=304),
         line("/apt/pool/main/b/bitg/bitg_0.2.0_amd64.deb", apt, ip="203.0.115.0"),
+        line("/arch/x86_64/bitg.db", pac, ip="203.0.117.0"),
+        line("/arch/x86_64/bitg.db", pac, ip="203.0.117.0", t=60, status=304),
+        line("/arch/x86_64/bitg.db.sig", pac, ip="203.0.117.0"),
+        line("/arch/x86_64/bitg-0.4.1-1-x86_64.pkg.tar.zst", pac, ip="203.0.117.0"),
+        line("/arch/x86_64/bitg-0.4.1-1-x86_64.pkg.tar.zst.sig", pac, ip="203.0.117.0"),
+        line("/arch/x86_64/fcitx5-bitg-0.4.1-1-x86_64.pkg.tar.zst", pac, ip="203.0.117.0"),
         line("/", win, t=86400),                                              # ertasi kun
         "not json", "{}", "[]",
     ]
@@ -773,6 +801,8 @@ def selftest():
     assert d["refs"] == {"google.com": 1, "t.me": 1}, d["refs"]
     assert d["notfound"] == {"/eski/": 1}, d
     assert d["apt_clients"] == 2 and d["apt_pkg"] == {"linux": 1}, d
+    assert d["pac_clients"] == 1 and d["pac_pkg"] == {"linux": 1, "fcitx": 1}, d
+    assert dl_kind("bitg-0.4.1-1-x86_64.pkg.tar.zst.sig") is None
     assert days["2026-11-13"]["visitors"] == 1
 
     state = {}
