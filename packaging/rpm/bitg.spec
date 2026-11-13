@@ -55,6 +55,8 @@ Requires:       typelib(AyatanaAppIndicator3) = 0.1
 %else
 Requires:       python3-gobject
 Requires:       gtk3
+# indikator AyatanaAppIndicator3 ni GObject introspection orqali yuklaydi (ELF bog'liqlik emas, avtomatik
+# aniqlanmaydi); Fedora'da typelib() provide yo'q — paket nomi bilan (bitg.rpmlintrc)
 Requires:       libayatana-appindicator-gtk3
 %endif
 Suggests:       fcitx5-bitg

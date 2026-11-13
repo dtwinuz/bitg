@@ -47,7 +47,7 @@ jobs:
       - name: rpmbuild --rebuild (%check bilan)
         run: rpmbuild --rebuild --define "_topdir $RUNNER_TEMP/rpmbuild" "$SRPM"
       - name: rpmlint
-        run: rpmlint packaging/rpm/bitg.spec "$SRPM" "$RUNNER_TEMP"/rpmbuild/RPMS/*/*.rpm
+        run: rpmlint -r packaging/rpm/bitg.rpmlintrc packaging/rpm/bitg.spec "$SRPM" "$RUNNER_TEMP"/rpmbuild/RPMS/*/*.rpm
       - name: O'rnatish, sinov, o'chirish
         run: |
           r="$RUNNER_TEMP/rpmbuild/RPMS/x86_64"

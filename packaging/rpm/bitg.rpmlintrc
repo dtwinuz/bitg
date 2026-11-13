@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# bitg-indicator (Python) AyatanaAppIndicator3 ni gi.repository orqali yuklaydi: rpm buni ELF bog'liqlik sifatida
+# ko'rmaydi, Fedora'da typelib(AyatanaAppIndicator3) provide ham yo'q, shuning uchun paket nomi bilan talab qilinadi.
+addFilter(r"explicit-lib-dependency libayatana-appindicator-gtk3")
+# uz/en lug'atlari SCOWL litsenziyasi ostida (REUSE.toml, LICENSES/LicenseRef-SCOWL.txt); SPDX ro'yxatida yo'q
+addFilter(r"invalid-license LicenseRef-SCOWL")
+# Source1 = make-srpm.sh yasaydigan cargo vendor arxivi, URL'i yo'q
+addFilter(r"invalid-url Source1: bitg-.*-vendor\.tar\.xz")
