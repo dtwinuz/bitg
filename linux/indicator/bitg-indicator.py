@@ -6,7 +6,6 @@
 import fcntl
 import os
 from pathlib import Path
-import subprocess
 import sys
 import tempfile
 import webbrowser
@@ -21,53 +20,77 @@ LABELS = {"enabled": "Yoqilgan", "auto_convert": "Avtomatik ögiriş",
           "cyrillic": "Kirillçani ögiriş"}
 CONFIG = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "bitg"
 SETTINGS = CONFIG / "settings.ini"
+EXCEPTIONS = CONFIG / "exceptions.txt"
+# crates/bitg-ime/src/config.rs `flag()` bilan bir xil
+TRUE = ("1", "true", "yes", "on", "ha")
+FALSE = ("0", "false", "no", "off", "yoq", "yo'q", "yo‘q")
+BOM = "﻿"
+
+
+def flag(value):
+    value = value.strip().lower()
+    if value in TRUE:
+        return True
+    if value in FALSE:
+        return False
+    return None
+
+
+def read_text(path):
+    try:
+        return path.read_text(encoding="utf-8").removeprefix(BOM)
+    except FileNotFoundError:
+        return ""
 
 
 def read_settings():
     values = {key: True for key in KEYS}
-    try:
-        lines = SETTINGS.read_text(encoding="utf-8").splitlines()
-    except FileNotFoundError:
-        return values
-    for line in lines:
-        if "=" not in line or line.lstrip().startswith(("#", ";", "[")):
+    for line in read_text(SETTINGS).splitlines():
+        line = line.strip()
+        if "=" not in line or line.startswith(("#", ";", "[")):
             continue
-        key, val = (part.strip() for part in line.split("=", 1))
-        if key in values:
-            values[key] = val.lower() not in ("0", "false", "no", "off", "yoq", "yo'q", "yo‘q")
+        key, val = line.split("=", 1)
+        key = key.strip().lower()
+        if key in values and flag(val) is not None:
+            values[key] = flag(val)
     return values
 
 
-def save_setting(key, enabled):
+def write_atomic(path, text):
     CONFIG.mkdir(mode=0o700, parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=f".{path.stem}-", dir=CONFIG)
     try:
-        lines = SETTINGS.read_text(encoding="utf-8").splitlines(keepends=True)
-    except FileNotFoundError:
-        lines = []
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as output:
+            output.write(text)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name):
+            os.unlink(name)
+
+
+def save_setting(key, enabled):
+    lines = read_text(SETTINGS).splitlines(keepends=True)
     new_line = f"{key}={'1' if enabled else '0'}\n"
     found = False
     for i, line in enumerate(lines):
         if "=" in line and line.split("=", 1)[0].strip().lower() == key:
-            if not found:
-                lines[i] = new_line
-                found = True
-            else:
-                lines[i] = ""
+            lines[i] = "" if found else new_line
+            found = True
     if not found:
         if lines and not lines[-1].endswith("\n"):
             lines[-1] += "\n"
         lines.append(new_line)
-    fd, name = tempfile.mkstemp(prefix=".settings-", dir=CONFIG)
-    try:
-        os.fchmod(fd, 0o600)
-        with os.fdopen(fd, "w", encoding="utf-8") as output:
-            output.writelines(lines)
-            output.flush()
-            os.fsync(output.fileno())
-        os.replace(name, SETTINGS)
-    finally:
-        if os.path.exists(name):
-            os.unlink(name)
+    write_atomic(SETTINGS, "".join(lines))
+
+
+def error(text):
+    dialog = Gtk.MessageDialog(message_type=Gtk.MessageType.ERROR,
+                               buttons=Gtk.ButtonsType.CLOSE, text=text)
+    dialog.run()
+    dialog.destroy()
 
 
 class App:
@@ -83,18 +106,19 @@ class App:
             self.menu.append(item)
             self.items[key] = item
         self.menu.append(Gtk.SeparatorMenuItem())
-        settings = Gtk.MenuItem(label="Sozlamalar")
+        settings = Gtk.MenuItem(label="Istisnolar va lugʼat…")
         settings.connect("activate", self.show_settings)
         self.menu.append(settings)
         report = Gtk.MenuItem(label="Xato haqida xabar beriş")
         report.connect("activate", lambda *_: webbrowser.open(
             "https://github.com/dtwinuz/bitg/issues/new"))
         self.menu.append(report)
-        quit_item = Gtk.MenuItem(label="Çiqiş")
+        quit_item = Gtk.MenuItem(label="Panel belgisini yopiş")
         quit_item.connect("activate", lambda *_: Gtk.main_quit())
         self.menu.append(quit_item)
         self.menu.show_all()
         self.indicator.set_menu(self.menu)
+        self.dialog = None
         self.sync()
         GLib.timeout_add_seconds(2, self.sync)
 
@@ -113,21 +137,47 @@ class App:
         try:
             save_setting(key, item.get_active())
         except OSError as exc:
-            dialog = Gtk.MessageDialog(message_type=Gtk.MessageType.ERROR,
-                                       buttons=Gtk.ButtonsType.CLOSE,
-                                       text=f"Sozlamani saqlab bölmadi: {exc}")
-            dialog.run()
-            dialog.destroy()
+            error(f"Sozlamani saqlab bölmadi: {exc}")
         self.sync()
 
     def show_settings(self, *_):
-        dialog = Gtk.Dialog(title="bitg sozlamalari")
-        dialog.add_button("Yopiş", Gtk.ResponseType.CLOSE)
-        dialog.get_content_area().add(Gtk.Label(
-            label="Sozlamalarni yuqori paneldagi bitg menyusidan özgartiring."))
+        if self.dialog is not None:
+            self.dialog.present()
+            return
+        dialog = Gtk.Dialog(title="bitg: istisnolar va lugʼat")
+        dialog.set_default_size(420, 420)
+        dialog.add_button("Bekor qiliş", Gtk.ResponseType.CANCEL)
+        dialog.add_button("Saqlaş", Gtk.ResponseType.OK)
+        box = dialog.get_content_area()
+        box.set_spacing(8)
+        box.set_border_width(12)
+        hint = Gtk.Label(xalign=0, wrap=True, label=(
+            "Har qatorda bitta söz: u ögirilmaydi. «söz=yozuv» — söz aynan şunday yoziladi "
+            "(masalan, şamollaş). # bilan boşlangan qator — izoh. Saqlangaç dasturlarni "
+            "qayta oçmasdan qöllanadi."))
+        box.pack_start(hint, False, False, 0)
+        view = Gtk.TextView(monospace=True)
+        view.get_buffer().set_text(read_text(EXCEPTIONS))
+        scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+        scroll.add(view)
+        box.pack_start(scroll, True, True, 0)
+        dialog.connect("response", self.on_settings_response, view)
+        self.dialog = dialog
         dialog.show_all()
-        dialog.run()
+
+    def on_settings_response(self, dialog, response, view):
+        if response == Gtk.ResponseType.OK:
+            buf = view.get_buffer()
+            text = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), False)
+            if text and not text.endswith("\n"):
+                text += "\n"
+            try:
+                write_atomic(EXCEPTIONS, text)
+            except OSError as exc:
+                error(f"Istisnolarni saqlab bölmadi: {exc}")
+                return
         dialog.destroy()
+        self.dialog = None
 
 
 def main():

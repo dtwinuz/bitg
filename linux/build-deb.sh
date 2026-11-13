@@ -58,7 +58,8 @@ Version: $VER
 Architecture: $ARCH
 Maintainer: dtwinuz <info@dtwin.uz>
 Installed-Size: $SIZE
-Depends: $DEPS, ibus (>= 1.5.20), python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
+Depends: $DEPS, ibus (>= 1.5.20)
+Recommends: python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
 Section: utils
 Priority: optional
 Homepage: https://bitg.uz
