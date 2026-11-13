@@ -358,6 +358,16 @@ fn foreign_spelled_names_are_kept() {
     // nom gap tilini aytmaydi: qolgan so'zlar o'zbekcha
     assert_eq!(c("Chicagoda yashaydi"), "Chicagoda yaşaydi");
     assert_eq!(c("Michelleni kutdik"), "Michelleni kutdik");
+    // #50: boshqa xorijiy imlo belgilari (ff, tte, ey, sch)
+    assert_eq!(
+        c("Sheffield va Charlotte shaharlari"),
+        "Sheffield va Charlotte şaharlari"
+    );
+    assert_eq!(
+        c("Ashley Schumacher bilan gaplashdi"),
+        "Ashley Schumacher bilan gaplaşdi"
+    );
+    assert_eq!(c("Deutsche Bank hisoboti"), "Deutsche Bank hisoboti");
 }
 
 #[test]
@@ -389,6 +399,11 @@ fn ambiguous_words_are_not_restored_silently() {
     assert_eq!(c("kitob oqish boyicha"), "kitob öqiş böyiça");
     // o't|kazdi: "kazdi" qo'shimcha emas — ikki ma'noli emas
     assert_eq!(c("majlis otkazdi"), "majlis ötkazdi");
+    // #50: och / o'ch, ot / o't, olim / o'lim, sol / so'l — muallif yozganicha
+    assert_eq!(c("eshikni ochdi va chiqdi"), "eşikni oçdi va çiqdi");
+    assert_eq!(c("qushni otib, uyga qaytdi"), "quşni otib, uyga qaytdi");
+    assert_eq!(c("olim kitob yozdi"), "olim kitob yozdi");
+    assert_eq!(c("choyga shakar sol"), "çoyga şakar sol");
 }
 
 #[test]
