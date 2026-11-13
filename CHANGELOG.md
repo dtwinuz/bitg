@@ -29,6 +29,8 @@ Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» sh
 - **Xorijiy ismlar ro'yxati kengaydi** ([#71](https://github.com/dtwinuz/bitg/pull/71)): `foreign_names.txt` 1 394 dan
   3 419 nomga (AQSh aholi ro'yxati familiyalari va NameDatabases, o'zbek kirill korpusida uchramaydiganlari;
   `tools/foreign_names_extra.txt`). `Chesney`, `Sanchez` kabi nomlar o'girilmaydi.
+- **Brendlar va texnik atamalar** ([#69](https://github.com/dtwinuz/bitg/pull/69)): `names.txt` ga 55 ta nom
+  (`fintech`, `edtech`, `biotech`, `Semrush`, `Hashnode`, `Sketchfab`, `Genshin`, `Launchpad` …) — o'girilmaydi.
 
 - **crates.io:** `bitg-core` kutubxonasi crates.io'da (`cargo add bitg-core`; 0.3.1 v0.3.1 tegidan qo'lda chiqarildi).
   Keyingi relizlarda `release.yml` dagi `crates-io` job uni Trusted Publishing (OIDC, `crates-io` environment) bilan

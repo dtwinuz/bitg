@@ -20,6 +20,7 @@ Bu fayldan ilovadagi «Yangiliklar» sahifasi va yangilanish oynasidagi qaydlar 
 
 ### Tuzatildi
 - **Ko'proq xorijiy ism.** 2 000 dan ortiq yangi xorijiy ism va familiya (Chesney kabi) yozilganidek qoladi, bitg ularni o'zbekcha deb o'girmaydi.
+- **Brend va texnik atamalar.** fintech, edtech, Semrush, Genshin kabi 55 ta so'z endi buzilmaydi.
 - **Kod yoki brend yonidagi so'z.** «fetch() chaqiruvi», «Shohjahon McDonald's» kabi qisqa gapda o'zbekcha so'z inglizcha deb qolib ketardi — endi o'giriladi.
 
 ## 0.3.1 — 2026-11-13
