@@ -5,10 +5,11 @@
 name: aur
 
 # packaging/aur/PKGBUILD AUR'ga yuborishdan oldin toza Arch konteynerida manbadan yig'iladi (check() bilan),
-# namcap, .SRCINFO mosligi, o'rnatish, ishlatish va o'chirish tekshiriladi.
+# namcap, .SRCINFO mosligi, o'rnatish, ishlatish va o'chirish tekshiriladi. Shu paketlardan tools/arch/pacman_repo.py
+# bilan ombor yasalib, pacman orqali o'rnatiladi (bitg.uz/arch formati va imzolari).
 on:
   pull_request:
-    paths: ["packaging/aur/**", ".github/workflows/aur.yml"]
+    paths: ["packaging/aur/**", "tools/arch/**", ".github/workflows/aur.yml"]
   workflow_dispatch:
 
 permissions:
@@ -56,6 +57,29 @@ jobs:
           nm -D --defined-only /usr/lib/fcitx5/bitg.so | grep -q ' fcitx_addon_factory_instance$'
           pacman -R --noconfirm fcitx5-bitg bitg
           test ! -e /usr/bin/bitg && test ! -e /usr/lib/fcitx5/bitg.so
+      # tools/arch/pacman_repo.py (bitg.uz/arch) haqiqiy pacman bilan: bir martalik kalit, SigLevel Required,
+      # ombordan o'rnatish; keyin buzilgan paket imzo tekshiruvidan o'tmasligi.
+      - name: pacman ombori (pacman_repo.py) va imzo tekshiruvi
+        working-directory: /home/builder/aur
+        run: |
+          pacman -S --noconfirm --needed python
+          export GNUPGHOME=/tmp/gnupg && install -d -m 700 "$GNUPGHOME"
+          gpg --batch --passphrase '' --quick-gen-key "bitg CI test <ci@bitg.uz>" ed25519 sign 1d
+          fpr=$(gpg --with-colons --list-secret-keys | awk -F: '/^fpr:/ {print $10; exit}')
+          python -I "$GITHUB_WORKSPACE/tools/arch/pacman_repo.py" --out /srv/repo --gnupg "$GNUPGHOME" --fingerprint "$fpr" \
+            ./bitg-[0-9]*.pkg.tar.zst ./fcitx5-bitg-[0-9]*.pkg.tar.zst
+          ls -lR /srv/repo
+          pacman-key --add /srv/repo/bitg.asc && pacman-key --lsign-key "$fpr"
+          printf '\n[bitg]\nSigLevel = Required DatabaseRequired\nServer = file:///srv/repo/$arch\n' >> /etc/pacman.conf
+          pacman -Sy --noconfirm bitg fcitx5-bitg
+          pacman -Si bitg | grep -q '^Repository *: bitg$'
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          pacman -Fy >/dev/null && pacman -F /usr/bin/bitg | grep -q 'bitg/bitg 0'
+          pacman -R --noconfirm fcitx5-bitg bitg
+          # imzosi mos kelmagan paket o'rnatilmasligi kerak
+          printf 'x' >> /srv/repo/x86_64/bitg-[0-9]*.pkg.tar.zst
+          rm -f /var/cache/pacman/pkg/bitg-[0-9]*
+          if pacman -S --noconfirm bitg; then echo "buzilgan paket o'rnatildi"; exit 1; fi
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ always() }}
         with:

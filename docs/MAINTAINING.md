@@ -69,7 +69,8 @@ Reliz to'liq GitHub Actions'da yig'iladi, shaxsiy kompyuter kerak emas.
    ```
 3. `release` workflow'i o'zi bajaradi:
    - teg va `Cargo.toml` versiyasi bir xilligini tekshiradi;
-   - `build.yml` orqali `.deb` (IBus va Fcitx5), macOS `.pkg` va Windows MSI ni yig'adi;
+   - `build.yml` orqali `.deb` (IBus va Fcitx5), Arch `.pkg.tar.zst` (`packaging/aur/PKGBUILD`, shu commit manbasidan),
+     macOS `.pkg` va Windows MSI ni yig'adi;
    - SLSA provenance va SBOM attestation'ini yaratadi (imzolovchi `build.yml`, SLSA Build L3);
    - attestation'ni `gh attestation verify --signer-workflow` bilan tekshiradi, o'tmasa reliz ochilmaydi;
    - GitHub Release'ni ochadi.
@@ -101,14 +102,15 @@ Natijani PR qilib yuboring: `packaging` workflow'i winget manifesti va Chocolate
 | winget | **avtomatik**: `release.yml` → `stores.yml` Komac bilan [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) ga PR ochadi (MSI attestation tekshiruvidan keyin). Token: environment `winget` → `WINGET_TOKEN` (classic, faqat `public_repo`). Qayta yuborish: Actions → `stores` → Run workflow |
 | Chocolatey | **avtomatik**: `stores.yml` relizdagi MSI'dan paket yasaydi, Windows'da o'rnatib-o'chirib sinaydi va environment `chocolatey` → `CHOCO_API_KEY` bilan yuboradi (community.chocolatey.org moderatsiyasi). Qo'lda: Actions → `packaging` → `publish = true` |
 | Homebrew | **avtomatik**: `dtwinuz/homebrew-tap` dagi `autobump` (har 3 soatda) yangi relizni topadi, `.pkg` sha256 va attestation'ini tekshiradi, macOS'da o'rnatib sinab, cask'ni yangilaydi. Darhol kerak bo'lsa: tap → Actions → `autobump` → Run workflow |
+| pacman (bitg.uz/arch) | **sayt deploy'ida**: `deploy.sh` relizdagi Arch paketlarini (attestation tekshiruvidan keyin) apt kaliti bilan imzolab, `tools/arch/pacman_repo.py` orqali ombor yasaydi. Foydalanuvchi: `bitg.uz/yuklab-olish/#pacman`. Format PR'da `aur` workflow'ida haqiqiy pacman bilan sinaladi (o'rnatish va buzilgan paketni rad etish) |
 | AUR | **avtomatik**: `stores.yml` PKGBUILD'ni teg manbasiga yangilaydi, Arch konteynerida `check()` bilan yig'adi, `.SRCINFO` ni yozadi va environment `aur` → `AUR_SSH_KEY` (faqat AUR uchun alohida kalit; ochiq qismi AUR akkauntida) bilan push qiladi |
 
-## 7. bitg.uz sayti va apt ombori
+## 7. bitg.uz sayti, apt va pacman omborlari
 
 `deploy/deploy.sh <ssh-host>` saytni yig'adi va serverga uzilishsiz chiqaradi. Ishlashi uchun kerak:
 
 - serverga SSH kirish;
-- apt ombori imzo kaliti;
+- apt ombori imzo kaliti (pacman ombori ham shu kalit bilan imzolanadi);
 - faqat `origin/main` holati.
 
 Reliz fayllarini skript GitHub Release'dan oladi va attestation'dan o'tmasa to'xtaydi. Orqaga qaytarish

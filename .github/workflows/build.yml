@@ -108,6 +108,65 @@ jobs:
           path: target/macos/bitg-*-macos.pkg*
           if-no-files-found: error
 
+  arch:
+    # Arch Linux paketlari (bitg.uz/arch pacman ombori): packaging/aur/PKGBUILD shu commit manbasidan (git archive),
+    # makepkg check() bilan, namcap, o'rnatish sinovi. AUR'dagi paket bilan bir xil retsept.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container: archlinux:base-devel@sha256:fa2d4ce3310ddd90a4208e5168be8ad367da5129af1245f38fd2d803bcbe3239
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      # git checkout'dan oldin: aks holda actions/checkout .git'siz arxiv yuklaydi va git archive ishlamaydi
+      - run: pacman -Syu --noconfirm --needed git namcap
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: makepkg
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          cargo=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          [ "$VERSION" = "$cargo" ] || { echo "Versiya $VERSION, Cargo.toml $cargo"; exit 1; }
+          useradd -m builder
+          echo 'builder ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/builder
+          b=/home/builder/aur
+          cp -r packaging/aur "$b"
+          git archive --format=tar.gz --prefix="bitg-$VERSION/" -o "$b/bitg-$VERSION.tar.gz" HEAD
+          sum=$(sha256sum < "$b/bitg-$VERSION.tar.gz" | cut -d' ' -f1)
+          cd "$b"
+          sed -i -e "s/^pkgver=.*/pkgver=$VERSION/" -e "s/^pkgrel=.*/pkgrel=1/" \
+            -e "s|^source=.*|source=(\"bitg-$VERSION.tar.gz\")|" -e "s/^sha256sums=.*/sha256sums=('$sum')/" PKGBUILD
+          grep -q "^pkgver=$VERSION$" PKGBUILD && grep -q "$sum" PKGBUILD
+          chown -R builder: "$b"
+          sudo -u builder env SOURCE_DATE_EPOCH="$(git -C "$GITHUB_WORKSPACE" log -1 --format=%ct)" \
+            PACKAGER="dtwinuz <info@dtwin.uz>" makepkg --syncdeps --noconfirm --cleanbuild
+      - name: namcap, o'rnatish, sinov, o'chirish
+        working-directory: /home/builder/aur
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/target/arch"
+          for p in bitg fcitx5-bitg; do
+            f="$p-$VERSION-1-x86_64.pkg.tar.zst"
+            [ -f "$f" ] || { ls -l; echo "$f yo'q"; exit 1; }
+            namcap "$f"
+            cp "$f" "$GITHUB_WORKSPACE/target/arch/"
+          done
+          pacman -U --noconfirm "./bitg-$VERSION-1-x86_64.pkg.tar.zst" "./fcitx5-bitg-$VERSION-1-x86_64.pkg.tar.zst"
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          test "$(bitg 'Please check the schedule')" = 'Please check the schedule'
+          pacman -R --noconfirm fcitx5-bitg bitg
+          cd "$GITHUB_WORKSPACE/target/arch"
+          for f in *.pkg.tar.zst; do sha256sum "$f" > "$f.sha256"; done
+          ls -l
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: arch
+          path: |
+            target/arch/*.pkg.tar.zst
+            target/arch/*.pkg.tar.zst.sha256
+          if-no-files-found: error
+
   msi:
     runs-on: windows-latest
     permissions:
@@ -230,7 +289,7 @@ jobs:
   attest:
     # Faqat shu job imzolaydi. U repo kodini ishga tushirmaydi va hech narsa kompilyatsiya qilmaydi: tayyor paketlarni
     # yuklab oladi, sha256 ni tekshiradi va attestation yozadi.
-    needs: [deb, pkg, msi, sign-msi]
+    needs: [deb, pkg, arch, msi, sign-msi]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -248,7 +307,8 @@ jobs:
         run: |
           ls -l
           for f in "bitg-$VERSION-x64.msi" "bitg_${VERSION}_amd64.deb" "fcitx5-bitg_${VERSION}_amd64.deb" \
-                   "bitg-$VERSION-macos.pkg" "bitg-$VERSION.spdx.json"; do
+                   "bitg-$VERSION-macos.pkg" "bitg-$VERSION-1-x86_64.pkg.tar.zst" \
+                   "fcitx5-bitg-$VERSION-1-x86_64.pkg.tar.zst" "bitg-$VERSION.spdx.json"; do
             [ -f "$f" ] || { echo "$f yo'q"; exit 1; }
           done
           for s in *.sha256; do
@@ -262,6 +322,7 @@ jobs:
             dist/*.msi
             dist/*.deb
             dist/*.pkg
+            dist/*.pkg.tar.zst
       - uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         id: sbom
         with:
@@ -269,6 +330,7 @@ jobs:
             dist/*.msi
             dist/*.deb
             dist/*.pkg
+            dist/*.pkg.tar.zst
           sbom-path: dist/bitg-${{ inputs.version }}.spdx.json
       # Bundle'lar relizga qo'yiladi: internetsiz tekshirish (`gh attestation verify --bundle`) va OpenSSF Scorecard
       # (Signed-Releases: *.intoto.jsonl, *.sigstore.json) uchun.
