@@ -179,7 +179,7 @@ O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bit
 [Releases](https://github.com/dtwinuz/bitg/releases) dan paketni oling. IBus (Ubuntu, Debian GNOME standarti):
 
 ```bash
-sudo apt install ./bitg_0.3.1_amd64.deb      # IBus dvigateli + bitg CLI
+sudo apt install ./bitg_0.4.0_amd64.deb      # IBus dvigateli + bitg CLI
 ibus restart                                  # yoki tizimdan chiqib qayta kiring
 ```
 
@@ -195,7 +195,7 @@ sudo apt update && sudo apt install bitg     # Fcitx5: fcitx5-bitg
 ```
 
 So'ng **Sozlamalar → Klaviatura → Kiritish manbasi qo'shish → O'zbek → bitg** va **Super + Probel** bilan tanlang.
-Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.3.1_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
+Fcitx5 ishlatsangiz (KDE va boshqalar), `fcitx5-bitg_0.4.0_amd64.deb` ni o'rnatib, `fcitx5-configtool` da «bitg» ni
 qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 
 | Nima | Qayerda |
@@ -233,7 +233,7 @@ sahifada va [Releases](https://github.com/dtwinuz/bitg/releases) da): bitta univ
 Baribir ochish**, yoki terminalda:
 
 ```bash
-sudo installer -pkg ~/Downloads/bitg-0.3.1-macos.pkg -target /
+sudo installer -pkg ~/Downloads/bitg-0.4.0-macos.pkg -target /
 ```
 
 bitg `/Library/Input Methods/bitg.app` ga yoziladi va kiritish manbalariga o'zi qo'shiladi (ko'rinmasa — tizimdan

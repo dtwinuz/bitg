@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Cargo.toml dagi versiya (masalan 0.3.1); reliz yaratilmaydi"
+        description: "Cargo.toml dagi versiya (masalan 0.4.0); reliz yaratilmaydi"
         type: string
         required: true
 

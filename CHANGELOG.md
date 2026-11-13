@@ -4,6 +4,29 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-11-13
+
+Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md) (ilovadagi «Yangiliklar» shu fayldan).
+
+### Qo'shildi
+- **Shaxsiy lug'at** ([#77](https://github.com/dtwinuz/bitg/issues/77)): `exceptions.txt` da `so'z=yozuv` qatori so'zni
+  aynan shunday yozadi (`shamollash=şamollaş`), qo'shimchali shakli ham (`shamollashdan` → `şamollaşdan`), registr
+  yozilgandek. Bitta harfni saqlash: `bog'cha=bog'ça`. Uch platformada bitta fayl (`bitg_core::user`). Oynada
+  «Istisnolar» o'rniga «Lug'at»: har o'/g'/sh/ch — yoqib-o'chiriladigan chip, fayldan qo'shish va nusxalash.
+- **Ilova ichidan xabar berish** ([#78](https://github.com/dtwinuz/bitg/issues/78)): xato, taklif yoki noto'g'ri
+  o'girish, ekran parchasi yoki rasm, ixtiyoriy diagnostika. `POST bitg.uz/api/feedback` — bot ichidagi HTTP oqim
+  (`bot/src/web.rs`): tekshiruv, IP/o'rnatish/umumiy chegara, adminlarga Telegram orqali, chipta raqami.
+- **Yangilanish** ([#79](https://github.com/dtwinuz/bitg/issues/79)): `bitg.uz/update/stable.json`; ilova kuniga bir marta
+  tekshiradi, MSI faqat GitHub Releases'dan, hajm va SHA-256 mos kelsa `msiexec /passive`. Tarmoq — WinHTTP.
+- **«Yangiliklar» sahifasi** ([#80](https://github.com/dtwinuz/bitg/issues/80)): `NEWS.md` dan versiyalar lentasi,
+  yangilangandan keyin bir marta ochiladi (`whats_new`, `last_seen`).
+- Qoidalar: «Ehtiyotkor / Tavsiya / Maxsus» tayyor holatlari; apostrof tiklash lug'at so'zini ham tuzatishi yozildi.
+
+### Tuzatildi
+- Havola, kod, `@user` va brend gap kontekstida inglizcha deb ovoz bermaydi: «fetch() chaqiruvi», «Shohjahon
+  McDonald's» endi o'giriladi ([#76](https://github.com/dtwinuz/bitg/issues/76)). Baholash o'zgarmadi.
+- TSF: `take_retype()` sharti soddalashtirildi ([#37](https://github.com/dtwinuz/bitg/issues/37)).
+
 ### Xavfsizlik
 - **SLSA Build L3:** reliz paketlarini reusable `build.yml` yig'adi va imzolaydi. Kod kompilyatsiya qiladigan
   job'larda imzo tokeni (`id-token`) yo'q, attestation'ni alohida `attest` job yozadi. `release.yml` relizni faqat
