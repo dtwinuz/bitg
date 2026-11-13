@@ -15,6 +15,7 @@ Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, y
 - [Ş, Ç, Ğ, Ö qanday yoziladi](https://bitg.uz/yangi-harflarni-yozish/): Windows, Linux, Mac, telefon (Tilmoch klaviaturasi)
 - [Klaviatura tartiblari](https://bitg.uz/klaviatura/) va [Windows klaviaturasi](https://bitg.uz/klaviatura/windows/)
 - [Vositalarni taqqoslash](https://bitg.uz/qiyoslash/): tartib, konvertor va avtomatik oʻgirish farqi
+- [bitg xavfsizmi?](https://bitg.uz/xavfsizmi/): rasmiy manbalar (bitg.uz, github.com/dtwinuz/bitg), telefon ilovasi yo‘q, faylni SHA-256 va attestatsiya bilan tekshirish, soxta «yangi alifbo klaviaturasi» ilovasi belgilari
 - [Savol-javob](https://bitg.uz/savollar/), [bitg haqida](https://bitg.uz/haqida/), [Maxfiylik](https://bitg.uz/maxfiylik/)
 - [Русский](https://bitg.uz/ru/), [Новый узбекский алфавит](https://bitg.uz/ru/novyy-uzbekskiy-alfavit/), [English](https://bitg.uz/en/)
 

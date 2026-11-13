@@ -1,0 +1,64 @@
+---json
+{
+ "slug": "/xavfsizmi/",
+ "lang": "uz",
+ "title": "bitg xavfsizmi? Soxta alifbo ilovasini ajratish · bitg",
+ "description": "bitg rasmiy manbalari, faylni o‘zingiz tekshirish (SHA-256, attestatsiya) va soxta «yangi alifbo klaviaturasi» ilovasining belgilari. Karta va SMS so‘ramaydi.",
+ "h1": "bitg xavfsizmi va soxta «alifbo klaviaturasi»ni qanday ajratish mumkin",
+ "crumb": "Xavfsizmi?",
+ "card": "Rasmiy manbalar, faylni tekshirish va firibgar ilova belgilari.",
+ "lead": "Qisqasi: <b>bitg faqat bitg.uz va GitHub’dan tarqatiladi, telefon ilovasi yo‘q, karta, SMS yoki kontaktlarga ruxsat so‘ramaydi</b>. Kodi ochiq, har bir fayl GitHub’da yig‘iladi va uni o‘zingiz tekshira olasiz. Kimdir Telegram’da «yangi alifbo klaviaturasi» faylini yuborsa — o‘rnatmang.",
+ "updated": "2026-11-13",
+ "published": "2026-11-13",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/yuklab-olish/", "/maxfiylik/", "/haqida/", "/yangi-harflarni-yozish/"]
+}
+---
+      <h2>Nega bu sahifa kerak</h2>
+      <p>2026-yil 31-oktabrda Ta’lim va ilm-fan vazirligi (Edu.uz kanali) ogohlantirdi: ijtimoiy tarmoqlarda «yangi o‘zbek alifbosi klaviaturasi» nomli ilova shaxsiy xabar orqali tarqatilmoqda, uni telefonga o‘rnatganlarning plastik karta ma’lumotlari va shaxsiy axboroti o‘g‘irlanishi mumkin (<a href="https://t.me/eduuz/53769" rel="noopener">vazirlik xabari</a>). Yangi alifbo uchun haqiqiy vositalar ham bor — quyida bitg’ni qanday tekshirish va soxtasini qanday ajratish yozilgan.</p>
+
+      <h2 data-faq>bitg’ni qayerdan yuklab olish xavfsiz?</h2>
+      <p>Faqat rasmiy manbalardan: <b>bitg.uz</b> sayti va <b>github.com/dtwinuz/bitg</b> (GitHub Releases). Linux’da — bitg.uz/apt ombori, Mac’da — Homebrew (<code data-no-conv>dtwinuz/tap</code>). Boshqa sayt, Telegram guruh yoki shaxsiy xabardagi «bitg» fayli bizniki emas.</p>
+      <div class="dc-table"><table>
+        <tr><th>Rasmiy</th><th>Manzil</th></tr>
+        <tr><td>Sayt</td><td data-no-conv>https://bitg.uz</td></tr>
+        <tr><td>Manba kodi va relizlar</td><td data-no-conv>https://github.com/dtwinuz/bitg</td></tr>
+        <tr><td>Telegram kanal</td><td data-no-conv>t.me/bitguz</td></tr>
+        <tr><td>Telegram bot</td><td data-no-conv>t.me/bitguzbot</td></tr>
+      </table></div>
+
+      <h2 data-faq>bitg’ning telefon ilovasi bormi?</h2>
+      <p>Yo‘q. bitg hozircha faqat kompyuter uchun (Windows, Linux, Mac). Telefon uchun «bitg» yoki «yangi alifbo klaviaturasi» degan APK fayl yuborilsa — bu biz emas. Telefonda yangi harflarni yozish uchun ilovani faqat App Store yoki Google Play’dan o‘rnating; biz <a href="/yangi-harflarni-yozish/#telefon">Tilmoch klaviaturasini</a> tavsiya qilamiz.</p>
+
+      <h2 data-faq>bitg qanday ruxsatlar so‘raydi?</h2>
+      <p>Hech qanday maxsus ruxsat so‘ramaydi: karta raqami, SMS, kontaktlar, kamera yoki joylashuv kerak emas va so‘ralmaydi. Windows’da bitg — klaviatura tili (Win + Probel bilan tanlanadi); o‘girish kompyuterning o‘zida bo‘ladi. Yozgan matningiz hech qayerga yuborilmaydi — batafsil <a href="/maxfiylik/">maxfiylik sahifasida</a>.</p>
+
+      <h2>Soxta ilova belgilari</h2>
+      <ul>
+        <li><b>Shaxsiy xabarda fayl keladi</b> (ko‘pincha <code data-no-conv>.apk</code>), «rasmiy», «majburiy», «tezda o‘rnating» deb.</li>
+        <li><b>SMS, kontakt, «boshqa ilovalar ustida ko‘rsatish» yoki «maxsus imkoniyatlar» ruxsatini so‘raydi</b> — klaviaturaga bular kerak emas.</li>
+        <li><b>Karta raqami, SMS kod yoki to‘lov so‘raydi.</b> Alifbo vositasi pul yoki kod so‘ramaydi; bitg butunlay bepul.</li>
+        <li><b>Rasmiy do‘kondan emas</b>, nashriyotchi nomi va sharhlari yo‘q.</li>
+      </ul>
+      <p>Bunday faylni o‘rnatgan bo‘lsangiz: telefonni internetdan uzing, ilovani o‘chiring, bankka qo‘ng‘iroq qilib kartani bloklang va parollarni almashtiring.</p>
+
+      <h2 data-faq>Yuklagan faylim haqiqiy ekanini qanday tekshiraman?</h2>
+      <p>Faylning SHA-256 qiymatini <a href="/yuklab-olish/">yuklab olish sahifasidagi</a> qiymat bilan solishtiring. Windows PowerShell’da: <code data-no-conv>Get-FileHash .\{{msiName}} -Algorithm SHA256</code>. Bir belgi farq qilsa ham faylni ochmang.</p>
+      <p>Dasturchilar uchun: har bir reliz fayli GitHub Actions’da yig‘iladi va yig‘ilish manbasi attestatsiya bilan imzolanadi. Tekshirish: <code data-no-conv>gh attestation verify {{msiName}} -R dtwinuz/bitg</code>. Linux apt ombori kalitining izi: <code data-no-conv>{{aptFingerprint}}</code>.</p>
+
+      <h2 data-faq>Windows nega «kompyuteringizni himoya qildi» deb ogohlantiradi?</h2>
+      <p>bitg o‘rnatuvchisi hozircha raqamli kod imzosiz. Microsoft SmartScreen imzosiz va yangi fayllarni (har bir yangi versiyani ham) notanish deb ogohlantiradi — bu fayl xavfli degani emas. Faylni yuqoridagicha tekshiring, keyin «Batafsil» → «Baribir ishga tushirish» ni bosing.</p>
+
+      <h2>Kodga kim qaraydi</h2>
+      <ul>
+        <li><b>Ochiq kod.</b> Butun dastur <a href="https://github.com/dtwinuz/bitg">GitHub’da</a>, MIT yoki Apache-2.0 litsenziyasi bilan — har kim o‘qib, o‘zi yig‘a oladi.</li>
+        <li><b>OpenSSF Best Practices — Gold daraja.</b> Linux Foundation qoshidagi Open Source Security Foundation mezonlari: kod ko‘rib chiqish, testlar, xavfsizlik siyosati (<a href="https://www.bestpractices.dev/projects/16620">loyiha sahifasi</a>).</li>
+        <li><b>Xavfsizlik muammosi</b> topsangiz — <a href="https://github.com/dtwinuz/bitg/security">GitHub Security</a> orqali yopiq xabar bering.</li>
+      </ul>
+
+      <h2>Manbalar</h2>
+      <ul>
+        <li><a href="https://t.me/eduuz/53769" rel="noopener">Ta’lim va ilm-fan vazirligi (Edu.uz): «Yangi o‘zbek alifbosi klaviaturasi» — firibgarlar tuzog‘i bo‘lishi mumkin</a> (2026-10-31)</li>
+        <li><a href="https://www.bestpractices.dev/projects/16620">OpenSSF Best Practices: bitg</a></li>
+        <li><a href="https://github.com/dtwinuz/bitg/releases">bitg relizlari (GitHub)</a></li>
+      </ul>

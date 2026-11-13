@@ -91,7 +91,7 @@ UI = {
                         ("/qiyoslash/", "Vositalarni taqqoslash"), ("https://github.com/dtwinuz/bitg", "Manba kodi")]),
             ("Alifbo", [("/yangi-alifbo/", "Yangi o‘zbek alifbosi"), ("/yangi-alifbo-qonuni/", "Alifbo qonuni"),
                         ("/yangi-harflarni-yozish/", "Ş, Ç, Ğ, Ö yozish"), ("/konvertor/", "Onlayn konvertor")]),
-            ("Loyiha", [("/haqida/", "bitg haqida"), ("/maxfiylik/", "Maxfiylik"), ("/savollar/", "Savol-javob"),
+            ("Loyiha", [("/haqida/", "bitg haqida"), ("/maxfiylik/", "Maxfiylik"), ("/xavfsizmi/", "Xavfsizmi?"), ("/savollar/", "Savol-javob"),
                         ("https://t.me/bitguz", "Telegram kanal")]),
             ("Til", [("/ru/", "Русский"), ("/en/", "English")]),
         ],
@@ -209,6 +209,7 @@ def sitewide():
                         "oʻgiradigan bepul, ochiq kodli dastur.",
          "sameAs": ["https://github.com/dtwinuz/bitg", "https://t.me/bitguz", "https://t.me/bitguzbot", "https://t.me/bitgtech"]},
         {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "bitg",
+         "alternateName": ["bitg.uz", "bitg — yangi alifbo"],
          "inLanguage": ["uz", "ru", "en"], "publisher": {"@id": SITE + "/#org"}},
     ]
 
@@ -425,6 +426,7 @@ def render(meta, ctx, by_slug, alt_groups):
   </div>
 </footer>
 <script src="/page.js" defer></script>
+<script src="/metrika.js" async></script>
 {dl_js}</body>
 </html>
 """
