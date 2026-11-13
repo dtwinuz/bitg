@@ -11,7 +11,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - **CLI `--exceptions FAYL`** ([#39](https://github.com/dtwinuz/bitg/issues/39)): `bitg`, `explain`, `file`, `diff` da
   `exceptions.txt` formatidagi istisnolar va lug'at qatorlari.
 - README: «Windows'da muammo bo'lsa» bo'limi ([#51](https://github.com/dtwinuz/bitg/issues/51)).
+- **Ochiq MCP server `https://bitg.uz/mcp`** (`bot/src/mcp.rs`): AI yordamchilar (Claude, ChatGPT, Gemini CLI,
+  Cursor) uchun `convert_text` vositasi — yangi alifbo, eski lotin, kirill; login yo'q, matn saqlanmaydi, IP
+  bo'yicha daqiqasiga 120 so'rov. Ulash fayllari: `server.json` (MCP Registry `uz.bitg/bitg`),
+  `gemini-extension.json`, Claude Code plagini va skill (`integrations/claude`), sayt sahifasi `/ai/`.
 - C ABI uchun tashqi integratsion test `crates/bitg-core/tests/ffi.rs` ([#38](https://github.com/dtwinuz/bitg/issues/38)).
+- **O'rnatuvchida maxfiylik oynasi va `UPDATECHECK`**: litsenziyadan keyin «Maxfiylik» oynasi (https://bitg.uz/maxfiylik/
+  havolasi) va «Yangilanishlarni avtomatik tekshirish (bitg.uz)» belgisi. Jim o'rnatishda
+  `msiexec /i bitg.msi UPDATECHECK=0`; qiymat `HKLM\SOFTWARE\bitg\UpdateCheck` ga yoziladi va foydalanuvchi hali
+  tanlamagan bo'lsa ilova standarti bo'ladi (ilovada o'zgartirish mumkin). Administrator majburlashi:
+  `HKLM\SOFTWARE\Policies\bitg\UpdateCheck` (DWORD 0|1) — tugma qulflanadi, 0 da qo'lda tekshirish ham yo'q.
+- Windows binarlarida (`bitg-settings.exe`, `bitg.exe`, 64/32-bit `bitg_tsf.dll`) `VERSIONINFO`: ProductName,
+  versiya Cargo'dan, CompanyName, LegalCopyright (`tools/winres/versioninfo.rs`) — SignPath imzolash sharti.
 
 ### Tuzatildi
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),

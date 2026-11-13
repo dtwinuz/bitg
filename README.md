@@ -494,6 +494,20 @@ To'liq reja: [ROADMAP.md](ROADMAP.md). Qisqasi:
 Loyiha qanday boshqariladi: [GOVERNANCE.md](GOVERNANCE.md) · tuzilma: [ARCHITECTURE.md](ARCHITECTURE.md) ·
 xavfsizlik asoslamasi: [docs/ASSURANCE.md](docs/ASSURANCE.md).
 
+## AI yordamchilarda (ChatGPT, Claude, Gemini)
+
+bitg ochiq MCP server sifatida ham ishlaydi: `https://bitg.uz/mcp` (login yo'q, bitta `convert_text` vositasi,
+matn saqlanmaydi). AI yordamchi o'zbekcha matnni yangi alifboga taxmin bilan emas, bitg yadrosi bilan o'giradi.
+
+```sh
+/plugin install bitg --marketplace dtwinuz/bitg                # Claude Code (plugin + skill)
+claude mcp add --transport http bitg https://bitg.uz/mcp       # Claude Code (faqat MCP)
+gemini extensions install https://github.com/dtwinuz/bitg      # Gemini CLI
+```
+
+Claude.ai va ChatGPT'da: sozlamalar → Connectors / Apps → `https://bitg.uz/mcp`. Batafsil:
+[integrations/README.md](integrations/README.md), [bitg.uz/ai](https://bitg.uz/ai/). MCP Registry: `uz.bitg/bitg`.
+
 ## Telefonda (Android, iOS)
 
 Telefonda bitg **Tilmoch** klaviaturasini tavsiya qiladi. Ilova bepul, klaviaturasi eski lotin, kirill va yangi
@@ -511,6 +525,18 @@ Xato, noto'g'ri o'girilgan so'z yoki taklif — [issue](https://github.com/dtwin
 g'oyalar — [Discussions](https://github.com/dtwinuz/bitg/discussions). Kod bilan
 yordam: [CONTRIBUTING.md](CONTRIBUTING.md). Zaiflik haqida yopiq xabar: [SECURITY.md](SECURITY.md). O'zgarishlar
 tarixi: [CHANGELOG.md](CHANGELOG.md).
+
+## Code signing policy
+
+Windows o'rnatuvchisini (MSI va ichidagi `bitg-settings.exe`, `bitg.exe`, `bitg_tsf.dll`) SignPath Foundation'ning
+ochiq kodli loyihalar dasturi orqali imzolash tayyorlangan; ariza hali topshirilmagan, shuning uchun hozirgi relizlar
+imzosiz. Imzo yoqilgach:
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+[SignPath Foundation](https://signpath.org).
+
+Siyosat, jamoa rollari (committers, reviewers, approvers), maxfiylik va imzoni tekshirish:
+[docs/CODE_SIGNING.md](docs/CODE_SIGNING.md) · [bitg.uz/kod-imzosi](https://bitg.uz/kod-imzosi/).
 
 ## Litsenziya
 

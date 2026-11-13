@@ -45,12 +45,15 @@ jobs:
       contents: read
       id-token: write
       attestations: write
+      # build.yml sign-msi: SignPath action workflow run ma'lumotini va `msi` artifact'ini GITHUB_TOKEN bilan o'qiydi
+      actions: read
     uses: ./.github/workflows/build.yml
     with:
       version: ${{ needs.meta.outputs.version }}
     secrets:
       BITG_SIGN_PFX: ${{ secrets.BITG_SIGN_PFX }}
       BITG_SIGN_PFX_PASSWORD: ${{ secrets.BITG_SIGN_PFX_PASSWORD }}
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
 
   verify:
     # Foydalanuvchi va bitg.uz deploy'i bajaradigan tekshiruvning o'zi: imzolovchi build.yml, manba shu ref,
@@ -113,12 +116,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
+          SIGNPATH: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
         run: |
           cd dist
           n=$(ls | wc -l)
           # MSI + sha256, 2 deb + 2 sha256, pkg + sha256, SBOM, provenance va SBOM bundle'lari
           [ "$n" -eq 11 ] || { ls -l; echo "reliz fayllari 11 ta bo'lishi kerak, bor: $n"; exit 1; }
-          gh release create "$TAG" ./* -R "$REPO" --title "bitg ${TAG#v}" --generate-notes --verify-tag
+          # SignPath Foundation shartlari: yuklab olish/reliz sahifasida "Code signing policy" bo'lishi kerak
+          notes=()
+          if [ -n "$SIGNPATH" ]; then
+            notes=(--notes "**Code signing policy:** the Windows installer is signed. Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). Policy, team roles and verification: https://bitg.uz/kod-imzosi/ and [docs/CODE_SIGNING.md](https://github.com/$REPO/blob/main/docs/CODE_SIGNING.md).")
+          fi
+          gh release create "$TAG" ./* -R "$REPO" --title "bitg ${TAG#v}" --generate-notes --verify-tag "${notes[@]}"
 
   crates-io:
     # bitg-core crates.io'ga Trusted Publishing (OIDC) bilan chiqadi: repoda token saqlanmaydi.
