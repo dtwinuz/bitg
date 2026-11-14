@@ -13,6 +13,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   `build.yml` Arch paketlarini (`bitg`, `fcitx5-bitg`) shu commit manbasidan `check()` bilan yig'adi va attestation
   yozadi; ular GitHub Release'ga ham qo'yiladi. Paket va baza apt ombori kaliti bilan imzolangan
   (`tools/arch/pacman_repo.py`).
+- **Windows: Scoop** — `scoop bucket add dtwinuz https://github.com/dtwinuz/scoop-bucket`, keyin
+  `scoop install dtwinuz/bitg`. Bucket relizdagi MSI'ni SHA-256 va attestation bilan tekshirib o'zi yangilanadi.
+- **Kanallar monitori** (`channels` workflow, `tools/release/channels.py`): har kuni bitg.uz, apt, pacman, Homebrew,
+  Scoop, crates.io, Chocolatey, winget va AUR so'nggi relizga yetganini tekshiradi; ortda qolgan kanal uchun issue
+  ochadi va hammasi joyiga tushgach yopadi.
 - **Linux panel belgisi: istisnolar va lug'at muharriri** ([#84](https://github.com/dtwinuz/bitg/issues/84)): menyudagi
   «Istisnolar va lugʼat…» `exceptions.txt` ni tahrirlaydi (atomik yozuv, IME jonli oladi). «Panel belgisini yopish»
   nomi aniqlashtirildi: kiritish usuli ishlashda davom etadi.

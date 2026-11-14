@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: nix
+
+# flake.nix va packaging/nix (nixpkgs uslubidagi retsept) sandbox yoqilgan Nix'da sinaladi:
+#   flake: nix flake check (bitg, fcitx5-bitg yig'iladi: cargo test, installCheck), CLI, IBus komponent yo'llari;
+#   nixpkgs: package.nix relizdagi teg manbasidan (src hash + cargoHash) callPackage bilan yig'iladi.
+on:
+  pull_request:
+    paths: ["flake.nix", "flake.lock", "packaging/nix/**", "linux/**", "Cargo.lock", ".github/workflows/nix.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b # v31.11.3
+        with:
+          extra_nix_config: |
+            sandbox = true
+      - name: nix flake check
+        run: nix flake check -L
+      - name: flake paketlari
+        run: |
+          nix build -L .#bitg .#fcitx5-bitg
+          test "$(./result/bin/bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          grep -q "<exec>$(readlink -f result)/libexec/ibus-engine-bitg" result/share/ibus/component/bitg.xml
+          test -e result-1/lib/fcitx5/bitg.so && test -e result-1/share/fcitx5/addon/bitg.conf
+      - name: nixpkgs retsepti (teg manbasi, cargoHash)
+        run: |
+          nix-build -E 'let pkgs = import (builtins.getFlake (toString ./.)).inputs.nixpkgs { }; in
+            rec { bitg = pkgs.callPackage ./packaging/nix/package.nix { };
+                  fcitx5-bitg = pkgs.callPackage ./packaging/nix/fcitx5-bitg.nix { inherit bitg; }; }' -o nixpkgs
+          ./nixpkgs/bin/bitg 'Please check the schedule' | grep -qx 'Please check the schedule'
