@@ -95,10 +95,11 @@ UI = {
             ("Alifbo", [("/yangi-alifbo/", "Yangi o‘zbek alifbosi"), ("/yangi-alifbo-qonuni/", "Alifbo qonuni"),
                         ("/yangi-harflarni-yozish/", "Ş, Ç, Ğ, Ö yozish"), ("/konvertor/", "Onlayn konvertor")]),
             ("Loyiha", [("/haqida/", "bitg haqida"), ("/maxfiylik/", "Maxfiylik"), ("/xavfsizmi/", "Xavfsizmi?"), ("/savollar/", "Savol-javob"),
-                        ("https://t.me/bitguz", "Telegram kanal")]),
+                        ("/homiylar/", "Qo‘llab-quvvatlash"), ("https://t.me/bitguz", "Telegram kanal")]),
             ("Til", [("/ru/", "Русский"), ("/en/", "English")]),
         ],
         "foot_lic": "MIT yoki Apache-2.0 · ochiq kod",
+        "foot_sup": "Qo‘llab-quvvatlovchi",
     },
     "ru": {
         "skip": "Перейти к основному тексту", "home": "главная", "nav": "Разделы",
@@ -113,6 +114,7 @@ UI = {
             ("Язык", [("/", "Oʻzbekcha"), ("/en/", "English"), ("https://t.me/bitguz", "Telegram")]),
         ],
         "foot_lic": "MIT или Apache-2.0 · открытый код",
+        "foot_sup": "При поддержке",
     },
     "en": {
         "skip": "Skip to main content", "home": "home", "nav": "Sections",
@@ -125,6 +127,7 @@ UI = {
             ("Language", [("/", "Oʻzbekcha"), ("/ru/", "Русский"), ("https://t.me/bitguz", "Telegram")]),
         ],
         "foot_lic": "MIT or Apache-2.0 · open source",
+        "foot_sup": "Supported by",
     },
 }
 
@@ -425,6 +428,7 @@ def render(meta, ctx, by_slug, alt_groups):
       <a class="bg-brand" href="{home}" aria-label="bitg">{BRAND_SVG}<span>bitg</span></a>
       <span class="bg-foot__txt">{ui["foot_lic"]} · <a href="https://github.com/dtwinuz/bitg" data-no-conv>github.com/dtwinuz/bitg</a></span>
       <span class="bg-foot__txt">Telegram: <a href="https://t.me/bitguz" rel="noopener" data-no-conv>@bitguz</a> · bot: <a href="https://t.me/bitguzbot" rel="noopener" data-no-conv>@bitguzbot</a></span>
+      <span class="bg-foot__txt">{ui["foot_sup"]}: <a href="https://wonmor.io" rel="noopener" data-no-conv>wonmortech</a></span>
     </div>
   </div>
 </footer>

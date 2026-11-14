@@ -13,6 +13,7 @@ header:
 project:
   name: bitg
   homepage: https://bitg.uz
+  funding: https://bitg.uz/homiylar/
   roadmap: https://github.com/dtwinuz/bitg/blob/main/ROADMAP.md
   steward:
     uri: https://github.com/dtwinuz
