@@ -7,7 +7,7 @@ name: build
 # Reliz paketlarini yig'adi va ularga SLSA build provenance + SBOM attestation'ini yozadi. Faqat release.yml chaqiradi.
 #
 # SLSA Build L3: attestation'ni imzolagan workflow shu fayl (reusable workflow), uni chaqiruvchi workflow o'zgartira
-# olmaydi. Kompilyatsiya qiladigan job'larda (deb, pkg, msi) `id-token` yo'q: begona kod (build.rs, bog'liqliklar)
+# olmaydi. Kompilyatsiya qiladigan job'larda (deb, pkg, arch, wasm, msi) `id-token` yo'q: begona kod (build.rs, bog'liqliklar)
 # imzo uchun OIDC token ololmaydi. Attestation'ni hech narsa kompilyatsiya qilmaydigan alohida `attest` job yozadi.
 # Tekshirish:
 #   gh attestation verify <fayl> -R dtwinuz/bitg \
@@ -167,6 +167,43 @@ jobs:
             target/arch/*.pkg.tar.zst.sha256
           if-no-files-found: error
 
+  wasm:
+    # bitg.uz konvertori ishlatadigan yadro (deploy/deploy.sh relizdan oladi va attestation'ini tekshiradi):
+    # brauzerdagi kod ham boshqa paketlar kabi CI'da yig'iladi va imzolanadi. Sinov: kengaytmaning core.test.cjs
+    # (CLI bilan bir xil natija).
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - name: Versiya Cargo.toml bilan bir xilmi
+        run: |
+          cargo=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          [ "$VERSION" = "$cargo" ] || { echo "Versiya $VERSION, Cargo.toml $cargo"; exit 1; }
+      - name: Yig'ish va sinov
+        run: |
+          cargo build -p bitg-core --release --locked --target wasm32-unknown-unknown --target-dir target/site
+          mkdir -p target/wasm
+          f="target/wasm/bitg-core-$VERSION.wasm"
+          cp target/site/wasm32-unknown-unknown/release/bitg_core.wasm "$f"
+          BITG_WASM="$f" node --test extension/test/core.test.cjs
+          ( cd target/wasm && sha256sum "bitg-core-$VERSION.wasm" > "bitg-core-$VERSION.wasm.sha256" )
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: wasm
+          path: |
+            target/wasm/*.wasm
+            target/wasm/*.wasm.sha256
+          if-no-files-found: error
+
   msi:
     runs-on: windows-latest
     permissions:
@@ -289,7 +326,7 @@ jobs:
   attest:
     # Faqat shu job imzolaydi. U repo kodini ishga tushirmaydi va hech narsa kompilyatsiya qilmaydi: tayyor paketlarni
     # yuklab oladi, sha256 ni tekshiradi va attestation yozadi.
-    needs: [deb, pkg, arch, msi, sign-msi]
+    needs: [deb, pkg, arch, wasm, msi, sign-msi]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -308,7 +345,7 @@ jobs:
           ls -l
           for f in "bitg-$VERSION-x64.msi" "bitg_${VERSION}_amd64.deb" "fcitx5-bitg_${VERSION}_amd64.deb" \
                    "bitg-$VERSION-macos.pkg" "bitg-$VERSION-1-x86_64.pkg.tar.zst" \
-                   "fcitx5-bitg-$VERSION-1-x86_64.pkg.tar.zst" "bitg-$VERSION.spdx.json"; do
+                   "fcitx5-bitg-$VERSION-1-x86_64.pkg.tar.zst" "bitg-core-$VERSION.wasm" "bitg-$VERSION.spdx.json"; do
             [ -f "$f" ] || { echo "$f yo'q"; exit 1; }
           done
           for s in *.sha256; do
@@ -323,6 +360,7 @@ jobs:
             dist/*.deb
             dist/*.pkg
             dist/*.pkg.tar.zst
+            dist/*.wasm
       - uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         id: sbom
         with:
@@ -331,6 +369,7 @@ jobs:
             dist/*.deb
             dist/*.pkg
             dist/*.pkg.tar.zst
+            dist/*.wasm
           sbom-path: dist/bitg-${{ inputs.version }}.spdx.json
       # Bundle'lar relizga qo'yiladi: internetsiz tekshirish (`gh attestation verify --bundle`) va OpenSSF Scorecard
       # (Signed-Releases: *.intoto.jsonl, *.sigstore.json) uchun.

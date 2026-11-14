@@ -35,6 +35,17 @@ updates:
     groups:
       docker:
         patterns: ["*"]
+  # bitg.uz serveri (deploy/docker-compose.yml: caddy, python digest'lari)
+  - package-ecosystem: docker-compose
+    directory: /deploy
+    schedule:
+      interval: monthly
+    # yangi versiya kamida 2 hafta "yetilsin" (docs/MAINTAINING.md)
+    cooldown:
+      default-days: 14
+    groups:
+      docker-compose:
+        patterns: ["*"]
   # Python vositalari (xesh bilan qotirilgan): e2e sinovi (PySide6) va demo GIF (pillow)
   - package-ecosystem: pip
     directories: ["/tools/e2e", "/tools/demo"]

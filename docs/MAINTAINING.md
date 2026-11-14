@@ -12,7 +12,7 @@ so'ralmaydi va berilmaydi. Har bir maintainer o'z akkauntida 2FA'ni yoqib qo'yad
 |---|---|---|
 | Repo, PR, issue, reliz | [github.com/dtwinuz/bitg](https://github.com/dtwinuz/bitg) | `dtwinuz` org owner yoki repo admin |
 | `main` qoidalari (ruleset) | Settings → Rules → `main` | admin |
-| Actions secrets: repo darajasida faqat `BITG_DEVBOT_TOKEN`; environment'lar: `chocolatey` → `CHOCO_API_KEY`, `winget` → `WINGET_TOKEN` (hali qo'yilmagan), `aur` → `AUR_SSH_KEY`. Kod imzosi uchun `SIGNPATH_API_TOKEN` (sir) va `SIGNPATH_ORGANIZATION_ID` (repo o'zgaruvchisi) joyi tayyor, imzo keyinga qoldirilgan ([CODE_SIGNING.md](CODE_SIGNING.md)) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
+| Actions secrets: repo darajasida sir saqlanmaydi; environment'lar (faqat `main` va `v*` teglar): `announce` → `BITG_DEVBOT_TOKEN`, `chocolatey` → `CHOCO_API_KEY`, `winget` → `WINGET_TOKEN` (hali qo'yilmagan), `aur` → `AUR_SSH_KEY`. Kod imzosi uchun `SIGNPATH_API_TOKEN` (sir) va `SIGNPATH_ORGANIZATION_ID` (repo o'zgaruvchisi) joyi tayyor, imzo keyinga qoldirilgan ([CODE_SIGNING.md](CODE_SIGNING.md)) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
 | Homebrew tap | [dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap) | org a'zosi |
 | Scoop bucket | [dtwinuz/scoop-bucket](https://github.com/dtwinuz/scoop-bucket) | org a'zosi |
 | Xavfsizlik xabarlari | Security → Advisories (yopiq) | admin |

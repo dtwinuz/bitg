@@ -14,7 +14,8 @@
 #   stats.env     — ixtiyoriy: BOT_TOKEN=..., ADMIN_CHAT_ID=... (repoda yo'q; deploy/set-stats-env.sh)
 services:
   bitg-site:
-    image: caddy:2-alpine
+    # digest qotirilgan (Dependabot docker-compose yangilaydi); remote.sh Caddyfile'ni shu image bilan tekshiradi
+    image: caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f
     container_name: bitg-site
     restart: unless-stopped
     # konteyner faqat shu fayl o'zgarganda qayta yaratiladi; shunda ochiq yuklashlarga 15 s beriladi
@@ -24,12 +25,32 @@ services:
       - ./www:/www:ro
       - ./logs:/var/log/caddy
       - ./stats-public:/stats-public:ro
+    # dtwin prod tarmog'ida turadi: faqat :80 ni tinglash huquqi qoladi. /data, /config — Caddy holati
+    # (sertifikat yo'q, TLS edge'da), har ishga tushishda bo'sh bo'lishi mumkin.
+    read_only: true
+    tmpfs:
+      - /data:size=16m
+      - /config:size=4m
+      - /tmp:size=16m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    mem_limit: 256m
+    pids_limit: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "3"
     networks:
       - edge
 
   # Jurnaldan umumiy sonlar, kunlik Telegram xulosa, uptime kuzatuvi (deploy/stats/stats.py).
   bitg-stats:
-    image: python:3.13-alpine
+    image: python:3.13.18-alpine@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e
     container_name: bitg-stats
     restart: unless-stopped
     init: true

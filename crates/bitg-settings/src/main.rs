@@ -185,6 +185,26 @@ mod app {
         // WebView2 papkasi birinchi ochilishda yaratiladi: bor bo'lsa — bu yangilanish, yangi o'rnatish emas.
         let data = bitg_tsf::config::local_dir().map(|d| d.join("webview"));
         RAN_BEFORE.store(data.as_ref().is_some_and(|d| d.exists()), Ordering::Relaxed);
+        // Oldingi yangilanishdan qolgan MSI (o'rnatib bo'lingan yoki eski versiya) o'chiriladi; yangirog'i
+        // (o'rnatish tugamagan bo'lishi mumkin) qoladi. MSI o'zi per-user papkani o'chira olmaydi (perMachine paket).
+        std::thread::spawn(|| {
+            let Some(dir) = bitg_tsf::config::local_dir().map(|d| d.join("updates")) else {
+                return;
+            };
+            let Ok(entries) = std::fs::read_dir(&dir) else {
+                return;
+            };
+            for e in entries.flatten() {
+                if e.file_name()
+                    .to_str()
+                    .is_some_and(|n| updates::stale_installer(n, VERSION))
+                {
+                    let _ = std::fs::remove_file(e.path());
+                }
+            }
+            // bo'sh bo'lsagina o'chadi
+            let _ = std::fs::remove_dir(&dir);
+        });
 
         {
             let p = proxy.clone();

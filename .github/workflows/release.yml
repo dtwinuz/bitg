@@ -4,7 +4,7 @@
 
 name: release
 
-# Versiya tegi (masalan v0.4.1; faqat core jamoasi, main'dagi commit'ga) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), Arch .pkg.tar.zst, macOS .pkg va MSI ni yig'adi va ularga SLSA
+# Versiya tegi (masalan v0.4.1; faqat core jamoasi, main'dagi commit'ga) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), Arch .pkg.tar.zst, macOS .pkg, MSI va bitg.uz wasm yadrosini yig'adi va ularga SLSA
 # build provenance + SBOM attestation'ini yozadi (SLSA Build L3, imzolovchi = build.yml). Reliz faqat attestation'ni
 # shu teg uchun build.yml imzolagani tekshirilgandan keyin yaratiladi.
 #
@@ -92,7 +92,7 @@ jobs:
           cd dist
           ls -l
           signer="$REPO/.github/workflows/build.yml"
-          for f in ./*.msi ./*.deb ./*.pkg ./*.pkg.tar.zst; do
+          for f in ./*.msi ./*.deb ./*.pkg ./*.pkg.tar.zst ./*.wasm; do
             gh attestation verify "$f" -R "$REPO" --signer-workflow "$signer" --source-ref "$REF" --deny-self-hosted-runners
             gh attestation verify "$f" -R "$REPO" --signer-workflow "$signer" --source-ref "$REF" --deny-self-hosted-runners \
               --bundle ./*.intoto.jsonl
@@ -142,8 +142,9 @@ jobs:
         run: |
           cd dist
           n=$(ls | wc -l)
-          # MSI + sha256, 2 deb + 2 sha256, 2 Arch + 2 sha256, pkg + sha256, SBOM, provenance va SBOM bundle'lari
-          [ "$n" -eq 15 ] || { ls -l; echo "reliz fayllari 15 ta bo'lishi kerak, bor: $n"; exit 1; }
+          # MSI + sha256, 2 deb + 2 sha256, 2 Arch + 2 sha256, pkg + sha256, wasm + sha256 (bitg.uz konvertori),
+          # SBOM, provenance va SBOM bundle'lari
+          [ "$n" -eq 17 ] || { ls -l; echo "reliz fayllari 17 ta bo'lishi kerak, bor: $n"; exit 1; }
           # SignPath Foundation shartlari: yuklab olish/reliz sahifasida "Code signing policy" bo'lishi kerak
           notes=()
           if [ -n "$SIGNPATH" ]; then
@@ -179,11 +180,10 @@ jobs:
     needs: publish
     permissions:
       contents: read
+    # token `announce` environment'ida (announce.yml), chaqiruvchi uni uzatmaydi
     uses: ./.github/workflows/announce.yml
     with:
       version: ${{ github.ref_name }}
-    secrets:
-      BITG_DEVBOT_TOKEN: ${{ secrets.BITG_DEVBOT_TOKEN }}
 
   # winget-pkgs'ga PR (stores.yml; token `winget` environment'ida). Homebrew tap o'zi yangilanadi (autobump).
   stores:

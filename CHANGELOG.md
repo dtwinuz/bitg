@@ -124,6 +124,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   bo'lmaydi — ruleset), barcha manifestlardagi versiya va CHANGELOG bo'limi tekshiriladi
   (`tools/release/check_versions.py`), haqiqiy Windows e2e o'tmasa reliz yaratilmaydi. AUR SSH kaliti vaqtinchalik
   papkada, `~/.ssh` ga yozilmaydi; Dependabot yangi versiyalarni 14 kun kutadi.
+- **bitg.uz konvertori ishlatadigan wasm yadro ham relizda va attestation bilan**: `build.yml` uni CI'da yig'ib
+  sinaydi (`bitg-core-<versiya>.wasm`), provenance va SBOM yozadi; `deploy.sh` brauzerga beriladigan faylni
+  relizdan olib tekshiradi, lokal kompilyatsiya qilmaydi (0.4.1 dan; eski relizda yoki `WASM_SOURCE=main` bilan
+  ogohlantirish bilan lokal yig'iladi).
+- bitg.uz serveri: `bitg-site` konteyneri faqat o'qish rejimida, `NET_BIND_SERVICE` dan boshqa huquqsiz; Caddy va
+  Python image'lari digest bilan qotirilgan va Dependabot kuzatadi. Deploy bir vaqtda bitta, yangi reliz
+  ko'tarilmasa yoki eski sha'ni qaytarsa symlink, Caddyfile va compose avtomatik oldingisiga qaytadi.
+- Telegram e'lon tokeni (`BITG_DEVBOT_TOKEN`) repo darajasidan `announce` environment'iga ko'chdi: faqat `main` va
+  `v*` teglardagi workflow oladi.
+- Windows: yangilanishdan keyin `%LOCALAPPDATA%\bitg\updates` da qolgan eski MSI ilova keyingi ochilganda
+  o'chiriladi.
 
 ## [0.4.0] — 2026-11-13
 

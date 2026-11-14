@@ -150,6 +150,14 @@ pub fn newer(a: &str, b: &str) -> bool {
     }
 }
 
+/// `updates\` dagi o'rnatuvchi (`bitg-<versiya>.msi`) endi kerak emasmi: versiyasi o'rnatilganidan yangi emas
+/// (o'rnatib bo'lingan yoki eski). Yangirog'i (o'rnatish hali tugamagan bo'lishi mumkin) va begona fayl qoladi.
+pub fn stale_installer(name: &str, current: &str) -> bool {
+    name.strip_prefix("bitg-")
+        .and_then(|n| n.strip_suffix(".msi"))
+        .is_some_and(|v| valid_version(v) && !newer(v, current))
+}
+
 /// Tekshirilgan manifest.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Update {
@@ -257,6 +265,18 @@ mod tests {
         assert!(!newer("x", "0.1.0"));
         assert!(!newer("1.2", "0.1.0"));
         assert!(!newer("1.2.3.4", "0.1.0"));
+    }
+
+    #[test]
+    fn stale_installers_are_only_installed_or_older_msi() {
+        assert!(stale_installer("bitg-0.4.0.msi", "0.4.1"));
+        assert!(stale_installer("bitg-0.4.1.msi", "0.4.1"));
+        assert!(stale_installer("bitg-0.4.1-rc1.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.2.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.1.msi.part", "0.4.1"));
+        assert!(!stale_installer("bitg-x.msi", "0.4.1"));
+        assert!(!stale_installer("other-0.4.0.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.0.exe", "0.4.1"));
     }
 
     #[test]
