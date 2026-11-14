@@ -232,6 +232,9 @@ fn english_name_with_uzbek_suffix_is_kept() {
     assert_eq!(c("Sheindan ko'ylak oldim"), "Sheindan köylak oldim");
     assert_eq!(c("Bershkada chegirma bor"), "Bershkada çegirma bor");
     assert_eq!(c("Shiseido kremi qimmat"), "Shiseido kremi qimmat");
+    assert_eq!(c("Marshall juda chiroyli"), "Marshall juda çiroyli");
+    assert_eq!(c("Shokzni yugurishda taqaman"), "Shokzni yugurişda taqaman");
+    assert_eq!(c("Chigo shovqinsiz ishlaydi"), "Chigo şovqinsiz işlaydi");
 }
 
 #[test]
