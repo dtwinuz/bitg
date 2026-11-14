@@ -308,6 +308,8 @@ a.bg-plat__card:hover { border-color: var(--line2); transform: translateY(-3px);
 .bg-state { margin-top: auto; align-self: flex-start; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--subtle); color: var(--muted); }
 .bg-state--ok { background: var(--ok-soft); color: var(--ok); }
 .bg-note-sm { margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
+.bg-note-ext { margin-top: 8px; }
+.bg-note-ext svg { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 
 /* footer */
 .bg-foot { border-top: 1px solid var(--line); padding: 28px 0; }
