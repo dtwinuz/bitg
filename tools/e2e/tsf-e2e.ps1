@@ -207,13 +207,16 @@ function NewFormsBox([bool]$password) {
     $win.Controls.Remove($old); $old.Dispose()
     $win.Controls.Add($script:tb)
 }
+# Yangi HWND fokus olganda Windows thread'ning standart klaviatura profilini qaytaradi (tsf.log: deactivate) —
+# qt-e2e.py dagidek bitg har yangi maydonda qayta yoqiladi.
+$reactivate = { $log.Add("ActivateProfile box hr=0x{0:x}" -f [E2e]::ActivateBitg()) }
 if ($Ui -eq 'winforms') {
     $steps += @(
-        { NewFormsBox $false }, $w, { Focus }, $w,
+        { NewFormsBox $false }, $w, { Focus }, $reactivate, { Focus }, $w,
         { TypeKeys 'choy ' }, $w, $w, { Check 'password box: plain box converts before' 'çoy ' },
-        { NewFormsBox $true }, $w, { Focus }, $w,
+        { NewFormsBox $true }, $w, { Focus }, $reactivate, { Focus }, $w,
         { TypeKeys 'choy shoshma ' }, $w, $w, $w, { Check 'password box: UseSystemPasswordChar untouched' 'choy shoshma ' },
-        { NewFormsBox $false }, $w, { Focus }, $w,
+        { NewFormsBox $false }, $w, { Focus }, $reactivate, { Focus }, $w,
         { TypeKeys 'choy ' }, $w, $w, { Check 'password box: plain box converts after' 'çoy ' }
     )
 }

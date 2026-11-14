@@ -183,11 +183,12 @@ fn decode_text(bytes: Vec<u8>) -> Result<String, &'static str> {
         if !body.len().is_multiple_of(2) {
             return Err("UTF-16 matn toq sonli baytda tugaydi");
         }
-        let units = body.chunks_exact(2).map(|p| {
+        let (pairs, _) = body.as_chunks::<2>();
+        let units = pairs.iter().map(|&p| {
             if be {
-                u16::from_be_bytes([p[0], p[1]])
+                u16::from_be_bytes(p)
             } else {
-                u16::from_le_bytes([p[0], p[1]])
+                u16::from_le_bytes(p)
             }
         });
         char::decode_utf16(units)

@@ -38,7 +38,7 @@ ind = load()
 
 
 def write(path, text):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
 
 
@@ -65,7 +65,8 @@ class Settings(unittest.TestCase):
 
     def test_broken_utf8_is_not_overwritten(self):
         # buzilgan fayl: o'qishda standart qiymatlar, saqlash esa faylni ustidan yozmaydi
-        ind.CONFIG.mkdir(parents=True, exist_ok=True)
+        # write_atomic bilan bir xil ruxsat: papka testlar orasida qoladi (test_save_creates_private_files 0o700 kutadi)
+        ind.CONFIG.mkdir(mode=0o700, parents=True, exist_ok=True)
         ind.SETTINGS.write_bytes(b"enabled=0\n\xff\xfe junk\n")
         self.assertIsNone(ind.read_text(ind.SETTINGS))
         self.assertEqual(ind.read_settings(), {"enabled": True, "auto_convert": True, "cyrillic": True})
