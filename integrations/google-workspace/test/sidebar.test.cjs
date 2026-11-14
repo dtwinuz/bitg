@@ -12,7 +12,10 @@ const path = require('path');
 const vm = require('vm');
 
 const HTML = fs.readFileSync(path.join(__dirname, '..', 'src', 'Sidebar.html'), 'utf8');
-const SCRIPT = HTML.match(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/i)[1];
+// O'z faylimizdagi yagona <script> bloki: regex emas, aniq chegaralar bo'yicha kesiladi.
+const LOWER = HTML.toLowerCase();
+const OPEN = LOWER.indexOf('>', LOWER.indexOf('<script')) + 1;
+const SCRIPT = HTML.slice(OPEN, LOWER.indexOf('</script', OPEN));
 
 /** HTML dagi id va data-* atributli elementlardan eng kichik soxta DOM. */
 function fakeDom() {
