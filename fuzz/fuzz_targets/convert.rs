@@ -23,7 +23,29 @@ fuzz_target!(|data: &[u8]| {
     };
     let (out, words) = convert_words(text, &opts);
     assert!(words.iter().all(|w| !w.token.is_empty()));
-    let _ = to_old(&out, OldStyle::Official);
+    // Each char grows at most 2x (Cyrillic shch, ' -> U+02BC, a -> Cyrillic a); 4x is a safe bound.
+    let bound = |n: usize| 4 * n + 4;
+    assert!(
+        out.len() <= bound(text.len()),
+        "convert {} -> {}",
+        text.len(),
+        out.len()
+    );
+    for style in [OldStyle::Official, OldStyle::Ascii] {
+        let old = to_old(&out, style);
+        assert!(
+            old.len() <= bound(out.len()),
+            "to_old {} -> {}",
+            out.len(),
+            old.len()
+        );
+    }
     let _ = to_old(text, OldStyle::Ascii);
-    let _ = to_cyrillic(text);
+    let cyr = to_cyrillic(text);
+    assert!(
+        cyr.len() <= bound(text.len()),
+        "to_cyrillic {} -> {}",
+        text.len(),
+        cyr.len()
+    );
 });

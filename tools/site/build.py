@@ -189,6 +189,9 @@ def faq_items(body):
 
 def og_path(slug):
     name = "index" if slug == "/" else slug.strip("/").replace("/", "-")
+    # yangi sahifa qo'shilib og.cjs yurgizilmasa ijtimoiy tarmoq/Telegram ko'rinishi 404 rasm berardi
+    if not (WEB / "og" / f"{name}.png").is_file():
+        sys.exit(f"build: web/og/{name}.png yo'q — tools/site/og.cjs ni yurgizing ({slug})")
     return f"/og/{name}.png"
 
 
@@ -351,6 +354,9 @@ def render(meta, ctx, by_slug, alt_groups):
         f'<a class="bg-btn bg-btn--pri bg-btn--sm bg-hide-sm" href="/yuklab-olish/">{ui["dl"]}</a>'
     home = HOME[lang]
     og_type = "website" if slug in HOME.values() else "article"
+    # 404 har qanday yo'q manzilda beriladi: /404/ ning o'zi 404, shuning uchun canonical yo'q, rasm umumiy
+    canonical = "" if slug == "/404/" else f'<link rel="canonical" href="{url}">\n'
+    og_image = "/og.png" if slug == "/404/" else og_path(slug)
 
     return f"""<!doctype html>
 <html lang="{LANG_HTML[lang]}" data-v=""{wasm_attr}>
@@ -361,14 +367,13 @@ def render(meta, ctx, by_slug, alt_groups):
 <meta name="description" content="{esc(desc)}">
 {robots}<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
-<link rel="canonical" href="{url}">
-{hreflang}
+{canonical}{hreflang}
 <meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="bitg">
 <meta property="og:title" content="{esc(og_title)}">
 <meta property="og:description" content="{esc(og_desc)}">
 <meta property="og:url" content="{url}">
-<meta property="og:image" content="{SITE}{og_path(slug)}">
+<meta property="og:image" content="{SITE}{og_image}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="{OG_LOCALE[lang]}">

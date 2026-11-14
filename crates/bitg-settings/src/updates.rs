@@ -98,12 +98,64 @@ fn parts(v: &str) -> Option<([u64; 3], bool)> {
     Some((n, pre))
 }
 
+/// Manifest versiyasi qat'iy: `x.y.z` yoki `x.y.z-qo'shimcha` (qo'shimcha faqat `[0-9A-Za-z.]`). U fayl nomiga va
+/// o'rnatuvchi buyruq qatoriga tushadi, shuning uchun boshqa belgi (qo'shtirnoq, `&`, `%`, `\`) o'tmaydi.
+pub fn valid_version(v: &str) -> bool {
+    let (core, pre) = match v.split_once('-') {
+        Some((c, p)) => (c, Some(p)),
+        None => (v, None),
+    };
+    let nums: Vec<&str> = core.split('.').collect();
+    nums.len() == 3
+        && nums
+            .iter()
+            .all(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
+        && pre.is_none_or(|p| {
+            !p.is_empty() && p.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'.')
+        })
+}
+
+/// `cmd` o'zgartirib yuboradigan belgilar: qo'shtirnoq ichida ham `%` va (DelayedExpansion yoqilgan bo'lsa) `!`
+/// kengayadi, `"` qatorni buzadi.
+fn cmd_safe(p: &std::path::Path) -> bool {
+    let s = p.to_string_lossy();
+    !s.is_empty() && !s.contains(['"', '%', '!', '\r', '\n', '\u{FFFD}'])
+}
+
+/// O'rnatuvchi tugagach (yoki bekor qilinsa) ilovani qayta ochadigan `cmd /d /s /c` argumenti. msiexec bitg'ni
+/// (`bitg-settings.exe`) yopadi, shuning uchun kutuvchi jarayon bitg'ning o'zi bo'la olmaydi. Yo'llardan biri
+/// `cmd` uchun xavfli bo'lsa — `None`: chaqiruvchi msiexec'ni to'g'ridan-to'g'ri, qayta ochishsiz ishga tushiradi.
+pub fn relaunch_args(
+    msiexec: &std::path::Path,
+    msi: &std::path::Path,
+    exe: &std::path::Path,
+) -> Option<String> {
+    if ![msiexec, msi, exe].into_iter().all(cmd_safe) {
+        return None;
+    }
+    // /s: tashqi qo'shtirnoqlar aniq olib tashlanadi, ichkilari saqlanadi. /d: AutoRun buyruqlari ishlamaydi.
+    Some(format!(
+        "/d /s /c \"\"{}\" /i \"{}\" /passive /norestart & start \"\" \"{}\"\"",
+        msiexec.display(),
+        msi.display(),
+        exe.display()
+    ))
+}
+
 /// `a` versiyasi `b` dan yangiroqmi. Noto'g'ri versiya — yo'q.
 pub fn newer(a: &str, b: &str) -> bool {
     match (parts(a), parts(b)) {
         (Some((x, xp)), Some((y, yp))) => x > y || (x == y && yp && !xp),
         _ => false,
     }
+}
+
+/// `updates\` dagi o'rnatuvchi (`bitg-<versiya>.msi`) endi kerak emasmi: versiyasi o'rnatilganidan yangi emas
+/// (o'rnatib bo'lingan yoki eski). Yangirog'i (o'rnatish hali tugamagan bo'lishi mumkin) va begona fayl qoladi.
+pub fn stale_installer(name: &str, current: &str) -> bool {
+    name.strip_prefix("bitg-")
+        .and_then(|n| n.strip_suffix(".msi"))
+        .is_some_and(|v| valid_version(v) && !newer(v, current))
 }
 
 /// Tekshirilgan manifest.
@@ -123,7 +175,7 @@ pub fn parse_manifest(text: &str, current: &str) -> Result<Option<Update>, Strin
     let v: Value = serde_json::from_str(text).map_err(|_| "manifest JSON emas".to_string())?;
     let s = |k: &str| v.get(k).and_then(Value::as_str).unwrap_or("").to_string();
     let version = s("version");
-    if parts(&version).is_none() {
+    if !valid_version(&version) || parts(&version).is_none() {
         return Err("versiya noto'g'ri".into());
     }
     if !newer(&version, current) {
@@ -133,7 +185,10 @@ pub fn parse_manifest(text: &str, current: &str) -> Result<Option<Update>, Strin
     let ws = |k: &str| w.get(k).and_then(Value::as_str).unwrap_or("").to_string();
     let url = ws("url");
     let file = url.strip_prefix(DOWNLOAD_PREFIX).unwrap_or("");
-    if file.is_empty()
+    // Fayl aynan shu versiya relizidan: `.../download/v{version}/<nom>.msi`.
+    let name = file.strip_prefix(&format!("v{version}/")).unwrap_or("");
+    if name.is_empty()
+        || name.contains('/')
         || !file.ends_with(".msi")
         || file.contains(['?', '#', '\\', ' ', '"'])
         || file.contains("..")
@@ -213,6 +268,18 @@ mod tests {
     }
 
     #[test]
+    fn stale_installers_are_only_installed_or_older_msi() {
+        assert!(stale_installer("bitg-0.4.0.msi", "0.4.1"));
+        assert!(stale_installer("bitg-0.4.1.msi", "0.4.1"));
+        assert!(stale_installer("bitg-0.4.1-rc1.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.2.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.1.msi.part", "0.4.1"));
+        assert!(!stale_installer("bitg-x.msi", "0.4.1"));
+        assert!(!stale_installer("other-0.4.0.msi", "0.4.1"));
+        assert!(!stale_installer("bitg-0.4.0.exe", "0.4.1"));
+    }
+
+    #[test]
     fn manifest_is_validated() {
         let u = parse_manifest(GOOD, "0.3.1").unwrap().unwrap();
         assert_eq!(u.version, "0.4.0");
@@ -239,6 +306,35 @@ mod tests {
                 "{to}"
             );
         }
+        // Versiya fayl nomi va buyruq qatoriga tushadi: faqat x.y.z[-[0-9A-Za-z.]+].
+        for bad in [
+            "0.4.0-rc1\\\"&calc",
+            "0.4.0-a b",
+            "0.4.0-",
+            "0.4.0-rc_1",
+            "0.4.0-%TEMP%",
+            "v0.4.0",
+            " 0.4.0",
+            "0.4",
+            "0.4.0.1",
+            "0..4",
+            "1.0.0-rc-1",
+        ] {
+            let m = GOOD.replace("\"version\":\"0.4.0\"", &format!("\"version\":\"{bad}\""));
+            assert!(parse_manifest(&m, "0.1.0").is_err(), "{bad}");
+        }
+        // URL boshqa versiya relizidan (yoki ichki papkadan) bo'lsa — rad etiladi.
+        for url in ["download/v0.3.9/", "download/v0.4.0/x/", "download/"] {
+            let m = GOOD.replace("download/v0.4.0/", url);
+            assert!(parse_manifest(&m, "0.1.0").is_err(), "{url}");
+        }
+        let rc = GOOD
+            .replace("\"version\":\"0.4.0\"", "\"version\":\"0.5.0-rc.1\"")
+            .replace("v0.4.0/bitg-0.4.0", "v0.5.0-rc.1/bitg-0.5.0-rc.1");
+        assert_eq!(
+            parse_manifest(&rc, "0.4.0").unwrap().unwrap().version,
+            "0.5.0-rc.1"
+        );
         let odd_page = GOOD.replace(
             "https://github.com/dtwinuz/bitg/releases/tag",
             "https://x.uz",
@@ -271,6 +367,50 @@ mod tests {
             !newer(env!("CARGO_PKG_VERSION"), top),
             "NEWS.md da {top} eski"
         );
+    }
+
+    #[test]
+    fn version_shape() {
+        for ok in ["0.4.0", "10.20.30", "1.0.0-rc1", "1.0.0-rc.1", "1.0.0-0A.b"] {
+            assert!(valid_version(ok), "{ok}");
+        }
+        for bad in [
+            "",
+            "1.0",
+            "1.0.0.",
+            "a.b.c",
+            "1.0.0-",
+            "1.0.0-r c",
+            "1.0.0-r&c",
+            "1.0.0+b",
+        ] {
+            assert!(!valid_version(bad), "{bad}");
+        }
+    }
+
+    #[test]
+    fn relaunch_line() {
+        use std::path::Path;
+        let line = relaunch_args(
+            Path::new(r"C:\Windows\System32\msiexec.exe"),
+            Path::new(r"C:\Users\A & B\AppData\Local\bitg\updates\bitg-0.4.0.msi"),
+            Path::new(r"C:\Program Files\bitg\bitg-settings.exe"),
+        )
+        .unwrap();
+        assert_eq!(
+            line,
+            r#"/d /s /c ""C:\Windows\System32\msiexec.exe" /i "C:\Users\A & B\AppData\Local\bitg\updates\bitg-0.4.0.msi" /passive /norestart & start "" "C:\Program Files\bitg\bitg-settings.exe"""#
+        );
+        let m = Path::new(r"C:\Windows\System32\msiexec.exe");
+        let e = Path::new(r"C:\bitg\bitg-settings.exe");
+        for bad in [
+            r"C:\Users\%x%\a.msi",
+            r"C:\Users\a!b\a.msi",
+            "C:\\\"\\a.msi",
+            "",
+        ] {
+            assert_eq!(relaunch_args(m, Path::new(bad), e), None, "{bad}");
+        }
     }
 
     #[test]

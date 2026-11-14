@@ -197,6 +197,29 @@ if ($Ui -eq 'wpf') {
         { TypeKeys 'choy ' }, $w, { Check 'sensitive: plain field converts again' 'çoy ' }
     )
 }
+# 8) Win32 parol maydoni (#41, WinForms UseSystemPasswordChar = ES_PASSWORD): zaxira yo'l so'zni qayta yozmaydi.
+# Oldin va keyin oddiy maydonda nazorat so'zi o'giriladi — bitg shu oynada faol, sinov bekorga o'tmaydi.
+function NewFormsBox([bool]$password) {
+    $old = $script:tb
+    $script:tb = New-Object System.Windows.Forms.TextBox
+    $script:tb.Dock = 'Fill'; $script:tb.Font = New-Object System.Drawing.Font('Segoe UI', 14)
+    $script:tb.UseSystemPasswordChar = $password
+    $win.Controls.Remove($old); $old.Dispose()
+    $win.Controls.Add($script:tb)
+}
+# Yangi HWND fokus olganda Windows thread'ning standart klaviatura profilini qaytaradi (tsf.log: deactivate) —
+# qt-e2e.py dagidek bitg har yangi maydonda qayta yoqiladi.
+$reactivate = { $log.Add("ActivateProfile box hr=0x{0:x}" -f [E2e]::ActivateBitg()) }
+if ($Ui -eq 'winforms') {
+    $steps += @(
+        { NewFormsBox $false }, $w, { Focus }, $reactivate, { Focus }, $w,
+        { TypeKeys 'choy ' }, $w, $w, { Check 'password box: plain box converts before' 'çoy ' },
+        { NewFormsBox $true }, $w, { Focus }, $reactivate, { Focus }, $w,
+        { TypeKeys 'choy shoshma ' }, $w, $w, $w, { Check 'password box: UseSystemPasswordChar untouched' 'choy shoshma ' },
+        { NewFormsBox $false }, $w, { Focus }, $reactivate, { Focus }, $w,
+        { TypeKeys 'choy ' }, $w, $w, { Check 'password box: plain box converts after' 'çoy ' }
+    )
+}
 
 $script:k = 0
 $tick = {

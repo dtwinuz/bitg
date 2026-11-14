@@ -185,6 +185,26 @@ mod app {
         // WebView2 papkasi birinchi ochilishda yaratiladi: bor bo'lsa — bu yangilanish, yangi o'rnatish emas.
         let data = bitg_tsf::config::local_dir().map(|d| d.join("webview"));
         RAN_BEFORE.store(data.as_ref().is_some_and(|d| d.exists()), Ordering::Relaxed);
+        // Oldingi yangilanishdan qolgan MSI (o'rnatib bo'lingan yoki eski versiya) o'chiriladi; yangirog'i
+        // (o'rnatish tugamagan bo'lishi mumkin) qoladi. MSI o'zi per-user papkani o'chira olmaydi (perMachine paket).
+        std::thread::spawn(|| {
+            let Some(dir) = bitg_tsf::config::local_dir().map(|d| d.join("updates")) else {
+                return;
+            };
+            let Ok(entries) = std::fs::read_dir(&dir) else {
+                return;
+            };
+            for e in entries.flatten() {
+                if e.file_name()
+                    .to_str()
+                    .is_some_and(|n| updates::stale_installer(n, VERSION))
+                {
+                    let _ = std::fs::remove_file(e.path());
+                }
+            }
+            // bo'sh bo'lsagina o'chadi
+            let _ = std::fs::remove_dir(&dir);
+        });
 
         {
             let p = proxy.clone();
@@ -412,22 +432,28 @@ mod app {
             return fail(format!("Faylni saqlab bo'lmadi: {e}."));
         }
         let exe = std::env::current_exe().unwrap_or_default();
+        let Some(sys) = bitg_tsf::config::system_dir() else {
+            return fail("Tizim papkasi topilmadi.".into());
+        };
+        let msiexec = sys.join("msiexec.exe");
         reply(p, update_state("installing"));
         // msiexec tugagach (yoki bekor qilinsa) ilova qayta ochiladi; MSI eski sozlamalarini (AUTOSTART,
-        // ADDKEYBOARD) reestrdan o'zi oladi.
-        let cmd = format!(
-            "msiexec /i \"{}\" /passive /norestart & start \"\" \"{}\"",
-            msi.display(),
-            exe.display()
-        );
+        // ADDKEYBOARD) reestrdan o'zi oladi. msiexec bitg-settings.exe'ni yopadi, shuning uchun kutuvchi — cmd.
+        // Yo'lda cmd uchun xavfli belgi bo'lsa, msiexec to'g'ridan-to'g'ri (qayta ochishsiz) ishga tushadi.
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-        match std::process::Command::new("cmd")
-            .arg("/c")
-            .raw_arg(&cmd)
-            .creation_flags(CREATE_NO_WINDOW)
-            .spawn()
-        {
+        let spawned = match updates::relaunch_args(&msiexec, &msi, &exe) {
+            Some(args) => std::process::Command::new(sys.join("cmd.exe"))
+                .raw_arg(&args)
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn(),
+            None => std::process::Command::new(&msiexec)
+                .arg("/i")
+                .arg(&msi)
+                .args(["/passive", "/norestart"])
+                .spawn(),
+        };
+        match spawned {
             Ok(_) => {
                 let _ = p.send_event(Ev::Quit);
             }

@@ -43,12 +43,15 @@ fn main() -> ExitCode {
     let mut args: Vec<String> = std::env::args().skip(1).collect();
     let mut opts = Options::default();
     let mut ascii = false;
+    // Faqat yangi alifboga o'girishga tegishli sozlamalar: `old` va `cyr` ularni qabul qilmaydi.
+    let mut convert_only: Vec<&'static str> = Vec::new();
     match take_exceptions(&mut args) {
         Ok(Some(path)) => match std::fs::read_to_string(&path) {
             Ok(text) => {
                 let (exceptions, rules) = bitg_core::user::parse(&text);
                 opts.exceptions = exceptions;
                 opts.rules = rules;
+                convert_only.push("--exceptions");
             }
             Err(e) => {
                 eprintln!("bitg: {path}: {e}");
@@ -64,10 +67,12 @@ fn main() -> ExitCode {
     args.retain(|a| match a.as_str() {
         "--no-guard" => {
             opts.english_guard = false;
+            convert_only.push("--no-guard");
             false
         }
         "--no-cyrillic" => {
             opts.cyrillic = false;
+            convert_only.push("--no-cyrillic");
             false
         }
         "--ascii" => {
@@ -78,18 +83,26 @@ fn main() -> ExitCode {
             if let Some(c) = a["--tutuq=".len()..].chars().next() {
                 opts.tutuq = c;
             }
+            convert_only.push("--tutuq");
             false
         }
         _ => true,
     });
     let cmd = args.first().map(String::as_str).unwrap_or("convert");
-    let rest = |n: usize| -> String {
+    let reverse = matches!(cmd, "old" | "cyr")
+        || matches!(cmd, "file" | "diff") && args.iter().any(|a| a == "--old");
+    if reverse && !convert_only.is_empty() {
+        eprintln!(
+            "bitg {cmd}: {} faqat yangi alifboga o'girishda ishlaydi",
+            convert_only.join(", ")
+        );
+        return ExitCode::FAILURE;
+    }
+    let rest = |n: usize| -> Option<String> {
         if args.len() > n {
-            args[n..].join(" ")
+            Some(args[n..].join(" "))
         } else {
-            let mut s = String::new();
-            let _ = io::stdin().read_to_string(&mut s);
-            s
+            read_stdin()
         }
     };
     match cmd {
@@ -107,11 +120,11 @@ fn main() -> ExitCode {
             } else {
                 OldStyle::Official
             };
-            out(&bitg_core::to_old(&rest(1), style))
+            with(rest(1), |t| out(&bitg_core::to_old(&t, style)))
         }
-        "cyr" => out(&bitg_core::to_cyrillic(&rest(1))),
-        "explain" => {
-            let (converted, report) = bitg_core::convert_words(&rest(1), &opts);
+        "cyr" => with(rest(1), |t| out(&bitg_core::to_cyrillic(&t))),
+        "explain" => with(rest(1), |text| {
+            let (converted, report) = bitg_core::convert_words(&text, &opts);
             for w in report {
                 let r = match w.reason {
                     Reason::Converted => "o'girildi",
@@ -129,7 +142,7 @@ fn main() -> ExitCode {
             }
             println!("\n{converted}");
             ExitCode::SUCCESS
-        }
+        }),
         "eval" => match args.get(1) {
             Some(path) => eval(path, &opts),
             None => {
@@ -139,8 +152,54 @@ fn main() -> ExitCode {
         },
         "file" => file::run(&args[1..], &opts, ascii),
         "diff" => file::diff(&args[1..], &opts, ascii),
-        "convert" => out(&bitg_core::convert(&rest(1), &opts)),
-        _ => out(&bitg_core::convert(&rest(0), &opts)),
+        "convert" => with(rest(1), |t| out(&bitg_core::convert(&t, &opts))),
+        _ => with(rest(0), |t| out(&bitg_core::convert(&t, &opts))),
+    }
+}
+
+/// Matn o'qilmadi (`read_stdin` xatoni yozgan) — chiqish kodi 1.
+fn with(text: Option<String>, f: impl FnOnce(String) -> ExitCode) -> ExitCode {
+    text.map_or(ExitCode::FAILURE, f)
+}
+
+/// stdin'ni butunlay o'qiydi: UTF-8 (BOM bilan ham) yoki BOM'li UTF-16 LE/BE. Boshqa kodlashda xato
+/// stderr'ga yoziladi va `None` qaytadi — matn jimgina tashlab yuborilmaydi.
+pub(crate) fn read_stdin() -> Option<String> {
+    let mut bytes = Vec::new();
+    if let Err(e) = io::stdin().read_to_end(&mut bytes) {
+        eprintln!("bitg: stdin: {e}");
+        return None;
+    }
+    decode_text(bytes)
+        .map_err(|e| eprintln!("bitg: stdin: {e}"))
+        .ok()
+}
+
+const NOT_UTF8: &str = "matn UTF-8 emas (UTF-8 yoki BOM'li UTF-16 kerak)";
+
+/// Baytlarni matnga: UTF-8 (BOM olib tashlanadi) yoki BOM'li UTF-16 LE/BE.
+fn decode_text(bytes: Vec<u8>) -> Result<String, &'static str> {
+    let utf16 = |body: &[u8], be: bool| -> Result<String, &'static str> {
+        if !body.len().is_multiple_of(2) {
+            return Err("UTF-16 matn toq sonli baytda tugaydi");
+        }
+        let (pairs, _) = body.as_chunks::<2>();
+        let units = pairs.iter().map(|&p| {
+            if be {
+                u16::from_be_bytes(p)
+            } else {
+                u16::from_le_bytes(p)
+            }
+        });
+        char::decode_utf16(units)
+            .collect::<Result<String, _>>()
+            .map_err(|_| "UTF-16 matnda juftsiz surrogat")
+    };
+    match bytes.as_slice() {
+        [0xFF, 0xFE, body @ ..] => utf16(body, false),
+        [0xFE, 0xFF, body @ ..] => utf16(body, true),
+        [0xEF, 0xBB, 0xBF, body @ ..] => String::from_utf8(body.to_vec()).map_err(|_| NOT_UTF8),
+        _ => String::from_utf8(bytes).map_err(|_| NOT_UTF8),
     }
 }
 
@@ -234,5 +293,43 @@ fn eval(path: &str, opts: &Options) -> ExitCode {
         ExitCode::SUCCESS
     } else {
         ExitCode::from(1)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::decode_text;
+
+    fn utf16(bom: [u8; 2], s: &str, be: bool) -> Vec<u8> {
+        bom.into_iter()
+            .chain(s.encode_utf16().flat_map(
+                |u| {
+                    if be { u.to_be_bytes() } else { u.to_le_bytes() }
+                },
+            ))
+            .collect()
+    }
+
+    #[test]
+    fn decodes_utf8_and_utf16_with_bom() {
+        assert_eq!(decode_text(b"choy".to_vec()).unwrap(), "choy");
+        assert_eq!(decode_text(b"\xEF\xBB\xBFchoy".to_vec()).unwrap(), "choy");
+        assert_eq!(
+            decode_text(utf16([0xFF, 0xFE], "çoy", false)).unwrap(),
+            "çoy"
+        );
+        assert_eq!(
+            decode_text(utf16([0xFE, 0xFF], "çoy", true)).unwrap(),
+            "çoy"
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_input() {
+        assert!(decode_text(vec![0x63, 0xFF, 0x68]).is_err());
+        assert!(decode_text(vec![0xEF, 0xBB, 0xBF, 0xC3]).is_err());
+        assert!(decode_text(vec![0xFF, 0xFE, 0x63]).is_err());
+        // lone high surrogate
+        assert!(decode_text(vec![0xFF, 0xFE, 0x00, 0xD8]).is_err());
     }
 }

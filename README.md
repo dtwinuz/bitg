@@ -44,7 +44,7 @@ O'zbekiston shaharlari
 | 🔒 **Kod va havolalarga tegmaydi** | URL, email, `@user`, `#teg`, domen, `snake_case`, `camelCase`, `push()`, `shahar123` (parolga o'xshash). |
 | ✍️ **Tutuq va tirnoqni ajratadi** | 12 xil apostrof bitta deb qaraladi; `'Yaxshi tong'` — tirnoq, `tog'` — ğ; `Is'hoq` → `Ishoq`. |
 | 🔁 **Uch yo'nalish** | eski lotin → yangi, kirill → yangi (eng aniq yo'l), yangi → eski (o'tish davri saytlari uchun). |
-| ⚡ **Tez va yengil** | 1.4–2.7 µs/so'z, lug'at yuklash 0 ms (qurish vaqtida tayyor jadval), 1.1 MB xotira; tarmoq yo'q, tashqi bog'liqlik yo'q. Bitta yadro: Windows IME, CLI, mobil, web. |
+| ⚡ **Tez va yengil** | 1.4–2.7 µs/so'z, lug'at yuklash 0 ms (qurish vaqtida tayyor jadval), 1.1 MB xotira; tarmoq yo'q, tashqi bog'liqlik yo'q. Bitta yadro: Windows, Linux, macOS kiritish usullari, CLI, sayt va brauzer kengaytmasi. |
 | 📏 **O'lchanadi** | `bitg eval` — real korpusda aniqlik va tezlik. Har o'zgarish raqam bilan tekshiriladi. |
 
 ## Sifat (hozirgi holat)
@@ -94,12 +94,12 @@ To'plamni o'zingiz qurish: [`tools/build_eval.py`](tools/build_eval.py), so'ng `
 flowchart LR
   core["bitg-core<br/>(Rust, bog'liqliksiz)"]
   cli["bitg CLI"]
-  tsf["Windows TSF IME<br/>(prototip)"]
+  tsf["Windows TSF IME"]
   ime["bitg-ime<br/>(yozish mantiqi)"]
   ibus["Linux: IBus / Fcitx5"]
   tray["Sozlamalar oynasi<br/>(WebView2)"]
   mob["Android / iOS klaviatura<br/>(reja)"]
-  web["Web / WASM<br/>(wasm.rs tayyor, sayt ishlanmoqda)"]
+  web["Web / WASM<br/>(bitg.uz, brauzer kengaytmasi)"]
   core --> cli
   core -- "C ABI (ffi.rs)" --> tsf
   core --> ime
@@ -112,7 +112,7 @@ flowchart LR
 | Crate | Vazifa |
 |---|---|
 | [`bitg-core`](crates/bitg-core) | qoidalar (`latin`), kirill (`cyrillic`), teskari (`reverse`), tokenlar (`token`), til dalili (`lang`), brendlar (`data/names.txt`), yozish sessiyasi (`Session`), C ABI (`ffi`), brauzer ABI (`wasm`, faqat wasm32) |
-| [`bitg-cli`](crates/bitg-cli) | `bitg convert / old / explain / eval` |
+| [`bitg-cli`](crates/bitg-cli) | `bitg convert / old / cyr / explain / eval / file / diff` |
 | [`bitg-settings`](crates/bitg-settings) | sozlamalar oynasi: kalitlar, ro'yxatlar, jonli namuna (Windows, WebView2) |
 | [`bitg-ime`](crates/bitg-ime) | platformadan mustaqil yozish mantiqi (Linux): so'z chegarasi, kursor oldidagi matnni tekshirib almashtirish, matn bermaydigan dasturlar uchun preedit, Backspace bilan qaytarish va istisno o'rganish, `settings.ini`/`exceptions.txt` (`~/.config/bitg`); C ABI — [`linux/`](linux) dagi IBus (C) va Fcitx5 (C++) qobiqlari uchun |
 | [`bitg-tsf`](crates/bitg-tsf) | Windows matn kiritish xizmati (TSF TIP, Rust): tugmalarga tegmaydi — matn o'zgarishini kuzatadi (`ITfTextEditSink`) va so'zdan keyin probel yozilganda o'sha so'zni joyida almashtiradi. Matnni bermaydigan dasturlarda (Qt: Telegram) — zaxira yo'l: bosilgan harflardan so'z yig'iladi, `SendInput` bilan Backspace + yangi so'z. Hook va clipboard yo'q |
@@ -173,7 +173,7 @@ gh attestation verify .\bitg-*-x64.msi -R dtwinuz/bitg  # GitHub Actions'da shu 
 
 O'rnatuvchini qurish (WiX 5, .NET SDK): `pwsh installer/build.ps1` → `dist/bitg-<versiya>-x64.msi` + `.sha256`.
 `-CertThumbprint` yoki `BITG_SIGN_PFX` bilan binarlar va MSI imzolanadi (SHA-256, vaqt tamg'asi). `v*` tegi qo'yilsa,
-[`release`](.github/workflows/release.yml) workflow MSI, Linux `.deb` va macOS `.pkg` paketlarini
+[`release`](.github/workflows/release.yml) workflow MSI, `.deb`, Arch `.pkg.tar.zst` va macOS `.pkg` paketlarini
 ([`build`](.github/workflows/build.yml) reusable workflow'i yig'adi va imzolaydi, SLSA Build L3) GitHub Release'ga chiqaradi.
 
 #### Windows'da muammo bo'lsa
@@ -230,7 +230,7 @@ qo'shing — bu qo'shimcha hozircha **sinov bosqichida**.
 | Yuqori panel belgisi | `/usr/bin/bitg-indicator`; ilovalar menyusida «bitg», sessiya bilan `/etc/xdg/autostart/bitg.desktop` |
 
 **Yuqori panel belgisi** (GNOME, Unity): menyuda yoqish/o'chirish, avtomatik o'girish, kirillni o'girish va
-istisnolar/lug'at muharriri bor; o'zgarish yozilayotgan dasturga darhol qo'llanadi. «Panel belgisini yopish» faqat
+istisnolar/lug'at muharriri bor; o'zgarish yozilayotgan dasturga darhol qo'llanadi. «Panel belgisini yopiş» faqat
 belgini yopadi, kiritish usuli ishlashda davom etadi. Belgi `python3-gi`, `gir1.2-gtk-3.0`,
 `gir1.2-ayatanaappindicator3-0.1` ni talab qiladi (apt ularni tavsiya sifatida o'zi o'rnatadi). Ubuntu'da belgi
 standart «AppIndicator» kengaytmasi orqali ko'rinadi; toza GNOME'da shu kengaytmani yoqing. Sessiya bilan ochilishini
@@ -260,7 +260,7 @@ tartibidan bitg'ga o'tsangiz kirillcha yozasiz — bu xato emas, so'z tugashi bi
 5. **Xabar berish:** Ubuntu versiyasi (`lsb_release -d`), sessiya (`echo $XDG_SESSION_TYPE` — wayland/x11),
    `bitg --version`, qaysi dasturda bo'lgani — [issue](https://github.com/dtwinuz/bitg/issues/new) ga.
 
-**Sinov matritsasi** (har PR'da, [`linux.yml`](.github/workflows/linux.yml)):
+**Sinov matritsasi** (tegishli fayllar o'zgargan har PR'da, [`linux.yml`](.github/workflows/linux.yml)):
 
 | | Ubuntu 22.04 | Ubuntu 24.04 |
 |---|---|---|
@@ -274,7 +274,7 @@ Avtomatik sinalmaydi: haqiqiy GNOME Wayland/X11 sessiyasidagi panel ko'rinishi, 
 yozish. Bularni sinab ko'rgan bo'lsangiz, natijani issue'ga yozing.
 
 **Arch Linux** (Manjaro, EndeavourOS): [`packaging/aur/PKGBUILD`](packaging/aur) manbadan yig'adi va ikkita paket
-beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
+beradi: `bitg` (IBus + CLI) va `fcitx5-bitg`. CI tegishli fayllar o'zgargan har PR'da toza Arch konteynerida yig'ib, o'rnatib, sinab ko'radi.
 AUR'da hali yo'q (yangi akkaunt ochish vaqtincha yopiq) — shu PKGBUILD bilan o'zingiz yig'ing:
 
 ```bash
@@ -498,7 +498,7 @@ bilan: 98.87% / 68.50% / 99.73%.
 Apostrofsiz matndagi o'sish manbalari: kengroq lug'at; kirillda uchramaydigan apostrofsiz shakl `0` og'irlik
 bilan yoziladi (aks holda `boladi` o'zak orqali `bola|di` deb hisoblanib, `bo'ladi` tiklanmasdi); chiziqchali so'z
 bo'lak-bo'lak (`qollab-quvvatlash`); matnda o'/g' umuman yo'q va boshqa so'z tiklangan bo'lsa ikki ma'noli so'zlar
-ham (`oz → o'z`, `yoq → yo'q`). Tezlik va xotira o'zgarmadi (2.7 / 1.3 µs/so'z, 0.5 MB private); apostrofsiz
+ham (`oz → o'z`, `yoq → yo'q`). Tezlik va xotira o'zgarmadi (2.7 / 1.4 µs/so'z, 1.1 MB private); apostrofsiz
 matnda 2.5 → 3.3 µs/so'z.
 
 Qayta qurish (manbalarni yuklab, bir papkaga oching):
@@ -518,9 +518,10 @@ To'liq reja: [ROADMAP.md](ROADMAP.md). Qisqasi:
 - [x] **Linux (Ubuntu)** — IBus dvigateli va `.deb` paket, haqiqiy `ibus-daemon` bilan CI sinovi (v0.2.0)
 - [x] **macOS** — InputMethodKit kiritish usuli, universal `.pkg`, CI'da o'rnatish sinovi (sinov bosqichi, v0.3.0)
 - [x] Sayt: [bitg.uz](https://bitg.uz) (`web/`), sinov maydoni haqiqiy yadroda (Rust → WASM)
-- [ ] Imzolangan Windows o'rnatuvchi va Microsoft Store; Fcitx5 va macOS real dasturlarda; Fedora `.rpm`, Flatpak
+- [ ] Imzolangan Windows o'rnatuvchi va Microsoft Store; Fcitx5 va macOS real dasturlarda; Fedora/openSUSE `.rpm` va Nix (retseptlar tayyor, e'lon qilinmagan), Flatpak
 - [ ] v1 — qonun kuchga kirishidan oldin (2027-aprel)
-- [ ] **iOS**, Android; Word/brauzer kengaytmasi; B2B API
+- [ ] Brauzer kengaytmasi (`extension/`, Chrome Web Store'da ko'rib chiqilmoqda); Word
+- [ ] **iOS**, Android; B2B API
 
 Loyiha qanday boshqariladi: [GOVERNANCE.md](GOVERNANCE.md) · tuzilma: [ARCHITECTURE.md](ARCHITECTURE.md) ·
 xavfsizlik asoslamasi: [docs/ASSURANCE.md](docs/ASSURANCE.md).
@@ -531,7 +532,8 @@ bitg ochiq MCP server sifatida ham ishlaydi: `https://bitg.uz/mcp` (login yo'q, 
 matn saqlanmaydi). AI yordamchi o'zbekcha matnni yangi alifboga taxmin bilan emas, bitg yadrosi bilan o'giradi.
 
 ```sh
-/plugin install bitg --marketplace dtwinuz/bitg                # Claude Code (plugin + skill)
+/plugin marketplace add dtwinuz/bitg                           # Claude Code (plugin + skill), so'ng:
+/plugin install bitg@bitg
 claude mcp add --transport http bitg https://bitg.uz/mcp       # Claude Code (faqat MCP)
 gemini extensions install https://github.com/dtwinuz/bitg      # Gemini CLI
 ```

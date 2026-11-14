@@ -14,6 +14,10 @@ organization. This document says who decides what and how the project keeps goin
 
 The two maintainers work for different employers; neither is paid by the other.
 
+The lead maintainer, Nosirbek Xakimov, also uses a second account, [@NXakimov](https://github.com/NXakimov). It is
+the same person: an approval from @NXakimov on a pull request authored by @XakimovNosirbek (or the other way round)
+is not an independent review. Independent review comes from @wonmors or @leverow.
+
 ### Responsibilities
 
 - **Lead maintainer:** release planning ([ROADMAP.md](ROADMAP.md)), the conversion rules in `bitg-core`, the
@@ -27,7 +31,8 @@ The two maintainers work for different employers; neither is paid by the other.
 - Day-to-day changes are decided in the pull request: a change is merged when CI is green and the review
   questions are resolved. Merges are squash-only and go through the `main` ruleset (no direct pushes, no
   force-push, no branch deletion).
-- Every change is reviewed and approved by a maintainer or reviewer other than its author before it is merged;
+- Every change is reviewed and approved by a maintainer or reviewer other than its author (another person, not
+  another account of the author) before it is merged;
   the reviewer reads the diff and leaves at least one comment or question when something is unclear. Exceptions: urgent security fixes and
   documentation-only changes, which are reviewed after the merge.
 - Bigger decisions (a new platform, a change of the conversion rules, dropping a supported OS, license questions)
@@ -61,10 +66,12 @@ granted only after a review, never by default:
 |---|---|
 | [dtwinuz/bitg](https://github.com/dtwinuz/bitg) | everything that is built and released: conversion core, Windows/Linux/macOS input methods, CLI, settings app, website `bitg.uz` (`web/`), package manifests (`packaging/`), server configuration (`deploy/`) |
 | [dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap) | Homebrew cask that installs the released macOS `.pkg` |
+| [dtwinuz/scoop-bucket](https://github.com/dtwinuz/scoop-bucket) | Scoop manifest that installs the released Windows MSI |
 | [dtwinuz/.github](https://github.com/dtwinuz/.github) | organization profile and default community files |
 | [dtwinuz/.allstar](https://github.com/dtwinuz/.allstar) | organization security policy checks (OpenSSF Allstar, self-hosted) |
 
-Third-party package indexes (winget-pkgs, AUR) receive manifests generated from `packaging/` in this repository.
+Third-party package indexes (winget-pkgs, Chocolatey, crates.io; AUR when available) receive manifests generated
+from `packaging/` in this repository.
 
 ## Continuity
 

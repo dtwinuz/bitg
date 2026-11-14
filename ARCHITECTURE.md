@@ -34,6 +34,11 @@ flowchart TB
 | `linux/`, `macos/` | Thin platform shells over `bitg-ime`, packaging (`.deb`, `.pkg`) and end-to-end tests. |
 | `installer/` | WiX MSI for Windows. |
 | `web/`, `tools/site/` | The bitg.uz static site and its build; the playground runs the real core compiled to WebAssembly. |
+| `bot/` | `bitg-bot`: the `@bitguzbot` Telegram bot (converts messages with `bitg-core`, `/fikr` feedback to admins) and its small HTTP server behind Caddy (`web.rs`): `POST /api/feedback` for the apps' feedback window and `POST /mcp` (`mcp.rs`), the public MCP endpoint with the `convert_text` tool. |
+| `extension/` | Browser extension (Manifest V3, Chrome/Edge/Firefox): converts selected text, an edit field, the visible page or (opt-in per site) words while typing, offline, with the core compiled to WebAssembly, the same file and ABI as the bitg.uz converter. |
+| `integrations/` | Packages for AI assistants that use the MCP endpoint: Claude Code plugin and skill, ChatGPT directory plugin. |
+| `packaging/` | Package manifests and recipes: winget, Chocolatey, Homebrew, AUR `PKGBUILD`, RPM spec (Fedora/openSUSE), Nix. |
+| `deploy/` | bitg.uz server: Caddy configuration, Docker Compose, deploy scripts, the apt repository's public signing key, site statistics. |
 | `fuzz/` | libFuzzer targets for the core (`convert`, `session`). |
 | `eval/` | Accuracy sets: 3 000 Uzbek and 3 000 English sentences with expected output. |
 
@@ -62,7 +67,10 @@ remembers it as an exception.
 - **Input:** the only input is text the user types (and, for files, documents the user opens with the CLI). It is
   untrusted and arbitrary; the core handles any UTF-8 and never panics across an FFI or COM boundary (panics are
   caught at those boundaries and logged).
-- **No network:** the input methods and the core never open network connections. The website is static.
+- **Network:** the input methods and the core never open network connections. Only the Windows settings app goes
+  online: it checks `https://bitg.uz/update/stable.json` (WinHTTP, can be turned off) and sends feedback when the
+  user asks it to. The site pages are static; `/mcp` and `/api/feedback` are served by the bot (`bot/src/web.rs`)
+  with request limits.
 - **Privileged surface:** the Windows text service is a DLL loaded into every application where the user types.
   It runs with the application's own rights; it is disabled in password, PIN and e-mail fields and in terminals.
   It uses no global keyboard hook.

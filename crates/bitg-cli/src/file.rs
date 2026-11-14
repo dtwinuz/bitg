@@ -5,7 +5,7 @@
 //! `bitg file` va `bitg diff`: fayllarni (.docx, .xlsx, matn) o'girish va o'zgarishlarni oldindan ko'rish.
 
 use std::collections::BTreeMap;
-use std::io::{self, Read};
+use std::io;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -33,6 +33,8 @@ fn converter(old: bool, ascii: bool, opts: &Options) -> impl Fn(&str) -> String 
 enum Format {
     Office(Kind),
     Text,
+    /// Markdown: kod bloki (``` / ~~~), `kod` va havola manzili `](url)` o'girilmaydi.
+    Markdown,
 }
 
 fn format_of(path: &Path) -> Result<Format, String> {
@@ -47,6 +49,7 @@ fn format_of(path: &Path) -> Result<Format, String> {
         "doc" | "xls" | "pdf" | "rtf" | "odt" | "ods" | "pptx" | "ppt" => Err(format!(
             ".{ext} qo'llab-quvvatlanmaydi — .docx, .xlsx yoki matn (.txt, .md) sifatida saqlang"
         )),
+        "md" | "markdown" => Ok(Format::Markdown),
         _ => Ok(Format::Text),
     }
 }
@@ -95,14 +98,18 @@ fn process(path: &Path, f: &dyn Fn(&str) -> String) -> Result<Outcome, String> {
                 text: false,
             })
         }
-        Format::Text => {
+        Format::Text | Format::Markdown => {
             let text = String::from_utf8(data)
                 .map_err(|_| "matn UTF-8 emas (faylni UTF-8 sifatida saqlang)".to_string())?;
             let (bom, body) = match text.strip_prefix('\u{FEFF}') {
                 Some(rest) => ("\u{FEFF}", rest),
                 None => ("", text.as_str()),
             };
-            let new = f(body);
+            let new = if matches!(format, Format::Markdown) {
+                markdown(body, f)
+            } else {
+                f(body)
+            };
             let changes = line_changes(body, &new)
                 .into_iter()
                 .map(|(n, old, new)| (n.to_string(), old, new))
@@ -114,6 +121,125 @@ fn process(path: &Path, f: &dyn Fn(&str) -> String) -> Result<Outcome, String> {
             })
         }
     }
+}
+
+/// Markdown: ``` / ~~~ kod bloklari aynan qoladi, qolgan matn `inline` orqali o'giriladi.
+fn markdown(body: &str, f: &dyn Fn(&str) -> String) -> String {
+    let mut out = String::with_capacity(body.len() + 16);
+    let mut prose_start = 0;
+    let mut pos = 0;
+    // Ochiq kod bloki: belgi (` yoki ~) va uzunligi.
+    let mut fence: Option<(u8, usize)> = None;
+    for line in body.split_inclusive('\n') {
+        let start = pos;
+        pos += line.len();
+        let trimmed = line.trim_start_matches(' ');
+        let marker = (line.len() - trimmed.len() <= 3)
+            .then(|| {
+                let c = *trimmed.as_bytes().first()?;
+                let n = trimmed.bytes().take_while(|&b| b == c).count();
+                (matches!(c, b'`' | b'~') && n >= 3).then_some((c, n))
+            })
+            .flatten();
+        match (fence, marker) {
+            (None, Some(m)) => {
+                inline(&body[prose_start..start], f, &mut out);
+                out.push_str(line);
+                fence = Some(m);
+            }
+            (Some((c, n)), Some((mc, mn)))
+                if mc == c && mn >= n && trimmed[mn..].trim().is_empty() =>
+            {
+                out.push_str(line);
+                fence = None;
+                prose_start = pos;
+            }
+            (Some(_), _) => out.push_str(line),
+            (None, None) => {}
+        }
+    }
+    if fence.is_none() {
+        inline(&body[prose_start..], f, &mut out);
+    }
+    out
+}
+
+/// Markdown matni: `kod` oraliqlari va havola manzili `](url)` aynan qoladi, qolgani `f` bilan o'giriladi.
+fn inline(s: &str, f: &dyn Fn(&str) -> String, out: &mut String) {
+    let b = s.as_bytes();
+    let mut last = 0;
+    let mut i = 0;
+    // Yopuvchisi topilmagan backtick uzunliklari: keyingi qidiruv ham topmaydi (O(n)).
+    let mut unclosed: Vec<usize> = Vec::new();
+    while i < b.len() {
+        if b[i] == b'`' {
+            let n = b[i..].iter().take_while(|&&c| c == b'`').count();
+            let close = (!unclosed.contains(&n))
+                .then(|| closing_backticks(&b[i + n..], n))
+                .flatten();
+            match close {
+                Some(end) => {
+                    let end = i + n + end;
+                    out.push_str(&f(&s[last..i]));
+                    out.push_str(&s[i..end]);
+                    last = end;
+                    i = end;
+                }
+                None => {
+                    unclosed.push(n);
+                    i += n;
+                }
+            }
+            continue;
+        }
+        if b[i] == b']'
+            && b.get(i + 1) == Some(&b'(')
+            && let Some(close) = closing_paren(&b[i + 2..])
+        {
+            let end = i + 2 + close + 1;
+            out.push_str(&f(&s[last..i]));
+            out.push_str(&s[i..end]);
+            last = end;
+            i = end;
+            continue;
+        }
+        i += 1;
+    }
+    out.push_str(&f(&s[last..]));
+}
+
+/// Aynan `n` ta backtick'dan iborat keyingi ketma-ketlikning oxiri (bayt o'rni).
+fn closing_backticks(b: &[u8], n: usize) -> Option<usize> {
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'`' {
+            let run = b[i..].iter().take_while(|&&c| c == b'`').count();
+            if run == n {
+                return Some(i + run);
+            }
+            i += run;
+        } else {
+            i += 1;
+        }
+    }
+    None
+}
+
+/// Havola manzilining yopuvchi `)` si (ichki qavslar hisobga olinadi; qator oxirigacha, ko'pi bilan
+/// `MAX_URL` bayt — uzun qatordagi ko'p `](` vaqtni kvadratik qilmasin).
+fn closing_paren(b: &[u8]) -> Option<usize> {
+    const MAX_URL: usize = 4096;
+    let mut depth = 0usize;
+    for (i, &c) in b.iter().take(MAX_URL).enumerate() {
+        match c {
+            b'(' => depth += 1,
+            b')' if depth == 0 => return Some(i),
+            b')' => depth -= 1,
+            b'\n' => return None,
+            _ => {}
+        }
+    }
+    None
 }
 
 /// Qatorma-qator o'zgargan so'zlar: `(qator raqami, eski, yangi)`.
@@ -299,9 +425,10 @@ pub fn diff(args: &[String], opts: &Options, ascii: bool) -> ExitCode {
         .filter(|a| *a != "--old")
         .collect();
     let text = if words.is_empty() {
-        let mut s = String::new();
-        let _ = io::stdin().read_to_string(&mut s);
-        s
+        match crate::read_stdin() {
+            Some(s) => s,
+            None => return ExitCode::FAILURE,
+        }
     } else {
         words.join(" ")
     };

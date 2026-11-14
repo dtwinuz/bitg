@@ -10,8 +10,6 @@ on:
   workflow_call:
     inputs:
       version: { type: string, required: true }
-    secrets:
-      BITG_DEVBOT_TOKEN: { required: false }
   workflow_dispatch:
     inputs:
       version: { description: "Versiya (masalan 0.3.0)", type: string, required: true }
@@ -22,6 +20,8 @@ permissions:
 jobs:
   telegram:
     runs-on: ubuntu-latest
+    # BITG_DEVBOT_TOKEN faqat `announce` environment'ida (main va v* teglar): boshqa branch'dagi workflow uni ololmaydi
+    environment: announce
     steps:
       # Qo'lda kiritilgan versiya faqat teg ko'rinishida bo'lsa ishlatiladi (checkout ref va skript argumenti).
       - name: Versiyani tekshirish

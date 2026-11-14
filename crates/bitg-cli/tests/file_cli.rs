@@ -119,6 +119,76 @@ fn text_file_dry_run_has_line_numbers() {
 }
 
 #[test]
+fn markdown_code_and_link_urls_are_kept() {
+    let dir = temp_dir("md");
+    let input = dir.join("README.md");
+    let body = "# Shahar\n\
+        Run `check shop` va choy [Toshkent shahri](https://kun.uz/shahar_(choy)) bor.\n\
+        ```sh\n\
+        echo shahar choy\n\
+        ```\n\
+        ~~~~\n\
+        ~~~\n\
+        choy shahar\n\
+        ~~~~\n\
+        Oxiri: ``ichki ` choy`` va bog' `ochiq\n";
+    std::fs::write(&input, body).unwrap();
+    assert!(bitg().arg("file").arg(&input).status().unwrap().success());
+    assert_eq!(
+        std::fs::read_to_string(dir.join("README.yangi.md")).unwrap(),
+        "# Şahar\n\
+        Run `check shop` va çoy [Toşkent şahri](https://kun.uz/shahar_(choy)) bor.\n\
+        ```sh\n\
+        echo shahar choy\n\
+        ```\n\
+        ~~~~\n\
+        ~~~\n\
+        choy shahar\n\
+        ~~~~\n\
+        Oxiri: ``ichki ` choy`` va boğ `oçiq\n"
+    );
+    // yopilmagan kod bloki fayl oxirigacha davom etadi; .txt markdown emas
+    let open = dir.join("open.md");
+    std::fs::write(&open, "choy\n```\nchoy `x`\n").unwrap();
+    assert!(bitg().arg("file").arg(&open).status().unwrap().success());
+    assert_eq!(
+        std::fs::read_to_string(dir.join("open.yangi.md")).unwrap(),
+        "çoy\n```\nchoy `x`\n"
+    );
+    // yopilmagan havola manzili — oddiy matn
+    let broken = dir.join("broken.md");
+    std::fs::write(&broken, "[a](choy\nshahar) [b](choy").unwrap();
+    assert!(bitg().arg("file").arg(&broken).status().unwrap().success());
+    assert_eq!(
+        std::fs::read_to_string(dir.join("broken.yangi.md")).unwrap(),
+        "[a](choy\nşahar) [b](choy"
+    );
+    let txt = dir.join("a.txt");
+    std::fs::write(&txt, "`choy`").unwrap();
+    assert!(bitg().arg("file").arg(&txt).status().unwrap().success());
+    assert_eq!(
+        std::fs::read_to_string(dir.join("a.yangi.txt")).unwrap(),
+        "`çoy`"
+    );
+    // --old ham kodga tegmaydi
+    let new_md = dir.join("n.md");
+    std::fs::write(&new_md, "şahar `şahar` [şahar](https://x.uz/ş)\n").unwrap();
+    assert!(
+        bitg()
+            .args(["--ascii", "file", "--old"])
+            .arg(&new_md)
+            .status()
+            .unwrap()
+            .success()
+    );
+    assert_eq!(
+        std::fs::read_to_string(dir.join("n.eski.md")).unwrap(),
+        "shahar `şahar` [shahar](https://x.uz/ş)\n"
+    );
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+#[test]
 fn diff_from_stdin() {
     let mut child = bitg()
         .arg("diff")

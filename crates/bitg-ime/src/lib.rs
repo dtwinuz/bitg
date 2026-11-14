@@ -135,6 +135,10 @@ impl Engine {
 
     /// Parol/terminal maydoni (`true`) yoki oddiy maydon. Preedit'dagi so'z o'girilmay yoziladi.
     pub fn set_suspended(&mut self, on: bool) -> Out {
+        // Fcitx5 har tugmadan oldin chaqiradi: holat o'zgarmasa yozilayotgan so'z tashlanmasin
+        if on == self.suspended {
+            return Out::pass();
+        }
         let out = self.flush();
         self.suspended = on;
         out

@@ -8,7 +8,7 @@ Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, y
 
 ## Sahifalar
 - [Bosh sahifa](https://bitg.uz/): dastur nima qiladi, brauzerdagi sinov maydoni, Windows MSI yuklab olish
-- [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI, Linux .deb va apt ombori (https://bitg.uz/apt), Mac .pkg (sinov) va Homebrew (`brew install --cask dtwinuz/tap/bitg`), SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
+- [Yuklab olish](https://bitg.uz/yuklab-olish/): Windows MSI, Linux .deb va apt ombori (manzil `https://bitg.uz/apt`, kalit https://bitg.uz/apt/bitg.gpg), Mac .pkg (sinov) va Homebrew (`brew install --cask dtwinuz/tap/bitg`), SHA-256, oʻrnatish, tizim talablari, ommaviy oʻrnatish
 - [Onlayn konvertor](https://bitg.uz/konvertor/): eski lotin/kirill → yangi alifbo va aksincha, brauzerning oʻzida
 - [Yangi oʻzbek alifbosi](https://bitg.uz/yangi-alifbo/): 28 harf + tutuq, nima oʻzgardi, Ng
 - [Alifbo qonuni OʻRQ-1184](https://bitg.uz/yangi-alifbo-qonuni/): sanalar, 4 modda, nima oʻzgarmaydi
@@ -16,8 +16,10 @@ Telefonda (iPhone, Android) bitg Tilmoch klaviaturasini tavsiya qiladi: bepul, y
 - [Klaviatura tartiblari](https://bitg.uz/klaviatura/) va [Windows klaviaturasi](https://bitg.uz/klaviatura/windows/)
 - [Vositalarni taqqoslash](https://bitg.uz/qiyoslash/): tartib, konvertor va avtomatik oʻgirish farqi
 - [bitg xavfsizmi?](https://bitg.uz/xavfsizmi/): rasmiy manbalar (bitg.uz, github.com/dtwinuz/bitg), telefon ilovasi yo‘q, faylni SHA-256 va attestatsiya bilan tekshirish, soxta «yangi alifbo klaviaturasi» ilovasi belgilari
-- [Savol-javob](https://bitg.uz/savollar/), [bitg haqida](https://bitg.uz/haqida/), [Maxfiylik](https://bitg.uz/maxfiylik/)
-- [Русский](https://bitg.uz/ru/), [Новый узбекский алфавит](https://bitg.uz/ru/novyy-uzbekskiy-alfavit/), [English](https://bitg.uz/en/)
+- [AI yordamchilarda bitg](https://bitg.uz/ai/): Claude, ChatGPT, Gemini va boshqa MCP mijozlarida ulash
+- [Kod imzosi](https://bitg.uz/kod-imzosi/): Windows ogohlantirishi nega chiqadi, fayl haqiqiyligini tekshirish
+- [Savol-javob](https://bitg.uz/savollar/), [bitg haqida](https://bitg.uz/haqida/), [Maxfiylik](https://bitg.uz/maxfiylik/), [Foydalanish shartlari](https://bitg.uz/shartlar/)
+- [Русский](https://bitg.uz/ru/), [Новый узбекский алфавит](https://bitg.uz/ru/novyy-uzbekskiy-alfavit/), [English](https://bitg.uz/en/) ([AI](https://bitg.uz/en/ai/), [Privacy](https://bitg.uz/en/privacy/), [Terms](https://bitg.uz/en/terms/))
 
 ## Manba kodi va aloqa
 - [GitHub: dtwinuz/bitg](https://github.com/dtwinuz/bitg) — MIT yoki Apache-2.0

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 # bitg.uz: faqat origin/main deploy qilinadi.
-# web/ + web/pages/ (tools/site/build.py) + WASM yadro (origin/main'ning toza worktree'sida) + MSI + Linux .deb
+# web/ + web/pages/ (tools/site/build.py) + WASM yadro (relizdan, attestation bilan) + MSI + Linux .deb
 # + Mac .pkg + Arch .pkg.tar.zst (GitHub Release'dan, attestatsiya tekshiruvi bilan) + imzolangan apt va pacman
 # omborlari + statistika xizmati
 # -> /opt/bitg-site -> health -> IndexNow.
@@ -29,11 +29,8 @@ STAGE="$(mktemp -d)"
 cleanup() { git -C "$ROOT" worktree remove --force "$STAGE/src" 2>/dev/null || true; rm -rf "$STAGE"; }
 trap cleanup EXIT
 
-# yadro boshqa ishlardan ta'sirlanmasin: origin/main'ning o'zidan yig'iladi
+# sayt fayllari boshqa ishlardan ta'sirlanmasin: origin/main'ning toza nusxasidan
 git worktree add --quiet --detach "$STAGE/src" "$SHA"
-( cd "$STAGE/src" && $CARGO build -q -p bitg-core --release --target wasm32-unknown-unknown --target-dir "$ROOT/target/site" ) \
-  || fail "wasm build (crates/bitg-core/src/wasm.rs origin/main'da bormi?)"
-WASM="$ROOT/target/site/wasm32-unknown-unknown/release/bitg_core.wasm"
 
 VER="$(sed -n 's/^version = "\(.*\)"/\1/p' "$STAGE/src/Cargo.toml" | head -1)"
 # Reliz fayllari faqat GitHub Release v$VER dan olinadi va CI qurganiga attestatsiya bilan tekshiriladi:
@@ -48,13 +45,25 @@ MSI="$DIST/bitg-$VER-x64.msi"
 PKGS="$DIST/bitg_${VER}_amd64.deb $DIST/fcitx5-bitg_${VER}_amd64.deb $DIST/bitg-${VER}-macos.pkg"
 # Arch paketlari 0.4.1 dan boshlab relizda (build.yml `arch`); oldingi relizlarda pacman ombori yig'ilmaydi
 ARCH_PKGS="$DIST/bitg-${VER}-1-x86_64.pkg.tar.zst $DIST/fcitx5-bitg-${VER}-1-x86_64.pkg.tar.zst"
+# Konvertor yadrosi (wasm) ham 0.4.1 dan boshlab relizda (build.yml `wasm`): brauzerdagi kod CI yig'gani va
+# attestation'i bor fayl. Oldingi relizda yoki WASM_SOURCE=main bilan origin/main'dan lokal yig'iladi (attestation'siz).
+WASM="$DIST/bitg-core-$VER.wasm"
 case "$VER" in
-  0.3.*|0.4.0) ARCH_REPO=0 ;;
-  *) ARCH_REPO=1; PKGS="$PKGS $ARCH_PKGS" ;;
+  0.3.*|0.4.0) ARCH_REPO=0; WASM_RELEASE=0 ;;
+  *) ARCH_REPO=1; WASM_RELEASE=1; PKGS="$PKGS $ARCH_PKGS" ;;
 esac
+[ "${WASM_SOURCE:-release}" = main ] && WASM_RELEASE=0
 gh release download "v$VER" -R dtwinuz/bitg -D "$DIST" -p '*.msi' -p '*.msi.sha256' -p '*.deb' -p '*.deb.sha256' \
-  -p '*.pkg' -p '*.pkg.sha256' -p '*.pkg.tar.zst' -p '*.pkg.tar.zst.sha256' \
+  -p '*.pkg' -p '*.pkg.sha256' -p '*.pkg.tar.zst' -p '*.pkg.tar.zst.sha256' -p '*.wasm' -p '*.wasm.sha256' \
   || fail "GitHub Release v$VER yuklanmadi (gh auth status?)"
+if [ "$WASM_RELEASE" = 1 ]; then
+  PKGS="$PKGS $WASM"
+else
+  echo "OGOHLANTIRISH: wasm yadro origin/main'dan lokal yig'iladi, attestation'siz (v$VER, WASM_SOURCE=${WASM_SOURCE:-release})" >&2
+  ( cd "$STAGE/src" && $CARGO build -q -p bitg-core --release --target wasm32-unknown-unknown --target-dir "$ROOT/target/site" ) \
+    || fail "wasm build (crates/bitg-core/src/wasm.rs origin/main'da bormi?)"
+  WASM="$ROOT/target/site/wasm32-unknown-unknown/release/bitg_core.wasm"
+fi
 for d in $MSI $PKGS; do
   [ -f "$d" ] || fail "$(basename "$d") Release v$VER da yo'q"
   [ "$(sha256sum < "$d" | cut -d' ' -f1)" = "$(tr -d '\r' < "$d.sha256" | cut -d' ' -f1)" ] || fail "$d sha256 mos emas"
@@ -73,7 +82,7 @@ V="${SHA:0:8}"
 mkdir -p "$SITE/download"
 cp "$WASM" "$SITE/bitg_core.wasm"
 cp "$MSI" "$MSI.sha256" "$SITE/download/"
-for d in $PKGS; do case "$d" in *.pkg.tar.zst) ;; *) cp "$d" "$d.sha256" "$SITE/download/" ;; esac; done
+for d in $PKGS; do case "$d" in *.pkg.tar.zst|*.wasm) ;; *) cp "$d" "$d.sha256" "$SITE/download/" ;; esac; done
 printf '%s\n' "$SHA" > "$SITE/version.txt"
 
 # apt ombori (bitg.uz/apt): .deb'lar imzolangan indeks bilan. Maxfiy kalit faqat shu kompyuterda (tools/apt/genkey.sh).

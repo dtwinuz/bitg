@@ -113,6 +113,12 @@ struct State {
     sensitive: Option<bool>,
     /// Kontekst matnni bermayapti — zaxira yo'l ishlaydi.
     blind: bool,
+    /// Zaxira yo'l shu so'zni o'gira oladimi (`recheck_scope` probelda qo'yadi, so'z oxiri bir marta oladi).
+    blind_ok: bool,
+    /// Maydon `IS_PRIVATE`: bekor qilingan so'z istisnolar fayliga yozilmaydi.
+    private: bool,
+    /// `recheck_scope` oxirgi marta logga yozgan xulosa.
+    scope_note: Option<&'static str>,
     key_sink: bool,
     typed: Typed,
     /// Faol klaviatura tartibi (yoqilgan va bo'sh emas).
@@ -253,6 +259,9 @@ impl Default for State {
             active: false,
             sensitive: None,
             blind: true,
+            blind_ok: false,
+            private: false,
+            scope_note: None,
             key_sink: false,
             typed: Typed::default(),
             keymap: None,
@@ -509,6 +518,9 @@ impl TextService_Impl {
             st.session.reset();
             st.blind_logged = false;
             st.blind = true;
+            st.blind_ok = false;
+            st.private = false;
+            st.scope_note = None;
             st.typed.boundary();
             st.undo = None;
         }
@@ -559,14 +571,19 @@ impl TextService_Impl {
         let sensitive = match known {
             Some(s) => s,
             None => {
-                let (s, diag) = sensitive_scope(ctx, ec, &caret);
-                self.state.borrow_mut().sensitive = Some(s);
+                let (scope, private, diag) = sensitive_scope(ctx, ec, &caret);
+                let s = scope == plan::Scope::Sensitive;
+                {
+                    let mut st = self.state.borrow_mut();
+                    st.sensitive = Some(s);
+                    st.private = private;
+                }
                 log::write(&format!(
                     "input scope: {diag} -> {}",
-                    if s {
-                        "sensitive field, off"
-                    } else {
-                        "plain field"
+                    match scope {
+                        plan::Scope::Sensitive => "sensitive field, off",
+                        plan::Scope::Plain => "plain field",
+                        plan::Scope::Unknown => "unknown field type",
                     }
                 ));
                 s
@@ -687,6 +704,11 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
                     return Ok(true);
                 }
                 drop(st);
+                if r == Resent::Key(VK_SPACE.0)
+                    && let Ok(ctx) = pic.ok()
+                {
+                    self.recheck_scope(ctx);
+                }
                 self.observe_key(vk, l, Some(r));
                 return Ok(false);
             }
@@ -710,7 +732,6 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
                 return Ok(true);
             }
             if vk == VK_SPACE.0
-                && !own_key()
                 && let Ok(ctx) = pic.ok()
             {
                 self.recheck_scope(ctx);
@@ -788,7 +809,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             self.sync_preserved();
             let c = {
                 let mut st = self.state.borrow_mut();
-                if !st.refresh() {
+                if !st.refresh() || st.sensitive == Some(true) {
                     return Ok(false);
                 }
                 let caps = unsafe { GetKeyState(VK_CAPITAL.0 as i32) } & 1 != 0;
@@ -863,7 +884,7 @@ impl TextService_Impl {
         let scan =
             (unsafe { MapVirtualKeyExW(vk as u32, MAPVK_VK_TO_VSC, Some(hkl)) } & 0xFF) as u8;
         let mut st = self.state.borrow_mut();
-        if !st.refresh() {
+        if !st.refresh() || st.sensitive == Some(true) {
             return None;
         }
         let km = st.keymap.as_ref()?;
@@ -938,12 +959,21 @@ impl TextService_Impl {
     /// Zaxira yo'l (#41): matn bermaydigan dastur edit hodisasini yubormaydi, shuning uchun maydonning input
     /// scope'i fokusda noma'lum qoladi yoki keyin o'zgaradi (maydon parolga aylanadi). Har so'z oxirida (probel
     /// dasturga yetmasdan) sinxron, faqat o'qish sessiyasida qayta o'qiladi; sinxron ruxsat berilmasa o'tkaziladi.
+    ///
+    /// Natija `blind_ok`ga yoziladi va shu probeldagi so'z oxiri (`observe_key`) uni bir marta oladi. Scope
+    /// maxfiy bo'lsa — maydon fokus o'zgarguncha o'chiq. IME konteksti yo'qligi esa faqat shu so'zni o'tkazadi:
+    /// Qt bitta HWND'da kontekstni maydonlar orasida uzib-ulaydi, doimiy "o'chiq" keyingi oddiy maydonni ham
+    /// o'chirib qo'yishi mumkin edi.
     fn recheck_scope(&self, ctx: &ITfContext) {
         let (blind, known, tid) = {
             let st = self.state.borrow();
             (st.blind, st.sensitive, st.tid)
         };
-        if !blind || known == Some(true) {
+        if !blind {
+            return;
+        }
+        if known == Some(true) {
+            self.state.borrow_mut().blind_ok = false;
             return;
         }
         let out = Rc::new(Cell::new(None));
@@ -952,24 +982,44 @@ impl TextService_Impl {
             out: out.clone(),
         }
         .into();
-        if unsafe { ctx.RequestEditSession(tid, &es, TF_ES_SYNC | TF_ES_READ) }.is_err() {
-            return;
-        }
-        let Some((sensitive, diag)) = out.take() else {
-            return;
+        // Sinxron o'qish rad etilsa (TF_E_SYNCHRONOUS) maydon turi noma'lum deb olinadi.
+        let read = match unsafe { ctx.RequestEditSession(tid, &es, TF_ES_SYNC | TF_ES_READ) } {
+            Ok(hr) if hr.is_ok() => out.take(),
+            _ => None,
         };
-        if known != Some(sensitive) {
+        let (scope, private, diag) =
+            read.unwrap_or((plan::Scope::Unknown, false, "read lock denied".into()));
+        let transitory =
+            unsafe { ctx.GetStatus() }.is_ok_and(|s| s.dwStaticFlags & TF_SS_TRANSITORY != 0);
+        let imc = focus_has_imc();
+        let ok = plan::blind_may_convert(scope, transitory, imc);
+        let sensitive = scope == plan::Scope::Sensitive;
+        let verdict = if ok {
+            "plain field"
+        } else if sensitive {
+            "sensitive field, off"
+        } else if transitory && !imc {
+            "no IME context, word skipped"
+        } else {
+            "unknown field, word skipped"
+        };
+        let changed = {
+            let mut st = self.state.borrow_mut();
+            st.blind_ok = ok;
+            st.private = private;
+            if sensitive {
+                st.sensitive = Some(true);
+            }
+            st.scope_note.replace(verdict) != Some(verdict)
+        };
+        // Har so'z emas, faqat xulosa o'zgarganda (oddiy maydonda log har probelda to'lib ketmasin).
+        if changed {
             log::write(&format!(
-                "input scope at word end: {diag} -> {}",
-                if sensitive {
-                    "sensitive field, off"
-                } else {
-                    "plain field"
-                }
+                "input scope at word end: {diag}; transitory={transitory} imc={imc} -> {verdict}"
             ));
         }
-        self.state.borrow_mut().sensitive = Some(sensitive);
-        if sensitive {
+        if !ok {
+            // Shu so'z harflari xotirada qolmaydi.
             let _ = self.forget_sensitive();
         }
     }
@@ -1145,6 +1195,16 @@ impl TextService_Impl {
         }
         let mut st = self.state.borrow_mut();
         let k = VIRTUAL_KEY(vk);
+        // Maxfiyligi ma'lum maydonda harflar umuman yig'ilmaydi (#41). Tartib belgimiz navbatdan chiqariladi.
+        if st.sensitive == Some(true) {
+            if k == VK_PACKET {
+                st.purge_remap();
+                st.remap.pop_front();
+            }
+            st.undo = None;
+            st.typed.lost("sensitive field");
+            return;
+        }
         // Oldindan yozilgan harf, tahrirdan keyin qayta yuborilgan: so'zning davomi.
         if let Some(Resent::Char(c)) = resent {
             st.undo = None;
@@ -1224,7 +1284,8 @@ impl TextService_Impl {
                     log::write("sensitive field: keyboard disabled at word end, off");
                     return;
                 }
-                if !st.converting() || !st.cfg.fallback {
+                let ok = std::mem::take(&mut st.blind_ok);
+                if !ok || !st.converting() || !st.cfg.fallback {
                     return;
                 }
                 let st = &mut *st;
@@ -1312,6 +1373,11 @@ fn remember_exception(state: &Rc<RefCell<State>>, original: &str) {
         log::write("undo: restored (kept for this app only)");
         return;
     }
+    // IS_PRIVATE maydon (inkognito oyna va h.k.): so'z diskka yozilmaydi.
+    if st.private {
+        log::write("undo: restored (private field, not saved)");
+        return;
+    }
     match config::add_exception(&core) {
         Ok(()) => log::write("undo: restored, added to exceptions"),
         Err(e) => log::write(&format!("undo: restored, exceptions write failed: {e}")),
@@ -1364,6 +1430,25 @@ fn drop_and_retype(back: usize, insert: &str, space: bool) -> bool {
     }
 }
 
+/// Fokusdagi oynada IME konteksti bormi. IMM32 dasturlari (Qt, Win32 EDIT) parol va matn bo'lmagan maydonda uni
+/// uzadi (`ImmAssociateContext(hwnd, NULL)`).
+fn focus_has_imc() -> bool {
+    use windows::Win32::UI::Input::Ime::{ImmGetContext, ImmReleaseContext};
+    use windows::Win32::UI::Input::KeyboardAndMouse::GetFocus;
+    unsafe {
+        let hwnd = GetFocus();
+        if hwnd.0.is_null() {
+            return false;
+        }
+        let himc = ImmGetContext(hwnd);
+        if himc.0.is_null() {
+            return false;
+        }
+        let _ = ImmReleaseContext(hwnd, himc);
+        true
+    }
+}
+
 /// Dastur maydonda klaviatura kiritishini o'chirib qo'yganmi (`GUID_COMPARTMENT_KEYBOARD_DISABLED`).
 fn keyboard_disabled(ctx: &ITfContext) -> bool {
     let Ok(mgr) = ctx.cast::<ITfCompartmentMgr>() else {
@@ -1385,8 +1470,8 @@ fn keyboard_disabled(ctx: &ITfContext) -> bool {
 
 /// Maydonning input scope'i maxfiymi (parol, PIN, email) — `GUID_PROP_INPUTSCOPE` (#26).
 /// Scope dastur atributi (`GetAppProperty`), ba'zi dasturlarda TIP xossasi (`GetProperty`) sifatida keladi.
-/// Ikkinchi qiymat — log uchun: qaysi yo'l, VARIANT turi va scope ro'yxati.
-fn sensitive_scope(ctx: &ITfContext, ec: u32, caret: &ITfRange) -> (bool, String) {
+/// Qaytaradi: maydon turi, `IS_PRIVATE` bormi va log uchun matn (qaysi yo'l, VARIANT turi, scope ro'yxati).
+fn sensitive_scope(ctx: &ITfContext, ec: u32, caret: &ITfRange) -> (plan::Scope, bool, String) {
     let mut diag = Vec::new();
     for app in [true, false] {
         let src = if app { "app" } else { "tip" };
@@ -1416,15 +1501,19 @@ fn sensitive_scope(ctx: &ITfContext, ec: u32, caret: &ITfRange) -> (bool, String
         let vt = unsafe { v.Anonymous.Anonymous.vt.0 };
         let _ = unsafe { VariantClear(&mut v) };
         match ids {
-            Some(ids) => {
-                let s = plan::sensitive_input_scope(&ids);
+            Some(ids) if !ids.is_empty() => {
                 diag.push(format!("{src}: vt={vt} scopes={ids:?}"));
-                return (s, diag.join("; "));
+                return (
+                    plan::classify(&ids),
+                    plan::private_input_scope(&ids),
+                    diag.join("; "),
+                );
             }
+            Some(_) => diag.push(format!("{src}: vt={vt} empty scopes")),
             None => diag.push(format!("{src}: vt={vt} no scopes")),
         }
     }
-    (false, diag.join("; "))
+    (plan::Scope::Unknown, false, diag.join("; "))
 }
 
 /// VARIANT ichidagi `ITfInputScope` dan scope ro'yxati.
@@ -1611,7 +1700,7 @@ impl Insert_Impl {
 #[implement(ITfEditSession)]
 struct ReadScope {
     ctx: ITfContext,
-    out: Rc<Cell<Option<(bool, String)>>>,
+    out: Rc<Cell<Option<(plan::Scope, bool, String)>>>,
 }
 
 impl ITfEditSession_Impl for ReadScope_Impl {
@@ -1648,13 +1737,19 @@ struct Restore {
 impl ITfEditSession_Impl for Restore_Impl {
     fn DoEditSession(&self, ec: u32) -> Result<()> {
         self.done.set(true);
-        let restored = guard("restore", || self.run(ec))?;
-        if restored {
-            remember_exception(&self.state, &self.original);
-        } else {
-            plain_backspace(&self.state);
-        }
-        Ok(())
+        // Hammasi guard ichida: panika COM chegarasidan (dastur jarayoniga) chiqmasin.
+        // Tahrir xatosida ham foydalanuvchining Backspace'i yo'qolmaydi.
+        guard("restore", || {
+            match self.run(ec) {
+                Ok(true) => remember_exception(&self.state, &self.original),
+                Ok(false) => plain_backspace(&self.state),
+                Err(e) => {
+                    log::write(&format!("restore failed hr={:#x}", e.code().0));
+                    plain_backspace(&self.state);
+                }
+            }
+            Ok(())
+        })
     }
 }
 

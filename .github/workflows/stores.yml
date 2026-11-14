@@ -188,11 +188,14 @@ jobs:
         id: gate
         env:
           HAS_KEY: ${{ secrets.AUR_SSH_KEY != '' }}
+          # AUR akkaunti ochilib, kalit unga qo'shilgach: Settings -> Variables -> AUR_ENABLED = true
+          ENABLED: ${{ vars.AUR_ENABLED }}
         run: |
           echo "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "teg noto'g'ri: $TAG"; exit 1; }
           v=${TAG#v}
           echo "version=$v" >> "$GITHUB_OUTPUT"
           skip() { echo "::notice title=aur::$1"; echo "### aur: o'tkazib yuborildi — $1" >> "$GITHUB_STEP_SUMMARY"; echo "skip=1" >> "$GITHUB_OUTPUT"; exit 0; }
+          [ "$ENABLED" = true ] || skip "AUR_ENABLED o'zgaruvchisi true emas (AUR akkaunti hali yo'q)"
           [ "$HAS_KEY" = true ] || skip "AUR_SSH_KEY yo'q (Settings -> Environments -> aur)"
           cur=$(curl -fsS 'https://aur.archlinux.org/rpc/v5/info?arg[]=bitg' | sed -n 's/.*"Version":"\([0-9.]*\)-[0-9]*".*/\1/p')
           if [ -n "$cur" ] && [ "$(printf '%s\n%s\n' "$cur" "$v" | sort -V | tail -1)" = "$cur" ]; then skip "AUR'da $cur bor (>= $v)"; fi
@@ -231,18 +234,21 @@ jobs:
           V: ${{ steps.gate.outputs.version }}
           AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         run: |
-          install -d -m 700 ~/.ssh
-          printf '%s\n' "$AUR_SSH_KEY" > ~/.ssh/aur && chmod 600 ~/.ssh/aur
-          printf '%s\n' "$AUR_HOST_KEY" > ~/.ssh/known_hosts
-          printf 'Host aur.archlinux.org\n  User aur\n  IdentityFile ~/.ssh/aur\n  IdentitiesOnly yes\n  StrictHostKeyChecking yes\n' > ~/.ssh/config
+          # konteynerda HOME=/github/home, OpenSSH esa ~/.ssh ni passwd'dagi uydan (/root) o'qiydi:
+          # kalit va known_hosts yo'li aniq beriladi
+          d="$RUNNER_TEMP/aur-ssh"
+          install -d -m 700 "$d"
+          trap 'rm -rf "$d"' EXIT
+          printf '%s\n' "$AUR_SSH_KEY" > "$d/key" && chmod 600 "$d/key"
+          printf '%s\n' "$AUR_HOST_KEY" > "$d/known_hosts"
+          export GIT_SSH_COMMAND="ssh -F /dev/null -i $d/key -o IdentitiesOnly=yes -o UserKnownHostsFile=$d/known_hosts -o StrictHostKeyChecking=yes"
           git clone ssh://aur@aur.archlinux.org/bitg.git "$RUNNER_TEMP/aur-bitg"
           cd "$RUNNER_TEMP/aur-bitg"
           cp /home/builder/aur/PKGBUILD /home/builder/aur/.SRCINFO .
           git config user.name "dtwinuz"
           git config user.email "info@dtwin.uz"
           git add PKGBUILD .SRCINFO
-          if git diff --cached --quiet; then echo "AUR'da o'zgarish yo'q"; rm -f ~/.ssh/aur; exit 0; fi
+          if git diff --cached --quiet; then echo "AUR'da o'zgarish yo'q"; exit 0; fi
           git commit -q -m "bitg $V" -m "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
           git push origin HEAD:master
-          rm -f ~/.ssh/aur
           echo "### aur: bitg $V e'lon qilindi — https://aur.archlinux.org/packages/bitg" >> "$GITHUB_STEP_SUMMARY"

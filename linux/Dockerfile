@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
-# Linux dvigatellarini lokal yig'ish va sinash muhiti (Ubuntu 24.04, CI bilan bir xil paketlar).
+# Linux dvigatellarini lokal yig'ish va sinash muhiti (Ubuntu 25.10; CI esa 22.04/24.04 runner'larida, linux.yml).
 #   docker build -t bitg-linux -f linux/Dockerfile linux
-#   docker run --rm -v "$PWD:/src" -w /src bitg-linux linux/ci.sh
+#   docker run --rm -v "$PWD:/src" -w /src bitg-linux bash -c 'linux/build-deb.sh && cargo test -p bitg-ime'
 FROM ubuntu:25.10@sha256:7cc5e35f6567ee8c66d2abb4aab0fd866669e6207c237c3a8f0947a5c7f17092
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \

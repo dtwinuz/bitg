@@ -64,8 +64,9 @@ std::optional<std::string> textBeforeCursor(fcitx::InputContext *ic) {
 uint32_t keyKind(const fcitx::Key &key, uint32_t &cp) {
     using fcitx::KeyState;
     cp = 0;
-    if (key.states().testAny(fcitx::KeyStates{KeyState::Ctrl, KeyState::Alt, KeyState::Super, KeyState::Hyper,
-                                              KeyState::Meta})) {
+    // Super = Mod4 (haqiqiy bit), Super2 = virtual bit: frontend qaysi birini bersa ham yorliq dasturga o'tadi
+    if (key.states().testAny(fcitx::KeyStates{KeyState::Ctrl, KeyState::Alt, KeyState::Super, KeyState::Super2,
+                                              KeyState::Hyper, KeyState::Meta})) {
         return BITG_KEY_OTHER;
     }
     switch (key.sym()) {
@@ -141,11 +142,14 @@ public:
         reset(entry, event);
     }
 
-    // Fokus ketdi, kursor siljidi: preedit'dagi so'z o'girilmay yoziladi (matn yo'qolmasin).
+    // Kursor siljidi yoki kiritish usuli almashdi: preedit'dagi so'z o'girilmay yoziladi (matn yo'qolmasin).
+    // Fokus ketganda yozilmaydi: preedit'ni Fcitx5 yadrosi (ClientUnfocusCommit yo'q mijozlar) yoki mijozning
+    // o'zi (fcitx5-gtk/qt) yozadi — bitg ham yozsa so'z ikki marta chiqardi.
     void reset(const fcitx::InputMethodEntry &, fcitx::InputContextEvent &event) override {
         auto *ic = event.inputContext();
         auto *st = ic->propertyFor(&factory_);
-        if (const char *pending = bitg_ime_reset(st->ime)) {
+        const char *pending = bitg_ime_reset(st->ime);
+        if (pending != nullptr && pending[0] != '\0' && event.type() != fcitx::EventType::InputContextFocusOut) {
             ic->commitString(pending);
         }
         ic->inputPanel().setClientPreedit(fcitx::Text());

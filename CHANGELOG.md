@@ -19,7 +19,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   Scoop, crates.io, Chocolatey, winget va AUR so'nggi relizga yetganini tekshiradi; ortda qolgan kanal uchun issue
   ochadi va hammasi joyiga tushgach yopadi.
 - **Linux panel belgisi: istisnolar va lug'at muharriri** ([#84](https://github.com/dtwinuz/bitg/issues/84)): menyudagi
-  «Istisnolar va lugʼat…» `exceptions.txt` ni tahrirlaydi (atomik yozuv, IME jonli oladi). «Panel belgisini yopish»
+  «Istisnolar va lugʼat…» `exceptions.txt` ni tahrirlaydi (atomik yozuv, IME jonli oladi). «Panel belgisini yopiş»
   nomi aniqlashtirildi: kiritish usuli ishlashda davom etadi.
 - **CLI `--exceptions FAYL`** ([#39](https://github.com/dtwinuz/bitg/issues/39)): `bitg`, `explain`, `file`, `diff` da
   `exceptions.txt` formatidagi istisnolar va lug'at qatorlari.
@@ -51,8 +51,54 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   `settings.ini` ikkalasida bir xil o'qiladi; panel belgisi Xvfb ostida ishga tushadi va ikkinchi nusxa ochilmaydi.
   README: «Ubuntu'da muammo bo'lsa» va sinov matritsasi.
 - `.deb`: `/etc/xdg/autostart/bitg.desktop` conffile — foydalanuvchi o'zgarishi yangilashda saqlanadi, `purge` da o'chadi.
+- **Brauzer kengaytmasi** (`extension/`, 0.1.0; Chrome, Edge, Firefox, Manifest V3): popup o'giruvchi, belgilangan
+  matn uchun kontekst menyu va tezkor tugma (Alt+Shift+Y), sahifani yangi alifboda ko'rish, saytma-sayt yoqiladigan
+  yozayotganda o'girish. O'girishni bitg.uz dagi bilan bir xil `bitg_core.wasm` bajaradi, tarmoqqa chiqmaydi;
+  Chrome Web Store'da ko'rib chiqilmoqda.
+- **ChatGPT katalogi uchun plagin paketi** (`integrations/chatgpt`, [#98](https://github.com/dtwinuz/bitg/pull/98)):
+  `https://bitg.uz/mcp` ulanishi va «yangi-alifbo» skill'i.
+- Sayt: `/xavfsizmi/` sahifasi (rasmiy manbalar, SHA-256 va attestation tekshiruvi, SmartScreen, soxta «yangi alifbo
+  klaviaturasi» ilovasi belgilari), foydalanish shartlari `/shartlar/` ([#97](https://github.com/dtwinuz/bitg/pull/97)),
+  inglizcha maxfiylik, shartlar va AI yordamchi sahifalari (`/en/privacy/`, `/en/terms/`, `/en/ai/`,
+  [#95](https://github.com/dtwinuz/bitg/pull/95)).
+- **Linux: Fedora/openSUSE `.rpm` va Nix**: `packaging/rpm/bitg.spec` (`bitg` + `fcitx5-bitg`, vendored crate'lar
+  bilan oflayn yig'ish, `make-srpm.sh`) va `flake.nix` + `packaging/nix` (nixpkgs uslubidagi retseptlar). CI'da
+  Fedora va Tumbleweed'da yig'iladi, `rpmlint`, o'rnatib-o'chirib sinaladi; `nix flake check`. COPR, OBS va
+  nixpkgs'da hali e'lon qilinmagan.
+
+### O'zgardi
+- **bitg.uz endi Yandex Metrica ishlatadi** (`web/metrika.js`): saytga tashriflar statistikasi uchun. Brauzer Do Not
+  Track yoki Global Privacy Control yuborsa skript umuman yuklanmaydi; Webvisor va forma tahlili o'chiq, shuning uchun
+  konvertorga yozilgan matn yuborilmaydi. Metrica to'liq IP va `_ym_*` cookie'larini oladi — bu
+  [maxfiylik](https://bitg.uz/maxfiylik/) sahifasida yozilgan. Kiritish usullari, ilova va kengaytmaga tegishli emas.
+- MCP: `convert_text` tavsifi va server ko'rsatmasidan modelga «natijani bitg'ga nisbat bering» degan buyruq olib
+  tashlandi (Claude katalogi qoidasi, [#96](https://github.com/dtwinuz/bitg/pull/96)).
 
 ### Tuzatildi
+- **Fcitx5 qo'shimchasi so'zlarni o'girmasdi** (v0.2.0 dan beri): har tugmada `set_suspended` chaqirilgani uchun
+  dvigatel yig'ilayotgan so'zni har safar tashlab yuborardi. `bitg-ime` da tuzatildi.
+- Fcitx5: fokus ketganda preedit'dagi so'z ikki marta yozilmaydi.
+- IBus: Super (Mod4) bilan tugma birikmalari endi yutib yuborilmaydi, tizim va dastur tezkor tugmalari ishlaydi.
+  Fcitx5'da ham Super/Super2 bilan bosilgan tugma dasturga o'tadi.
+- macOS: dvigatel natijasidagi ikkala satr (yoziladigan va preedit) dasturga uzatilishidan oldin nusxalanadi —
+  dastur `insertText` ichida kiritish usuliga qayta murojaat qilsa bo'shatilgan xotira o'qilmaydi.
+- CLI: stdin'dagi BOM'li UTF-16 (PowerShell quvuri) va UTF-8 BOM to'g'ri o'qiladi; UTF-8 bo'lmagan kirish endi
+  jimgina bo'sh natija bermaydi — xato va chiqish kodi 1. `bitg file`/`diff` `.md` faylda kod bloklari, `kod` va
+  havola manzillarini o'girmaydi. `old`/`cyr` (va `--old`) yangi alifboga oid sozlamalarni (`--exceptions`,
+  `--no-guard`, `--no-cyrillic`, `--tutuq`) jimgina e'tiborsiz qoldirmay, xato beradi.
+- Yadro: NFD ko'rinishidagi harflar (o + birlashuvchi belgi) oldin birlashtiriladi; eski lotinga qaytarish so'zma-so'z
+  ishlaydi (so'z ichidagi aralash yozuv buzilmaydi); uzun matnda kontekst bir marta hisoblanadi (katta faylda tezroq).
+  Baholash to'plamida to'g'ri so'zlar: uz 2966 → 2971, apostrofsiz 2436 → 2438, en 2992 (o'zgarmadi).
+  `bitg-core` crate'i litsenziya matnlari va `NOTICE` bilan chiqadi.
+- Linux panel belgisi: `settings.ini`/`exceptions.txt` o'qib bo'lmasa (buzuq UTF-8, ruxsat) muharrir bo'sh
+  ochilib, saqlashda fayl ustidan yozilmaydi; runtime papkasi va qulf fayli egasi/ruxsati tekshiriladi (symlink yo'q).
+- Brauzer kengaytmasi: yozayotganda o'girish login, email, URL, telefon, bir martalik kod va karta maydonlariga
+  tegmaydi (`autocomplete`/`inputmode`).
+- Sayt: har sahifaning o'z OG rasmi bor (yo'qlari qo'shildi, build yo'q rasmda to'xtaydi); 404 sahifasida canonical
+  yo'q. `llms.txt` yangi sahifalar bilan to'ldirildi.
+- Bot va `/mcp`: ulanishlar soni, katta so'rovlar va vaqt chegarasi; Telegram'ga yuborish alohida navbatda, limitlar
+  xotirasi tozalanadi; MCP `serverInfo.version` relizdagi bitg versiyasini ko'rsatadi. Caddy: so'rov tanasi uchun
+  vaqt va hajm chegarasi.
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
   Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65), [#70](https://github.com/dtwinuz/bitg/pull/70) — @Abdulazim1771).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
@@ -68,6 +114,27 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
   dasturda maydon fokusni o'zgartirmasdan parolga aylansa ham keyingi so'z qayta yozilmaydi. Qt e2e: fokus olgan
   parol maydoni tegilmaydi (oldin va keyin nazorat so'zi bilan). Ma'lum cheklov: Qt (Telegram) maydon turini
   bermaydi, shuning uchun fokus o'zgarmasdan parolga aylangan Qt maydonini zaxira yo'l sezmaydi.
+- Windows: maxfiy maydonda (parol, PIN, `IS_PRIVATE`) harflar buferlanmaydi, istisno o'rganilmaydi, AltGr/klaviatura
+  xaritasi ishlamaydi; maydon turi noma'lum bo'lsa IMM signali ham hisobga olinadi. Standart o'chirilgan dasturlar
+  ro'yxatiga masofaviy ish stoli va virtual mashina oynalari qo'shildi (`enabled_apps` bilan foydalanuvchi tanlovi
+  saqlanadi).
+- Windows yangilovchisi: versiya qat'iy formatda, yuklab olish manzili aynan shu versiya tegiga ishora qilishi
+  shart, tizim dasturlari to'liq yo'l bilan chaqiriladi.
+- Reliz zanjiri: teg faqat `main` tarixidagi commit'dan reliz chiqaradi (core jamoasidan tashqari teg qo'yib
+  bo'lmaydi — ruleset), barcha manifestlardagi versiya va CHANGELOG bo'limi tekshiriladi
+  (`tools/release/check_versions.py`), haqiqiy Windows e2e o'tmasa reliz yaratilmaydi. AUR SSH kaliti vaqtinchalik
+  papkada, `~/.ssh` ga yozilmaydi; Dependabot yangi versiyalarni 14 kun kutadi.
+- **bitg.uz konvertori ishlatadigan wasm yadro ham relizda va attestation bilan**: `build.yml` uni CI'da yig'ib
+  sinaydi (`bitg-core-<versiya>.wasm`), provenance va SBOM yozadi; `deploy.sh` brauzerga beriladigan faylni
+  relizdan olib tekshiradi, lokal kompilyatsiya qilmaydi (0.4.1 dan; eski relizda yoki `WASM_SOURCE=main` bilan
+  ogohlantirish bilan lokal yig'iladi).
+- bitg.uz serveri: `bitg-site` konteyneri faqat o'qish rejimida, `NET_BIND_SERVICE` dan boshqa huquqsiz; Caddy va
+  Python image'lari digest bilan qotirilgan va Dependabot kuzatadi. Deploy bir vaqtda bitta, yangi reliz
+  ko'tarilmasa yoki eski sha'ni qaytarsa symlink, Caddyfile va compose avtomatik oldingisiga qaytadi.
+- Telegram e'lon tokeni (`BITG_DEVBOT_TOKEN`) repo darajasidan `announce` environment'iga ko'chdi: faqat `main` va
+  `v*` teglardagi workflow oladi.
+- Windows: yangilanishdan keyin `%LOCALAPPDATA%\bitg\updates` da qolgan eski MSI ilova keyingi ochilganda
+  o'chiriladi.
 
 ## [0.4.0] — 2026-11-13
 
@@ -275,6 +342,8 @@ Birinchi ommaviy beta (Windows 10/11, x64).
 - MSI o'rnatuvchi (WiX 5): barcha foydalanuvchilar uchun, jim o'rnatish, `AUTOSTART` / `ADDKEYBOARD` xossalari.
 - O'lchov: o'zbekcha gaplar 98,87 %, inglizcha gaplar o'zgarmay qolishi 99,73 % (har biri 3 000 gap).
 
+[Unreleased]: https://github.com/dtwinuz/bitg/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/dtwinuz/bitg/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/dtwinuz/bitg/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dtwinuz/bitg/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dtwinuz/bitg/compare/v0.1.0...v0.2.0

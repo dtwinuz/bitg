@@ -151,6 +151,16 @@ test('isTextControl / isAutotypeControl: parol, pochta, URL, readonly va kod muh
   assert.equal(L.isTextControl(h('div', {})), false);
   assert.equal(L.isAutotypeControl(h('textarea', { readonly: '' })), false);
   assert.equal(L.isAutotypeControl(h('textarea', { disabled: '' })), false);
+  for (const autocomplete of ['username', 'email', 'url', 'tel', 'tel-national', 'one-time-code', 'cc-number',
+                              'section-login username']) {
+    assert.equal(L.isAutotypeControl(h('input', { autocomplete })), false, autocomplete);
+  }
+  for (const inputmode of ['email', 'url', 'tel', 'numeric']) {
+    assert.equal(L.isAutotypeControl(h('input', { inputmode })), false, inputmode);
+  }
+  assert.equal(L.isAutotypeControl(h('input', { autocomplete: 'name' })), true);
+  assert.equal(L.isAutotypeControl(h('input', { inputmode: 'text' })), true);
+  assert.equal(L.isTextControl(h('input', { autocomplete: 'username' })), true);
   const monaco = h('div', { class: 'monaco-editor' }, h('div', {}, h('textarea', {})));
   assert.equal(L.isAutotypeControl(monaco.firstChild.firstChild), false);
   const cm = h('div', { class: 'cm-editor' }, h('div', { class: 'cm-content', contenteditable: 'true' }));

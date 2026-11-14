@@ -14,6 +14,8 @@
 //! undo_remember=0
 //! fallback=1
 //! disabled_apps=termius.exe, windowsterminal.exe
+//! enabled_apps=
+//! disabled_defaults_rev=2
 //! auto_convert=1
 //! keymap=0
 //! layout=tilmoch
@@ -28,6 +30,10 @@
 //! `fallback` — matnni TSF'ga bermaydigan dasturlar (Telegram Desktop): bosilgan harflar kuzatiladi va so'z
 //! Backspace + qayta yozish bilan almashtiriladi. `disabled_apps` — bitg umuman ishlamaydigan dasturlar
 //! (standart: terminallar, chunki u yerda parol va buyruqlar yoziladi). Bo'sh qiymat = hamma joyda.
+//!
+//! `disabled_defaults_rev` — fayl yozilganda standart ro'yxatning qaysi tahriri ma'lum edi. Keyin qo'shilgan
+//! standart dasturlar (`DEFAULT_DISABLED`) eski faylga o'qishda qo'shiladi, `enabled_apps` dagilaridan tashqari:
+//! u — foydalanuvchi ro'yxatdan ataylab olib tashlagan standart dasturlar (yozishda hisoblanadi).
 //!
 //! `hotkey` — tray ilovasining global tugmasi: belgilangan matnni yangi alifboga o'giradi (`hotkey_keys`).
 //! `hotkey_old_keys` — teskari yo'nalish (yangi → eski), bo'sh = o'chiq. IME bu kalitlarni ishlatmaydi.
@@ -75,28 +81,68 @@ pub struct Config {
 /// Belgilangan matnni o'girish tugmasining standart birikmasi.
 pub const DEFAULT_HOTKEY: &str = "ctrl+shift+y";
 
-/// Standart holatda tegilmaydigan dasturlar: terminallar (buyruq va parol yoziladi), Windows kirish/UAC oynalari
-/// va parol menejerlari (maydon turi har doim ham TSF orqali kelmaydi, #41).
-pub const DEFAULT_DISABLED_APPS: &[&str] = &[
-    "logonui.exe",
-    "consent.exe",
-    "credentialuibroker.exe",
-    "keepass.exe",
-    "keepassxc.exe",
-    "1password.exe",
-    "bitwarden.exe",
-    "enpass.exe",
-    "termius.exe",
-    "windowsterminal.exe",
-    "openconsole.exe",
-    "conhost.exe",
-    "putty.exe",
-    "kitty.exe",
-    "mintty.exe",
-    "alacritty.exe",
-    "wezterm-gui.exe",
-    "mobaxterm.exe",
+/// Standart holatda tegilmaydigan dasturlar va ular qaysi tahrirda qo'shilgani: terminallar (buyruq va parol
+/// yoziladi; 0), Windows kirish/UAC oynalari va parol menejerlari (maydon turi har doim ham TSF orqali kelmaydi,
+/// #41; 1), masofaviy ish stoli va virtual mashina oynalari (tugmalar boshqa kompyuterga ketadi, u yerda parol
+/// ham yoziladi; 2). Yangi dastur qo'shilsa — `DISABLED_DEFAULTS_REV` oshiriladi va dastur shu raqam bilan.
+pub const DEFAULT_DISABLED: &[(&str, u32)] = &[
+    ("logonui.exe", 1),
+    ("consent.exe", 1),
+    ("credentialuibroker.exe", 1),
+    ("keepass.exe", 1),
+    ("keepassxc.exe", 1),
+    ("1password.exe", 1),
+    ("bitwarden.exe", 1),
+    ("enpass.exe", 1),
+    ("mstsc.exe", 2),
+    ("msrdc.exe", 2),
+    ("vmconnect.exe", 2),
+    ("vmware.exe", 2),
+    ("vmplayer.exe", 2),
+    ("virtualboxvm.exe", 2),
+    ("anydesk.exe", 2),
+    ("teamviewer.exe", 2),
+    ("termius.exe", 0),
+    ("windowsterminal.exe", 0),
+    ("openconsole.exe", 0),
+    ("conhost.exe", 0),
+    ("putty.exe", 0),
+    ("kitty.exe", 0),
+    ("mintty.exe", 0),
+    ("alacritty.exe", 0),
+    ("wezterm-gui.exe", 0),
+    ("mobaxterm.exe", 0),
 ];
+
+/// `DEFAULT_DISABLED` ning joriy tahriri (eng katta raqam).
+pub const DISABLED_DEFAULTS_REV: u32 = 2;
+
+/// Standart ro'yxat nomlari (`DEFAULT_DISABLED` tartibida).
+pub const DEFAULT_DISABLED_APPS: &[&str] = &{
+    let mut out = [""; DEFAULT_DISABLED.len()];
+    let mut i = 0;
+    while i < out.len() {
+        out[i] = DEFAULT_DISABLED[i].0;
+        i += 1;
+    }
+    out
+};
+
+/// Standart ro'yxatdagi, lekin `disabled` da yo'q dasturlar: foydalanuvchi ularni ataylab yoqqan.
+pub fn removed_defaults(disabled: &[String]) -> Vec<String> {
+    DEFAULT_DISABLED_APPS
+        .iter()
+        .filter(|d| !disabled.iter().any(|a| a == *d))
+        .map(|d| d.to_string())
+        .collect()
+}
+
+fn app_list(v: &str) -> Vec<String> {
+    v.split([',', ';'])
+        .map(|a| a.trim().to_lowercase())
+        .filter(|a| !a.is_empty())
+        .collect()
+}
 
 impl Config {
     /// Tanlangan tartib. `custom` — `keymap.txt` matnidan; noma'lum nom — standart.
@@ -150,6 +196,10 @@ fn flag(v: &str) -> Option<bool> {
 /// `settings.ini` va `exceptions.txt` matnidan. Noma'lum kalitlar e'tiborsiz.
 pub fn parse(settings: &str, exceptions: &str) -> Config {
     let mut c = Config::default();
+    // Fayldagi ro'yxat, ataylab yoqilganlar va standart ro'yxat tahriri (kalit yo'q — 0, ya'ni #49 dan oldin).
+    let mut listed: Option<Vec<String>> = None;
+    let mut enabled_apps = Vec::new();
+    let mut rev = 0u32;
     for line in settings.lines() {
         let line = line.trim().trim_start_matches('\u{FEFF}');
         if line.is_empty()
@@ -200,13 +250,9 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
                     c.last_seen = v.to_string();
                 }
             }
-            "disabled_apps" => {
-                c.disabled_apps = v
-                    .split([',', ';'])
-                    .map(|a| a.trim().to_lowercase())
-                    .filter(|a| !a.is_empty())
-                    .collect();
-            }
+            "disabled_apps" => listed = Some(app_list(v)),
+            "enabled_apps" => enabled_apps = app_list(v),
+            "disabled_defaults_rev" => rev = v.trim().parse().unwrap_or(0),
             "tutuq" => {
                 let mut it = v.trim().chars();
                 if let (Some(ch), None) = (it.next(), it.next()) {
@@ -216,6 +262,25 @@ pub fn parse(settings: &str, exceptions: &str) -> Config {
             _ => {}
         }
     }
+    c.disabled_apps = match listed {
+        // Ro'yxat yozilgan: fayldan keyin qo'shilgan standartlar ham (ataylab yoqilganlaridan tashqari).
+        Some(mut apps) => {
+            for &(d, added) in DEFAULT_DISABLED {
+                if added > rev
+                    && !enabled_apps.iter().any(|a| a == d)
+                    && !apps.iter().any(|a| a == d)
+                {
+                    apps.push(d.to_string());
+                }
+            }
+            apps
+        }
+        None => DEFAULT_DISABLED_APPS
+            .iter()
+            .filter(|d| !enabled_apps.iter().any(|a| a == *d))
+            .map(|d| d.to_string())
+            .collect(),
+    };
     // Istisnolar va `so'z=yozuv` qoidalari bitta faylda (`bitg_core::user`).
     let (never, rules) = bitg_core::user::parse(exceptions);
     c.opts.exceptions = never;
@@ -256,7 +321,8 @@ pub fn to_ini(c: &Config) -> String {
     format!(
         "# bitg sozlamalari. Sozlamalar oynasi yozadi; qo'lda tahrirlash ham mumkin.\n\
          enabled={}\nenglish_guard={}\ncyrillic={}\nrestore_apostrophes={}\ntutuq={}\n\
-         undo_backspace={}\nundo_remember={}\nfallback={}\ndisabled_apps={}\nauto_convert={}\nkeymap={}\nlayout={}\n\
+         undo_backspace={}\nundo_remember={}\nfallback={}\ndisabled_apps={}\nenabled_apps={}\n\
+         disabled_defaults_rev={}\nauto_convert={}\nkeymap={}\nlayout={}\n\
          hotkey={}\nhotkey_keys={}\nhotkey_old_keys={}\nupdate_check={}\nwhats_new={}\nlast_seen={}\n",
         bit(c.enabled),
         bit(c.opts.english_guard),
@@ -267,6 +333,8 @@ pub fn to_ini(c: &Config) -> String {
         bit(c.undo_remember),
         bit(c.fallback),
         c.disabled_apps.join(", "),
+        removed_defaults(&c.disabled_apps).join(", "),
+        DISABLED_DEFAULTS_REV,
         bit(c.auto_convert),
         bit(c.keymap),
         c.layout,
@@ -321,6 +389,18 @@ pub fn local_app_data() -> Option<std::path::PathBuf> {
     #[cfg(not(windows))]
     {
         std::env::var_os("LOCALAPPDATA").map(std::path::PathBuf::from)
+    }
+}
+
+/// `C:\Windows\System32` (Windows o'zi beradi, muhit o'zgaruvchisi emas). Tizim dasturlari shu yerdan ochiladi.
+pub fn system_dir() -> Option<std::path::PathBuf> {
+    #[cfg(windows)]
+    {
+        known_folder(&windows::Win32::UI::Shell::FOLDERID_System)
+    }
+    #[cfg(not(windows))]
+    {
+        None
     }
 }
 
@@ -488,9 +568,86 @@ fallback=0",
     }
 
     #[test]
+    fn new_defaults_reach_old_files() {
+        // #49 dan oldingi fayl (tahrir yo'q): terminallar ro'yxatidan keyin qo'shilganlar qo'shiladi.
+        let old = parse("disabled_apps=termius.exe, putty.exe\n", "");
+        for a in [
+            "termius.exe",
+            "putty.exe",
+            "keepass.exe",
+            "mstsc.exe",
+            "anydesk.exe",
+        ] {
+            assert!(old.app_disabled(a), "{a}");
+        }
+        // Foydalanuvchi o'chirgan eski standart qaytmaydi.
+        assert!(!old.app_disabled("windowsterminal.exe"));
+        // 1-tahrirdagi fayl: faqat 2-tahrir qo'shiladi, ataylab yoqilgani qaytmaydi.
+        let one = parse(
+            "disabled_apps=termius.exe\nenabled_apps=keepass.exe, mstsc.exe\ndisabled_defaults_rev=1\n",
+            "",
+        );
+        assert!(!one.app_disabled("keepass.exe"), "rev 1 app not re-added");
+        assert!(!one.app_disabled("mstsc.exe"), "re-enabled by the user");
+        assert!(one.app_disabled("vmconnect.exe") && one.app_disabled("termius.exe"));
+        // Joriy tahrir: fayl aynan shunday.
+        let cur = parse(
+            &format!("disabled_apps=a.exe\ndisabled_defaults_rev={DISABLED_DEFAULTS_REV}\n"),
+            "",
+        );
+        assert_eq!(cur.disabled_apps, ["a.exe"]);
+        // Ro'yxat yozilmagan: standart, ataylab yoqilganlaridan tashqari.
+        let none = parse("enabled_apps=conhost.exe\n", "");
+        assert!(!none.app_disabled("conhost.exe") && none.app_disabled("mstsc.exe"));
+        // Yaroqsiz tahrir — 0 (hammasi qo'shiladi).
+        assert!(parse("disabled_apps=\ndisabled_defaults_rev=x\n", "").app_disabled("logonui.exe"));
+    }
+
+    #[test]
+    fn removals_survive_save() {
+        let mut c = parse("", "");
+        c.disabled_apps
+            .retain(|a| a != "mstsc.exe" && a != "conhost.exe");
+        c.disabled_apps.push("foo.exe".into());
+        let ini = to_ini(&c);
+        assert!(ini.contains(&format!("disabled_defaults_rev={DISABLED_DEFAULTS_REV}\n")));
+        assert!(
+            ini.contains("enabled_apps=mstsc.exe, conhost.exe\n"),
+            "{ini}"
+        );
+        let back = parse(&ini, "");
+        assert_eq!(back.disabled_apps, c.disabled_apps);
+        // Kelajakdagi tahrir yangi dastur qo'shsa ham, yoqilganlari qaytmaydi (eski raqamli fayl kabi).
+        let older = ini.replace(
+            &format!("disabled_defaults_rev={DISABLED_DEFAULTS_REV}"),
+            "disabled_defaults_rev=0",
+        );
+        let again = parse(&older, "");
+        assert!(!again.app_disabled("mstsc.exe") && !again.app_disabled("conhost.exe"));
+        assert!(again.app_disabled("foo.exe") && again.app_disabled("keepass.exe"));
+    }
+
+    #[test]
+    fn default_names_match_table() {
+        assert_eq!(DEFAULT_DISABLED_APPS.len(), DEFAULT_DISABLED.len());
+        for (n, (d, rev)) in DEFAULT_DISABLED_APPS.iter().zip(DEFAULT_DISABLED) {
+            assert_eq!(n, d);
+            assert!(*rev <= DISABLED_DEFAULTS_REV);
+            assert_eq!(*d, d.to_lowercase());
+        }
+        assert!(
+            DEFAULT_DISABLED
+                .iter()
+                .any(|&(_, r)| r == DISABLED_DEFAULTS_REV)
+        );
+    }
+
+    #[test]
     fn to_ini_round_trips() {
         let mut c = parse(
-            "enabled=0\nfallback=0\ntutuq='\ndisabled_apps=a.exe;b.exe",
+            &format!(
+                "enabled=0\nfallback=0\ntutuq='\ndisabled_apps=a.exe;b.exe\ndisabled_defaults_rev={DISABLED_DEFAULTS_REV}"
+            ),
             "",
         );
         c.opts.restore_apostrophes = false;
@@ -502,7 +659,13 @@ fallback=0",
         assert_eq!((back.opts.english_guard, back.undo_backspace), (true, true));
         assert_eq!(back.opts.tutuq, '\'');
         assert_eq!(back.disabled_apps, vec!["a.exe", "b.exe"]);
-        let empty = parse(&to_ini(&parse("disabled_apps=", "")), "");
+        let empty = parse(
+            &to_ini(&parse(
+                &format!("disabled_apps=\ndisabled_defaults_rev={DISABLED_DEFAULTS_REV}"),
+                "",
+            )),
+            "",
+        );
         assert!(empty.disabled_apps.is_empty());
     }
 

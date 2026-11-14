@@ -11,7 +11,7 @@ name: rpm
 #   tumbleweed: o'sha spec openSUSE'da yig'iladi va o'rnatiladi (spec'ning suse_version tarmog'i).
 on:
   pull_request:
-    paths: ["packaging/rpm/**", "linux/**", "Cargo.lock", ".github/workflows/rpm.yml"]
+    paths: ["packaging/rpm/**", "linux/**", "crates/**", "Cargo.toml", "Cargo.lock", ".github/workflows/rpm.yml"]
   workflow_dispatch:
 
 permissions:

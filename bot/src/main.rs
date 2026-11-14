@@ -24,12 +24,14 @@ use serde_json::{Value, json};
 mod mcp;
 mod web;
 
-/// Telegram xabar chegarasi 4096; UTF-16 hisobidagi farq uchun zaxira.
-const CHUNK: usize = 4000;
+/// Telegram xabar chegarasi: 4096 UTF-16 birlik (emoji 2 birlik oladi).
+const CHUNK: usize = web::TG_MAX;
 /// /fikr dan keyin keyingi xabar shuncha vaqt ichida kelsa, u fikr sifatida yuboriladi.
 const FEEDBACK_WAIT: Duration = Duration::from_secs(15 * 60);
 /// Bitta foydalanuvchidan ikki fikr orasidagi eng kam vaqt (spamdan himoya).
 const FEEDBACK_GAP: Duration = Duration::from_secs(20);
+/// (ko'pi bilan, oyna soniyada): bitta foydalanuvchidan kuniga 20 fikr.
+const FEEDBACK_DAY: (usize, u64) = (20, 86_400);
 /// Adminga yuborilgan xabar -> foydalanuvchi: shuncha oxirgi yozuv eslab qolinadi.
 const THREADS_MAX: usize = 2000;
 /// `alive` fayli shuncha vaqtda bir yangilanadi (getUpdates muvaffaqiyatli bo'lsa).
@@ -47,6 +49,8 @@ struct Bot {
     /// chat -> /fikr bosilgan vaqt (unix soniya; qayta ishga tushishdan keyin ham tiklanadi)
     waiting: HashMap<i64, u64>,
     last_feedback: HashMap<i64, Instant>,
+    /// chat -> oxirgi sutkadagi yetkazilgan fikrlar vaqti (unix soniya)
+    feedback_day: HashMap<i64, VecDeque<u64>>,
     /// (admin chat, admindagi xabar id) -> foydalanuvchi chat id
     threads: VecDeque<((i64, i64), i64)>,
     seen_msg: u64,
@@ -258,16 +262,7 @@ impl Bot {
         if let Some((_, u)) = self.threads.iter().rev().find(|(k, _)| *k == (admin, id)) {
             return Some(*u);
         }
-        let text = replied["text"].as_str()?;
-        if !text.starts_with("💬 Fikr") {
-            return None;
-        }
-        const MARK: &str = " · id ";
-        let tail = &text[text.find(MARK)? + MARK.len()..];
-        let end = tail
-            .find(|c: char| !(c.is_ascii_digit() || c == '-'))
-            .unwrap_or(tail.len());
-        tail[..end].parse().ok()
+        header_user(replied["text"].as_str()?)
     }
 
     fn deliver(&mut self, m: &Value) {
@@ -275,6 +270,16 @@ impl Bot {
             return;
         };
         let now = Instant::now();
+        let unix = unix_now();
+        if !under_cap(self.feedback_day.entry(chat).or_default(), unix) {
+            self.send(
+                chat,
+                None,
+                &format!("Bugun ko‘p fikr yubordingiz, ertaga yozing yoki GitHub’da: {ISSUES}"),
+                false,
+            );
+            return;
+        }
         if self
             .last_feedback
             .get(&chat)
@@ -327,6 +332,7 @@ impl Bot {
         if delivered {
             self.seen_feedback += 1;
             self.last_feedback.insert(chat, now);
+            self.feedback_day.entry(chat).or_default().push_back(unix);
             self.send(
                 chat,
                 None,
@@ -571,6 +577,26 @@ impl Bot {
     }
 }
 
+/// Fikr sarlavhasidagi foydalanuvchi id'si: "💬 Fikr · {ism} · id {chat}\nJavob: ...".
+/// Ism ichida " · id 123" bo'lishi mumkin, shuning uchun oxirgi belgi olinadi (haqiqiy id eng oxirida).
+fn header_user(text: &str) -> Option<i64> {
+    if !text.starts_with("💬 Fikr") {
+        return None;
+    }
+    let line = text.rsplit_once("\nJavob:").map_or(text, |(h, _)| h);
+    const MARK: &str = " · id ";
+    line[line.rfind(MARK)? + MARK.len()..].parse().ok()
+}
+
+/// Kunlik chegara: oynadan chiqqanlarni tashlaydi; yana yuborish mumkin bo'lsa — true.
+fn under_cap(q: &mut VecDeque<u64>, now: u64) -> bool {
+    let (max, window) = FEEDBACK_DAY;
+    while q.front().is_some_and(|&t| now.saturating_sub(t) >= window) {
+        q.pop_front();
+    }
+    q.len() < max
+}
+
 fn parse_ids(s: &str) -> Vec<i64> {
     s.split(',').filter_map(|x| x.trim().parse().ok()).collect()
 }
@@ -592,15 +618,12 @@ fn has_new(s: &str) -> bool {
     s.chars().any(|c| "öğşçÖĞŞÇ".contains(c))
 }
 
-/// Xabarni CHUNK belgidan oshmaydigan qismlarga bo'ladi; iloji bo'lsa qator yoki bo'sh joyda.
+/// Xabarni CHUNK UTF-16 birlikdan oshmaydigan qismlarga bo'ladi; iloji bo'lsa qator yoki bo'sh joyda.
 fn split(text: &str) -> Vec<String> {
     let mut parts = Vec::new();
     let mut rest: &str = text;
-    while rest.chars().count() > CHUNK {
-        let hard = rest
-            .char_indices()
-            .nth(CHUNK)
-            .map_or(rest.len(), |(i, _)| i);
+    while web::utf16_len(rest) > CHUNK {
+        let hard = web::cut_utf16(rest, CHUNK).len();
         let window = &rest[..hard];
         let cut = window
             .rfind('\n')
@@ -618,7 +641,7 @@ fn split(text: &str) -> Vec<String> {
 
 fn article(id: &str, title: &str, text: &str) -> Value {
     let desc: String = text.chars().take(120).collect();
-    let body: String = text.chars().take(CHUNK).collect();
+    let body = web::cut_utf16(text, CHUNK);
     json!({
         "type": "article",
         "id": id,
@@ -684,6 +707,7 @@ fn main() {
         admins: parse_ids(&env::var("ADMIN_IDS").unwrap_or_default()),
         waiting: HashMap::new(),
         last_feedback: HashMap::new(),
+        feedback_day: HashMap::new(),
         threads: VecDeque::new(),
         seen_msg: 0,
         seen_inline: 0,
@@ -758,6 +782,10 @@ fn main() {
                 }
                 bot.last_feedback
                     .retain(|_, t| now.duration_since(*t) < FEEDBACK_GAP);
+                bot.feedback_day.retain(|_, q| {
+                    under_cap(q, unix);
+                    !q.is_empty()
+                });
             }
             Ok(_) => {}
             Err(e) => {
@@ -770,7 +798,39 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::api_port;
+    use super::{CHUNK, FEEDBACK_DAY, api_port, header_user, split, under_cap, web};
+    use std::collections::VecDeque;
+
+    #[test]
+    fn reply_target_is_last_id() {
+        let h = "💬 Fikr · Ali · id 123 (@ali) · id 456\nJavob: shu xabarga yoki pastdagi nusxaga reply qiling.";
+        assert_eq!(header_user(h), Some(456));
+        assert_eq!(header_user("💬 Fikr · Ali · id -100\nJavob: x"), Some(-100));
+        assert_eq!(header_user("💬 Fikr · Ali · id 7"), Some(7));
+        assert_eq!(header_user("Boshqa · id 1\nJavob: x"), None);
+        assert_eq!(header_user("💬 Fikr · Ali\nJavob: x"), None);
+    }
+
+    #[test]
+    fn daily_feedback_cap() {
+        let mut q = VecDeque::new();
+        for i in 0..FEEDBACK_DAY.0 as u64 {
+            assert!(under_cap(&mut q, i));
+            q.push_back(i);
+        }
+        assert!(!under_cap(&mut q, 100));
+        assert!(under_cap(&mut q, FEEDBACK_DAY.1));
+        assert_eq!(q.len(), FEEDBACK_DAY.0 - 1);
+    }
+
+    #[test]
+    fn split_counts_utf16() {
+        let parts = split(&"😀".repeat(3000));
+        assert_eq!(parts.len(), 2);
+        assert!(parts.iter().all(|p| web::utf16_len(p) <= CHUNK));
+        assert_eq!(parts.concat(), "😀".repeat(3000));
+        assert_eq!(split("salom"), ["salom"]);
+    }
 
     #[test]
     fn http_port_default_and_off() {

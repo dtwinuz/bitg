@@ -12,6 +12,10 @@
 		# dtwin edge (docker tarmog'i, xususiy IP) haqiqiy mijoz IP'sini X-Forwarded-For'da beradi
 		trusted_proxies static private_ranges
 		client_ip_headers X-Forwarded-For
+		# so'rov tanasi (POST /api/feedback, /mcp) 15 s ichida kelsin; sahifa va yuklab olishlarga ta'sir qilmaydi
+		timeouts {
+			read_body 15s
+		}
 	}
 }
 
@@ -65,7 +69,7 @@
 	# to'liq IP'li sarlavhalar o'chiriladi, 30 kundan keyin fayl o'chadi (web/pages/maxfiylik.html).
 	# deploy/stats/stats.py shu jurnaldan umumiy sonlarni chiqaradi.
 	@nolog {
-		path /*.js /*.css /*.wasm /fonts/* /og/* /*.png /*.svg /*.ico /*.txt /*.xml /stats.json /api/* /update/*
+		path /*.js /*.css /*.wasm /fonts/* /og/* /*.png /*.svg /*.ico /*.txt /*.xml /stats.json /api/* /mcp /update/*
 		not path /robots.txt
 	}
 	log_skip @nolog
@@ -113,15 +117,18 @@
 		request_body {
 			max_size 256KB
 		}
+		# Cache-Control: no-store ni bot o'zi qo'yadi (bu yerda ham qo'yilsa sarlavha ikki marta chiqadi)
 		header {
-			Cache-Control "no-store"
 			Access-Control-Allow-Origin "*"
 			Access-Control-Allow-Methods "POST, OPTIONS"
 			Access-Control-Allow-Headers "Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id"
 		}
 		@preflight method OPTIONS
 		respond @preflight 204
-		reverse_proxy bitg-bot:8080
+		# tana to'liq kelgach uzatiladi: sekin mijoz bot ulanishini band qilmaydi
+		reverse_proxy bitg-bot:8080 {
+			request_buffers 256KB
+		}
 	}
 
 	# MCP Registry domen tasdig'i (uz.bitg/*): ochiq kalit; maxfiy kalit repoda emas
@@ -135,8 +142,10 @@
 		request_body {
 			max_size 3MB
 		}
-		header Cache-Control "no-store"
-		reverse_proxy bitg-bot:8080
+		# Cache-Control: no-store ni bot qo'yadi; tana to'liq kelgach uzatiladi
+		reverse_proxy bitg-bot:8080 {
+			request_buffers 3MB
+		}
 	}
 
 	file_server

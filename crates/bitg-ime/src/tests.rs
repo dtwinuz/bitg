@@ -279,6 +279,20 @@ fn long_word_is_left_alone() {
 }
 
 #[test]
+fn repeated_set_suspended_keeps_the_word() {
+    // Fcitx5 (linux/fcitx5/bitg.cpp keyEvent) har tugmadan oldin set_suspended(holat) chaqiradi
+    for mut app in [App::direct(), App::default()] {
+        let mut e = engine();
+        for c in "choy shahar ".chars() {
+            let o = e.set_suspended(false);
+            app.apply(Key::Other, o);
+            app.typ(&mut e, &c.to_string());
+        }
+        assert_eq!(app.shown(), "çoy şahar ");
+    }
+}
+
+#[test]
 fn suspended_and_disabled_pass_everything() {
     let mut e = engine();
     let mut app = App::default();

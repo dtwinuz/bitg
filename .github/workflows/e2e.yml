@@ -5,11 +5,11 @@
 name: e2e
 
 # Haqiqiy Windows'da IME sinovi: MSI o'rnatiladi, tugmalar SendInput bilan bosiladi (WPF, Win32 EDIT, Qt, 32-bit).
-# Actions budjetini tejash uchun faqat qo'lda (Actions → e2e → Run workflow) va versiya tegida.
+# Actions budjetini tejash uchun faqat qo'lda (Actions → e2e → Run workflow) va relizda: release.yml uni chaqiradi,
+# o'tmasa reliz yaratilmaydi.
 on:
   workflow_dispatch:
-  push:
-    tags: ["v*.*.*"]
+  workflow_call:
 
 permissions:
   contents: read
@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable

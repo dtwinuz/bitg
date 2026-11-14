@@ -9,7 +9,7 @@ name: nix
 #   nixpkgs: package.nix relizdagi teg manbasidan (src hash + cargoHash) callPackage bilan yig'iladi.
 on:
   pull_request:
-    paths: ["flake.nix", "flake.lock", "packaging/nix/**", "linux/**", "Cargo.lock", ".github/workflows/nix.yml"]
+    paths: ["flake.nix", "flake.lock", "packaging/nix/**", "linux/**", "crates/**", "Cargo.toml", "Cargo.lock", ".github/workflows/nix.yml"]
   workflow_dispatch:
 
 permissions:
