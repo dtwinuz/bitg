@@ -317,8 +317,11 @@ fn session_typing() {
 }
 
 #[test]
-fn cheap_fuzz_never_panics_and_is_idempotent_on_output() {
+fn cheap_fuzz_never_panics() {
     // Oddiy LCG — tashqi bog'liqliksiz tasodifiy matn.
+    // convert idempotent EMAS, shuning uchun tekshirilmaydi: kirill + apostrof aralashmasida (",U+045E ’qg")
+    // birinchi o'tish kirill harfini ö qiladi va ’ ni o'zgartirmaydi (",ö’qg"), ikkinchi o'tish esa endi lotin
+    // bo'lgan so'zdagi ’ ni tutuqqa aylantiradi (",öʼqg"). Seed 0x2026_1021 bilan birinchi topilgan misol.
     let alphabet: Vec<char> = "aoughscqx'`ʻʼ’ .,!?\n@#/_-1Ш ҳўғ\"«»()OUSHCH"
         .chars()
         .collect();
@@ -336,8 +339,165 @@ fn cheap_fuzz_never_panics_and_is_idempotent_on_output() {
             s.push(alphabet[(seed >> 33) as usize % alphabet.len()]);
         }
         let once = c(&s);
-        let _ = to_old(&once, OldStyle::Ascii);
+        let _ = c(&once);
+        // fuzz/fuzz_targets/convert.rs dagi bilan bir xil chegara
+        assert!(once.len() <= 4 * s.len() + 4, "{s:?}");
+        for style in [OldStyle::Official, OldStyle::Ascii] {
+            assert!(to_old(&once, style).len() <= 4 * once.len() + 4, "{s:?}");
+        }
+        assert!(bitg_core::to_cyrillic(&s).len() <= 4 * s.len() + 4, "{s:?}");
     }
+}
+
+// B1: tinish belgisiz uzun matn (gap tugamaydi) — vaqt chiziqli bo'lishi kerak. Avval "a " * 10 000 90 s olardi.
+#[test]
+fn long_text_without_punctuation_is_fast() {
+    use std::time::{Duration, Instant};
+    for unit in ["a ", "shahar choy check the shop, ", "o'zbek "] {
+        let text = unit.repeat(20_000 / unit.len() + 1);
+        let start = Instant::now();
+        let out = c(&text);
+        let cyr = bitg_core::to_cyrillic(&text);
+        let old = to_old(&out, OldStyle::Ascii);
+        let took = start.elapsed();
+        assert!(took < Duration::from_secs(5), "{unit:?}: {took:?}");
+        let n = text.split_whitespace().count();
+        assert_eq!(out.split_whitespace().count(), n);
+        assert_eq!(cyr.split_whitespace().count(), n);
+        assert_eq!(old.split_whitespace().count(), n);
+    }
+}
+
+#[test]
+fn far_words_do_not_change_context() {
+    // Kontekst oynasi: 40 so'z narida turgan inglizcha so'zlar natijani o'zgartirmaydi.
+    let tail = " bu".repeat(40);
+    assert_eq!(c(&format!("shahar{tail}")), format!("şahar{tail}"));
+    assert_eq!(
+        c(&format!("shahar{tail} the of and")),
+        format!("şahar{tail} the of and")
+    );
+}
+
+#[test]
+fn decomposed_cyrillic_input() {
+    assert_eq!(c("У\u{0306}збекистон"), "Özbekiston");
+    assert_eq!(c("и\u{0306}ўл е\u{0308}ш"), "yöl yoş");
+    assert_eq!(bitg_core::to_cyrillic("У\u{0306}збекистон"), "Ўзбекистон");
+}
+
+#[test]
+fn to_old_keeps_links_code_and_foreign_words() {
+    let a = |s: &str| to_old(s, OldStyle::Ascii);
+    assert_eq!(
+        a("https://shop.uz/choy?ch=sh shahzod@mail.uz @shahzod `check()`"),
+        "https://shop.uz/choy?ch=sh shahzod@mail.uz @shahzod `check()`"
+    );
+    assert_eq!(
+        a("Michelle Chicago Washington. Check the shop"),
+        "Michelle Chicago Washington. Check the shop"
+    );
+    assert_eq!(a("şahar Ishoq Özbekiston"), "shahar Is'hoq O'zbekiston");
+    assert_eq!(
+        to_old("Toşkent, maʼno!", OldStyle::Official),
+        "Toshkent, maʼno!"
+    );
+}
+
+// M2: yopishgan so'zlar har biri alohida o'giriladi; havola, domen, kod va inglizcha so'z — yo'q.
+#[test]
+fn joined_words_are_split() {
+    for (from, to) in [
+        ("shahar/tuman", "şahar/tuman"),
+        ("Eslatma:shahar", "Eslatma:şahar"),
+        ("bo'ldi.Keyin choy", "böldi.Keyin çoy"),
+        ("choy+non", "çoy+non"),
+        (
+            "[Toshkent shahri](https://kun.uz)",
+            "[Toşkent şahri](https://kun.uz)",
+        ),
+        ("(shahar/tuman),", "(şahar/tuman),"),
+    ] {
+        assert_eq!(c(from), to, "{from}");
+    }
+    for kept in [
+        "obj.show",
+        "shahar.uz",
+        "kun.uz/shahar",
+        "and/or",
+        "TCP/IP",
+        "Check/shop",
+        "a/shahar",
+        "C:\\chess",
+        "std::shahar",
+        "shahar/",
+        "[link](https://shop.uz)",
+        "[https://x.uz](https://shop.uz)",
+        "my_shop/shahar",
+    ] {
+        assert_eq!(c(kept), kept, "{kept}");
+    }
+    let o = Options {
+        exceptions: vec!["shahar/tuman".into()],
+        ..Options::default()
+    };
+    assert_eq!(convert("shahar/tuman", &o), "shahar/tuman");
+    let no_guard = Options {
+        english_guard: false,
+        ..Options::default()
+    };
+    assert_eq!(convert("check/shop", &no_guard), "çeck/şop");
+    assert_eq!(
+        convert("[shop](https://x.uz)", &no_guard),
+        "[şop](https://x.uz)"
+    );
+}
+
+// M3: aralash registrli o'zbekcha qisqartma; O'Brien va inglizcha CamelCase o'z yozuvida.
+#[test]
+fn mixed_case_uzbek_acronyms() {
+    for (from, to) in [
+        ("MChJ", "MÇJ"),
+        ("MChJning", "MÇJning"),
+        ("ToshDU", "ToşDU"),
+        ("SamDChTI", "SamDÇTI"),
+        ("O'XXning", "ÖXXning"),
+    ] {
+        assert_eq!(c(from), to, "{from}");
+    }
+    for kept in [
+        "O'Brien",
+        "ChatGPT",
+        "PowerShell",
+        "BioNTech",
+        "McDonald's",
+        "PhD",
+        "iPhone",
+        "showChart",
+    ] {
+        assert_eq!(c(kept), kept, "{kept}");
+    }
+    let o = Options {
+        exceptions: vec!["mchj".into()],
+        ..Options::default()
+    };
+    assert_eq!(convert("MChJ", &o), "MChJ");
+}
+
+// m2, m5: qo'shtirnoqdagi yolg'iz harf va "so'z-yil".
+#[test]
+fn quoted_lone_letter_and_word_with_year() {
+    assert_eq!(c("\"o'\" harfi"), "\"ö\" harfi");
+    assert_eq!(c("'o' harfi"), "'o' harfi");
+    assert_eq!(c("«Xayrli ishlar-2009»"), "«Xayrli işlar-2009»");
+    assert_eq!(c("SHA-1 va COVID-19"), "SHA-1 va COVID-19");
+}
+
+// Ataylab: #5 ikki ma'noli so'z taxmin qilinmaydi, #6 xorijiy nom o'z yozuvida.
+#[test]
+fn intentional_behaviour_is_kept() {
+    assert_eq!(c("ochmaydi"), "oçmaydi");
+    assert_eq!(c("Michelle Chicago'da"), "Michelle Chicago'da");
 }
 
 #[test]

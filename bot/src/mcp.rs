@@ -18,7 +18,7 @@ fn tool() -> Value {
     json!({
         "name": "convert_text",
         "title": "Convert Uzbek text to the new alphabet (bitg)",
-        "description": "Converts Uzbek text written in the old Latin alphabet (o‘ g‘ sh ch, any apostrophe) or in Cyrillic to the official new Uzbek Latin alphabet adopted in 2026 (Ö ö, Ğ ğ, Ş ş, Ç ç; law in force from 2027-04-22). Deterministic, rule-based bitg engine: keeps English words, links, code and foreign names intact. Use it whenever the user asks to write, convert or check Uzbek text in the new alphabet; also converts back to the old Latin alphabet or to Cyrillic.",
+        "description": "Converts Uzbek text written in the old Latin alphabet (o‘ g‘ sh ch, any apostrophe) or in Cyrillic to the official new Uzbek Latin alphabet adopted in 2026 (Ö ö, Ğ ğ, Ş ş, Ç ç; law in force from 2027-04-22). Deterministic, rule-based bitg engine: handles apostrophe variants and keeps English words, links, code and foreign names intact. Also converts back to the old Latin alphabet or to Cyrillic.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -113,12 +113,14 @@ fn server_info() -> Value {
     json!({
         "name": "bitg",
         "title": "bitg — new Uzbek alphabet converter",
-        "version": env!("CARGO_PKG_VERSION"),
+        // server.json va plaginlardagi versiya bilan bir xil (bot crate'ining o'z versiyasi emas)
+        "version": bitg_core::VERSION,
         "websiteUrl": "https://bitg.uz"
     })
 }
 
-const INSTRUCTIONS: &str = "Use convert_text to write or convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç). Do not guess the conversion yourself: the bitg engine handles apostrophe variants, Cyrillic, English words and names. Text is processed in memory and not stored.";
+/// Neytral tavsif: AI kataloglari vosita tavsifida modelga buyruq berishni taqiqlaydi.
+const INSTRUCTIONS: &str = "convert_text converts Uzbek text to the 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç) with the rule-based bitg engine; it handles apostrophe variants, Cyrillic, English words and names, and can convert back to old Latin or Cyrillic. Text is processed in memory and not stored.";
 
 fn supported_all() -> Vec<&'static str> {
     std::iter::once(MODERN).chain(SUPPORTED).collect()
@@ -171,13 +173,19 @@ pub fn handle_http(msg: &Value) -> Option<(u16, Value)> {
     })
 }
 
-/// JSON-RPC xabarga javob. `None` — bildirishnoma yoki javob (HTTP 202, tana yo'q).
+/// JSON-RPC xabarga javob. `None` — bildirishnoma yoki mijozning javobi (`result`/`error` bilan;
+/// HTTP 202, tana yo'q). `id` bor-u `method` yo'q so'rov — -32600.
 pub fn handle(msg: &Value) -> Option<Value> {
     let Some(obj) = msg.as_object() else {
         return Some(fail(&Value::Null, -32600, "Invalid Request"));
     };
     let id = obj.get("id")?;
-    let method = obj.get("method").and_then(Value::as_str)?;
+    let Some(method) = obj.get("method").and_then(Value::as_str) else {
+        if obj.contains_key("result") || obj.contains_key("error") {
+            return None;
+        }
+        return Some(fail(id, -32600, "Invalid Request"));
+    };
     let params = obj.get("params").cloned().unwrap_or(Value::Null);
     Some(match method {
         "server/discover" => ok(
@@ -219,10 +227,7 @@ pub fn handle(msg: &Value) -> Option<Value> {
                 Ok((text, direction)) => ok(
                     id,
                     json!({
-                        "content": [
-                            {"type": "text", "text": text},
-                            {"type": "text", "text": format!("Converted with {ATTRIBUTION}")}
-                        ],
+                        "content": [{"type": "text", "text": text}],
                         "structuredContent": {
                             "text": text,
                             "direction": direction,
@@ -259,6 +264,24 @@ mod tests {
     #[test]
     fn notification_has_no_reply() {
         assert!(handle(&json!({"jsonrpc":"2.0","method":"notifications/initialized"})).is_none());
+        // mijozning javobi (masalan, ping'ga) ham javobsiz
+        assert!(handle(&json!({"jsonrpc":"2.0","id":1,"result":{}})).is_none());
+    }
+
+    #[test]
+    fn id_without_method_is_invalid_request() {
+        let r = handle(&json!({"jsonrpc":"2.0","id":7})).unwrap();
+        assert_eq!(
+            (r["id"].as_i64(), r["error"]["code"].as_i64()),
+            (Some(7), Some(-32600))
+        );
+        let r = handle(&json!({"jsonrpc":"2.0","id":"x","method":5})).unwrap();
+        assert_eq!(r["error"]["code"], -32600);
+        let (c, _) = handle_http(&json!({"jsonrpc":"2.0","id":8})).unwrap();
+        assert_eq!(c, 200);
+        let (c, r) =
+            handle_http(&json!({"jsonrpc":"2.0","id":9,"params":{"_meta": meta(MODERN)}})).unwrap();
+        assert_eq!((c, r["error"]["code"].as_i64()), (400, Some(-32600)));
     }
 
     #[test]

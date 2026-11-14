@@ -142,6 +142,8 @@ install -Dpm0644 web/icon.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/app
 
 %check
 export CARGO_HOME="$PWD/.cargo-home"
+# testlar yig'uvchining ~/.config/bitg sozlamalarini o'qimasin (enabled=0 bo'lsa yiqilardi)
+export XDG_CONFIG_HOME="$PWD/.check-config"
 export CARGO_PROFILE_RELEASE_STRIP=false
 export RUSTFLAGS="%{?build_rustflags}%{!?build_rustflags:-Copt-level=3 -Cdebuginfo=2}"
 cargo test --frozen --offline --release %{?_smp_build_ncpus:-j%{_smp_build_ncpus}} -p bitg-ime

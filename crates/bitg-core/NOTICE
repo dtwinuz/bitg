@@ -1,0 +1,20 @@
+bitg-core
+Copyright 2026 dtwinuz and bitg contributors
+
+The source code is licensed under MIT OR Apache-2.0, at your option
+(LICENSE-MIT, LICENSE-APACHE).
+
+The crate also embeds word lists that carry their own licenses:
+
+- src/data/uz.tsv, src/data/sh_split.tsv: Uzbek word frequencies computed from
+  the Leipzig Corpora Collection, Leipzig University
+  <https://wortschatz.uni-leipzig.de/> (plus CC0 Mozilla Common Voice and
+  Tatoeba sentences). Licensed under CC-BY-4.0 (LICENSE-CC-BY-4.0).
+
+- src/data/en.tsv, src/data/foreign_names.txt: English words and names derived
+  from SCOWL 2020.12.07, Copyright 2000-2018 Kevin Atkinson and the SCOWL
+  contributors <http://wordlist.aspell.net/>. SCOWL license (LICENSE-SCOWL,
+  SPDX: LicenseRef-SCOWL).
+
+The files are copies of the repository's LICENSE-MIT, LICENSE-APACHE and
+LICENSES/ texts so that they ship with the published crate.

@@ -44,15 +44,19 @@ def flag(value):
 
 
 def read_text(path):
+    """Fayl matni; yo'q bo'lsa "", o'qib bo'lmasa (ruxsat, buzilgan UTF-8) None — ustiga yozilmasin."""
     try:
         return path.read_text(encoding="utf-8").removeprefix(BOM)
     except FileNotFoundError:
         return ""
+    except (OSError, UnicodeDecodeError):
+        return None
 
 
 def read_settings():
     values = {key: True for key in KEYS}
-    for line in read_text(SETTINGS).splitlines():
+    # o'qib bo'lmasa standart qiymatlar: indikator va 2 s lik taymer yiqilmaydi
+    for line in (read_text(SETTINGS) or "").splitlines():
         line = line.strip()
         if "=" not in line or line.startswith(("#", ";", "[")):
             continue
@@ -79,7 +83,10 @@ def write_atomic(path, text):
 
 
 def save_setting(key, enabled):
-    lines = read_text(SETTINGS).splitlines(keepends=True)
+    text = read_text(SETTINGS)
+    if text is None:
+        raise OSError(f"{SETTINGS} ni o'qib bölmadi")
+    lines = text.splitlines(keepends=True)
     new_line = f"{key}={'1' if enabled else '0'}\n"
     found = False
     for i, line in enumerate(lines):
@@ -150,6 +157,11 @@ class App:
         if self.dialog is not None:
             self.dialog.present()
             return
+        current = read_text(EXCEPTIONS)
+        if current is None:
+            # bo'sh muharrir saqlansa foydalanuvchi lug'ati öçib ketardi
+            error(f"{EXCEPTIONS} ni o'qib bölmadi (UTF-8 emas yoki ruxsat yöq)")
+            return
         dialog = Gtk.Dialog(title="bitg: istisnolar va lugʼat")
         dialog.set_default_size(420, 420)
         dialog.add_button("Bekor qiliş", Gtk.ResponseType.CANCEL)
@@ -163,7 +175,7 @@ class App:
             "qayta oçmasdan qöllanadi."))
         box.pack_start(hint, False, False, 0)
         view = Gtk.TextView(monospace=True)
-        view.get_buffer().set_text(read_text(EXCEPTIONS))
+        view.get_buffer().set_text(current)
         scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
         scroll.add(view)
         box.pack_start(scroll, True, True, 0)
@@ -189,7 +201,14 @@ class App:
 def main():
     runtime = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/tmp/bitg-{os.getuid()}")
     runtime.mkdir(mode=0o700, parents=True, exist_ok=True)
-    lock = open(runtime / "bitg-indicator.lock", "w")
+    # /tmp zaxirasi: papkani boshqa foydalanuvchi oldindan yaratgan (yoki symlink) bo'lsa ishlatilmaydi
+    st = os.lstat(runtime)
+    if not os.path.isdir(runtime) or os.path.islink(runtime) or st.st_uid != os.getuid() or st.st_mode & 0o077:
+        print(f"bitg-indicator: {runtime} xavfsiz emas (egasi yoki ruxsatlari)", file=sys.stderr)
+        return 1
+    # symlink'ga ergashmaydi, faylni kesmaydi
+    fd = os.open(runtime / "bitg-indicator.lock", os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    lock = os.fdopen(fd, "w")
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:

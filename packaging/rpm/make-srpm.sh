@@ -61,6 +61,9 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 tar -xzf "$SRC0" -C "$WORK"
 [ -f "$WORK/bitg-$VER/Cargo.lock" ] || { echo "Source0 ichida bitg-$VER/Cargo.lock yo'q" >&2; exit 1; }
+# manba versiyasi spec'dagi bilan bir xil bo'lsin (eski teg yoki yangilanmagan spec)
+SRC_VER="$(sed -n 's/^version[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$WORK/bitg-$VER/Cargo.toml" | head -1)"
+[ "$SRC_VER" = "$VER" ] || { echo "Source0 Cargo.toml versiyasi $SRC_VER, spec'da $VER" >&2; exit 1; }
 (
   cd "$WORK/bitg-$VER"
   export CARGO_HOME="$WORK/cargo-home"

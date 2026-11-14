@@ -216,8 +216,45 @@ def main():
         fresh.setFocus()
         log.append(f"foreground line={user32.GetForegroundWindow() == int(fresh.winId())}")
 
+    acts = {}
+
     def act(tag):
-        return lambda: log.append(f"ActivateProfile {tag} hr={activate_bitg():#x}")
+        def run():
+            hr = activate_bitg()
+            acts[tag] = hr
+            log.append(f"ActivateProfile {tag} hr={hr:#x}")
+        return run
+
+    # tsf.log: shu jarayonning (pid) "activate"/"deactivate" qatorlari belgidan keyin
+    tsf_log = os.path.join(os.environ.get("LOCALAPPDATA", ""), "bitg", "tsf.log")
+    marks = {}
+
+    def mark(tag):
+        def run():
+            marks[tag] = os.path.getsize(tsf_log) if os.path.exists(tsf_log) else 0
+        return run
+
+    def tsf_events(tag):
+        if not os.path.exists(tsf_log):
+            return []
+        start = marks.get(tag, 0)
+        if os.path.getsize(tsf_log) < start:
+            start = 0  # log 512 KB dan oshib qayta boshlangan
+        with open(tsf_log, "rb") as f:
+            f.seek(start)
+            lines = f.read().decode("utf-8", "replace").splitlines()
+        me = f" pid={os.getpid()} "
+        return [ln.rsplit(" ", 1)[-1] for ln in lines
+                if me in ln and (ln.endswith(" activate") or ln.endswith(" deactivate"))]
+
+    def require_active(tag, name):
+        """'untouched' tekshiruvi bitg shu oynada faol bo'lgandagina ma'noli: ActivateProfile S_OK va
+        belgidan keyingi oxirgi hodisa deactivate emas (CI VM fokusda profilni qaytarib yuborardi)."""
+        def run():
+            hr, ev = acts.get(tag), tsf_events(tag)
+            ok = hr == 0 and (not ev or ev[-1] == "activate")
+            log.append(f"PASS {name}" if ok else f"FAIL {name} hr={hr} tsf_events={ev}")
+        return run
 
     def check_fresh(name, want):
         got = fresh.text()
@@ -264,8 +301,11 @@ def main():
         lambda: type_keys("shoshma "), w, w, w,
         lambda: log.append(f"INFO field turned password without refocus (known limit, #41): got=[{pw.text()}]"),
         # 9) #41: fokus olayotgan parol maydoni — so'zlar qayta yozilmaydi
+        mark("password"),
         lambda: fresh.setEchoMode(QLineEdit.EchoMode.Password), focus_fresh, act("password"), focus_fresh, w, w,
-        lambda: type_keys("choy shoshma "), w, w, w, lambda: check_fresh("password field untouched", "choy shoshma "),
+        lambda: type_keys("choy shoshma "), w, w, w,
+        require_active("password", "password field: bitg active in this window"),
+        lambda: check_fresh("password field untouched", "choy shoshma "),
         # Nazorat: o'sha oyna oddiy rejimda qayta fokus olsa bitg ishlaydi
         lambda: fresh.setEchoMode(QLineEdit.EchoMode.Normal), focus, w, focus_fresh, act("line"), focus_fresh, w, w,
         lambda: type_keys("choy "), w, w, w,

@@ -5,17 +5,12 @@
 name: packaging
 
 # winget manifesti va Chocolatey paketi yuborishdan oldin haqiqiy Windows'da o'rnatib, o'chirib tekshiriladi.
-# Chocolatey'ga nashr: Actions -> packaging -> Run workflow, publish = true (CHOCO_API_KEY siri kerak).
+# Nashr shu yerda emas: stores.yml (relizdan keyin, chocolatey/winget environment'lari bilan).
 # Homebrew cask'ni dtwinuz/homebrew-tap CI'si tekshiradi.
 on:
   pull_request:
     paths: ["packaging/winget/**", "packaging/chocolatey/**", "tools/release/packaging.py", ".github/workflows/packaging.yml"]
   workflow_dispatch:
-    inputs:
-      publish:
-        description: "Chocolatey paketini community.chocolatey.org ga yuborish"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -94,13 +89,3 @@ jobs:
         with:
           name: chocolatey
           path: ${{ runner.temp }}/choco/*.nupkg
-      - name: Publish
-        if: github.event_name == 'workflow_dispatch' && inputs.publish
-        shell: pwsh
-        env:
-          CHOCO_API_KEY: ${{ secrets.CHOCO_API_KEY }}
-        run: |
-          if (-not $env:CHOCO_API_KEY) { throw "CHOCO_API_KEY siri yo'q (Settings -> Secrets -> Actions)" }
-          $nupkg = Get-ChildItem (Join-Path $env:RUNNER_TEMP choco) -Filter 'bitg.*.nupkg' | Select-Object -First 1
-          choco push $nupkg.FullName --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY
-          if ($LASTEXITCODE) { throw "push: $LASTEXITCODE" }

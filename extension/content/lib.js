@@ -119,8 +119,17 @@
     var type = String(attr(el, 'type') || el.type || 'text').toLowerCase();
     return type === 'text' || type === 'search';
   }
+  // type=text bo'lsa ham login, pochta, URL, telefon, karta va bir martalik kod maydonlari: `shoxrux.dev` o'zgarmasin
+  var SKIP_AUTOCOMPLETE = /(^|\s)(username|email|url|tel[\w-]*|one-time-code|cc-[\w-]+|current-password|new-password)(\s|$)/;
+  var SKIP_INPUTMODE = /^(email|url|tel|numeric|decimal)$/;
+  function identifierField(el) {
+    var ac = String(attr(el, 'autocomplete') || '').toLowerCase();
+    var im = String(attr(el, 'inputmode') || '').toLowerCase();
+    return SKIP_AUTOCOMPLETE.test(ac) || SKIP_INPUTMODE.test(im);
+  }
   function isAutotypeControl(el) {
     if (!isTextControl(el) || el.readOnly || el.disabled) return false;
+    if (identifierField(el)) return false;
     return !insideCodeEditor(el);
   }
   function isAutotypeRich(el) {

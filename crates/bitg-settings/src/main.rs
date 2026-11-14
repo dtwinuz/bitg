@@ -412,22 +412,28 @@ mod app {
             return fail(format!("Faylni saqlab bo'lmadi: {e}."));
         }
         let exe = std::env::current_exe().unwrap_or_default();
+        let Some(sys) = bitg_tsf::config::system_dir() else {
+            return fail("Tizim papkasi topilmadi.".into());
+        };
+        let msiexec = sys.join("msiexec.exe");
         reply(p, update_state("installing"));
         // msiexec tugagach (yoki bekor qilinsa) ilova qayta ochiladi; MSI eski sozlamalarini (AUTOSTART,
-        // ADDKEYBOARD) reestrdan o'zi oladi.
-        let cmd = format!(
-            "msiexec /i \"{}\" /passive /norestart & start \"\" \"{}\"",
-            msi.display(),
-            exe.display()
-        );
+        // ADDKEYBOARD) reestrdan o'zi oladi. msiexec bitg-settings.exe'ni yopadi, shuning uchun kutuvchi — cmd.
+        // Yo'lda cmd uchun xavfli belgi bo'lsa, msiexec to'g'ridan-to'g'ri (qayta ochishsiz) ishga tushadi.
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-        match std::process::Command::new("cmd")
-            .arg("/c")
-            .raw_arg(&cmd)
-            .creation_flags(CREATE_NO_WINDOW)
-            .spawn()
-        {
+        let spawned = match updates::relaunch_args(&msiexec, &msi, &exe) {
+            Some(args) => std::process::Command::new(sys.join("cmd.exe"))
+                .raw_arg(&args)
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn(),
+            None => std::process::Command::new(&msiexec)
+                .arg("/i")
+                .arg(&msi)
+                .args(["/passive", "/norestart"])
+                .spawn(),
+        };
+        match spawned {
             Ok(_) => {
                 let _ = p.send_event(Ev::Quit);
             }

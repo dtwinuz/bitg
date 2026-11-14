@@ -180,5 +180,73 @@ fn exceptions_file_keeps_words() {
     assert!(err.contains("--exceptions"), "{err}");
     let (code, _, _) = bitg(&["--exceptions", "/yoq/fayl.txt", "shahar"], None);
     assert_eq!(code, 1);
+    // old va cyr bu sozlamani ishlatmaydi — jimgina e'tiborsiz qoldirilmaydi.
+    let (code, out, err) = bitg(&["old", "--exceptions", p, "şahar"], None);
+    assert_eq!((code, out.as_str()), (1, ""));
+    assert!(err.contains("--exceptions"), "{err}");
     std::fs::remove_file(ex).unwrap();
+}
+
+#[test]
+fn reverse_commands_reject_convert_options() {
+    for (args, flag) in [
+        (&["old", "--no-guard", "şahar"][..], "--no-guard"),
+        (&["cyr", "--no-guard", "shahar"][..], "--no-guard"),
+        (&["cyr", "--no-cyrillic", "shahar"][..], "--no-cyrillic"),
+        (&["old", "--tutuq='", "maʼno"][..], "--tutuq"),
+        (&["diff", "--old", "--no-guard", "şahar"][..], "--no-guard"),
+    ] {
+        let (code, out, err) = bitg(args, None);
+        assert_eq!(code, 1, "{args:?}");
+        assert!(out.is_empty(), "{out}");
+        assert!(
+            err.contains(flag) && err.contains("faqat yangi alifboga"),
+            "{err}"
+        );
+    }
+    // diff (yangi alifboga) sozlamani qabul qiladi
+    assert_eq!(bitg(&["diff", "--no-guard", "shop"], None).0, 0);
+}
+
+fn bitg_bytes(args: &[&str], stdin: &[u8]) -> (i32, String, String) {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_bitg"))
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(stdin).unwrap();
+    let out = child.wait_with_output().unwrap();
+    (
+        out.status.code().unwrap(),
+        String::from_utf8(out.stdout).unwrap(),
+        String::from_utf8(out.stderr).unwrap(),
+    )
+}
+
+#[test]
+fn stdin_encodings() {
+    // UTF-16 LE (PowerShell 5 quvuri) va BE, BOM bilan
+    let le: Vec<u8> = [0xFF, 0xFE]
+        .into_iter()
+        .chain("shahar\n".encode_utf16().flat_map(u16::to_le_bytes))
+        .collect();
+    assert_eq!(bitg_bytes(&[], &le), (0, "şahar\n".into(), String::new()));
+    let be: Vec<u8> = [0xFE, 0xFF]
+        .into_iter()
+        .chain("choy".encode_utf16().flat_map(u16::to_be_bytes))
+        .collect();
+    assert_eq!(bitg_bytes(&["cyr"], &be).1, "чой\n");
+    assert_eq!(
+        bitg_bytes(&["old"], "\u{FEFF}şahar".as_bytes()).1,
+        "shahar\n"
+    );
+    // UTF-8 emas (cp1251): xato, bo'sh natija emas
+    for cmd in [&[][..], &["old"], &["cyr"], &["explain"], &["diff"]] {
+        let (code, out, err) = bitg_bytes(cmd, b"\xF7\xEE\xE9 shahar");
+        assert_eq!(code, 1, "{cmd:?}");
+        assert!(out.is_empty(), "{cmd:?}: {out}");
+        assert!(err.contains("UTF-8"), "{cmd:?}: {err}");
+    }
 }

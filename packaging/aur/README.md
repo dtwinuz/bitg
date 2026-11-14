@@ -28,8 +28,10 @@ CLI natijasi, IBus komponenti yo'li, Fcitx5 `.so` belgilari va `pacman -R` ni te
 
 ## Yangi versiya
 
-Odatda **avtomatik**: reliz chiqqach `stores.yml` (`aur` job'i) PKGBUILD'ni yangilab, Arch'da yig'ib sinaydi va AUR'ga
-push qiladi (environment `aur`, sir `AUR_SSH_KEY`). Quyidagisi — qo'lda yo'l.
+Hozir **o'chiq**: AUR'da yangi akkaunt ochish vaqtincha yopiq. AUR akkaunti ochilib, repo o'zgaruvchisi
+`AUR_ENABLED=true` qo'yilmaguncha `stores.yml` dagi `aur` job'i o'tkazib yuboriladi. Yoqilgach reliz chiqishi bilan
+u PKGBUILD'ni yangilab, Arch'da yig'ib sinaydi va AUR'ga push qiladi (environment `aur`, sir `AUR_SSH_KEY`).
+Quyidagisi — qo'lda yo'l.
 
 ```bash
 cd packaging/aur

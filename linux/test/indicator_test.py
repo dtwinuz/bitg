@@ -63,6 +63,16 @@ class Settings(unittest.TestCase):
         self.assertEqual(text, "[bitg]\ntutuq='\nenabled=0\nundo_remember=ha\n")
         self.assertFalse(ind.read_settings()["enabled"])
 
+    def test_broken_utf8_is_not_overwritten(self):
+        # buzilgan fayl: o'qishda standart qiymatlar, saqlash esa faylni ustidan yozmaydi
+        ind.CONFIG.mkdir(parents=True, exist_ok=True)
+        ind.SETTINGS.write_bytes(b"enabled=0\n\xff\xfe junk\n")
+        self.assertIsNone(ind.read_text(ind.SETTINGS))
+        self.assertEqual(ind.read_settings(), {"enabled": True, "auto_convert": True, "cyrillic": True})
+        with self.assertRaises(OSError):
+            ind.save_setting("enabled", True)
+        self.assertEqual(ind.SETTINGS.read_bytes(), b"enabled=0\n\xff\xfe junk\n")
+
     def test_save_creates_private_files(self):
         ind.save_setting("cyrillic", False)
         self.assertEqual(stat.S_IMODE(ind.SETTINGS.stat().st_mode), 0o600)

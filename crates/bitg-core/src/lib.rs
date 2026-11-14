@@ -172,26 +172,58 @@ fn tokens(text: &str) -> Vec<Tok> {
     v
 }
 
+/// Kontekst oynasi: so'zning har ikki tomonidan nechta qo'shni hisoblanadi. 1/masofa vazn tufayli uzoqdagi
+/// so'zlar deyarli ta'sir qilmaydi; cheklov tinish belgisiz uzun matnda vaqtni chiziqli qiladi (O(n)).
+/// 32 — eval natijasi cheklovsiz bilan aynan bir xil bo'lgan eng kichik sinalgan qiymat (8, 16, 24 da en.tsv
+/// bir necha gapda yomonlashadi).
+const CONTEXT_WINDOW: usize = 32;
+
 /// Kontekst: gapdagi boshqa so'zlarning dalili (har biri ±3), yaqinroq so'z kuchliroq (1/masofa),
 /// gap bo'lagi chegarasidan (vergul) o'tgan so'z 3 baravar kuchsiz: "Please check, keyin choy ichamiz".
+/// Faqat `CONTEXT_WINDOW` ichidagi qo'shnilar hisoblanadi.
 fn context(toks: &[Tok], range: std::ops::Range<usize>, skip: usize) -> f32 {
     let slice = &toks[range];
+    let lo = skip.saturating_sub(CONTEXT_WINDOW);
+    let hi = (skip + CONTEXT_WINDOW + 1).min(slice.len());
+    let win = &slice[lo..hi];
+    let skip = skip - lo;
+    // clauses[k] — win[..k] dagi vergulli tokenlar soni: chegaradan o'tish O(1) da tekshiriladi.
+    let mut clauses = [0u16; 2 * CONTEXT_WINDOW + 2];
+    for (k, t) in win.iter().enumerate() {
+        clauses[k + 1] = clauses[k] + u16::from(t.clause_end);
+    }
     let mut sum = 0.0f32;
     let mut weights = 0.0f32;
-    for (j, t) in slice.iter().enumerate() {
+    for (j, t) in win.iter().enumerate() {
         // Xorijiy nom gap tilini aytmaydi: "Chicagoda yashaydi" — o'zbekcha gap.
         // Kod, havola va brend ham: "fetch() chaqiruvi", "Shohjahon McDonald's" — o'zbekcha gap.
         if j == skip || t.evidence == 0.0 || t.name == NameKind::Foreign || t.silent {
             continue;
         }
         let dist = j.abs_diff(skip) as f32;
-        let (lo, hi) = if j < skip { (j, skip) } else { (skip, j) };
-        let crosses = slice[lo..hi].iter().any(|x| x.clause_end);
+        let (a, b) = if j < skip { (j, skip) } else { (skip, j) };
+        let crosses = clauses[b] > clauses[a];
         let w = (1.0 / dist) * if crosses { 0.3 } else { 1.0 };
         sum += w * t.evidence.clamp(-3.0, 3.0);
         weights += w;
     }
     if weights == 0.0 { 0.0 } else { sum / weights }
+}
+
+/// Har token uchun o'z gapining chegaralari (birinchi va oxirgi token indeksi). Bir marta, O(n) da.
+fn sentences(toks: &[Tok]) -> impl Iterator<Item = (usize, usize)> + '_ {
+    let mut start = 0;
+    let mut end = 0;
+    (0..toks.len()).map(move |i| {
+        if i == 0 || toks[i - 1].sentence_end {
+            start = i;
+            end = i;
+            while end + 1 < toks.len() && !toks[end].sentence_end {
+                end += 1;
+            }
+        }
+        (start, end)
+    })
 }
 
 /// Kontekstda ovoz bermaydigan token: havola, email, kod (`push()`, `snake_case`), @user, #teg yoki brend.
@@ -242,7 +274,7 @@ fn convert_token(
         return (out, reason);
     }
     if token::is_protected(tok) {
-        return (tok.to_string(), Reason::Protected);
+        return convert_protected(tok, opts, ctx, hints);
     }
     let parts = token::split_edges(tok);
     let lead = parts.lead;
@@ -307,7 +339,11 @@ fn convert_token(
     }
 
     // Harfning o'zi: "O' harfi", "G' yoki O'" — inglizcha gapda bo'lmasa o'giriladi (tirnoq yuqorida ajratilgan).
-    if lead.is_empty() && ctx > RESTORE_CTX_MIN && is_lone_letter(core) && !opts.is_exception(core)
+    // `"o' harfi"` — qo'shtirnoq ichida ham; apostrofli tirnoq ('o') esa emas.
+    if !lead.chars().any(is_apostrophe)
+        && ctx > RESTORE_CTX_MIN
+        && is_lone_letter(core)
+        && !opts.is_exception(core)
     {
         let new_core = latin::to_new(core, opts.tutuq);
         if new_core != core {
@@ -342,6 +378,142 @@ fn convert_token(
     out.push_str(&new_core);
     out.push_str(trail);
     (out, Reason::Converted)
+}
+
+/// `token::is_protected` ushlagan, lekin aslida o'zbekcha bo'lishi mumkin bo'lgan token:
+/// aralash registrli qisqartma (MChJ, ToshDU, O'XXning), bir-biriga yopishgan so'zlar (shahar/tuman,
+/// Eslatma:shahar, bo'ldi.Keyin, choy+non) va Markdown havola matni (shahri](https://kun.uz)).
+/// Qolgani (havola, email, kod, domen) o'zgarmaydi.
+fn convert_protected(tok: &str, opts: &Options, ctx: f32, hints: Hints) -> (String, Reason) {
+    let keep = || (tok.to_string(), Reason::Protected);
+    // [Toshkent shahri](https://kun.uz): "](" gacha — havola matni, qolgani manzil.
+    if let Some(i) = tok.find("](") {
+        let (text, link) = tok.split_at(i);
+        if text.contains("://") {
+            return keep();
+        }
+        let own = if opts.english_guard {
+            lang::evidence(token::split_edges(text).core)
+        } else {
+            0.0
+        };
+        let (conv, r) = convert_token(text, opts, own, ctx, hints, &mut false);
+        return if conv == text {
+            keep()
+        } else {
+            (format!("{conv}{link}"), r)
+        };
+    }
+    let p = token::split_edges(tok);
+    let core = p.core;
+    if opts.is_exception(core) {
+        return keep();
+    }
+    if is_mixed_acronym(core) {
+        let new = latin::to_new(core, opts.tutuq);
+        return if new == core {
+            keep()
+        } else {
+            (format!("{}{new}{}", p.lead, p.trail), Reason::Converted)
+        };
+    }
+    let Some(seps) = joined_separators(core) else {
+        return keep();
+    };
+    let mut out = String::with_capacity(tok.len() + 4);
+    out.push_str(p.lead);
+    let mut from = 0;
+    for (i, sep) in seps.into_iter().chain([(core.len(), "")]) {
+        let part = &core[from..i];
+        let own = if opts.english_guard {
+            lang::evidence(part)
+        } else {
+            0.0
+        };
+        let part_hints = Hints {
+            foreign_name: false,
+            ..hints
+        };
+        out.push_str(&convert_token(part, opts, own, ctx, part_hints, &mut false).0);
+        out.push_str(sep);
+        from = i + sep.len();
+    }
+    out.push_str(p.trail);
+    if out == tok {
+        return keep();
+    }
+    (out, Reason::Converted)
+}
+
+/// Aralash registrli o'zbekcha qisqartma: MChJ, ToshDU, SamDChTI, O'XXning. Bosh harfdan oldin bo'laklarga
+/// bo'linadi; kamida bitta bo'lak yolg'iz bosh harf, o'giriladigan har bo'lak esa Sh/Ch/O'/G' yoki birinchi
+/// bo'lakda faqat o'zbek lug'atidagi so'z (Tosh). ChatGPT, PowerShell (inglizcha bo'lak), BioNTech (so'z bo'lagi
+/// boshida emas), O'Brien (yolg'iz harf yo'q) — emas.
+fn is_mixed_acronym(core: &str) -> bool {
+    if !core.starts_with(|c: char| c.is_ascii_uppercase())
+        || !core
+            .chars()
+            .all(|c| c.is_ascii_alphabetic() || is_apostrophe(c))
+    {
+        return false;
+    }
+    let mut chunks: Vec<&str> = Vec::new();
+    let mut start = 0;
+    for (i, c) in core.char_indices().skip(1) {
+        if c.is_ascii_uppercase() {
+            chunks.push(&core[start..i]);
+            start = i;
+        }
+    }
+    chunks.push(&core[start..]);
+    let single = |c: &&str| c.len() == 1;
+    chunks.len() >= 2
+        && chunks.iter().any(single)
+        && chunks.iter().enumerate().all(|(k, c)| {
+            if !latin::has_convertible(c) {
+                return true;
+            }
+            let mut ch = c.chars();
+            let digraph = match (ch.next(), ch.next(), ch.next()) {
+                (Some('S' | 'C'), Some('h'), None) => true,
+                (Some('O' | 'G'), Some(a), None) => is_apostrophe(a),
+                _ => false,
+            };
+            digraph || k == 0 && lang::known(c) == (true, false)
+        })
+}
+
+/// Yopishgan so'zlar orasidagi ajratgichlar (bayt o'rni, belgi): `/`, `+`, `:` va kichik harfdan keyin bosh
+/// harf oldidagi `.` (bo'ldi.Keyin). Har bo'lak faqat harf, apostrof va chiziqchadan iborat bo'lsin — kod, yo'l,
+/// domen (obj.show, shahar.uz, C:\x, a_b) va raqamli token bu yerga kelmaydi.
+fn joined_separators(core: &str) -> Option<Vec<(usize, &'static str)>> {
+    let chars: Vec<(usize, char)> = core.char_indices().collect();
+    let mut seps = Vec::new();
+    for (k, &(i, c)) in chars.iter().enumerate() {
+        let sep = match c {
+            '/' => "/",
+            '+' => "+",
+            ':' => ":",
+            '.' if k > 0
+                && chars[k - 1].1.is_lowercase()
+                && chars.get(k + 1).is_some_and(|n| n.1.is_uppercase()) =>
+            {
+                "."
+            }
+            _ if c.is_alphabetic() || is_apostrophe(c) || c == '-' => continue,
+            _ => return None,
+        };
+        seps.push((i, sep));
+    }
+    let mut from = 0;
+    for &(i, sep) in seps.iter().chain([&(core.len(), "")]) {
+        let part = &core[from..i];
+        if part.chars().filter(|c| c.is_alphabetic()).count() < 2 {
+            return None;
+        }
+        from = i + sep.len();
+    }
+    (!seps.is_empty()).then_some(seps)
 }
 
 /// Chiziqcha bilan ajralgan bo'laklar alohida qaror oladi; natija — eng kuchli sabab.
@@ -541,6 +713,9 @@ fn alternative_of(tok: &str, conv: &str, opts: &Options) -> Option<String> {
     })
 }
 
+/// bitg versiyasi (workspace `Cargo.toml`): MCP server va boshqa iste'molchilar o'zini shu bilan tanishtiradi.
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// Matnni yangi alifboga o'giradi. Bo'shliqlar va qator tuzilishi aynan saqlanadi.
 pub fn convert(text: &str, opts: &Options) -> String {
     convert_impl(text, opts, false).0
@@ -583,16 +758,8 @@ fn convert_impl(text: &str, opts: &Options, want_alts: bool) -> (String, Vec<Wor
     let mut out = String::with_capacity(text.len() + 16);
     let mut report = Vec::with_capacity(toks.len());
     let mut last = 0;
-    let mut sent_start = 0;
     let mut quote_open = false;
-    for i in 0..toks.len() {
-        if i > 0 && toks[i - 1].sentence_end {
-            sent_start = i;
-        }
-        let mut sent_end = i;
-        while sent_end + 1 < toks.len() && !toks[sent_end].sentence_end {
-            sent_end += 1;
-        }
+    for (i, (sent_start, sent_end)) in sentences(&toks).enumerate() {
         let t = &toks[i];
         out.push_str(&text[last..t.start]);
         let ws = &text[last..t.start];

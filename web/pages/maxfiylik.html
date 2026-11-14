@@ -18,7 +18,7 @@
       <ul>
         <li><b>Matn tarmoqqa chiqmaydi.</b> O‘girish yadrosi dasturning ichida; yozgan so‘zlaringiz hech qayerga yuborilmaydi.</li>
         <li><b>Yangilanish tekshiruvi</b> (0.4.0 versiyadan): dastur kuniga bir marta <span data-no-conv>bitg.uz/update/stable.json</span> faylini o‘qiydi. So‘rovda faqat dastur versiyasi (<span data-no-conv>bitg/0.4.0 (Windows)</span>) bo‘ladi. Yangi versiya faqat GitHub Releases’dan, hajmi va SHA-256 mos kelsa o‘rnatiladi. Sozlamalarda o‘chirib qo‘yish mumkin.</li>
-        <li><b>«Xabar berish» oynasi</b> (0.4.0 versiyadan) faqat siz «Yuborish» ni bossangiz ishlaydi: yozgan xabaringiz, ixtiyoriy rasm va aloqa, dastur versiyasi va tasodifiy o‘rnatish raqami (ism yoki qurilma ma’lumoti emas) <span data-no-conv>bitg.uz</span> orqali bizga keladi. Diagnostika (Windows build, sozlamalar soni) faqat belgilasangiz qo‘shiladi.</li>
+        <li><b>«Xabar berish» oynasi</b> (0.4.0 versiyadan) faqat siz «Yuborish» ni bossangiz ishlaydi: yozgan xabaringiz, ixtiyoriy rasm va aloqa, dastur versiyasi va tasodifiy o‘rnatish raqami (ism yoki qurilma ma’lumoti emas) <span data-no-conv>bitg.uz</span> orqali bizga keladi. Diagnostika (Windows build, sozlamalar soni) faqat belgilasangiz qo‘shiladi. Xabar bitg jamoasining Telegram chatlariga yetkaziladi: uni Telegram saqlaydi, biz avtomatik o‘chirmaymiz. Spamdan himoya uchun server IP manzilni 1 soat, o‘rnatish raqamini 1 sutka faqat xotirada ushlaydi, so‘ng o‘chiradi; xabar matni server logiga yozilmaydi (faqat chipta raqami).</li>
         <li><b>Matn saqlanmaydi.</b> Log faylida (<code>%LOCALAPPDATA%\bitg\tsf.log</code>) faqat vaqt, dastur nomi va natija bo‘ladi (masalan, «converted»). Yozgan so‘zlaringiz unga tushmaydi.</li>
         <li><b>Sozlamalar</b> sizning kompyuteringizda: <code>%APPDATA%\bitg\settings.ini</code> va istisnolar ro‘yxati <code>exceptions.txt</code>. Istisnoga faqat siz qo‘shgan yoki «qaytarilgan so‘zni yozish» yoqilganda qaytargan so‘zingiz yoziladi.</li>
         <li><b>Clipboard</b> faqat <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> bosilganda ishlatiladi: belgilangan matn olinadi, o‘giriladi, joyiga qo‘yiladi va avvalgi nusxa qaytariladi.</li>
@@ -29,7 +29,7 @@
       <p>Sahifa bitg yadrosini (WebAssembly fayli) bir marta yuklab oladi, so‘ng matn brauzerning o‘zida o‘giriladi. Matn serverga yuborilmaydi: konvertor matn bilan hech qanday so‘rov yubormaydi. Saytning xavfsizlik siyosati (CSP) sahifaga faqat o‘z serveri va Yandex Metrica’ga murojaat qilishga ruxsat beradi; Metrica’ga matn ham, maydonlarga yozilgan narsa ham bormaydi (quyida).</p>
 
       <h2>Telegram bot</h2>
-      <p>Botga yuborilgan xabar o‘girish uchun Telegram orqali botga keladi — bu Telegram’ning ishlash usuli. Bot xabar matnini saqlamaydi va logga yozmaydi; faqat umumiy sanoq yuritiladi (nechta xabar). Maxfiy matnni botga emas, konvertorga yoki Windows dasturiga bering.</p>
+      <p>Botga yuborilgan xabar o‘girish uchun Telegram orqali botga keladi — bu Telegram’ning ishlash usuli. Bot xabar matnini saqlamaydi va logga yozmaydi; faqat umumiy sanoq yuritiladi (nechta xabar). <b>/fikr</b> bilan yozilgan xabar bitg jamoasining Telegram chatlariga nusxalanadi: uni Telegram saqlaydi, biz avtomatik o‘chirmaymiz. Javob qaytarish uchun bot <code>state.json</code> faylida ko‘pi bilan 2000 ta «admin xabari → chat raqami» yozuvini (eskilari o‘chib boradi) va /fikr kutilayotgan chatlarni (15 daqiqa) saqlaydi; spamdan himoya uchun fikr yuborgan chat raqami 1 sutka xotirada turadi. Maxfiy matnni botga emas, konvertorga yoki Windows dasturiga bering.</p>
 
       <h2>Brauzer kengaytmasi (Chrome, Edge, Firefox)</h2>
       <ul>
@@ -41,7 +41,7 @@
       </ul>
 
       <h2>AI yordamchilar uchun MCP server (bitg.uz/mcp)</h2>
-      <p>ChatGPT, Claude, Gemini va boshqa AI yordamchilar <a href="/ai/">bitg’ni ulaganda</a> matnni o‘girish uchun shu serverga yuboradi. Matn faqat xotirada o‘giriladi, diskka va logga yozilmaydi. So‘rovlar sonini cheklash uchun IP manzil bir daqiqa xotirada turadi. Matnni AI xizmatining o‘zi (OpenAI, Anthropic, Google) qanday saqlashi — o‘sha xizmat shartlariga bog‘liq.</p>
+      <p>ChatGPT, Claude, Gemini va boshqa AI yordamchilar <a href="/ai/">bitg’ni ulaganda</a> matnni o‘girish uchun shu serverga yuboradi. Matn faqat xotirada o‘giriladi, diskka va logga yozilmaydi. So‘rovlar sonini cheklash uchun IP manzil faqat xotirada, 1 daqiqa turadi (daqiqasiga 120 so‘rov), so‘ng o‘chiriladi. <span data-no-conv>/mcp</span> so‘rovlari sayt kirish jurnaliga yozilmaydi. Matnni AI xizmatining o‘zi (OpenAI, Anthropic, Google) qanday saqlashi — o‘sha xizmat shartlariga bog‘liq.</p>
 
       <h2>Sayt</h2>
       <ul>

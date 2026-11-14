@@ -108,7 +108,9 @@ static gboolean is_modifier(guint keyval)
 static guint key_kind(guint keyval, guint state, guint32 *cp)
 {
     *cp = 0;
-    if (state & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_SUPER_MASK | IBUS_HYPER_MASK | IBUS_META_MASK))
+    /* MOD4: XIM va ba'zi frontendlar Super'ni faqat shu bit bilan beradi */
+    if (state & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK | IBUS_MOD4_MASK | IBUS_SUPER_MASK | IBUS_HYPER_MASK |
+                 IBUS_META_MASK))
         return BITG_KEY_OTHER;
     switch (keyval) {
     case IBUS_KEY_space: case IBUS_KEY_KP_Space:

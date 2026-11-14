@@ -12,18 +12,24 @@ of v1.0 is to be ready before the new alphabet becomes mandatory (April 2027).
   names keep their spelling (#6), bitg.uz with the WebAssembly playground, a signed apt repository, Homebrew cask.
 - **v0.3.1** — Windows keeps bitg selected when activation fails (#13) and stays off in password, PIN and e-mail
   fields (#26); every release ships SLSA build provenance and an SBOM (`gh attestation verify`); reproducible `.deb`.
+- **v0.4.0** — personal dictionary, in-app feedback, verified one-click update (Windows), What's new page, Ubuntu
+  panel indicator, 3 419 foreign names.
 
-## Next: v0.3.x (November–December 2026)
+## Next: v0.4.x (November–December 2026)
 
-- winget package `dtwinuz.bitg` accepted in microsoft/winget-pkgs.
-- OpenSSF Best Practices silver: governance, architecture and assurance documents, test coverage in CI.
+- winget package `dtwinuz.bitg` accepted in microsoft/winget-pkgs, and the Chocolatey package through community
+  moderation.
+- AUR packages once new-account registration reopens.
+- Listing in the ChatGPT app directory.
+- Fedora/openSUSE packages (COPR/OBS) and a nixpkgs submission.
 
-## v0.4 (Q1 2027)
+## v0.5 (Q1 2027)
 
 - Signed Windows installer (code-signing certificate) and a Microsoft Store listing.
-- Fcitx5 add-on tested in real applications; Fedora `.rpm` and Flatpak.
+- Fcitx5 tested in real applications; Fedora/openSUSE packages published (spec in `packaging/rpm`), Nix in nixpkgs;
+  Flatpak.
 - macOS: tested in Safari, Chrome, Notes, Word and Telegram; Developer ID signing and notarization.
-- Two-person review for every change; OpenSSF Best Practices gold.
+- A second maintainer with release access (apt key, server handover).
 
 ## v1.0 (before April 2027)
 
@@ -34,7 +40,8 @@ of v1.0 is to be ready before the new alphabet becomes mandatory (April 2027).
 ## Later
 
 - iOS keyboard extension (the core as a `staticlib`) and Android keyboard.
-- Word and browser extensions; an API for organisations converting large document archives.
+- Word add-in; the browser extension in Edge Add-ons and addons.mozilla.org (Chrome Web Store: in review).
+- An API for organisations converting large document archives.
 
 ## How to influence the roadmap
 

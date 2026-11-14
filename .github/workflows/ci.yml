@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # main'dagi tekshiruv ketma-ket merge'da bekor bo'lmasin
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -63,6 +64,7 @@ jobs:
           python3 -I deploy/stats/stats.py --selftest
           python3 -I tools/site/build.py --selftest
           python3 -I tools/release/channels.py --selftest
+          python3 -I tools/release/check_versions.py
           python3 -I -m py_compile tools/apt/apt_repo.py tools/arch/pacman_repo.py tools/release/packaging.py tools/release/announce.py tools/release/channels.py tools/telegram/setup.py
           python3 -I tools/telegram/setup.py --check
           # har reliz e'loni CHANGELOG'dan to'g'ri chiqadimi va Telegram chegarasiga sig'adimi

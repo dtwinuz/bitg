@@ -610,6 +610,26 @@ mod tests {
         assert_eq!(c.opts.exceptions, vec!["choy"]);
     }
 
+    /// Oynada standart dastur ro'yxatdan olib tashlansa, saqlangan faylda `enabled_apps` ga yoziladi va
+    /// keyingi o'qishda (standart ro'yxat kengaysa ham) qaytib kelmaydi.
+    #[test]
+    fn removed_default_app_stays_removed() {
+        let shown = settings_json(&config::parse("", ""));
+        let mut apps: Vec<Value> = shown["disabled_apps"].as_array().unwrap().clone();
+        apps.retain(|a| a != "mstsc.exe");
+        let c = config_from(&json!({"disabled_apps": apps}), &[]);
+        let ini = config::to_ini(&c);
+        assert!(ini.contains("enabled_apps=mstsc.exe\n"), "{ini}");
+        let back = config::parse(&ini, "");
+        assert!(!back.app_disabled("mstsc.exe"));
+        assert!(back.app_disabled("anydesk.exe"));
+        let legacy = ini.replace(
+            &format!("disabled_defaults_rev={}", config::DISABLED_DEFAULTS_REV),
+            "disabled_defaults_rev=0",
+        );
+        assert!(!config::parse(&legacy, "").app_disabled("mstsc.exe"));
+    }
+
     #[test]
     fn preview_of_empty_text() {
         let v = preview(&json!({"text": ""}));

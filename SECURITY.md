@@ -6,10 +6,10 @@ bitg kiritish usuli sifatida siz yozayotgan matnni ko'radi, shuning uchun xavfsi
 
 | Versiya | Holat |
 |---|---|
-| 0.3.x | ✅ tuzatishlar chiqadi |
-| < 0.3 | ❌ yangilang |
+| 0.4.x | ✅ tuzatishlar chiqadi |
+| < 0.4 | ❌ yangilang |
 
-Xavfsizlik tuzatishlari faqat eng so'nggi minor versiyaga (hozir 0.3.x) chiqadi. Yangi minor versiya (masalan 0.4.0)
+Xavfsizlik tuzatishlari faqat eng so'nggi minor versiyaga (hozir 0.4.x) chiqadi. Yangi minor versiya (masalan 0.5.0)
 chiqqan kuni oldingisi qo'llab-quvvatlanmaydigan bo'ladi: tuzatish uchun yangi versiyaga o'ting. 1.0 dan oldin
 eski versiyalarga alohida tuzatish (backport) chiqarilmaydi.
 
@@ -73,6 +73,7 @@ VEX hujjati o'sha PR'da yangilanadi.
 |---|---|---|---|
 | Reliz imzosi (SLSA provenance, SBOM) | uzoq muddatli kalit yo'q: GitHub Actions OIDC + Sigstore, har relizda yangi qisqa muddatli sertifikat | faqat `build.yml` workflow'i | kerak emas |
 | CI sirlari (Telegram e'lon boti tokeni; kod-imzo sertifikati qo'shilsa u ham) | GitHub Actions secrets | faqat shu sirni ishlatadigan job (`announce.yml`, `build.yml`) | har 12 oyda, maintainer ketganda yoki sizib chiqish shubhasida darhol |
+| Do'kon tokenlari (`WINGET_TOKEN`, `CHOCO_API_KEY`, `AUR_SSH_KEY`) | GitHub Actions environment'lari `winget`, `chocolatey`, `aur`; faqat `v*` teglar va `main` ishlata oladi | faqat `stores.yml` | har 12 oyda, maintainer ketganda yoki sizib chiqish shubhasida darhol |
 | Shaxsiy kirish tokenlari (PAT) | maintainer'ning o'zida, repoda emas | maintainer | muddati ko'pi bilan 1 yil; fine-grained, minimal huquq |
 | apt ombori imzo kaliti | shifrlangan oflayn zaxira | bosh maintainer | har 12 oyda ko'rib chiqiladi; sizib chiqsa darhol yangi kalit va e'lon |
 
@@ -97,17 +98,17 @@ v0.3.1 dan boshlab har bir reliz fayli (MSI, `.deb`, `.pkg`) uchun GitHub Action
 SBOM (SPDX) attestation'i bor. Fayl aynan shu repodagi teg'dan, GitHub Actions'da yig'ilganini tekshirish:
 
 ```bash
-gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg
+gh attestation verify bitg-0.4.0-x64.msi -R dtwinuz/bitg
 ```
 
 Har relizda `bitg-<versiya>.spdx.json` ham bor: unda bitg ichidagi barcha kutubxonalar va ularning versiyalari.
 
-v0.3.2 dan boshlab paketlarni alohida reusable workflow (`build.yml`) yig'adi va imzolaydi (SLSA Build L3). Faylni
+v0.4.0 dan boshlab paketlarni alohida reusable workflow (`build.yml`) yig'adi va imzolaydi (SLSA Build L3). Faylni
 aynan shu workflow, aynan shu teg uchun yig'ganini qat'iy tekshirish:
 
 ```bash
-gh attestation verify bitg-0.3.2-x64.msi -R dtwinuz/bitg \
-  --signer-workflow dtwinuz/bitg/.github/workflows/build.yml --source-ref refs/tags/v0.3.2 --deny-self-hosted-runners
+gh attestation verify bitg-0.4.0-x64.msi -R dtwinuz/bitg \
+  --signer-workflow dtwinuz/bitg/.github/workflows/build.yml --source-ref refs/tags/v0.4.0 --deny-self-hosted-runners
 ```
 
 v0.3.1 uchun `--signer-workflow` qiymati `dtwinuz/bitg/.github/workflows/release.yml`.
@@ -115,7 +116,7 @@ v0.3.1 uchun `--signer-workflow` qiymati `dtwinuz/bitg/.github/workflows/release
 Internetsiz (GitHub API'siz) tekshirish uchun relizdagi bundle fayli:
 
 ```bash
-gh attestation verify bitg-0.3.1-x64.msi -R dtwinuz/bitg --bundle bitg-0.3.1.intoto.jsonl
+gh attestation verify bitg-0.4.0-x64.msi -R dtwinuz/bitg --bundle bitg-0.4.0.intoto.jsonl
 ```
 
 bitg.uz dagi fayllar ham aynan shu reliz fayllari: deploy skripti ularni GitHub Release'dan oladi va attestation

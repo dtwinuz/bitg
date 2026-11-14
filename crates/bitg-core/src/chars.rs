@@ -48,7 +48,7 @@ pub fn normalize(text: &str) -> std::borrow::Cow<'_, str> {
     let needs = text.chars().any(|c| {
         matches!(
             c,
-            '\u{0308}' | '\u{0306}' | '\u{0327}' | '\u{0219}' | '\u{0218}'
+            '\u{0308}' | '\u{0306}' | '\u{0327}' | '\u{0326}' | '\u{0219}' | '\u{0218}'
         )
     });
     if !needs {
@@ -66,6 +66,17 @@ pub fn normalize(text: &str) -> std::borrow::Cow<'_, str> {
             ('S', Some('\u{0327}')) => Some('Ş'),
             ('c', Some('\u{0327}')) => Some('ç'),
             ('C', Some('\u{0327}')) => Some('Ç'),
+            // s + U+0326 (comma below): decomposed Romanian s-comma, same as U+0219 below.
+            ('s', Some('\u{0326}')) => Some('ş'),
+            ('S', Some('\u{0326}')) => Some('Ş'),
+            // Decomposed Cyrillic (NFD: macOS file names, some sites): U+0423/U+0443 + breve,
+            // U+0418/U+0438 + breve, U+0415/U+0435 + diaeresis.
+            ('\u{0423}', Some('\u{0306}')) => Some('\u{040E}'),
+            ('\u{0443}', Some('\u{0306}')) => Some('\u{045E}'),
+            ('\u{0418}', Some('\u{0306}')) => Some('\u{0419}'),
+            ('\u{0438}', Some('\u{0306}')) => Some('\u{0439}'),
+            ('\u{0415}', Some('\u{0308}')) => Some('\u{0401}'),
+            ('\u{0435}', Some('\u{0308}')) => Some('\u{0451}'),
             _ => None,
         };
         if let Some(ch) = combined {
@@ -108,6 +119,16 @@ mod tests {
         assert_eq!(normalize("s\u{0327}ahar"), "şahar");
         assert_eq!(normalize("\u{0219}i"), "şi");
         assert!(matches!(normalize("choy"), std::borrow::Cow::Borrowed(_)));
+        assert_eq!(normalize("s\u{0326}i S\u{0326}"), "şi Ş");
+    }
+
+    #[test]
+    fn decomposed_cyrillic_is_composed() {
+        assert_eq!(normalize("У\u{0306}збек у\u{0306}"), "Ўзбек ў");
+        assert_eq!(normalize("И\u{0306}ул и\u{0306}ўл"), "Йул йўл");
+        assert_eq!(normalize("Е\u{0308}ш е\u{0308}з"), "Ёш ёз");
+        // no precomposed pair: left as is
+        assert_eq!(normalize("а\u{0306}"), "а\u{0306}");
     }
 
     #[test]

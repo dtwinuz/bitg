@@ -4,7 +4,7 @@
 
 name: release
 
-# Versiya tegi (v0.3.2) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), Arch .pkg.tar.zst, macOS .pkg va MSI ni yig'adi va ularga SLSA
+# Versiya tegi (masalan v0.4.1; faqat core jamoasi, main'dagi commit'ga) qo'yilganda: build.yml Linux .deb (IBus + Fcitx5), Arch .pkg.tar.zst, macOS .pkg va MSI ni yig'adi va ularga SLSA
 # build provenance + SBOM attestation'ini yozadi (SLSA Build L3, imzolovchi = build.yml). Reliz faqat attestation'ni
 # shu teg uchun build.yml imzolagani tekshirilgandan keyin yaratiladi.
 #
@@ -26,7 +26,8 @@ permissions:
 jobs:
   meta:
     runs-on: ubuntu-24.04
-    permissions: {}
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.v.outputs.version }}
     steps:
@@ -38,6 +39,20 @@ jobs:
           if [ "$EVENT" = push ]; then v="${GITHUB_REF_NAME#v}"; else v="${INPUT#v}"; fi
           echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "versiya noto'g'ri: $v"; exit 1; }
           echo "version=$v" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # teg ruleset'i (faqat core) bilan ikkinchi qatlam: review qilinmagan branch commit'idan reliz chiqmaydi
+      - name: Teg main tarixida
+        if: github.event_name == 'push'
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+            || { echo "::error::$GITHUB_REF_NAME main'dagi commit'ga qo'yilmagan — reliz chiqarilmaydi"; exit 1; }
+      - name: Versiya barcha manifestlarda bir xil, CHANGELOG bo'limi bor
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: python3 tools/release/check_versions.py "$VERSION"
 
   build:
     needs: meta
@@ -100,9 +115,16 @@ jobs:
           tool: cargo-deny@0.20.2
       - run: cargo deny --color never check advisories licenses sources
 
+  e2e:
+    # haqiqiy Windows'da TSF/Qt/WPF sinovi: regressiya o'zgarmas relizga va do'konlarga chiqmasin
+    needs: meta
+    permissions:
+      contents: read
+    uses: ./.github/workflows/e2e.yml
+
   publish:
     if: github.event_name == 'push'
-    needs: [verify, advisories]
+    needs: [verify, advisories, e2e]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

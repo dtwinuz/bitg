@@ -38,6 +38,8 @@ build() {
 check() {
   cd "$pkgbase-$pkgver"
   export RUSTUP_TOOLCHAIN=stable CARGO_TARGET_DIR=target
+  # testlar yig'uvchining ~/.config/bitg sozlamalarini o'qimasin
+  export XDG_CONFIG_HOME="$srcdir/check-config"
   cargo test --frozen --release -p bitg-ime
   test "$(target/release/bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
   test "$(target/release/bitg 'Please check the schedule')" = 'Please check the schedule'

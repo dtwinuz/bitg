@@ -48,16 +48,55 @@ pub fn word_before_caret(before: &[u16], reached_start: bool) -> Option<Target> 
 pub const SENSITIVE_INPUT_SCOPES: &[i32] = &[
     4,  // IS_EMAIL_USERNAME
     5,  // IS_EMAIL_SMTPEMAILADDRESS
+    6,  // IS_LOGINNAME
     31, // IS_PASSWORD
+    60, // IS_EMAILNAME_OR_ADDRESS
     63, // IS_NUMERIC_PASSWORD
     64, // IS_NUMERIC_PIN
     65, // IS_ALPHANUMERIC_PIN
     66, // IS_ALPHANUMERIC_PIN_SET
 ];
 
+/// Maydon turi: o'qildi (maxfiy / oddiy) yoki o'qib bo'lmadi.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Scope {
+    Sensitive,
+    Plain,
+    Unknown,
+}
+
+/// Zaxira yo'l (#41) so'zni qayta yozadimi. `transitory` - IMM32/CUAS konteksti (Qt, Win32 EDIT); `imc` - fokusdagi
+/// oynada IME konteksti bor (Qt va Win32 parol yoki matn bo'lmagan maydonda uni uzadi).
+pub fn blind_may_convert(scope: Scope, transitory: bool, imc: bool) -> bool {
+    match scope {
+        Scope::Sensitive => false,
+        Scope::Plain => !transitory || imc,
+        Scope::Unknown => transitory && imc,
+    }
+}
+
+/// `IS_PRIVATE`: maydon o'giriladi, lekin undagi so'zlar istisno sifatida faylga yozilmaydi.
+pub const PRIVATE_INPUT_SCOPE: i32 = 61;
+
 /// Maydonning input scope ro'yxatida maxfiy tur bormi.
 pub fn sensitive_input_scope(scopes: &[i32]) -> bool {
     scopes.iter().any(|s| SENSITIVE_INPUT_SCOPES.contains(s))
+}
+
+/// Scope ro'yxatidan maydon turi: bo'sh ro'yxat hech narsa demaydi.
+pub fn classify(scopes: &[i32]) -> Scope {
+    if scopes.is_empty() {
+        Scope::Unknown
+    } else if sensitive_input_scope(scopes) {
+        Scope::Sensitive
+    } else {
+        Scope::Plain
+    }
+}
+
+/// Maydon `IS_PRIVATE` deb belgilanganmi.
+pub fn private_input_scope(scopes: &[i32]) -> bool {
+    scopes.contains(&PRIVATE_INPUT_SCOPE)
 }
 
 #[cfg(test)]
@@ -71,6 +110,31 @@ mod tests {
         assert!(sensitive_input_scope(&[5]));
         assert!(!sensitive_input_scope(&[]));
         assert!(!sensitive_input_scope(&[0, 1, 50, 57, 61]));
+        assert!(sensitive_input_scope(&[6]));
+        assert!(sensitive_input_scope(&[0, 60]));
+    }
+
+    #[test]
+    fn classify_and_private() {
+        assert_eq!(classify(&[]), Scope::Unknown);
+        assert_eq!(classify(&[0]), Scope::Plain);
+        assert_eq!(classify(&[61]), Scope::Plain);
+        assert_eq!(classify(&[1, 31]), Scope::Sensitive);
+        assert_eq!(classify(&[6]), Scope::Sensitive);
+        assert!(private_input_scope(&[0, 61]));
+        assert!(!private_input_scope(&[0, 31]));
+        assert!(!private_input_scope(&[]));
+    }
+
+    #[test]
+    fn blind_decision() {
+        use Scope::*;
+        assert!(blind_may_convert(Unknown, true, true));
+        assert!(!blind_may_convert(Unknown, true, false));
+        assert!(!blind_may_convert(Unknown, false, true));
+        assert!(!blind_may_convert(Sensitive, true, true));
+        assert!(blind_may_convert(Plain, false, false));
+        assert!(!blind_may_convert(Plain, true, false));
     }
 
     fn u(s: &str) -> Vec<u16> {

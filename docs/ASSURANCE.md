@@ -45,8 +45,11 @@ compromised operating system.
 ## 4. Arguments
 
 ### R1 — no leaks of typed text
-- No networking code in the input methods: `bitg-core` has no runtime dependencies; `bitg-ime` depends only on
-  `bitg-core`; `bitg-tsf` adds only the `windows` crates (see the `Cargo.toml` files and the SBOM of each release).
+- The input methods and the core never use the network: `bitg-core` has no runtime dependencies; `bitg-ime`
+  depends only on `bitg-core`; `bitg-tsf` adds only the `windows` crates (see the `Cargo.toml` files and the SBOM of
+  each release). Only the Windows settings app goes online: it checks `https://bitg.uz/update/stable.json` (WinHTTP,
+  can be turned off) and sends feedback when the user asks it to; neither carries typed text unless the user puts it
+  in the report.
 - Logs record events, lengths and error codes, not text: `crates/bitg-tsf/src/service.rs` logs e.g.
   `fallback: word unchanged (len N)` and `… failed hr=0x…`; the edit session logs a static status string.
   They do record the process name and the length of each word in the fallback path; that is typing metadata,
@@ -89,7 +92,7 @@ compromised operating system.
 
 ### R5 — verifiable releases
 - Releases are built only from a `v*` tag: `.github/workflows/release.yml` calls the reusable
-  `.github/workflows/build.yml`, which builds the packages and signs the attestations (SLSA Build L3 from v0.3.2).
+  `.github/workflows/build.yml`, which builds the packages and signs the attestations (SLSA Build L3 from v0.4.0).
   The jobs that compile code have no `id-token` permission; a separate `attest` job that runs no repository code
   signs the provenance. `release.yml` publishes only after `gh attestation verify --signer-workflow build.yml
   --source-ref <tag>` passes for every package.
@@ -119,7 +122,7 @@ compromised operating system.
 |---|---|
 | Economy of mechanism | One small core; platform shells only translate events. |
 | Fail-safe defaults | When unsure (ambiguous word, text changed under us), bitg leaves the text as typed. |
-| Least privilege | No keyboard hook, no network, no admin rights at runtime; CI tokens are read-only by default. |
+| Least privilege | No keyboard hook, no network in the input methods and core (only the settings app's optional update check and on-request feedback), no admin rights at runtime; CI tokens are read-only by default. |
 | Complete mediation | Every edit goes through `Session` and is checked against the current text first. |
 | Open design | All code and the accuracy sets are public. |
 | Psychological acceptability | Backspace undoes a replacement and remembers the exception. |
@@ -133,7 +136,7 @@ compromised operating system.
 | Insecure temporary file (CWE-377) | `bitg file` writes through a `create_new` temp file with an unpredictable name and keeps the target's permissions; `exceptions.txt` is written atomically with mode 0600. |
 | Use of vulnerable components (CWE-1395) | `cargo deny check advisories` in CI (`deny.toml`); CI Python packages are hash-pinned. |
 | Uncontrolled search path (CWE-427) | `input.dll` is loaded from System32 only (`LOAD_LIBRARY_SEARCH_SYSTEM32`). |
-| Injection (CWE-74/78/79) | No shell, SQL or HTML is built from typed text; the site is static and escapes generated text (`tools/site/og.cjs`). |
+| Injection (CWE-74/78/79) | No shell, SQL or HTML is built from typed text; the site pages are static and escape generated text (`tools/site/og.cjs`); `/mcp` and `/api/feedback` are served by the bot (`bot/src/web.rs`) with request limits. |
 | Information exposure through logs (CWE-532) | Logs contain no typed text (R1). |
 | Path traversal in archives (CWE-22) | Entry names are not used as paths (R3). |
 | Download of code without integrity check (CWE-494) | HTTPS, SHA-256, signed provenance (R5). |
@@ -166,7 +169,7 @@ path is added. Last review: 2026-11-13 (v0.3.x).
 
 | ID | Severity | Finding | Status |
 |---|---|---|---|
-| F1 | medium | Windows fallback: unknown field type treated as non-sensitive | partly mitigated: sign-in, UAC and password-manager processes are off by default; per-word input-scope re-check still open (needs a Qt e2e case), G4 / #41 |
+| F1 | medium | Windows fallback: unknown field type treated as non-sensitive | partly mitigated: sign-in, UAC and password-manager processes are off by default; the input scope is re-checked at every word for applications that expose the field type (#89). Qt does not expose it; open in G4 / #41 |
 | F2 | medium | release `msi` job compiled third-party code with the write token in `.git/config` and the signing secrets in the environment | fixed (`persist-credentials: false`, separate signing step) |
 | F3 | medium | `bitg.uz` mirror not tied to the attestation | fixed: `deploy/deploy.sh` takes the files from the GitHub Release and stops unless `gh attestation verify` (signer `build.yml`, or `release.yml` for v0.3.1; tag ref; GitHub-hosted runner) passes (#42) |
 | F4 | low | `bitg file` / `exceptions.txt` write safety | fixed (#43); overwriting an existing output file is kept on purpose |
@@ -182,3 +185,7 @@ Checked and found sound: VARIANT/BSTR clearing and `CoTaskMemFree` pairing, re-v
 every replacement on all platforms, `catch_unwind` in the `bitg-ime` C ABI, OOXML entry names never used as paths,
 no entity expansion in `quick-xml`, read-only workflow defaults and SHA-pinned actions, MSI custom actions limited
 to fixed `regsvr32` / `taskkill` commands, the bot container's restrictions.
+
+**Next review:** the surfaces added in 0.4.0 — the updater (`stable.json`, MSI download and SHA-256 check), the
+feedback API (`/api/feedback`), the MCP endpoint (`/mcp`) and the browser extension (`extension/`) — were not part of
+the review above and are in scope for the next one.

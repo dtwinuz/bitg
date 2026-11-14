@@ -18,7 +18,7 @@
       <ul>
         <li><b>Your text never leaves the computer.</b> The conversion engine is built into the app; nothing you type is sent anywhere.</li>
         <li><b>Update check</b> (since 0.4.0): once a day the app reads <span data-no-conv>bitg.uz/update/stable.json</span>. The request carries only the app version (<span data-no-conv>bitg/0.4.0 (Windows)</span>). Updates are installed only from GitHub Releases and only if the size and SHA-256 match. It can be turned off in settings, at install time (<code>UPDATECHECK=0</code>) or by administrator policy.</li>
-        <li><b>The “Report a problem” window</b> (since 0.4.0) sends something only when you press “Send”: your message, an optional screenshot and contact, the app version and a random install ID (not your name or device data). Diagnostics (Windows build, number of settings) are added only if you tick the box.</li>
+        <li><b>The “Report a problem” window</b> (since 0.4.0) sends something only when you press “Send”: your message, an optional screenshot and contact, the app version and a random install ID (not your name or device data). Diagnostics (Windows build, number of settings) are added only if you tick the box. The report is delivered to the bitg maintainers’ Telegram chats: Telegram stores it and we do not delete it automatically. To limit spam the server keeps your IP address for 1 hour and the install ID for 1 day, in memory only, then drops them; the message text is not written to the server log (only the ticket number).</li>
         <li><b>No text in logs.</b> The log file (<code>%LOCALAPPDATA%\bitg\tsf.log</code>) holds only the time, the app name and the outcome (for example “converted”).</li>
         <li><b>Settings stay on your computer</b>: <code>%APPDATA%\bitg\settings.ini</code> and the exceptions list <code>exceptions.txt</code>.</li>
         <li><b>Clipboard</b> is used only when you press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd>: the selection is converted, pasted back, and your previous clipboard content is restored.</li>
@@ -40,12 +40,12 @@
       <ul>
         <li>When you <a href="/en/ai/">connect bitg</a> to Claude, ChatGPT, Gemini or another assistant, the assistant sends the text it wants converted to <span data-no-conv>https://bitg.uz/mcp</span>.</li>
         <li><b>The text is converted in memory and returned. It is not written to disk, not logged and not used for anything else.</b> No account, cookie or API key is involved.</li>
-        <li>To limit abuse, the server keeps the caller’s IP address in memory for one minute (rate limit: 120 requests per minute).</li>
+        <li>To limit abuse, the server keeps the caller’s IP address in memory only, for one minute (rate limit: 120 requests per minute), then drops it. Requests to <span data-no-conv>/mcp</span> are not written to the site access log.</li>
         <li>How the AI service itself (Anthropic, OpenAI, Google and others) stores your conversation is governed by that service’s own terms.</li>
       </ul>
 
       <h2>Telegram bot</h2>
-      <p>Messages sent to the bot reach it through Telegram, which is how Telegram works. The bot does not store or log message text; it keeps only an overall message count. For confidential text use the converter or the Windows app instead.</p>
+      <p>Messages sent to the bot reach it through Telegram, which is how Telegram works. The bot does not store or log message text; it keeps only an overall message count. A message sent with <b>/fikr</b> is copied to the bitg maintainers’ Telegram chats: Telegram stores it and we do not delete it automatically. So that replies can reach you, the bot keeps in <code>state.json</code> up to 2,000 “maintainer message → chat ID” mappings (oldest dropped first) and the chats with a pending /fikr (15 minutes); for spam protection the chat ID stays in memory for 1 day. For confidential text use the converter or the Windows app instead.</p>
 
       <h2>Website</h2>
       <ul>

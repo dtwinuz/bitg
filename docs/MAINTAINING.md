@@ -12,7 +12,7 @@ so'ralmaydi va berilmaydi. Har bir maintainer o'z akkauntida 2FA'ni yoqib qo'yad
 |---|---|---|
 | Repo, PR, issue, reliz | [github.com/dtwinuz/bitg](https://github.com/dtwinuz/bitg) | `dtwinuz` org owner yoki repo admin |
 | `main` qoidalari (ruleset) | Settings → Rules → `main` | admin |
-| Actions secrets (`BITG_SIGN_PFX`, `CHOCO_API_KEY`, `BITG_DEVBOT_TOKEN`; environment'lar: `winget` → `WINGET_TOKEN`, `chocolatey` → `CHOCO_API_KEY`, `aur` → `AUR_SSH_KEY`) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
+| Actions secrets: repo darajasida faqat `BITG_DEVBOT_TOKEN`; environment'lar: `chocolatey` → `CHOCO_API_KEY`, `winget` → `WINGET_TOKEN` (hali qo'yilmagan), `aur` → `AUR_SSH_KEY`. Kod imzosi uchun `SIGNPATH_API_TOKEN` (sir) va `SIGNPATH_ORGANIZATION_ID` (repo o'zgaruvchisi) joyi tayyor, imzo keyinga qoldirilgan ([CODE_SIGNING.md](CODE_SIGNING.md)) | Settings → Secrets and variables → Actions | admin; qiymatlarni faqat almashtirish mumkin, o'qib bo'lmaydi |
 | Homebrew tap | [dtwinuz/homebrew-tap](https://github.com/dtwinuz/homebrew-tap) | org a'zosi |
 | Scoop bucket | [dtwinuz/scoop-bucket](https://github.com/dtwinuz/scoop-bucket) | org a'zosi |
 | Xavfsizlik xabarlari | Security → Advisories (yopiq) | admin |
@@ -61,12 +61,13 @@ Muallif o'z PR'ini o'zi tasdiqlamaydi: har o'zgarishni muallifdan boshqa odam ko
 
 Reliz to'liq GitHub Actions'da yig'iladi, shaxsiy kompyuter kerak emas.
 
-1. PR: `Cargo.toml` dagi `version` va `CHANGELOG.md` (`[Unreleased]` → `[0.3.2] - YYYY-MM-DD`). Review, merge.
+1. PR: `Cargo.toml` dagi `version` va `CHANGELOG.md` (`[Unreleased]` → `[0.4.1] - YYYY-MM-DD`). Versiya yozilgan hamma joy `Cargo.toml` bilan bir xilligini tekshiring:
+   `python tools/release/check_versions.py`. Review, merge.
 2. Teg:
    ```bash
    git switch main && git pull
-   git tag v0.3.2
-   git push origin v0.3.2
+   git tag v0.4.1
+   git push origin v0.4.1
    ```
 3. `release` workflow'i o'zi bajaradi:
    - teg va `Cargo.toml` versiyasi bir xilligini tekshiradi;
@@ -82,17 +83,17 @@ Reliz to'liq GitHub Actions'da yig'iladi, shaxsiy kompyuter kerak emas.
    Keyin `announce` workflow'i Telegram'ga e'lon yuboradi.
 4. Tekshirish:
    ```bash
-   gh release download v0.3.2 -R dtwinuz/bitg -D dist
-   gh attestation verify dist/bitg-0.3.2-x64.msi -R dtwinuz/bitg \
-     --signer-workflow dtwinuz/bitg/.github/workflows/build.yml --source-ref refs/tags/v0.3.2
+   gh release download v0.4.1 -R dtwinuz/bitg -D dist
+   gh attestation verify dist/bitg-0.4.1-x64.msi -R dtwinuz/bitg \
+     --signer-workflow dtwinuz/bitg/.github/workflows/build.yml --source-ref refs/tags/v0.4.1
    ```
 
-Workflow yiqilsa, tegni o'chirmang: xatoni PR bilan tuzating va keyingi patch versiyani (`v0.3.3`) chiqaring.
+Workflow yiqilsa, tegni o'chirmang: xatoni PR bilan tuzating va keyingi patch versiyani (`v0.4.2`) chiqaring.
 
 ## 6. Paketlar (relizdan keyin)
 
 ```bash
-gh release download v0.3.2 -R dtwinuz/bitg -D dist --clobber
+gh release download v0.4.1 -R dtwinuz/bitg -D dist --clobber
 python tools/release/packaging.py      # winget, Chocolatey va Homebrew fayllarini yangilaydi
 ```
 
@@ -100,13 +101,13 @@ Natijani PR qilib yuboring: `packaging` workflow'i winget manifesti va Chocolate
 
 | Kanal | Qanday |
 |---|---|
-| winget | **avtomatik**: `release.yml` → `stores.yml` Komac bilan [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) ga PR ochadi (MSI attestation tekshiruvidan keyin). Token: environment `winget` → `WINGET_TOKEN` (classic, faqat `public_repo`). Qayta yuborish: Actions → `stores` → Run workflow |
-| Chocolatey | **avtomatik**: `stores.yml` relizdagi MSI'dan paket yasaydi, Windows'da o'rnatib-o'chirib sinaydi va environment `chocolatey` → `CHOCO_API_KEY` bilan yuboradi (community.chocolatey.org moderatsiyasi). Qo'lda: Actions → `packaging` → `publish = true` |
+| winget | **avtomatik**: `release.yml` → `stores.yml` Komac bilan [microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs) ga PR ochadi (MSI attestation tekshiruvidan keyin). Token: environment `winget` → `WINGET_TOKEN` (classic, faqat `public_repo`). **Hozir o'chiq:** `WINGET_TOKEN` birinchi paket (microsoft/winget-pkgs#478645, 0.3.0) merge bo'lgach qo'yiladi; shundan keyin Actions → `stores` → Run workflow ni v0.4.0 bilan qo'lda yurgizing. Qayta yuborish ham shu yo'l bilan |
+| Chocolatey | **avtomatik**: `stores.yml` relizdagi MSI'dan paket yasaydi, Windows'da o'rnatib-o'chirib sinaydi va environment `chocolatey` → `CHOCO_API_KEY` bilan yuboradi (community.chocolatey.org moderatsiyasi) |
 | Homebrew | **avtomatik**: `dtwinuz/homebrew-tap` dagi `autobump` (har 3 soatda) yangi relizni topadi, `.pkg` sha256 va attestation'ini tekshiradi, macOS'da o'rnatib sinab, cask'ni yangilaydi. Darhol kerak bo'lsa: tap → Actions → `autobump` → Run workflow |
 | Scoop | **avtomatik**: `dtwinuz/scoop-bucket` dagi `autobump` (har 3 soatda) MSI sha256 va attestation'ini tekshiradi, Windows'da haqiqiy Scoop bilan o'rnatib-o'chirib (`bin/test.ps1`) manifestni yangilaydi. Manifest MSI'ni ochib qo'ymaydi (`#/bitg-setup.msi_`), `msiexec` bilan o'rnatadi: TSF tizimda ro'yxatdan o'tishi kerak, shuning uchun bitta UAC so'rovi bor |
 | Microsoft Store | **to'xtab turibdi**: Store MSI/EXE ilovasini faqat Microsoft Trusted Root dasturidagi sertifikat bilan imzolangan bo'lsa qabul qiladi. MSI hozircha imzosiz (`.signpath/`), imzo paydo bo'lgach Partner Center'da "MSI or EXE app" sifatida ro'yxatga olinadi (havola relizdagi MSI'ga, versiya bo'yicha). MSIX (Store o'zi imzolaydi) yo'l emas: MSIX paketidan tizim kiritish usulini (TSF, HKLM COM) ro'yxatdan o'tkazish hujjatlanmagan |
-| pacman (bitg.uz/arch) | **sayt deploy'ida**: `deploy.sh` relizdagi Arch paketlarini (attestation tekshiruvidan keyin) apt kaliti bilan imzolab, `tools/arch/pacman_repo.py` orqali ombor yasaydi. Foydalanuvchi: `bitg.uz/yuklab-olish/#pacman`. Format PR'da `aur` workflow'ida haqiqiy pacman bilan sinaladi (o'rnatish va buzilgan paketni rad etish) |
-| AUR | **avtomatik**: `stores.yml` PKGBUILD'ni teg manbasiga yangilaydi, Arch konteynerida `check()` bilan yig'adi, `.SRCINFO` ni yozadi va environment `aur` → `AUR_SSH_KEY` (faqat AUR uchun alohida kalit; ochiq qismi AUR akkauntida) bilan push qiladi |
+| pacman (bitg.uz/arch) | **sayt deploy'ida** (keyingi relizdan: v0.4.0 da Arch paketi yo'q): `deploy.sh` relizdagi Arch paketlarini (attestation tekshiruvidan keyin) apt kaliti bilan imzolab, `tools/arch/pacman_repo.py` orqali ombor yasaydi. Foydalanuvchi: `bitg.uz/yuklab-olish/#pacman`. Format PR'da `aur` workflow'ida haqiqiy pacman bilan sinaladi (o'rnatish va buzilgan paketni rad etish) |
+| AUR | **o'chiq**: AUR akkaunti ochilib, repo o'zgaruvchisi `AUR_ENABLED=true` qo'yilmaguncha `aur` job'i o'tkazib yuboriladi (yangi akkaunt ochish vaqtincha yopiq). Yoqilgach `stores.yml` PKGBUILD'ni teg manbasiga yangilaydi, Arch konteynerida `check()` bilan yig'adi, `.SRCINFO` ni yozadi va environment `aur` → `AUR_SSH_KEY` (faqat AUR uchun alohida kalit; ochiq qismi AUR akkauntida) bilan push qiladi |
 
 Hamma kanal yetib keldimi — `channels` workflow (har kuni, `tools/release/channels.py`): har kanalning ochiq
 manbasidan versiyani o'qiydi va so'nggi reliz bilan solishtiradi. Kanal o'z muddatidan (Homebrew, Scoop, crates.io —

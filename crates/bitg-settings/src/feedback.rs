@@ -243,10 +243,27 @@ mod tests {
 
     #[test]
     fn diag_has_no_text() {
-        let d = diag(&Config::default(), "26100", 2, 5);
-        assert_eq!(d["dictionary"]["rules"], 2);
+        // Haqiqiy foydalanuvchi ma'lumoti bilan: istisno so'z va lug'at qoidasi diagnostikaga tushmasligi kerak.
+        let c = bitg_tsf::config::parse(
+            "disabled_apps=secretapp.exe\n",
+            "Maxfiyso'z\nshamollash=şamollaş\n",
+        );
+        assert_eq!(c.opts.exceptions.len(), 1);
+        assert_eq!(c.opts.rules.len(), 1);
+        let d = diag(&c, "26100", c.opts.rules.len(), c.opts.exceptions.len());
+        assert_eq!(d["dictionary"]["rules"], 1);
+        assert_eq!(d["dictionary"]["words"], 1);
         assert_eq!(d["tutuq"], "U+02BC");
-        assert!(!d.to_string().contains("exceptions"));
+        let s = d.to_string().to_lowercase();
+        for leak in [
+            "maxfiy",
+            "shamollash",
+            "şamollaş",
+            "secretapp",
+            "exceptions",
+        ] {
+            assert!(!s.contains(leak), "{leak} in {s}");
+        }
     }
 
     #[test]

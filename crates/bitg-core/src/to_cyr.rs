@@ -35,23 +35,19 @@ pub fn to_cyrillic(text: &str) -> String {
         // Lug'at eski yozuvda: yangi harfli so'z (özbek) ham o'zbekcha deb tanilsin. Eski yozuvdagi
         // so'zga to_old qo'llanmaydi — u "ch" ni alohida c+h deb c'h qiladi.
         t.evidence = if core.chars().any(crate::chars::is_new_letter) {
-            lang::evidence(&reverse::to_old(core, reverse::OldStyle::Ascii))
+            lang::evidence(&reverse::letters_to_old(
+                core,
+                reverse::OldStyle::Ascii,
+                reverse::Mode::Raw,
+            ))
         } else {
             lang::evidence(core)
         };
     }
     let mut out = String::with_capacity(text.len() * 2);
     let mut last = 0;
-    let mut sent_start = 0;
     let mut quote_open = false;
-    for i in 0..toks.len() {
-        if i > 0 && toks[i - 1].sentence_end {
-            sent_start = i;
-        }
-        let mut sent_end = i;
-        while sent_end + 1 < toks.len() && !toks[sent_end].sentence_end {
-            sent_end += 1;
-        }
+    for (i, (sent_start, sent_end)) in crate::sentences(&toks).enumerate() {
         let t = &toks[i];
         let ws = &text[last..t.start];
         out.push_str(ws);
@@ -81,7 +77,11 @@ fn token_to_cyr(tok: &str, opts: &Options, own: f32, ctx: f32, quote_open: &mut 
     }
     let latin = if tok.chars().any(crate::chars::is_new_letter) {
         // Yangi yozuv: o'girish kerak emas, faqat himoyani tekshiramiz. ÖzA (O'zA) camelCase emas.
-        if token::is_protected(&reverse::to_old(tok, reverse::OldStyle::Ascii)) {
+        if token::is_protected(&reverse::letters_to_old(
+            tok,
+            reverse::OldStyle::Ascii,
+            reverse::Mode::Raw,
+        )) {
             return tok.to_string();
         }
         tok.to_string()

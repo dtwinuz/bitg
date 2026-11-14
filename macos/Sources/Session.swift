@@ -98,7 +98,10 @@ final class BitgSession {
 
     /// Tartib: delete_before + commit (bitta almashtirish) -> preedit. Ko'rsatkichlar shu yerning o'zida o'qiladi.
     private func apply(_ o: BitgImeOut, _ c: TextClient, _ ctx: (text: String, cursor: Int)?) {
+        // ikkala ko'rsatkich ham ilovaga chaqiruvdan (insert) OLDIN nusxalanadi: IMK shu chaqiruv ichida
+        // kontrollerga qayta kirsa dvigatel buferlarni almashtiradi va eski ko'rsatkich bo'shatilgan bo'ladi
         let commit = o.commit.map { String(cString: $0) }
+        let preedit = o.preedit_changed != 0 ? (o.preedit.map { String(cString: $0) } ?? "") : nil
         if let commit {
             if o.delete_before > 0, let ctx {
                 let tail = String(String.UnicodeScalarView(ctx.text.unicodeScalars.suffix(Int(o.delete_before))))
@@ -109,8 +112,7 @@ final class BitgSession {
             }
             // delete_before > 0, lekin matn yo'q — bo'lmaydi (dvigatel faqat matn bilan o'chiradi); takror yozmaymiz
         }
-        guard o.preedit_changed != 0 else { return }
-        let preedit = o.preedit.map { String(cString: $0) } ?? ""
+        guard let preedit else { return }
         // insertText kompozitsiyani o'zi yopadi: undan keyin setMarkedText("") Chromium/Word'da bo'sh marked
         // diapazon qoldiradi va keyingi almashtirish noto'g'ri joyga tushadi
         if preedit.isEmpty, commit != nil {

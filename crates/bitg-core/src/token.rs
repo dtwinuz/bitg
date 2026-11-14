@@ -123,7 +123,7 @@ pub fn is_protected(token: &str) -> bool {
     // Raqam va harf aralash (shahar123, a1b2) — parol, kod, model nomi. "5-sinf", "2026-yil" — emas.
     let has_digit = chars.iter().any(|c| c.is_ascii_digit());
     let has_letter = chars.iter().any(|c| c.is_alphabetic());
-    if has_digit && has_letter && !is_number_with_suffix(core) {
+    if has_digit && has_letter && !is_number_with_suffix(core) && !is_word_with_year(core) {
         return true;
     }
     // O'Brien, O'Neil, D'Artagnan: apostrofdan keyin katta harf (so'z hammasi katta bo'lmasa).
@@ -169,6 +169,20 @@ fn is_number_with_suffix(core: &str) -> bool {
                 && num.chars().all(|c| c.is_ascii_digit())
                 && !rest.is_empty()
                 && rest.chars().all(|c| c.is_alphabetic() || is_apostrophe(c))
+        }
+        None => false,
+    }
+}
+
+/// "ishlar-2009", "loyiha-2026": kichik harfli so'z, chiziqcha, so'ng faqat raqam. Qisqartma (SHA-1, COVID-19)
+/// himoyada qoladi.
+fn is_word_with_year(core: &str) -> bool {
+    match core.rsplit_once('-') {
+        Some((word, num)) => {
+            word.chars().filter(|c| c.is_lowercase()).count() >= 2
+                && word.chars().all(|c| c.is_alphabetic() || is_apostrophe(c))
+                && !num.is_empty()
+                && num.chars().all(|c| c.is_ascii_digit())
         }
         None => false,
     }
@@ -232,5 +246,9 @@ mod tests {
         assert!(!is_protected("bog'.xx"));
         assert!(is_protected("5-sinf2"));
         assert!(!is_protected("3-o'rin"));
+        assert!(!is_protected("ishlar-2009"));
+        for t in ["a-1", "x1-2009", "ish-20a", "a1-", "SHA-1", "COVID-19"] {
+            assert!(is_protected(t), "{t}");
+        }
     }
 }
