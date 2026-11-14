@@ -561,6 +561,7 @@ tartibi (Windows, macOS) bitg'da `tilmoch` tartibi sifatida bor.
 </p>
 
 bitg [wonmortech](https://github.com/wonmortech) ([wonmor.io](https://wonmor.io)) tomonidan qo'llab-quvvatlanadi.
+Loyihaga qanday yordam berish mumkin: [bitg.uz/homiylar](https://bitg.uz/homiylar/).
 *bitg is supported by [wonmortech](https://github.com/wonmortech).*
 
 ## Hissa qo'shish
