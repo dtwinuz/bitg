@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!--
+SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+<html>
+<head>
+<base target="_blank">
+<meta charset="utf-8">
+<style>
+/* bitg.uz tokenlari (web/DESIGN.md): tinch sirtlar, 1px chiziq, bitta aksent — logodagi ö nuqtalari. */
+:root {
+  --bg: #f6f6f3; --surface: #ffffff; --subtle: #f0f1f2; --hover: #e8eaed;
+  --text: #1d2027; --muted: #5d626b; --faint: #8a9099; --line: #e2e4e7; --line2: #c9cdd3;
+  --accent: #2f62c0; --accent-ink: #2553a8; --accent-soft: #e6edfb; --on-accent: #ffffff;
+  --ok: #1d7a4f; --ok-soft: #e3f3ea; --warn: #8a5300; --warn-soft: #fbefd9;
+  --r1: 6px; --r2: 10px;
+  --sans: "Inter", "Google Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 13px/1.45 var(--sans); padding: 14px 14px 18px; }
+header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+header svg { width: 32px; height: 32px; flex: none; }
+h1 { font-size: 14px; font-weight: 650; margin: 0; }
+.sub { color: var(--muted); font-size: 12px; margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r2); padding: 12px; margin-bottom: 12px; }
+button { font: inherit; cursor: pointer; border-radius: var(--r1); }
+.primary { width: 100%; background: var(--accent); color: var(--on-accent); border: 0; padding: 9px 12px; font-weight: 600; }
+.primary:hover { background: var(--accent-ink); }
+.secondary { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--line2); padding: 8px 12px; margin-top: 8px; }
+.secondary:hover { background: var(--hover); }
+button:disabled { opacity: .55; cursor: progress; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hint { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+label.opt { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+label.opt input { margin-top: 2px; accent-color: var(--accent); }
+h2 { font-size: 12px; font-weight: 650; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 8px; }
+textarea { width: 100%; min-height: 64px; resize: vertical; font: inherit; color: var(--text); background: var(--subtle); border: 1px solid var(--line); border-radius: var(--r1); padding: 8px; }
+.out { margin-top: 8px; min-height: 20px; padding: 8px; border-radius: var(--r1); background: var(--accent-soft); white-space: pre-wrap; word-break: break-word; }
+.out:empty { display: none; }
+#status { margin: 0 0 12px; padding: 8px 10px; border-radius: var(--r1); font-size: 12px; }
+#status:empty { display: none; }
+#status.ok { background: var(--ok-soft); color: var(--ok); }
+#status.err { background: var(--warn-soft); color: var(--warn); }
+footer { color: var(--faint); font-size: 11px; }
+footer a { color: var(--muted); }
+.lang { display: flex; gap: 4px; margin-top: 8px; }
+.lang button { background: none; border: 1px solid transparent; color: var(--muted); padding: 2px 6px; font-size: 11px; }
+.lang button[aria-pressed="true"] { border-color: var(--line2); color: var(--text); }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 32 32" role="img" aria-label="bitg"><rect x="0" y="0" width="32" height="32" rx="7.4" fill="#1b1e26"/><path d="M10.748 8.2L10.748 23.8" fill="none" stroke="#f3efe7" stroke-width="2.912" stroke-linecap="round"/><path d="M11.476 18.912a4.888 4.888 0 1 1 9.776 0a4.888 4.888 0 1 1 -9.776 0z" fill="none" stroke="#f3efe7" stroke-width="2.912"/><circle cx="15.116" cy="9.552" r="1.664" fill="#8fb0ea"/><circle cx="19.276" cy="9.552" r="1.664" fill="#8fb0ea"/></svg>
+  <div><h1 data-i18n="title"></h1><p class="sub" data-i18n="subtitle"></p></div>
+</header>
+
+<p id="status" role="status" aria-live="polite"></p>
+
+<div class="card">
+  <button class="primary" id="sel" type="button" data-i18n="sel"></button>
+  <button class="secondary" id="all" type="button"></button>
+  <p class="hint" data-i18n="undo"></p>
+</div>
+
+<div class="card">
+  <h2 data-i18n="options"></h2>
+  <label class="opt"><input type="checkbox" id="optCyr" checked> <span data-i18n="optCyr"></span></label>
+  <label class="opt"><input type="checkbox" id="optEn" checked> <span data-i18n="optEn"></span></label>
+  <label class="opt"><input type="checkbox" id="optTutuq"> <span data-i18n="optTutuq"></span></label>
+</div>
+
+<div class="card">
+  <h2 data-i18n="try"></h2>
+  <textarea id="src" spellcheck="false"></textarea>
+  <button class="secondary" id="prev" type="button" data-i18n="tryBtn"></button>
+  <div class="out" id="out" aria-live="polite"></div>
+</div>
+
+<footer>
+  <p data-i18n="privacy"></p>
+  <p><a href="https://bitg.uz/" data-i18n="site"></a> · <a href="https://bitg.uz/en/privacy/" data-i18n="privacyLink"></a> · <a href="https://bitg.uz/en/terms/" data-i18n="terms"></a> · <a href="https://github.com/dtwinuz/bitg/issues" data-i18n="help"></a></p>
+  <div class="lang" role="group" aria-label="Til / Язык / Language">
+    <button type="button" data-lang="uz">oʻzbekcha</button><button type="button" data-lang="ru">русский</button><button type="button" data-lang="en">English</button>
+  </div>
+</footer>
+
+<script>
+// Panel mantig'i: hujjat bilan ishlash serverda (Code.gs, google.script.run). Bu yerda faqat UI va sozlamalar.
+// Node testida (test/sidebar.test.cjs) shu skript soxta `document` va `run` bilan ishga tushiriladi.
+var BITG_SIDEBAR_I18N = {
+  uz: {
+    title: 'bitg — yangi alifbo', subtitle: 'Eski lotin va kirill → Ö Ğ Ş Ç',
+    sel: 'Belgilanganni o‘girish', all_docs: 'Butun hujjatni o‘girish', all_sheets: 'Butun varaqni o‘girish',
+    all_slides: 'Butun taqdimotni o‘girish',
+    undo: 'Natija yoqmasa — Ctrl+Z (⌘Z) bilan qaytaring.',
+    options: 'Sozlamalar', optCyr: 'Kirill matnni ham o‘girish', optEn: 'Inglizcha so‘zlarni himoya qilish (push, shop…)',
+    optTutuq: 'Tutuq belgisi sifatida oddiy apostrof (\')',
+    try: 'Sinab ko‘rish', tryBtn: 'O‘girib ko‘rsatish', tryPh: 'Masalan: O‘zbekiston shaharlari — Toshkent, Shahrisabz',
+    working: 'Ishlanmoqda…', done: 'Tayyor: {n} ta joy o‘zgartirildi.', none: 'O‘giriladigan matn topilmadi.',
+    noSel: 'Avval matn (yoki kataklar) ni belgilang.', fail: 'Xato: {e}',
+    privacy: 'Matn Google ichida, shu hujjat uchun ishlanadi — bitg serveriga yoki boshqa joyga yuborilmaydi.',
+    site: 'bitg.uz', privacyLink: 'Maxfiylik', terms: 'Shartlar', help: 'Yordam'
+  },
+  ru: {
+    title: 'bitg — новый алфавит', subtitle: 'Старая латиница и кириллица → Ö Ğ Ş Ç',
+    sel: 'Преобразовать выделенное', all_docs: 'Весь документ', all_sheets: 'Весь лист', all_slides: 'Вся презентация',
+    undo: 'Не понравилось — отмените через Ctrl+Z (⌘Z).',
+    options: 'Настройки', optCyr: 'Преобразовывать и кириллицу', optEn: 'Не трогать английские слова (push, shop…)',
+    optTutuq: 'Обычный апостроф (\') как знак тутук',
+    try: 'Попробовать', tryBtn: 'Показать результат', tryPh: 'Например: Ассалому алайкум, Тошкент',
+    working: 'Обработка…', done: 'Готово: изменено мест — {n}.', none: 'Текст для преобразования не найден.',
+    noSel: 'Сначала выделите текст (или ячейки).', fail: 'Ошибка: {e}',
+    privacy: 'Текст обрабатывается внутри Google только для этого документа — на сервер bitg и куда-либо ещё не отправляется.',
+    site: 'bitg.uz', privacyLink: 'Конфиденциальность', terms: 'Условия', help: 'Помощь'
+  },
+  en: {
+    title: 'bitg — new Uzbek alphabet', subtitle: 'Old Latin and Cyrillic → Ö Ğ Ş Ç',
+    sel: 'Convert selection', all_docs: 'Convert whole document', all_sheets: 'Convert whole sheet',
+    all_slides: 'Convert whole presentation',
+    undo: 'Not happy with it? Undo with Ctrl+Z (⌘Z).',
+    options: 'Options', optCyr: 'Also convert Cyrillic text', optEn: 'Leave English words alone (push, shop…)',
+    optTutuq: 'Use a plain apostrophe (\') as the tutuq sign',
+    try: 'Try it', tryBtn: 'Show result', tryPh: 'For example: O‘zbekiston shaharlari — Toshkent',
+    working: 'Working…', done: 'Done: {n} place(s) changed.', none: 'No text to convert was found.',
+    noSel: 'Select some text (or cells) first.', fail: 'Error: {e}',
+    privacy: 'Text is processed inside Google, for this file only — it is never sent to a bitg server or anywhere else.',
+    site: 'bitg.uz', privacyLink: 'Privacy', terms: 'Terms', help: 'Help'
+  }
+};
+
+function bitgPickLang(saved, nav) {
+  if (saved && BITG_SIDEBAR_I18N[saved]) return saved;
+  var l = String(nav || '').toLowerCase();
+  if (l.indexOf('ru') === 0) return 'ru';
+  if (l.indexOf('en') === 0) return 'en';
+  return 'uz';
+}
+
+/** Server natijasi → foydalanuvchi xabari: {text, kind: 'ok'|'err'}. */
+function bitgResultMessage(res, t) {
+  if (!res) return { text: t.none, kind: 'err' };
+  if (res.error === 'no_selection') return { text: t.noSel, kind: 'err' };
+  if (res.error) return { text: t.fail.replace('{e}', res.error), kind: 'err' };
+  if (!res.changed) return { text: t.none, kind: 'ok' };
+  return { text: t.done.replace('{n}', res.changed), kind: 'ok' };
+}
+
+function bitgSidebar(env) {
+  var doc = env.document;
+  var run = env.run; // (fnName, args[], onOk, onErr)
+  var store = env.storage;
+  var lang = bitgPickLang(store.get('lang'), env.language);
+  var host = 'docs';
+  var $ = function (id) { return doc.getElementById(id); };
+
+  function t() { return BITG_SIDEBAR_I18N[lang]; }
+  function paint() {
+    var tr = t();
+    var nodes = doc.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) nodes[i].textContent = tr[nodes[i].getAttribute('data-i18n')];
+    $('all').textContent = tr['all_' + host];
+    $('src').setAttribute('placeholder', tr.tryPh);
+    doc.documentElement.setAttribute('lang', lang);
+    var bs = doc.querySelectorAll('[data-lang]');
+    for (var j = 0; j < bs.length; j++) bs[j].setAttribute('aria-pressed', String(bs[j].getAttribute('data-lang') === lang));
+  }
+  function opts() {
+    return { cyrillic: $('optCyr').checked, english: $('optEn').checked, asciiTutuq: $('optTutuq').checked };
+  }
+  function status(msg) {
+    var s = $('status');
+    s.textContent = msg.text;
+    s.className = msg.kind;
+  }
+  function busy(on) {
+    ['sel', 'all', 'prev'].forEach(function (id) { $(id).disabled = on; });
+  }
+  function call(fn, args, done) {
+    busy(true);
+    status({ text: t().working, kind: '' });
+    run(fn, args, function (res) {
+      busy(false);
+      done(res);
+    }, function (err) {
+      busy(false);
+      status({ text: t().fail.replace('{e}', (err && err.message) || String(err)), kind: 'err' });
+    });
+  }
+  function convert(fn) {
+    call(fn, [opts()], function (res) { status(bitgResultMessage(res, t())); });
+  }
+
+  return {
+    init: function () {
+      ['optCyr', 'optEn', 'optTutuq'].forEach(function (id) {
+        var v = store.get(id);
+        if (v === '1' || v === '0') $(id).checked = v === '1';
+        $(id).addEventListener('change', function () { store.set(id, $(id).checked ? '1' : '0'); });
+      });
+      $('sel').addEventListener('click', function () { convert('convertSelection'); });
+      $('all').addEventListener('click', function () { convert('convertAll'); });
+      $('prev').addEventListener('click', function () {
+        call('preview', [$('src').value, opts()], function (res) {
+          status({ text: '', kind: '' });
+          $('out').textContent = (res && res.out) || '';
+        });
+      });
+      var bs = doc.querySelectorAll('[data-lang]');
+      for (var i = 0; i < bs.length; i++) {
+        bs[i].addEventListener('click', function (ev) {
+          lang = ev.currentTarget.getAttribute('data-lang');
+          store.set('lang', lang);
+          paint();
+        });
+      }
+      paint();
+      run('hostInfo', [], function (info) {
+        if (info && info.host) host = info.host;
+        paint();
+      }, function () { /* standart: docs */ });
+    },
+    state: function () { return { lang: lang, host: host, opts: opts() }; }
+  };
+}
+
+if (typeof google !== 'undefined' && google.script && google.script.run) {
+  (function () {
+    // localStorage panel iframe'ida bloklangan bo'lishi mumkin (uchinchi tomon xotirasi) — xato yutiladi
+    var storage = {
+      get: function (k) { try { return window.localStorage.getItem('bitg.' + k); } catch (e) { return null; } },
+      set: function (k, v) { try { window.localStorage.setItem('bitg.' + k, v); } catch (e) { /* bloklangan */ } }
+    };
+    var run = function (fn, args, ok, err) {
+      var r = google.script.run.withSuccessHandler(ok).withFailureHandler(err);
+      r[fn].apply(r, args);
+    };
+    bitgSidebar({ document: document, run: run, storage: storage, language: navigator.language }).init();
+  })();
+}
+</script>
+</body>
+</html>

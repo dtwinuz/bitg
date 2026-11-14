@@ -1,0 +1,108 @@
+---json
+{
+ "slug": "/standart/",
+ "lang": "uz",
+ "title": "Yangi alifbo: texnik talablar — Unicode, saralash, baza · bitg",
+ "description": "Dasturchi va tashkilotlar uchun: Ö Ğ Ş Ç ning Unicode kodlari (Ş U+015E, Ș emas), ʼ U+02BC, NFC, saralash qoidasi, SQL tuzoqlari va bazani o‘girish tartibi.",
+ "h1": "Yangi alifbo: texnik talablar (dasturchilar va tashkilotlar uchun)",
+ "crumb": "Texnik talablar",
+ "card": "Unicode kodlari, NFC, saralash qoidasi va bazani o‘girish tartibi.",
+ "lead": "Yangi alifboga o‘tishda eng ko‘p xato <b>ko‘rinmaydigan joyda</b> bo‘ladi: bir xil ko‘rinadigan, lekin boshqa kodli harf, noto‘g‘ri saralash, bazada ikki xil yozuv. Bu sahifa — sayt, ilova yoki ma’lumotlar bazasini yangi alifboga tayyorlash uchun qisqa texnik ro‘yxat.",
+ "updated": "2026-11-14",
+ "published": "2026-11-14",
+ "schema": ["Article"],
+ "links": ["/yangi-alifbo/", "/sifat/", "/konvertor/", "/ai/"],
+ "sources": [
+  {"title": "O‘RQ-1184 qonuni matni — lex.uz", "url": "https://lex.uz/uz/docs/8548754", "note": "1-modda: alifbo jadvali va tartibi"},
+  {"title": "Unicode Standard Annex #15: Unicode Normalization Forms", "url": "https://www.unicode.org/reports/tr15/", "note": "NFC"},
+  {"title": "ICU User Guide — Collation Customization (tartiblash qoidalari sintaksisi)", "url": "https://unicode-org.github.io/icu/userguide/collation/customization/"},
+  {"title": "PostgreSQL — CREATE COLLATION (rules parametri, 16-versiyadan)", "url": "https://www.postgresql.org/docs/current/sql-createcollation.html"},
+  {"title": "bitg-core — Rust kutubxonasi (crates.io)", "url": "https://crates.io/crates/bitg-core", "note": "MIT yoki Apache-2.0"}
+ ]
+}
+---
+      <h2>1. Harflar va Unicode kodlari</h2>
+      <p>Qonunning 1-moddasidagi alifbo tartibi:</p>
+      <div class="dc-abc" data-no-conv aria-label="Yangi o‘zbek alifbosi tartibi"><span>A</span><span>B</span><span>D</span><span>E</span><span>F</span><span>G</span><span class="is-new">Ğ</span><span>H</span><span>I</span><span>J</span><span>K</span><span>L</span><span>M</span><span>N</span><span>O</span><span class="is-new">Ö</span><span>P</span><span>Q</span><span>R</span><span>S</span><span class="is-new">Ş</span><span class="is-new">Ç</span><span>T</span><span>U</span><span>V</span><span>X</span><span>Y</span><span>Z</span><span class="is-new">ʼ</span></div>
+      <div class="dc-table" data-no-conv><table>
+        <tr><th>Harf</th><th>Kod (katta / kichik)</th><th>Eski yozuv</th><th>To‘g‘ri belgi</th><th>Adashtiriladigan belgi</th></tr>
+        <tr><td class="dc-big">Ö ö</td><td><code>U+00D6</code> / <code>U+00F6</code></td><td>O‘ o‘</td><td>tayyor harf (NFC)</td><td><code>O</code> + <code>U+0308</code> (alohida ikki nuqta)</td></tr>
+        <tr><td class="dc-big">Ğ ğ</td><td><code>U+011E</code> / <code>U+011F</code></td><td>G‘ g‘</td><td>tayyor harf (NFC)</td><td><code>G</code> + <code>U+0306</code></td></tr>
+        <tr><td class="dc-big">Ş ş</td><td><code>U+015E</code> / <code>U+015F</code></td><td>Sh sh</td><td><b>pastki ilmoqli</b> (cedilla) Ş</td><td>rumincha <b>Ș ș</b> — <code>U+0218</code> / <code>U+0219</code> (vergulli)</td></tr>
+        <tr><td class="dc-big">Ç ç</td><td><code>U+00C7</code> / <code>U+00E7</code></td><td>Ch ch</td><td>tayyor harf (NFC)</td><td><code>C</code> + <code>U+0327</code></td></tr>
+        <tr><td class="dc-big">ʼ</td><td><code>U+02BC</code></td><td>' ` ‘ ’ ʻ</td><td>modifier letter apostrophe</td><td><code>U+2019</code> ’ (tinish belgisi), <code>U+0027</code> ', <code>U+02BB</code> ʻ</td></tr>
+      </table></div>
+      <div class="dc-answer"><p><b>Ş</b> va <b>Ș</b> ekranda deyarli bir xil, lekin kodi boshqa. Bazada ikkalasi aralashsa, <span data-no-conv>«Şahar»</span> qidiruvi <span data-no-conv>«Șahar»</span> yozuvini topmaydi. O‘zbek alifbosida faqat <code>U+015E</code> / <code>U+015F</code>.</p></div>
+
+      <h3>NFC: bitta harf — bitta kod</h3>
+      <p>Ö ni ikki xil kodlash mumkin: tayyor <code>U+00D6</code> yoki <code>O</code> + qo‘shiluvchi <code>U+0308</code>. Ko‘rinish bir xil, lekin satrlar teng emas. Matnni saqlash va solishtirishdan oldin <b>NFC</b> shakliga keltiring — u ikkala holatni tayyor harfga yig‘adi:</p>
+      <pre><code>// JavaScript
+text.normalize("NFC")
+
+# Python
+unicodedata.normalize("NFC", text)
+
+-- PostgreSQL 13+
+SELECT normalize(name, NFC) FROM t;</code></pre>
+      <p>NFC rumincha Ș ni Ş ga <b>aylantirmaydi</b> — bu ikki alohida harf. Uni alohida tekshiring: <code>[Șș]</code> qidiruvi topgan har yozuv — xato. (bitg yadrosi kirishdagi Ș ni o‘zi Ş ga almashtiradi.)</p>
+
+      <h3>Tutuq belgisi</h3>
+      <p>Yangi alifboda apostrofga o‘xshash belgi faqat tutuq uchun qoladi: <span data-no-conv>maʼno, sanʼat</span>. Uning kodi — <code>U+02BC</code> (harf toifasidagi belgi: so‘z ichida so‘zni bo‘lmaydi). Tinish belgisi <code>U+2019</code> ’ va oddiy <code>U+0027</code> ' bilan aralashtirmang: so‘z bo‘yicha qidiruv, imlo tekshiruvi va so‘zga ajratish ularni boshqacha ko‘radi.</p>
+
+      <h2>2. Saralash (collation)</h2>
+      <p>Qonundagi tartib: <b>G &lt; Ğ</b>, <b>O &lt; Ö</b>, <b>S &lt; Ş &lt; Ç</b>, keyin T. Ya’ni Ç C qatorida emas, Ş dan keyin turadi. Odatiy tartiblash bunday ishlamaydi:</p>
+      <div class="dc-table" data-no-conv><table>
+        <tr><th>Usul</th><th>Natija</th><th></th></tr>
+        <tr><td><b>Qonun bo‘yicha</b></td><td>Gul, Ğalaba, Ota, Öqituvçi, Sut, Şahar, Çoy, Zamin</td><td class="dc-yes">to‘g‘ri</td></tr>
+        <tr><td>ICU / CLDR umumiy tartib (shu jumladan <code>uz</code> locale)</td><td>Çoy, Ğalaba, Gul, Öqituvçi, Ota, Şahar, Sut, Zamin</td><td class="dc-no">Ç, Ğ, Ö, Ş — oddiy harfning varianti</td></tr>
+        <tr><td>Turkcha (<code>tr</code>)</td><td>Çoy, Gul, Ğalaba, Ota, Öqituvçi, Sut, Şahar, Zamin</td><td class="dc-no">Ç — C dan keyin</td></tr>
+        <tr><td>Kod nuqtasi bo‘yicha (binary)</td><td>Gul, Ota, Sut, Zamin, Çoy, Öqituvçi, Ğalaba, Şahar</td><td class="dc-no">yangi harflar Z dan keyin</td></tr>
+      </table></div>
+      <p class="dc-note">Uchta qator Node.js (ICU 78.3) da <code>Intl.Collator("uz")</code>, <code>Intl.Collator("tr")</code> va oddiy <code>sort()</code> bilan olingan, 2026-11-14. SQL Server’ning <code>Latin1_General</code> collation’i ham Ç ni C qatoriga qo‘yadi.</p>
+
+      <h3>ICU qoidasi</h3>
+      <p>To‘g‘ri tartib uchun umumiy tartibga uchta qoida qo‘shiladi (<code>&lt;</code> — alohida harf, <code>&lt;&lt;&lt;</code> — katta/kichik farqi):</p>
+      <pre data-no-conv><code>&amp;G&lt;ğ&lt;&lt;&lt;Ğ
+&amp;O&lt;ö&lt;&lt;&lt;Ö
+&amp;S&lt;ş&lt;&lt;&lt;Ş&lt;ç&lt;&lt;&lt;Ç</code></pre>
+      <p>PostgreSQL 16+ da bu qoida bilan collation yaratish mumkin:</p>
+      <pre data-no-conv><code>CREATE COLLATION uz_2026 (
+  provider = icu, locale = 'und',
+  rules = '&amp;G&lt;ğ&lt;&lt;&lt;Ğ &amp;O&lt;ö&lt;&lt;&lt;Ö &amp;S&lt;ş&lt;&lt;&lt;Ş&lt;ç&lt;&lt;&lt;Ç'
+);
+SELECT name FROM city ORDER BY name COLLATE uz_2026;</code></pre>
+      <p>SQL Server’da o‘z collation’ingizni yaratib bo‘lmaydi: saralashni ilovada ICU bilan qiling yoki alohida saralash kaliti ustunini saqlang. Boshqa tizimlarda (MySQL, Oracle va h.k.) qoidani qo‘shish imkoniyatini o‘sha tizim hujjatidan tekshiring. <b>Ng</b> qonunda alohida harf emas — saralashda ham n + g.</p>
+
+      <h2>3. O‘girishdagi tuzoqlar</h2>
+      <p>Oddiy almashtirish (<span data-no-conv>sh → ş, ch → ç</span>) bir qatorda yoziladi, lekin real matnda xato beradi:</p>
+      <div class="dc-table" data-no-conv><table>
+        <tr><th>Kirish</th><th>Oddiy almashtirish</th><th>To‘g‘ri natija</th></tr>
+        <tr><td>shop, cache, Shell, Chevrolet (chet so‘z, brend)</td><td class="dc-no">şop, caçe, Şell, Çevrolet</td><td class="dc-yes">o‘zgarmaydi</td></tr>
+        <tr><td>Is'hoq (s va h orasida tutuq)</td><td class="dc-no">Is'hoq</td><td class="dc-yes">Ishoq</td></tr>
+        <tr><td>o‘zbek, o’zbek, o`zbek, oʻzbek (apostrof turlari)</td><td class="dc-no">faqat bittasi o‘giriladi</td><td class="dc-yes">hammasi özbek</td></tr>
+        <tr><td>ozbek tilida (apostrofsiz)</td><td class="dc-no">ozbek</td><td class="dc-yes">özbek (kontekstdan)</td></tr>
+        <tr><td>qol / qo‘l (apostrofsiz, ikki ma’noli)</td><td>—</td><td>yozilganicha qoladi, «tekshiring» deb belgilanadi</td></tr>
+      </table></div>
+      <p class="dc-note">«To‘g‘ri natija» ustuni — bitg chiqishi (<code>bitg</code> CLI, 2026-11-14). Konvertor sifatining to‘liq o‘lchovi: <a href="/sifat/">ochiq benchmark</a>.</p>
+
+      <h2>4. Ma’lumotlar bazasini o‘girish: tekshiruv ro‘yxati</h2>
+      <ol class="dc-steps">
+        <li><b>Audit.</b> Qaysi jadval va ustunlarda o‘zbekcha matn bor, nechta qator o‘zgaradi — avval sanab oling.</li>
+        <li><b>Sinov rejimi.</b> Konvertor bazaga yozmasdan «eski → yangi» hisobotini bersin, ikki ma’noli qatorlar alohida belgilansin. bitg’da: <code>bitg diff</code> va <code>bitg file --dry-run</code>.</li>
+        <li><b>Asl qiymat saqlanadi.</b> Yangi qiymat alohida ustun yoki jurnalga yoziladi — xato chiqsa qaytarish mumkin bo‘lsin.</li>
+        <li><b>Kalit maydonlarga tegilmaydi.</b> STIR (INN), JSHSHIR (PINFL), raqamlar, login, URL va email o‘girilmaydi.</li>
+        <li><b>Normallashtirish.</b> Yozishdan oldin NFC, Ș → Ş, tutuq → <code>U+02BC</code>.</li>
+        <li><b>Collation va indekslar.</b> O‘girishdan keyin qidiruv indekslari qayta quriladi, saralash 2-bo‘limdagi qoida bilan.</li>
+        <li><b>Ikki yozuv davri.</b> Qidiruv eski va yangi yozuvni bir xil topishi kerak (<span data-no-conv>o‘zbek = özbek</span>): qidiruv kalitini bitta shaklga keltirib saqlang.</li>
+      </ol>
+
+      <h2>5. Tayyor vositalar</h2>
+      <div class="dc-table"><table>
+        <tr><th>Vosita</th><th>Nima uchun</th></tr>
+        <tr><td><a href="https://crates.io/crates/bitg-core" rel="noopener"><code>bitg-core</code></a> (Rust, MIT / Apache-2.0)</td><td>o‘girish yadrosi: o‘z ilovangiz yoki ETL’ga ulash</td></tr>
+        <tr><td><code>bitg</code> CLI</td><td>matn, .docx, .xlsx, .txt, .md fayllar; <code>diff</code> va <code>--dry-run</code> bilan sinov</td></tr>
+        <tr><td><a href="/konvertor/">Onlayn konvertor</a></td><td>bir martalik matn, brauzerda (WebAssembly), matn serverga ketmaydi</td></tr>
+        <tr><td><a href="/ai/">MCP server</a> <code data-no-conv>https://bitg.uz/mcp</code></td><td>AI yordamchilar va avtomatlashtirish uchun <code>convert_text</code></td></tr>
+        <tr><td><a href="https://github.com/dtwinuz/bitg/tree/main/eval" rel="noopener"><code>eval/</code></a> (CC BY 4.0)</td><td>o‘z konvertoringizni sinash uchun 9 000 gap</td></tr>
+      </table></div>
+      <p>Savol yoki xato bo‘lsa: <a href="https://github.com/dtwinuz/bitg/issues" rel="noopener">GitHub issues</a>.</p>

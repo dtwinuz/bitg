@@ -81,6 +81,7 @@ pub const PRESETS: &[&str] = &[
     "turkish",
     "altgr",
     "kirill",
+    PROPOSED,
 ];
 pub const DEFAULT_LAYOUT: &str = "tilmoch";
 pub const CUSTOM: &str = "custom";
@@ -291,11 +292,24 @@ pub fn preset(name: &str) -> Option<Keymap> {
         // Windows "O'zbek (kirill)" tartibi: harf tugmalarida kirill, AltGr'da US belgilari qoladi.
         // Yozilgan kirill so'z oxirida yangi lotinga o'giriladi (avto o'chiq bo'lsa — kirill qoladi).
         CYRILLIC => cyrillic(),
+        // Taklif qilingan (RASMIY EMAS). Davlat tilini rivojlantirish departamenti Senatda (10.09.2026) ko'rsatgan
+        // «O'zbek (lotin) klaviaturasi — ma'qul variant» maketi: [ ö, ] ğ, ; ş, ' ç, tutuq — \ | tugmasida.
+        // Manba: gazeta.uz/oz/2026/09/10/keyboard-uzb--translation-2026-09-10-13-10-21 (maket surati).
+        // Rasmiy texnik standart hali chiqmagan; ko'chgan [ ] \ ; ' belgilari maketda ko'rsatilmagan — AltGr'da.
+        PROPOSED => Keymap::with(&[
+            ("[", ["ö", "Ö", "[", "{"]),
+            ("]", ["ğ", "Ğ", "]", "}"]),
+            ("\\", ["ʼ", "ʼ", "\\", "|"]),
+            (";", ["ş", "Ş", ";", ":"]),
+            ("'", ["ç", "Ç", "'", "\""]),
+        ]),
         _ => return None,
     })
 }
 
 pub const CYRILLIC: &str = "kirill";
+/// Rasmiy emas: mutaxassislar taklif qilgan maket (standart chiqqach yangilanadi).
+pub const PROPOSED: &str = "taklif";
 
 fn cyrillic() -> Keymap {
     const LETTERS: &[(&str, char)] = &[
@@ -518,6 +532,46 @@ mod tests {
         // Tutuq hamma tartibda o'girish natijasi bilan bir xil: ʼ (U+02BC).
         let ti = preset("tilmoch").unwrap();
         assert_eq!(ti.lookup(k("`"), false, false, false), Some('\u{2BC}'));
+    }
+
+    #[test]
+    fn proposed_layout_follows_senate_mockup() {
+        let m = preset(PROPOSED).unwrap();
+        let k = |l: &str| scan_of(l).unwrap();
+        // Harflar: oddiy / Shift / CapsLock.
+        for (key, lo, up) in [
+            ("[", 'ö', 'Ö'),
+            ("]", 'ğ', 'Ğ'),
+            (";", 'ş', 'Ş'),
+            ("'", 'ç', 'Ç'),
+        ] {
+            assert_eq!(m.lookup(k(key), false, false, false), Some(lo), "{key}");
+            assert_eq!(m.lookup(k(key), true, false, false), Some(up), "{key}");
+            assert_eq!(m.lookup(k(key), false, true, false), Some(up), "{key}");
+            assert_eq!(m.lookup(k(key), true, true, false), Some(lo), "{key}");
+        }
+        // Tutuq \ tugmasida, Shift bilan ham (KATTA harfli so'z ichida) — U+02BC.
+        assert_eq!(m.lookup(k("\\"), false, false, false), Some('\u{2BC}'));
+        assert_eq!(m.lookup(k("\\"), true, false, false), Some('\u{2BC}'));
+        assert_eq!(m.lookup(k("\\"), false, true, false), Some('\u{2BC}'));
+        // Ko'chgan belgilar AltGr / AltGr+Shift'da.
+        for (key, lo, up) in [
+            ("[", '[', '{'),
+            ("]", ']', '}'),
+            ("\\", '\\', '|'),
+            (";", ';', ':'),
+            ("'", '\'', '"'),
+        ] {
+            assert_eq!(m.lookup(k(key), false, false, true), Some(lo), "{key}");
+            assert_eq!(m.lookup(k(key), true, false, true), Some(up), "{key}");
+        }
+        // Boshqa tugmalar (`, -, =, harflar, raqamlar) o'zgarmaydi.
+        for key in ["`", "-", "=", "a", "o", "g", "s", "c", "1", ",", ".", "/"] {
+            for (shift, altgr) in [(false, false), (true, false), (false, true), (true, true)] {
+                assert_eq!(m.lookup(k(key), shift, false, altgr), None, "{key}");
+            }
+        }
+        assert!(PRESETS.contains(&PROPOSED));
     }
 
     #[test]

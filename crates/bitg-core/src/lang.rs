@@ -144,7 +144,15 @@ pub fn name_kind(word: &str) -> NameKind {
         Some(_) => return NameKind::Other,
     };
     if !(base.contains("ch") || base.contains("sh")) {
-        return NameKind::Other;
+        // Jordan: sh/ch siz, lug'atda yo'q nom faqat xorijiy nom yonida uning bir qismi ("Michael Jordan").
+        // G'ofur, O'tkir: apostrofsiz yozilgan o'zbek ismi (tiklangani lug'atda aynan bor) — nom emas.
+        let uz_name = restore_apostrophes(base, false, true)
+            .is_some_and(|r| uz().contains_key(fold_key(&r).as_str()));
+        return if uz_weight(base).is_none() && !uz_name {
+            NameKind::Maybe
+        } else {
+            NameKind::Other
+        };
     }
     let foreign_stem = |s: &str| {
         uz_weight(s).is_none()

@@ -1,0 +1,75 @@
+---json
+{
+ "slug": "/sifat/",
+ "lang": "uz",
+ "title": "bitg sifati: ochiq o‘lchov, 3 000 gap, qayta tekshirish · bitg",
+ "description": "Yangi alifboga o‘girish aniqligi ochiq to‘plamda: o‘zbekcha gaplar 98,87 %, inglizcha 99,73 % o‘zgarmagan. Usul, raqamlar, tezlik va o‘zingiz tekshirish buyruqlari.",
+ "h1": "bitg sifati: ochiq o‘lchov va uni qayta tekshirish",
+ "crumb": "Sifat",
+ "card": "98,87 % o‘zbekcha, 99,73 % inglizcha: usul, to‘plam va buyruqlar.",
+ "lead": "bitg aniqligi har kim yuklab olib tekshira oladigan <b>ochiq to‘plamda</b> o‘lchanadi: 3 000 ta o‘zbekcha, 3 000 ta apostrofsiz va 3 000 ta inglizcha gap. O‘lchov sanasi — <b>2026-yil 12-noyabr</b>.",
+ "updated": "2026-11-14",
+ "published": "2026-11-14",
+ "schema": ["Article"],
+ "links": ["/qiyoslash/", "/konvertor/", "/standart/", "/yuklab-olish/"],
+ "sources": [
+  {"title": "bitg README — «Sifat» bo‘limi (GitHub)", "url": "https://github.com/dtwinuz/bitg#sifat-hozirgi-holat", "note": "raqamlar va tezlik jadvali"},
+  {"title": "Baholash to‘plami eval/ — tavsif va litsenziya (GitHub)", "url": "https://github.com/dtwinuz/bitg/tree/main/eval", "note": "CC BY 4.0"},
+  {"title": "Leipzig Corpora Collection — yuklab olish", "url": "https://wortschatz.uni-leipzig.de/en/download", "note": "uzb_community_2017, eng_news_2020, eng-com_web-public_2018"},
+  {"title": "Leipzig Corpora Collection — foydalanish shartlari va iqtibos", "url": "https://wortschatz.uni-leipzig.de/en/usage", "note": "Goldhahn, Eckart, Quasthoff, LREC 2012"}
+ ]
+}
+---
+      <h2>Natijalar</h2>
+      <div class="dc-facts">
+        <div class="dc-fact"><b>98,87 %</b><span>o‘zbekcha gap butunlay to‘g‘ri (2&nbsp;966&nbsp;/&nbsp;3&nbsp;000)</span></div>
+        <div class="dc-fact"><b>81,20 %</b><span>apostrofsiz yozilgan gap to‘g‘ri (2&nbsp;436&nbsp;/&nbsp;3&nbsp;000)</span></div>
+        <div class="dc-fact"><b>99,73 %</b><span>inglizcha gap o‘zgarmay qoldi (2&nbsp;992&nbsp;/&nbsp;3&nbsp;000)</span></div>
+        <div class="dc-fact"><b>2,7 µs</b><span>bir o‘zbekcha so‘zga ketadigan vaqt</span></div>
+      </div>
+      <p>Hisob <b>butun gap</b> bo‘yicha: gapdagi bitta so‘z xato bo‘lsa ham, gap xato sanaladi. Bu harf yoki so‘z bo‘yicha hisobdan qattiqroq o‘lchov.</p>
+
+      <h2>To‘plam: nima o‘lchanadi</h2>
+      <div class="dc-table"><table>
+        <tr><th>Fayl (<code>eval/</code>)</th><th>Gaplar</th><th>Nima tekshiriladi</th><th>Manba korpus</th></tr>
+        <tr><td><code>uz.tsv</code></td><td>3 000</td><td>eski lotin → yangi lotin; apostrof turlari aralash (<span data-no-conv>' ʻ ’ `</span>)</td><td>Leipzig uzb_community_2017</td></tr>
+        <tr><td><code>uz_noapos.tsv</code></td><td>3 000 (boshqa gaplar)</td><td>o‘ va g‘ dagi apostrof tushib qolgan matn (<span data-no-conv>ozbek, togri</span>)</td><td>Leipzig uzb_community_2017</td></tr>
+        <tr><td><code>en.tsv</code></td><td>3 000</td><td>sh, ch yoki apostrof bor inglizcha gap — <b>o‘zgarmasligi</b> kerak</td><td>Leipzig eng_news_2020 (1 523), eng-com_web-public_2018 (1 477)</td></tr>
+      </table></div>
+      <p>Har qator: <code>til&lt;TAB&gt;kirish&lt;TAB&gt;kutilgan</code>. To‘plam Leipzig Corpora Collection gaplaridan tasodifiy tanlangan (<code>--seed 2026 --limit 3000</code>) va CC BY 4.0 litsenziyasida tarqatiladi — o‘z konvertoringizni xuddi shu gaplarda tekshirishingiz mumkin.</p>
+
+      <h2>Usul: nega bu o‘lchovga ishonsa bo‘ladi</h2>
+      <ul>
+        <li><b>Javob konvertordan mustaqil.</b> O‘zbekcha qatorda kirish ham, kutilgan javob ham <b>kirill gapdan</b> alohida olinadi (kirill → eski lotin, kirill → yangi lotin). Kirillda ш, ч, ў, ғ alohida harf, shuning uchun to‘g‘ri javob noaniq emas. Konvertor esa faqat eski lotinni ko‘radi va <span data-no-conv>Is'hoq → Ishoq, O'zA → ÖzA, Sh.Sharipov → Ş.Şaripov</span> kabi holatlarni o‘zi topishi kerak.</li>
+        <li><b>Baholash gaplari o‘qitishda ishlatilmagan.</b> Lug‘at qurilayotganda har bir manba gapi to‘plamdagi gaplar bilan solishtiriladi va mos kelgani tashlab yuboriladi (<code>tools/build_lexicon.py --exclude-eval</code>).</li>
+        <li><b>Inglizcha to‘plam alohida.</b> Faqat o‘zbekcha aniqlikni o‘lchash yetmaydi: hamma <span data-no-conv>sh</span> ni <span data-no-conv>ş</span> qiladigan vosita o‘zbekchada yaxshi, lekin <span data-no-conv>shop → şop</span> qilib inglizchani buzadi. Shuning uchun ikkalasi birga ko‘rsatiladi.</li>
+      </ul>
+
+      <h3>Qolgan xatolar qayerdan</h3>
+      <p><code>uzb_community_2017</code> — foydalanuvchi izohlari, kirill matnning o‘zida imlo xatolari bor (masalan, <span data-no-conv>Киргизистон, Фаргона</span>). Kutilgan javob xatoni saqlaydi, bitg esa ba’zan uni to‘g‘rilab qo‘yadi — bunday «xato» haqiqiy xato emas. 34 ta farqli gapning ko‘pi shu turdagi shovqin.</p>
+      <p>Apostrofsiz matnda bitg ikki ma’noli so‘zni taxmin qilmaydi: <span data-no-conv>qol / qo‘l, oz / o‘z, yoq / yo‘q</span> yozilganicha qoladi va «tekshiring» deb belgilanadi. 81,20 % ning sababi shu ehtiyotkorlik: noto‘g‘ri tiklangan so‘z jim qolgan xatodan yomonroq.</p>
+
+      <h2>O‘zingiz tekshiring</h2>
+      <p>Kerak bo‘ladigani — Git va Rust. Buyruqlar:</p>
+      <pre><code>git clone https://github.com/dtwinuz/bitg
+cd bitg
+cargo build --release -p bitg-cli
+target/release/bitg eval eval/uz.tsv
+target/release/bitg eval eval/uz_noapos.tsv
+target/release/bitg eval eval/en.tsv</code></pre>
+      <p>Har buyruq to‘g‘ri gaplar sonini va foizni chiqaradi (masalan, <code data-no-conv>uz 2966/3000 98.87%</code>). To‘plamni noldan qurish: <code>tools/build_eval.py</code>. Tezlik o‘lchovi alohida: <code>cargo run --release -p bitg-core --example bench -- eval/uz.tsv</code>.</p>
+
+      <h2>Tezlik va resurs: boshqa konvertorlar bilan bir xil matnda</h2>
+      <p>Bir xil gaplarda: <code>eval/uz.tsv</code> (42 670 so‘z) va <code>eval/en.tsv</code> (62 082 so‘z). Boshqa konvertorlarning dvigateli ularning saytidagi JavaScript faylidan olinib, o‘zgartirilmasdan Node’da yurgizilgan. Isitishdan keyin 5 marta o‘rtachasi, bitta kompyuterda.</p>
+      <div class="dc-table"><table>
+        <tr><th></th><th>O‘zbekcha matn, µs/so‘z</th><th>Inglizcha matn, µs/so‘z</th><th>Ishga tushish</th><th>Xotira</th><th>Inglizcha so‘zni himoya</th></tr>
+        <tr><td><b>bitg</b> (Rust, native)</td><td>2,72</td><td><b>1,40</b></td><td><b>0 ms</b></td><td><b>1,1 MB</b></td><td class="dc-yes">lug‘at + kontekst</td></tr>
+        <tr><td>alifbochi.uz (JS)</td><td>2,33</td><td>1,45</td><td>brauzer sahifasi</td><td>Node jarayoni 26–41 MB</td><td class="dc-no">yo‘q (<span data-no-conv>shop → şop</span>)</td></tr>
+        <tr><td>alifbo.akbarovlabs.uz (JS)</td><td>3,39</td><td>1,93</td><td>brauzer sahifasi</td><td>〃</td><td class="dc-no">yo‘q</td></tr>
+        <tr><td>webnum.uz (JS)</td><td>2,27</td><td>2,06</td><td>brauzer sahifasi</td><td>〃</td><td>faqat imlo belgisi bo‘yicha (c, w, ph)</td></tr>
+      </table></div>
+      <p>Jadval bilan almashtiradigan konvertorlar o‘zbekcha matnda taxminan 15 % tezroq, chunki bitg har so‘zni lug‘at va kontekst bilan tekshiradi. Inglizcha matnda bitg eng tez. Amalda bu farq sezilmaydi: tugmalar orasidagi vaqt taxminan 100 000 µs, bir so‘zni o‘girish esa 2–3 µs.</p>
+      <p class="dc-note">Boshqa konvertorlar 2026-yil 12-noyabrdagi saytlaridagi fayl bilan o‘lchangan; saytlar yangilansa, natija o‘zgarishi mumkin. Microsoft Store’dagi ilovalar (ular haqida — <a href="/qiyoslash/#windows-ilovalar">taqqoslash sahifasida</a>) bu to‘plamda o‘lchanmagan.</p>
+
+      <h2>Xato topdingizmi?</h2>
+      <p>Noto‘g‘ri o‘girilgan so‘zni <a href="https://github.com/dtwinuz/bitg/issues" rel="noopener">GitHub’da</a> yoki <a href="/fikr/">fikr sahifasida</a> yuboring. Yangi reliz chiqqanda o‘lchov qayta yurgiziladi va bu sahifa yangilanadi.</p>

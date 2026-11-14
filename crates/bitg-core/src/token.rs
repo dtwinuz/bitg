@@ -129,7 +129,7 @@ pub fn is_protected(token: &str) -> bool {
     // O'Brien, O'Neil, D'Artagnan: apostrofdan keyin katta harf (so'z hammasi katta bo'lmasa).
     let all_upper = chars
         .iter()
-        .filter(|c| c.is_alphabetic())
+        .filter(|c| c.is_alphabetic() && !is_apostrophe(**c))
         .all(|c| c.is_uppercase());
     !all_upper
         && chars

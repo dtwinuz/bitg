@@ -1,0 +1,100 @@
+---json
+{
+ "slug": "/yangi-alifbo-kompyuter/",
+ "lang": "uz",
+ "title": "Yangi alifbo kompyuterda: Windows, Mac, Linux uchun dastur · bitg",
+ "description": "Kompyuterda yangi alifboda (Ö Ğ Ş Ç) yozish: Windows, macOS, Linux va brauzer uchun yo‘llar, bitg dasturini yuklab olish va o‘rnatish qadamlari. Bepul.",
+ "h1": "Kompyuterda yangi alifboda yozish: Windows, Mac, Linux",
+ "crumb": "Kompyuterda yozish",
+ "card": "Windows, Mac, Linux va brauzer: dasturni o‘rnatish va yozish qadamlari.",
+ "lead": "Kompyuterda yangi alifboda yozishning eng oson yo‘li — <b>eskicha yozish</b>: <span data-no-conv>o‘zbek, shahar, choy</span> deysiz, dastur so‘z tugashi bilan <span data-no-conv>özbek, şahar, çoy</span> qiladi. Quyida har tizim uchun bepul yo‘l va o‘rnatish qadamlari.",
+ "updated": "2026-11-14",
+ "published": "2026-11-14",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/yuklab-olish/", "/klaviatura/", "/yangi-harflarni-yozish/", "/konvertor/", "/qiyoslash/"],
+ "sources": [
+  {"title": "bitg brauzer kengaytmasi — Chrome Web Store", "url": "https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg"},
+  {"title": "bitg manba kodi va relizlar — GitHub", "url": "https://github.com/dtwinuz/bitg", "note": "MIT yoki Apache-2.0"},
+  {"title": "O‘RQ-1184 qonuni matni — lex.uz", "url": "https://lex.uz/uz/docs/8548754", "note": "1-modda: alifbo jadvali"}
+ ]
+}
+---
+      <h2>Qisqa javob: qaysi kompyuterda qanday</h2>
+      <div class="dc-table"><table>
+        <tr><th>Tizim</th><th>Avtomatik (eskicha yozasiz)</th><th>Har harfni o‘zingiz bosasiz</th></tr>
+        <tr><td>Windows 10 / 11</td><td><a href="#windows">bitg</a> — MSI o‘rnatuvchi, {{msiSizeUz}} MB</td><td>bitg ichidagi <a href="/klaviatura/">klaviatura tartibi</a> yoki Turkcha Q</td></tr>
+        <tr><td>macOS 11+</td><td><a href="#mac">bitg</a> (.pkg, sinov bosqichida)</td><td><kbd>Option</kbd> + <kbd>U</kbd>, <kbd>O</kbd> → ö; «Turkish Q» tartibi</td></tr>
+        <tr><td>Ubuntu, Debian</td><td><a href="#linux">bitg</a> (.deb, IBus; KDE uchun Fcitx5)</td><td>Turkish Q yoki <kbd>Compose</kbd> tugmasi</td></tr>
+        <tr><td>Brauzer (Chrome)</td><td><a href="#brauzer">bitg kengaytmasi</a> — sayt bo‘yicha yoqiladi</td><td>—</td></tr>
+        <tr><td>Har qanday kompyuter</td><td colspan="2">tayyor matnni <a href="/konvertor/">onlayn konvertorda</a> o‘giring — o‘rnatish kerak emas</td></tr>
+      </table></div>
+      <p>To‘rtta yangi harf: <b>O‘ → Ö, G‘ → Ğ, Sh → Ş, Ch → Ç</b>, tutuq belgisi ʼ qoladi (<a href="/yangi-alifbo/">to‘liq alifbo</a>). Ular Unicode’da bor, shuning uchun shrift va dasturlar ularni allaqachon ko‘rsatadi — qiyini faqat yozish: oddiy klaviaturada bu tugmalar yo‘q.</p>
+
+      <h2 id="windows">Windows uchun yangi alifbo dasturi: yuklab olish va o‘rnatish</h2>
+      <ol class="dc-steps">
+        <li><b>Yuklab oling.</b> <a href="/yuklab-olish/">Yuklab olish sahifasidan</a> MSI o‘rnatuvchini oling (Windows 10 va 11, x64). Fayl SHA-256 xeshi o‘sha sahifada, manba kodi va relizlar <a href="https://github.com/dtwinuz/bitg/releases" rel="noopener">GitHub’da</a>.</li>
+        <li><b>O‘rnating.</b> Faylni ikki marta bosing. O‘rnatuvchi hozircha raqamli imzosiz, shuning uchun «Windows kompyuteringizni himoya qildi» oynasi chiqishi mumkin: «Batafsil» → «Baribir ishga tushirish». Nega bunday ekani: <a href="/xavfsizmi/">bitg xavfsizmi?</a></li>
+        <li><b>bitg’ni tanlang.</b> <kbd>Win</kbd> + <kbd>Probel</kbd> bilan kiritish usullari orasidan bitg’ni tanlang (yoki vazifalar panelidagi til belgisini bosing).</li>
+        <li><b>Odatdagidek yozing.</b> <span data-no-conv>«o‘zbek», «shahar», «choy»</span> — probel yoki tinish belgisi bosilishi bilan <span data-no-conv>«özbek», «şahar», «çoy»</span> bo‘ladi. Inglizcha so‘z (<span data-no-conv>shop, check</span>), havola va pochta manzili o‘zgarmaydi. Kerak bo‘lmasa — darhol <kbd>Backspace</kbd>: asl so‘z qaytadi.</li>
+      </ol>
+      <p>bitg Windows’ning o‘z kiritish usuli (TSF) sifatida ishlaydi, shuning uchun Word, Excel, Telegram, brauzer va boshqa dasturlarda alohida sozlashsiz yozadi. Internet kerak emas: o‘girish kompyuterning o‘zida bo‘ladi, matn hech qayerga yuborilmaydi. Batafsil: <a href="/klaviatura/windows/">Windows klaviaturasi</a>.</p>
+      <p class="dc-note">ARM (Snapdragon) protsessorli kompyuterlarda bitg hali sinalmagan. Natijani <a href="/fikr/">bizga yozing</a>.</p>
+
+      <h3>Tugma bilan yozmoqchi bo‘lsangiz</h3>
+      <p>bitg ichida tayyor klaviatura tartiblari bor — masalan, Tilmoch tartibida <kbd>[</kbd> → ö, <kbd>]</kbd> → ğ, <kbd>;</kbd> → ş, <kbd>'</kbd> → ç. Avtomatik o‘girish va tartib alohida yoqiladi. Hammasini solishtirish: <a href="/klaviatura/">klaviatura tartiblari</a>. O‘rnatmasdan yo‘llar (Alt kodlari, Word’da <kbd>Alt</kbd> + <kbd>X</kbd>): <a href="/yangi-harflarni-yozish/">Ş, Ç, Ğ, Ö qanday yoziladi</a>.</p>
+
+      <h2 id="mac">macOS’da</h2>
+      <ol class="dc-steps">
+        <li><b>O‘rnating.</b> <a href="/yuklab-olish/#mac">.pkg faylni</a> yuklab oling (Apple M va Intel uchun bitta fayl) yoki Homebrew bilan: <code data-no-conv>brew install --cask dtwinuz/tap/bitg</code>. O‘rnatuvchi hozircha Apple imzosiz: macOS ochmasa, «Tizim sozlamalari → Maxfiylik va xavfsizlik» da «Baribir ochish» ni bosing.</li>
+        <li><b>Kiritish manbasi o‘zi qo‘shiladi.</b> Menyu satridagi ro‘yxatda ko‘rinmasa, tizimdan chiqib qayta kiring yoki: Tizim sozlamalari → Klaviatura → Kiritish manbalari → Tahrirlash → «+», qidiruvga «bitg» yozing.</li>
+        <li><b>Tanlang va yozing.</b> <kbd>Control</kbd> + <kbd>Probel</kbd> (yoki 🌐 tugmasi) bilan bitg’ga o‘ting va eskicha yozing.</li>
+      </ol>
+      <p>Mac versiyasi sinov bosqichida. Dasturisiz yo‘l: <kbd>Option</kbd> + <kbd>U</kbd>, so‘ng <kbd>O</kbd> → ö; <kbd>Option</kbd> + <kbd>C</kbd> → ç; ğ va ş uchun «Turkish Q» tartibi (<a href="/yangi-harflarni-yozish/">batafsil</a>).</p>
+
+      <h2 id="linux">Linux’da (Ubuntu, Debian)</h2>
+      <ol class="dc-steps">
+        <li><b>O‘rnating.</b> <a href="/yuklab-olish/#linux">.deb paketni</a> yuklab oling va o‘rnating: <code data-no-conv>sudo apt install ./{{debName}}</code>. Yangilanib turishi uchun <a href="/yuklab-olish/#apt">apt omborini</a> ulash ham mumkin.</li>
+        <li><b>Kiritish manbasini qo‘shing.</b> Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg (IBus). KDE va Fcitx5 uchun alohida paket bor — yuklab olish sahifasida.</li>
+        <li><b>Tanlang va yozing.</b> <kbd>Super</kbd> + <kbd>Probel</kbd> bilan bitg’ga o‘ting.</li>
+      </ol>
+      <p>Talablar: Ubuntu 22.04+ yoki Debian 12+.</p>
+
+      <h2 id="brauzer">Brauzerda: bitg kengaytmasi</h2>
+      <p>Dastur o‘rnatib bo‘lmaydigan kompyuterda (masalan, ishxonada) brauzer kengaytmasi yordam beradi. bitg kengaytmasi <a href="https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg" rel="noopener">Chrome Web Store’da</a> bor. U o‘sha bitg yadrosini (WebAssembly) ishlatadi va internetsiz o‘giradi:</p>
+      <ul>
+        <li><b>Popup o‘giruvchi</b> — matnni joylaysiz, yangi alifbodagi shakli chiqadi.</li>
+        <li><b>Belgilangan matn</b> — o‘ng tugma menyusi yoki <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> bilan tahrir maydonidagi matn joyida o‘giriladi.</li>
+        <li><b>Yozayotganda o‘girish</b> — siz tanlagan saytda yoqiladi (standart holatda o‘chiq).</li>
+      </ul>
+      <p>Google Docs matnni o‘zi chizadi, u yerda yozayotganda o‘girish ishlamaydi — matnni popup’da o‘girib qo‘ying yoki kompyuterga bitg’ni o‘rnating.</p>
+
+      <h2>Word, Excel fayllarini butunlay o‘girish</h2>
+      <p>Tayyor hujjatni qayta yozish shart emas. bitg buyruq qatorida: <code data-no-conv>bitg file hisobot.docx</code> — yangi nusxa (<code data-no-conv>hisobot.yangi.docx</code>) yaratiladi, formatlash joyida qoladi. .docx, .xlsx, .txt va .md fayllar qo‘llab-quvvatlanadi; avval nima o‘zgarishini ko‘rish uchun <code data-no-conv>--dry-run</code>. Bir-ikki xatboshi bo‘lsa — <a href="/konvertor/">onlayn konvertor</a> tezroq.</p>
+
+      <h2>Savollar</h2>
+
+      <h3 data-faq>Kompyuterda yangi alifboda qanday yozaman?</h3>
+      <p>Eng oson yo‘l — bitg dasturini o‘rnatib, eskicha yozish: so‘z tugashi bilan o‘, g‘, sh, ch yangi harflarga (ö, ğ, ş, ç) o‘tadi. bitg Windows 10/11, macOS 11+ va Ubuntu/Debian uchun bepul; tugma bilan yozish uchun ichida klaviatura tartiblari ham bor.</p>
+
+      <h3 data-faq>Yangi alifbo dasturi Windows uchun bepulmi?</h3>
+      <p>Ha. bitg bepul va ochiq kodli (MIT yoki Apache-2.0), kompaniyalarda ham bepul ishlatiladi. Uni bitg.uz/yuklab-olish sahifasidan yoki GitHub relizlaridan yuklab olasiz.</p>
+
+      <h3 data-faq>bitg Microsoft Store’da bormi?</h3>
+      <p>Hozir yo‘q: bitg bitg.uz va GitHub’dan MSI o‘rnatuvchi sifatida tarqatiladi. Microsoft Store’dagi boshqa yangi alifbo ilovalari va ularning farqi taqqoslash sahifasida.</p>
+
+      <h3 data-faq>Inglizcha so‘zlar buzilmaydimi?</h3>
+      <p>Yo‘q: bitg har so‘zni lug‘at va kontekst bilan tekshiradi. 3 000 ta inglizcha gapda 99,73 % i o‘zgarmay qoldi (o‘lchov 2026-11-12). Xato o‘girilsa, Backspace bosing — asl so‘z qaytadi.</p>
+
+      <h3 data-faq>Internet kerakmi?</h3>
+      <p>Yo‘q. O‘girish kompyuterning o‘zida bo‘ladi, yozgan matningiz hech qayerga yuborilmaydi va saqlanmaydi.</p>
+
+      <h3 data-faq>Dastur o‘rnatib bo‘lmasa-chi?</h3>
+      <p>Brauzerda bitg kengaytmasini (Chrome Web Store) yoki bitg.uz/konvertor onlayn konvertorini ishlating. Windows’da Alt kodlari bilan ö (Alt 0246) va ç (Alt 0231) ni o‘rnatmasdan yozish mumkin, ğ va ş uchun esa Turkcha Q tartibi kerak.</p>
+
+      <div class="dc-cta">
+        <div>
+          <h2>bitg’ni kompyuterga o‘rnating</h2>
+          <p>Eskicha yozasiz — yangi alifboda chiqadi. Bepul, internetsiz, ochiq kod.</p>
+        </div>
+        <div class="dc-cta__btns"><a class="bg-btn bg-btn--pri" href="/yuklab-olish/">Yuklab olish</a></div>
+      </div>
