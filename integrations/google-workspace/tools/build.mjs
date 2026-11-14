@@ -55,10 +55,12 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 for (const f of SOURCES) fs.copyFileSync(path.join(HERE, 'src', f), path.join(OUT, f));
 
+// REUSE-IgnoreStart
 const wasmGs = [
   '// SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors',
   '//',
   '// SPDX-License-Identifier: MIT OR Apache-2.0',
+  // REUSE-IgnoreEnd
   '',
   '// GENERATSIYA QILINGAN (integrations/google-workspace/tools/build.mjs) — qo\'lda tahrirlamang.',
   `// bitg_core.wasm: ${wasm.length} bayt, sha256 ${sha}; gzip ${gz.length} bayt, base64 ${b64.length} belgi, ${parts.length} bo'lak.`,

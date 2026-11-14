@@ -12,7 +12,7 @@ const path = require('path');
 const vm = require('vm');
 
 const HTML = fs.readFileSync(path.join(__dirname, '..', 'src', 'Sidebar.html'), 'utf8');
-const SCRIPT = HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
+const SCRIPT = HTML.match(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/i)[1];
 
 /** HTML dagi id va data-* atributli elementlardan eng kichik soxta DOM. */
 function fakeDom() {
