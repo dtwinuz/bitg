@@ -9,6 +9,22 @@ fn c(s: &str) -> String {
 }
 
 #[test]
+fn turned_comma_all_caps_is_converted() {
+    assert_eq!(c("OʻZBEKISTON GʻALABA"), "ÖZBEKISTON ĞALABA");
+    assert_eq!(c("MAʻNO"), "MAʼNO");
+    assert_eq!(c("OʻBrien"), "OʻBrien");
+}
+
+#[test]
+fn foreign_name_without_sh_ch_next_to_foreign_name_is_kept() {
+    assert_eq!(c("Michael Jordan keldi."), "Michael Jordan keldi.");
+    assert_eq!(
+        c("Charlie Chaplin va Gofur keldi."),
+        "Charlie Chaplin va Ğofur keldi."
+    );
+}
+
+#[test]
 fn uzbek_sentences() {
     assert_eq!(
         c("O'zbekiston shaharlari: Toshkent"),
