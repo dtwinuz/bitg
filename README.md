@@ -9,6 +9,7 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/dtwinuz/bitg)](https://api.reuse.software/info/github.com/dtwinuz/bitg)
 [![crates.io](https://img.shields.io/crates/v/bitg-core?label=crates.io)](https://crates.io/crates/bitg-core)
 [![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
+[![Supported by wonmortech](https://img.shields.io/badge/supported%20by-wonmortech-1f6feb)](#qollab-quvvatlovchilar)
 
 **O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
 *Uzbek text to the 2026 Latin alphabet (ö ğ ş ç ʼ) — as you type, everywhere, without breaking English.*
@@ -547,6 +548,20 @@ ishlaydi. Ichida turkiy tillar uchun tarjimon va ovozli kiritish ham bor —
 [tilmoch.ai](https://tilmoch.ai/ru/product/mobile). O'rnatish qadamlari:
 [bitg.uz/yangi-harflarni-yozish](https://bitg.uz/yangi-harflarni-yozish/#telefon). Tilmoch'ning kompyuter klaviatura
 tartibi (Windows, macOS) bitg'da `tilmoch` tartibi sifatida bor.
+
+## Qo'llab-quvvatlovchilar
+
+<p align="center">
+  <a href="https://wonmor.io">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wonmortech/brand/main/logo/lockup-on-dark.svg">
+      <img src="https://raw.githubusercontent.com/wonmortech/brand/main/logo/lockup-on-light.svg" alt="wonmortech" height="56">
+    </picture>
+  </a>
+</p>
+
+bitg [wonmortech](https://github.com/wonmortech) ([wonmor.io](https://wonmor.io)) tomonidan qo'llab-quvvatlanadi.
+*bitg is supported by [wonmortech](https://github.com/wonmortech).*
 
 ## Hissa qo'shish
 
