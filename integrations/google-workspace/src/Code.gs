@@ -127,9 +127,9 @@ function bitgToast_(res) {
 
 // ------------------------------------------------------------------------------------------ panel API
 
-/** Panel uchun: muharrir turi. */
+/** Panel uchun: muharrir turi va menyu tili (panel ham shu tilda ochiladi). */
 function hostInfo() {
-  return { host: bitgHost_() };
+  return { host: bitgHost_(), lang: bitgLang_() };
 }
 
 /** Panelda sinab ko'rish: matnni o'giradi (hujjatga tegmaydi). */

@@ -102,6 +102,8 @@ var BITG_SIDEBAR_I18N = {
     try: 'Sinab ko‘rish', tryBtn: 'O‘girib ko‘rsatish', tryPh: 'Masalan: O‘zbekiston shaharlari — Toshkent, Shahrisabz',
     working: 'Ishlanmoqda…', done: 'Tayyor: {n} ta joy o‘zgartirildi.', none: 'O‘giriladigan matn topilmadi.',
     noSel: 'Avval matn (yoki kataklar) ni belgilang.', fail: 'Xato: {e}',
+    denied: 'Google bu so‘rovni rad etdi. Brauzerda bir nechta Google akkaunt ochiq bo‘lsa, shunday bo‘ladi: ' +
+      'boshqa akkauntlardan chiqing yoki faylni inkognito oynada oching. Menyudagi buyruqlar ishlayveradi.',
     privacy: 'Matn Google ichida, shu hujjat uchun ishlanadi — bitg serveriga yoki boshqa joyga yuborilmaydi.',
     site: 'bitg.uz', privacyLink: 'Maxfiylik', terms: 'Shartlar', help: 'Yordam'
   },
@@ -114,6 +116,8 @@ var BITG_SIDEBAR_I18N = {
     try: 'Попробовать', tryBtn: 'Показать результат', tryPh: 'Например: Ассалому алайкум, Тошкент',
     working: 'Обработка…', done: 'Готово: изменено мест — {n}.', none: 'Текст для преобразования не найден.',
     noSel: 'Сначала выделите текст (или ячейки).', fail: 'Ошибка: {e}',
+    denied: 'Google отклонил запрос. Так бывает, когда в браузере открыто несколько аккаунтов Google: ' +
+      'выйдите из остальных или откройте файл в режиме инкогнито. Команды из меню продолжают работать.',
     privacy: 'Текст обрабатывается внутри Google только для этого документа — на сервер bitg и куда-либо ещё не отправляется.',
     site: 'bitg.uz', privacyLink: 'Конфиденциальность', terms: 'Условия', help: 'Помощь'
   },
@@ -127,6 +131,8 @@ var BITG_SIDEBAR_I18N = {
     try: 'Try it', tryBtn: 'Show result', tryPh: 'For example: O‘zbekiston shaharlari — Toshkent',
     working: 'Working…', done: 'Done: {n} place(s) changed.', none: 'No text to convert was found.',
     noSel: 'Select some text (or cells) first.', fail: 'Error: {e}',
+    denied: 'Google refused the request. This happens when several Google accounts are signed in to the browser: ' +
+      'sign out of the others or open the file in an incognito window. The menu commands still work.',
     privacy: 'Text is processed inside Google, for this file only — it is never sent to a bitg server or anywhere else.',
     site: 'bitg.uz', privacyLink: 'Privacy', terms: 'Terms', help: 'Help'
   }
@@ -187,7 +193,9 @@ function bitgSidebar(env) {
       done(res);
     }, function (err) {
       busy(false);
-      status({ text: t().fail.replace('{e}', (err && err.message) || String(err)), kind: 'err' });
+      var m = (err && err.message) || String(err);
+      // Bir nechta akkaunt ochiq bo'lsa google.script.run PERMISSION_DENIED qaytaradi (Apps Script cheklovi)
+      status({ text: m.indexOf('PERMISSION_DENIED') >= 0 ? t().denied : t().fail.replace('{e}', m), kind: 'err' });
     });
   }
   function convert(fn) {
@@ -220,6 +228,8 @@ function bitgSidebar(env) {
       paint();
       run('hostInfo', [], function (info) {
         if (info && info.host) host = info.host;
+        // Foydalanuvchi tilni o'zi tanlamagan bo'lsa — menyu bilan bir xil (Google akkaunt tili)
+        if (info && !store.get('lang') && BITG_SIDEBAR_I18N[info.lang]) lang = info.lang;
         paint();
       }, function () { /* standart: docs */ });
     },
