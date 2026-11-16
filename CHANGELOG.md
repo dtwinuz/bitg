@@ -4,7 +4,22 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-11-17
+
+Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md).
+
 ### Qo'shildi
+- **«Taklif» klaviatura tartibi (rasmiy emas)** ([#106](https://github.com/dtwinuz/bitg/pull/106)): Senatda
+  (10.09.2026) Davlat tilini rivojlantirish departamenti ko'rsatgan «ma'qul variant» maketi asosida: `[` → Ö, `]` → Ğ,
+  `;` → Ş, `'` → Ç, `\` → tutuq (U+02BC). Ko'chgan `[ ] \ ; '` belgilari AltGr / AltGr+Shift'da. Rasmiy texnik
+  standart hali chiqmagani uchun sozlamalarda «Taklif (rasmiy emas)» deb belgilangan (`bitg-tsf` keymap, sozlamalar
+  oynasi, `/klaviatura/`).
+- **Google Docs, Sheets va Slides qo'shimchasi** ([#106](https://github.com/dtwinuz/bitg/pull/106),
+  [#108](https://github.com/dtwinuz/bitg/pull/108), `integrations/google-workspace`): o'sha `bitg_core.wasm` Apps
+  Script ichida ishlaydi, tarmoq so'rovi yo'q, faqat `*.currentonly` scope'lar. Faqat o'zgargan bo'laklar qayta
+  yoziladi (format, havola va izoh saqlanadi); Sheets'da formula, son va sana tegilmaydi. Panel uz/ru/en. Google
+  Workspace Marketplace ko'rib chiqishida.
+- ChatGPT katalogi uchun plagin paketi (MCP + skill, `integrations/chatgpt`) ([#98](https://github.com/dtwinuz/bitg/pull/98)).
 - **MCP serveri 2026-07-28 reviziyasini qo'llaydi**: `server/discover`, so'rovdagi `_meta` versiyasi, `resultType` va
   ro'yxat keshi (`ttlMs`, `cacheScope`), noma'lum metodga 404, qo'llanmagan versiyaga 400/-32022. Eski klientlar
   (`initialize`, 2024-11-05…2025-11-25) avvalgidek ishlaydi. Claude connector'i endi ulanadi.
@@ -50,7 +65,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 ### Tuzatildi
 - Yolg'iz xorijiy nom apostrof tiklashda buzilmaydi: «Jordan keldi.» endi «Jördan» bo'lmaydi. Bosh harfli so'z
   faqat qisqa o'zak orqali taxmin qilinsa (jo'r|dan) tiklanmaydi; uzun o'zakli o'zbek nomlari (To'raqulovdan,
-  G'iloniyga) avvalgidek tiklanadi. Eval o'zgarmadi (uz 2966, en 2992, uz-noapos 2436).
+  G'iloniyga) avvalgidek tiklanadi. Eval o'zgarmadi (uz 2966, en 2992, uz-noapos 2436)
+  ([#110](https://github.com/dtwinuz/bitg/pull/110)).
+- Bosh harfli so'z U+02BB/U+02BC bilan (OʻZBEKISTON, GʻALABA, MAʻNO) endi o'giriladi: apostrof bosh harf
+  tekshiruvida hisobga olinmaydi, avval O'Brien kabi nom deb qolib ketardi
+  ([#106](https://github.com/dtwinuz/bitg/pull/106)).
+- Xorijiy nom yonidagi xorijiy nom: «Michael Jordan» endi «Michael Jördan» bo'lmaydi
+  ([#106](https://github.com/dtwinuz/bitg/pull/106)).
+- Brendlar asl yozuvida qoladi: Marshall, Shokz, Chigo ([#101](https://github.com/dtwinuz/bitg/issues/101),
+  [#107](https://github.com/dtwinuz/bitg/pull/107) — @wonmors).
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
   Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65), [#70](https://github.com/dtwinuz/bitg/pull/70) — @Abdulazim1771).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
@@ -273,6 +296,9 @@ Birinchi ommaviy beta (Windows 10/11, x64).
 - MSI o'rnatuvchi (WiX 5): barcha foydalanuvchilar uchun, jim o'rnatish, `AUTOSTART` / `ADDKEYBOARD` xossalari.
 - O'lchov: o'zbekcha gaplar 98,87 %, inglizcha gaplar o'zgarmay qolishi 99,73 % (har biri 3 000 gap).
 
+[Unreleased]: https://github.com/dtwinuz/bitg/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/dtwinuz/bitg/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/dtwinuz/bitg/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/dtwinuz/bitg/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/dtwinuz/bitg/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/dtwinuz/bitg/compare/v0.1.0...v0.2.0

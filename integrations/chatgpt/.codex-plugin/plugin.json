@@ -1,6 +1,6 @@
 {
   "name": "bitg",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Write and convert Uzbek text in the new 2026 Uzbek Latin alphabet (Ö Ğ Ş Ç) with the deterministic bitg engine. Converts old Latin (o‘ g‘ sh ch, any apostrophe) and Cyrillic to the new alphabet and back, keeping English words, names, links and code intact.",
   "author": {
     "name": "dtwinuz",
