@@ -9,10 +9,14 @@
  "crumb": "AI yordamchilar",
  "card": "AI yordamchiga bitg’ni ulang: matn yangi alifboga qoida bo‘yicha o‘giriladi.",
  "lead": "AI yordamchilar yangi o‘zbek alifbosini ko‘pincha taxmin bilan yozadi: «sh» va «ch» ni hamma joyda almashtiradi, inglizcha so‘z va ismlarni buzadi. <b>bitg ochiq MCP serveri</b> — <code data-no-conv>https://bitg.uz/mcp</code> — yordamchiga matnni bitg yadrosi bilan, qoida bo‘yicha o‘girish imkonini beradi. Login kerak emas, bepul.",
- "updated": "2026-11-13",
+ "updated": "2026-11-17",
  "published": "2026-11-13",
  "schema": ["Article", "FAQPage"],
- "links": ["/konvertor/", "/yangi-alifbo/", "/maxfiylik/", "/yuklab-olish/"]
+ "links": ["/konvertor/", "/yangi-alifbo/", "/maxfiylik/", "/yuklab-olish/"],
+ "sources": [
+  {"title": "Mistral: MCP Connectors (Le Chat)", "url": "https://docs.mistral.ai/le-chat/knowledge-integrations/connectors/mcp-connectors"},
+  {"title": "Perplexity: Adding custom remote connectors", "url": "https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors"}
+ ]
 }
 ---
       <h2>MCP nima</h2>
@@ -24,7 +28,10 @@
       <p>Plagin bilan birga «yangi alifbo» ko‘nikmasi (skill) ham o‘rnatiladi: Claude o‘zbekcha javobni yangi alifboda yozishda bitg’dan o‘zi foydalanadi.</p>
 
       <h2 data-faq>ChatGPT’da ishlaydimi?</h2>
-      <p>Ha. ChatGPT sozlamalarida <b>Apps</b> bo‘limida dasturchi rejimini yoqing va yangi ilova sifatida <code data-no-conv>https://bitg.uz/mcp</code> manzilini qo‘shing. ChatGPT katalogiga rasmiy ilova sifatida joylash ko‘rib chiqilmoqda.</p>
+      <p>Ha. ChatGPT sozlamalarida <b>Apps</b> bo‘limida dasturchi rejimini yoqing va yangi ilova sifatida <code data-no-conv>https://bitg.uz/mcp</code> manzilini qo‘shing.</p>
+
+      <h2 data-faq>Le Chat (Mistral) va Perplexity’da-chi?</h2>
+      <p>Le Chat: <b>Connectors → + Add Connector → Custom MCP Connector</b>, nomi <code data-no-conv>bitg</code>, Server URL <code data-no-conv>https://bitg.uz/mcp</code>, keyin <b>Connect</b> — kirish talab qilinmaydi. Perplexity: <b>Customize → Connectors → Add custom → Add MCP connector → Remote</b>, MCP server URL <code data-no-conv>https://bitg.uz/mcp</code>, <b>Advanced</b> bo‘limida Authentication — <b>None</b>, Transport — <b>Streamable HTTP</b>, ogohlantirish belgisini qo‘yib <b>Add</b> bosing.</p>
 
       <h2 data-faq>Gemini va boshqa dasturlarda-chi?</h2>
       <p>Gemini CLI: <code data-no-conv>gemini extensions install https://github.com/dtwinuz/bitg</code>. VS Code, Cursor va MCP’ni qo‘llaydigan boshqa dasturlarda HTTP MCP server sifatida shu manzilni qo‘shing. Server rasmiy MCP Registry’da <code data-no-conv>uz.bitg/bitg</code> nomi bilan.</p>
