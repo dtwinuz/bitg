@@ -10,7 +10,9 @@ bog‘langan, versiya 1 yaratilgan, Marketplace SDK yoqilgan. Docs’da test dep
 | OAuth consent screen | **In production**, branding tasdiqlangan va chop etilgan (2026-11-16) |
 | OAuth data access verification (`script.container.ui` sensitive) | **Ko‘rib chiqilmoqda** (2026-11-16 yuborildi); demo video: https://youtu.be/0sgFCePctng (unlisted) |
 | Marketplace Store Listing (en + ru, Free, Office Applications, All Regions) | **Review’da** (2026-11-16 yuborildi); tasdiqlansa avtomatik chiqadi |
-| Sheets / Slides real Google’da | hali qo‘lda sinalmagan (Docs sinaldi) |
+| Docs real Google’da | ✔ 2026-11-16: 19 joy; kirill, havola va format saqlandi |
+| Sheets real Google’da | ✔ 2026-11-16 (test deployment, butun varaq): matn va kirill o‘girildi; `=UPPER(...)` formula, son 12345, sana 2026-11-16 va inglizcha `push` o‘zgarmadi |
+| Slides real Google’da | ✔ 2026-11-16 (butun taqdimot, 4 joy): `Toşkent — Özbekiston poytaxti`, kirill → `Şahar ğarbida`; `Google Meet` o‘zgarmadi |
 
 Review vaqtida listingni tahrirlab bo‘lmaydi. Google savol yuborsa, xat Developer contact email’ga keladi.
 
