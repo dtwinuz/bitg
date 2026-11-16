@@ -1,0 +1,80 @@
+---json
+{
+ "slug": "/klaviatura/mac/",
+ "lang": "uz",
+ "title": "Mac’da yangi alifbo: Ö, Ğ, Ş, Ç yozish (macOS) · bitg",
+ "description": "macOS’da yangi alifbo harflari Ö, Ğ, Ş, Ç ni yozish: bitg .pkg (sinov), ABC Extended va Option tugmasi birikmalari, Turkish Q tartibi. Bepul yo‘llar bir sahifada.",
+ "h1": "Mac’da yangi alifboda yozish: Ö, Ğ, Ş, Ç",
+ "crumb": "Mac",
+ "card": "macOS: bitg .pkg (sinov), ABC Extended, Option birikmalari, Turkish Q.",
+ "lead": "Mac’da ikki yo‘l bor: <b>bitg</b> — eskicha yozasiz, so‘z tugashi bilan <span data-no-conv>o‘zbek → özbek</span> bo‘ladi; yoki macOS’ning o‘zidagi tartiblar bilan har harfni tugma birikmasi orqali yozasiz.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/klaviatura/", "/yuklab-olish/", "/yangi-alifbo-kompyuter/", "/yangi-harflarni-yozish/", "/konvertor/"],
+ "sources": [
+  {"title": "Enter characters with accent marks on Mac — Apple Support", "url": "https://support.apple.com/guide/mac-help/enter-characters-with-accent-marks-on-mac-mh27474/mac", "note": "bosib turish menyusi, dead key, Keyboard Viewer, ABC – Extended"},
+  {"title": "Mac ABC Extended keyboard codes — Penn State", "url": "https://sites.psu.edu/symbolcodes/codemacext", "note": "Option+B (breve), Option+C (cedilla) birikmalari"},
+  {"title": "bitg README: macOS’ga o‘rnatish — GitHub", "url": "https://github.com/dtwinuz/bitg/blob/main/README.md", "note": ".pkg, Homebrew, sinov holati"},
+  {"title": "dtwinuz/homebrew-tap — GitHub", "url": "https://github.com/dtwinuz/homebrew-tap"}
+ ]
+}
+---
+      <h2>Qisqa javob</h2>
+      <div class="dc-table"><table>
+        <tr><th>Yo‘l</th><th>Qanday yozasiz</th><th>Holat</th></tr>
+        <tr><td><a href="#bitg">bitg</a> (.pkg yoki Homebrew)</td><td>eskicha: <span data-no-conv>o‘ g‘ sh ch</span> — dastur o‘zi <span data-no-conv>ö ğ ş ç</span> qiladi</td><td>sinov bosqichida, bepul</td></tr>
+        <tr><td><a href="#abc-extended">ABC – Extended</a> tartibi</td><td><kbd>Option</kbd> + <kbd>B</kbd>, <kbd>G</kbd> → ğ; <kbd>Option</kbd> + <kbd>C</kbd>, <kbd>S</kbd> → ş</td><td>macOS’da tayyor</td></tr>
+        <tr><td><a href="#turkish-q">Turkish Q</a> tartibi</td><td>to‘rtala harfning o‘z tugmasi bor</td><td>macOS’da tayyor</td></tr>
+        <tr><td>Har qanday Mac</td><td>tayyor matnni <a href="/konvertor/">onlayn konvertorda</a> o‘giring</td><td>o‘rnatish kerak emas</td></tr>
+      </table></div>
+
+      <h2 id="bitg">bitg: eskicha yozing, yangi alifboda chiqsin</h2>
+      <ol class="dc-steps">
+        <li><b>O‘rnating.</b> <a href="/yuklab-olish/#mac">{{macName}}</a> ({{macSizeUz}}) ni yuklab oling — Apple M va Intel uchun bitta universal fayl, macOS 11 va undan yangi. Yoki Homebrew bilan: <code data-no-conv>brew install --cask dtwinuz/tap/bitg</code> (keyin <code data-no-conv>brew upgrade</code> bilan yangilanadi).</li>
+        <li><b>Ochilmasa.</b> O‘rnatuvchi hozircha Apple imzosiz. macOS to‘xtatsa: Tizim sozlamalari → Maxfiylik va xavfsizlik → «Baribir ochish». Yoki terminalda: <code data-no-conv>sudo installer -pkg ~/Downloads/{{macName}} -target /</code>. Nega imzosiz: <a href="/xavfsizmi/">bitg xavfsizmi?</a></li>
+        <li><b>Tanlang.</b> bitg kiritish manbalariga o‘zi qo‘shiladi (ko‘rinmasa — tizimdan chiqib qayta kiring). <kbd>Control</kbd> + <kbd>Probel</kbd> bilan bitg’ga o‘ting.</li>
+        <li><b>Yozing.</b> <span data-no-conv>«shahar», «choy»</span> — probel yoki tinish belgisidan keyin <span data-no-conv>«şahar», «çoy»</span>. Inglizcha so‘z va havolalar o‘zgarmaydi.</li>
+      </ol>
+      <p>Menyu satridagi kiritish manbalari menyusida (bitg tanlanganda): bitg’ni yoqish, ma’lum dasturda o‘chirish, istisno so‘zlar. Terminal, iTerm, Warp, kitty kabi terminallarda bitg o‘chiq turadi.</p>
+      <p class="dc-note">Mac versiyasi sinov bosqichida: CI paketni o‘rnatib, kiritish manbasi yoqilishini tekshiradi, lekin Safari, Chrome, Notes, Word va Telegram’da hali qo‘lda sinalmagan. Muammo bo‘lsa, <a href="https://github.com/dtwinuz/bitg/issues" rel="noopener">GitHub’da</a> yoki <a href="/fikr/">bizga yozing</a>.</p>
+
+      <h2 id="abc-extended">Dasturisiz: ABC – Extended tartibi</h2>
+      <p>«ABC – Extended» — macOS’dagi tayyor tartib. Apple uni lotin yozuvidagi ko‘p tillarda yozish uchun tavsiya qiladi. Unda urg‘u belgisi oldin bosiladi (dead key), keyin harf.</p>
+      <div class="dc-table"><table>
+        <tr><th>Harf</th><th>Bosiladi</th><th>Izoh</th></tr>
+        <tr><td class="dc-big" data-no-conv>ö Ö</td><td><kbd>Option</kbd> + <kbd>U</kbd>, so‘ng <kbd>O</kbd></td><td>bosh harf: oxirida <kbd>Shift</kbd> + <kbd>O</kbd></td></tr>
+        <tr><td class="dc-big" data-no-conv>ğ Ğ</td><td><kbd>Option</kbd> + <kbd>B</kbd>, so‘ng <kbd>G</kbd></td><td>Option + B — breve (˘ shaklidagi yoy)</td></tr>
+        <tr><td class="dc-big" data-no-conv>ş Ş</td><td><kbd>Option</kbd> + <kbd>C</kbd>, so‘ng <kbd>S</kbd></td><td>Option + C — sedil (pastki ilmoq)</td></tr>
+        <tr><td class="dc-big" data-no-conv>ç Ç</td><td><kbd>Option</kbd> + <kbd>C</kbd>, so‘ng <kbd>C</kbd></td><td>sedil + c</td></tr>
+      </table></div>
+      <p>Qo‘shish: Tizim sozlamalari → Klaviatura → Kiritish manbalari → Tahrirlash → «+» → «ABC – Extended». Oddiy «ABC» tartibida ö (<kbd>Option</kbd> + <kbd>U</kbd>, <kbd>O</kbd>) va ç (<kbd>Option</kbd> + <kbd>C</kbd>) ham bor, lekin ğ va ş uchun «Extended» kerak.</p>
+      <p>Qaysi tugma qaysi belgini berishini ko‘rish uchun Klaviatura ko‘rgichini (Keyboard Viewer) oching va <kbd>Option</kbd> ni bosib turing: urg‘u qo‘yadigan tugmalar to‘q sariq chiziq bilan belgilanadi.</p>
+
+      <h2>Harfni bosib turish menyusi</h2>
+      <p>macOS’da harf tugmasini bosib tursangiz, shu harfning urg‘uli variantlari menyusi ochiladi: kerakligini sichqoncha, raqam yoki strelka bilan tanlaysiz. Menyuda qaysi variantlar chiqishi tanlangan tartibga bog‘liq va u hamma dasturda ishlamaydi. Kerakli harf (masalan, ş yoki ğ) menyuda bo‘lmasa, yuqoridagi ABC – Extended yoki Turkish Q yo‘lidan foydalaning.</p>
+
+      <h2 id="turkish-q">Turkish Q tartibi</h2>
+      <p>Turk alifbosida ham Ö, Ğ, Ş, Ç bor, shuning uchun «Turkish Q» tartibida to‘rtala harf alohida tugmada turadi — birikma kerak emas. Kamchiligi: qavslar va ba’zi belgilar boshqa joyga ko‘chadi, <kbd>i</kbd> tugmasi esa turkcha nuqtasiz ı beradi. Tugmalar joylashuvini Klaviatura ko‘rgichida ko‘ring. Qo‘shish yo‘li ABC – Extended bilan bir xil.</p>
+
+      <h2>Savollar</h2>
+
+      <h3 data-faq>Mac’da ş va ğ qanday yoziladi?</h3>
+      <p>macOS’dagi «ABC – Extended» tartibida: ş — Option + C, keyin S; ğ — Option + B, keyin G. Yoki «Turkish Q» tartibini qo‘shing — unda ikkala harf o‘z tugmasida. Eskicha yozib avtomatik o‘girish uchun bitg’ning Mac versiyasi (sinov) bor.</p>
+
+      <h3 data-faq>bitg Mac uchun bepulmi?</h3>
+      <p>Ha. bitg bepul va ochiq kodli (MIT yoki Apache-2.0). Mac uchun .pkg fayl bitg.uz/yuklab-olish sahifasida, Homebrew orqali esa brew install --cask dtwinuz/tap/bitg buyrug‘i bilan o‘rnatiladi.</p>
+
+      <h3 data-faq>Mac bitg’ni ochmayapti, nima qilay?</h3>
+      <p>O‘rnatuvchi hozircha Apple imzosiz, shuning uchun macOS uni to‘xtatishi mumkin. Tizim sozlamalari → Maxfiylik va xavfsizlik bo‘limida «Baribir ochish» ni bosing yoki terminalda sudo installer -pkg buyrug‘i bilan o‘rnating.</p>
+
+      <h3 data-faq>Bosib turganda ş chiqmayapti — nega?</h3>
+      <p>Bosib turish menyusidagi variantlar tanlangan klaviatura tartibiga bog‘liq va har harf uchun bir xil emas. ş yoki ğ ko‘rinmasa, ABC – Extended tartibidagi Option birikmalaridan yoki Turkish Q tartibidan foydalaning.</p>
+
+      <div class="dc-cta">
+        <div>
+          <h2>bitg’ni Mac’ga o‘rnating</h2>
+          <p>Eskicha yozasiz — yangi alifboda chiqadi. Bepul, internetsiz, ochiq kod.</p>
+        </div>
+        <div class="dc-cta__btns"><a class="bg-btn bg-btn--pri" href="/yuklab-olish/#mac">Yuklab olish</a></div>
+      </div>

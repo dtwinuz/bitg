@@ -1,0 +1,20 @@
+{
+  "id": "/konvertor/",
+  "name": "bitg konvertor — yangi o‘zbek alifbosi",
+  "short_name": "bitg konvertor",
+  "description": "Eski lotin yoki kirill matnni 2026-yilgi yangi o‘zbek alifbosiga (ö ğ ş ç) o‘giradi. Internetsiz ishlaydi, matn qurilmadan chiqmaydi.",
+  "lang": "uz",
+  "dir": "ltr",
+  "start_url": "/konvertor/?source=pwa",
+  "scope": "/konvertor/",
+  "display": "standalone",
+  "background_color": "#f6f6f3",
+  "theme_color": "#f6f6f3",
+  "categories": ["productivity", "utilities", "education"],
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/logo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/logo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    {"src": "/icon.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

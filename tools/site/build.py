@@ -105,12 +105,13 @@ UI = {
         "skip": "Перейти к основному тексту", "home": "главная", "nav": "Разделы",
         "theme": "Сменить тему", "gh": "Исходный код на GitHub", "dl": "Скачать", "crumbs": "Навигация",
         "updated": "Обновлено", "sources": "Источники", "related": "Связанные страницы", "langs": "Язык",
-        "nav_items": [("/ru/novyy-uzbekskiy-alfavit/", "Новый алфавит"), ("/konvertor/", "Конвертер")],
+        "nav_items": [("/ru/novyy-uzbekskiy-alfavit/", "Новый алфавит"), ("/ru/konverter/", "Конвертер"),
+                      ("/ru/raskladka/", "Раскладка"), ("/ru/zakon/", "Закон")],
         "foot_cols": [
-            ("bitg", [("/ru/", "О программе"), ("/yuklab-olish/", "Скачать для Windows"),
+            ("bitg", [("/ru/", "О программе"), ("/yuklab-olish/", "Скачать для Windows"), ("/ru/raskladka/", "Раскладка"),
                       ("https://github.com/dtwinuz/bitg", "Исходный код")]),
             ("Алфавит", [("/ru/novyy-uzbekskiy-alfavit/", "Новый узбекский алфавит"),
-                         ("/konvertor/", "Онлайн-конвертер")]),
+                         ("/ru/zakon/", "Закон об алфавите"), ("/ru/konverter/", "Онлайн-конвертер")]),
             ("Язык", [("/", "Oʻzbekcha"), ("/en/", "English"), ("https://t.me/bitguz", "Telegram")]),
         ],
         "foot_lic": "MIT или Apache-2.0 · открытый код",
@@ -120,9 +121,9 @@ UI = {
         "skip": "Skip to main content", "home": "home", "nav": "Sections",
         "theme": "Toggle theme", "gh": "Source code on GitHub", "dl": "Download", "crumbs": "Breadcrumb",
         "updated": "Updated", "sources": "Sources", "related": "Related pages", "langs": "Language",
-        "nav_items": [("/konvertor/", "Converter")],
+        "nav_items": [("/en/converter/", "Converter"), ("/en/download/", "Download"), ("/en/ai/", "AI tools")],
         "foot_cols": [
-            ("bitg", [("/en/", "About bitg"), ("/yuklab-olish/", "Download for Windows"),
+            ("bitg", [("/en/", "About bitg"), ("/en/download/", "Download"), ("/en/converter/", "Converter"),
                       ("https://github.com/dtwinuz/bitg", "Source code")]),
             ("Language", [("/", "Oʻzbekcha"), ("/ru/", "Русский"), ("https://t.me/bitguz", "Telegram")]),
         ],
@@ -177,6 +178,9 @@ def subst(text, ctx):
 def esc(s):
     return html.escape(s, quote=True)
 
+
+# sarlavhadagi "Yuklab olish" tugmasi qaysi sahifaga olib boradi
+DL_PAGE = {"uz": "/yuklab-olish/", "ru": "/yuklab-olish/", "en": "/en/download/"}
 
 def strip_tags(s):
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", s))).strip()
@@ -347,9 +351,13 @@ def render(meta, ctx, by_slug, alt_groups):
     # dl.js: tizimni aniqlash va rahmat sahifasi (yuklab olish sahifalari)
     dl_js = '<script src="/dl.js" defer></script>\n' if meta.get("dl") else ""
     robots = '<meta name="robots" content="noindex">\n' if meta.get("noindex") else ""
+    # pwa: konvertorni ilova qilib o'rnatish (PWA / Microsoft Store MSIX) — web/pwa.js + web/sw.js
+    if meta.get("pwa"):
+        robots += '<link rel="manifest" href="/konvertor.webmanifest">\n'
+        dl_js += '<script src="/pwa.js" defer></script>\n'
     article_cls = "dc-article" + (" dc-article--wide" if meta.get("wide") else "")
-    dl_btn = "" if slug == "/yuklab-olish/" else \
-        f'<a class="bg-btn bg-btn--pri bg-btn--sm bg-hide-sm" href="/yuklab-olish/">{ui["dl"]}</a>'
+    dl_btn = "" if slug == DL_PAGE[lang] else \
+        f'<a class="bg-btn bg-btn--pri bg-btn--sm bg-hide-sm" href="{DL_PAGE[lang]}">{ui["dl"]}</a>'
     home = HOME[lang]
     og_type = "website" if slug in HOME.values() else "article"
 
