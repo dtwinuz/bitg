@@ -1,9 +1,18 @@
 # Google Workspace Marketplace materiallari
 
 Editor add-on (Docs, Sheets, Slides) uchun listing matnlari, grafika rejasi, scope izohlari va nashr qadamlari.
-Holat (2026-11-16): Google Cloud loyihasi `bitg-workspace-add-on` (raqam 306763065390), OAuth consent screen
-(External, Testing), Apps Script loyihasi bog‘langan, versiya 1 yaratilgan, Marketplace SDK yoqilgan. Docs’da test
-deployment bilan sinaldi: «Butun hujjat» 19 joyni o‘girdi, qalin/havola/kursiv saqlandi, bitta Ctrl+Z hammasini qaytardi.
+Holat (2026-11-16): Google Cloud loyihasi `bitg-workspace-add-on` (raqam 306763065390), Apps Script loyihasi
+bog‘langan, versiya 1 yaratilgan, Marketplace SDK yoqilgan. Docs’da test deployment bilan sinaldi: «Butun hujjat»
+19 joyni o‘girdi (kirill ham), havola o‘zgarmadi, qalin/kursiv saqlandi, bitta Ctrl+Z hammasini qaytardi.
+
+| Qadam | Holat |
+|---|---|
+| OAuth consent screen | **In production**, branding tasdiqlangan va chop etilgan (2026-11-16) |
+| OAuth data access verification (`script.container.ui` sensitive) | **Ko‘rib chiqilmoqda** (2026-11-16 yuborildi); demo video: https://youtu.be/0sgFCePctng (unlisted) |
+| Marketplace Store Listing (en + ru, Free, Office Applications, All Regions) | **Review’da** (2026-11-16 yuborildi); tasdiqlansa avtomatik chiqadi |
+| Sheets / Slides real Google’da | hali qo‘lda sinalmagan (Docs sinaldi) |
+
+Review vaqtida listingni tahrirlab bo‘lmaydi. Google savol yuborsa, xat Developer contact email’ga keladi.
 
 Talablar manbasi: [Create a listing](https://developers.google.com/workspace/marketplace/create-listing),
 [Configure the Marketplace SDK](https://developers.google.com/workspace/marketplace/enable-configure-sdk),
