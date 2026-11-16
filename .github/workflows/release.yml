@@ -170,5 +170,8 @@ jobs:
     permissions:
       contents: read
     uses: ./.github/workflows/stores.yml
+    # environment secret'lari (WINGET_TOKEN, CHOCO_API_KEY, AUR_SSH_KEY) v0.5.0 relizida ko'rinmadi,
+    # workflow_dispatch'da esa ko'rindi (run 43976691052) — chaqiruvchi secret'larni uzatsin
+    secrets: inherit
     with:
       version: ${{ github.ref_name }}
