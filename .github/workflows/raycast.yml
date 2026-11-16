@@ -49,3 +49,9 @@ jobs:
       - run: npm test
       - run: npx prettier --check "src/**/*.{ts,tsx}" "test/**/*.ts"
       - run: npm run build
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: raycast-wasm
+          path: integrations/raycast/assets/bitg_core.wasm
+          if-no-files-found: error
