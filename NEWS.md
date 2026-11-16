@@ -3,6 +3,20 @@
 Foydalanuvchi uchun qisqa: har versiyada nima o'zgardi. Texnik tafsilot — [CHANGELOG.md](CHANGELOG.md).
 Bu fayldan ilovadagi «Yangiliklar» sahifasi va yangilanish oynasidagi qaydlar yig'iladi.
 
+## 0.5.0 — 2026-11-17
+
+### Yangi
+- **Yangi klaviatura tartibi (taklif).** Senatda ko'rsatilgan maket asosida: `[` → Ö, `]` → Ğ, `;` → Ş, `'` → Ç, `\` → ʼ. Rasmiy standart hali chiqmagan, shuning uchun sozlamalarda «Taklif (rasmiy emas)» deb turibdi.
+- **Arch Linux ombori.** Arch, Manjaro va EndeavourOS uchun bitg.uz/arch: bir marta ulanadi, keyin `pacman -Syu` bilan yangilanadi.
+- **Yangilanishni o'rnatishda tanlash.** O'rnatuvchida «Yangilanishlarni avtomatik tekshirish» belgisi bor; tashkilot administratori uni o'chirib qo'yishi mumkin.
+- **Ubuntu paneli: lug'at muharriri.** Yuqori paneldagi bitg menyusidan istisnolar va lug'atni tahrirlaysiz.
+
+### Tuzatildi
+- **Yolg'iz xorijiy ism.** «Jordan keldi.» endi «Jördan» bo'lmaydi, «Michael Jordan» ham o'zgarmaydi.
+- **Katta harfli so'zlar.** OʻZBEKISTON, GʻALABA kabi ʻ bilan yozilgan katta harfli so'zlar endi o'giriladi.
+- **Brendlar.** Marshall, Shokz, Chigo, Shein, Bershka, Shiseido, Chirey, Changhe, Tchibo yozilganidek qoladi.
+- **Parol maydonlari.** Matn bermaydigan dasturlarda maydon parolga aylansa, bitg so'zni o'girmaydi va yig'ilgan harflarni darhol unutadi.
+
 ## 0.4.0 — 2026-11-13
 
 ### Yangi
