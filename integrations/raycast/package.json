@@ -4,7 +4,7 @@
   "title": "bitg",
   "description": "Convert Uzbek text from old Latin and Cyrillic to the 2026 Latin alphabet (ö ğ ş ç), offline.",
   "icon": "icon.png",
-  "author": "xnosir",
+  "author": "nosirbek_xakimov",
   "platforms": [
     "macOS",
     "Windows"
