@@ -46,7 +46,7 @@ function fakeDom() {
   };
 }
 
-function boot({ host = 'docs', language = 'uz-UZ', saved = {}, reply } = {}) {
+function boot({ host = 'docs', language = 'uz-UZ', saved = {}, reply, serverLang } = {}) {
   const ctx = {};
   vm.createContext(ctx);
   vm.runInContext(SCRIPT, ctx); // `google` yo'q — avtomatik ishga tushmaydi
@@ -55,7 +55,7 @@ function boot({ host = 'docs', language = 'uz-UZ', saved = {}, reply } = {}) {
   const store = Object.assign({}, saved);
   const run = (fn, args, ok, err) => {
     calls.push([fn, JSON.parse(JSON.stringify(args))]);
-    if (fn === 'hostInfo') return ok({ host });
+    if (fn === 'hostInfo') return ok({ host, lang: serverLang });
     const r = reply ? reply(fn, args) : { changed: 2 };
     if (r instanceof Error) err(r);
     else ok(r);
@@ -127,4 +127,23 @@ test('panel: natija xabarlari (belgilanmagan, o\'zgarmadi, xato) va sinab ko\'ri
   d2.getElementById('all').fire('click');
   assert.equal(d2.getElementById('status').textContent, 'Xato: Exceeded maximum execution time');
   assert.equal(d2.getElementById('all').disabled, false);
+});
+
+test('panel: bir nechta akkaunt (PERMISSION_DENIED) — xom xato emas, tushuntirish', () => {
+  const msg = 'При чтении скрипта произошла ошибка сервера. Код ошибки: PERMISSION_DENIED.';
+  for (const [language, word] of [['uz', 'akkaunt'], ['ru', 'аккаунт'], ['en', 'accounts']]) {
+    const { doc } = boot({ language, reply: () => new Error(msg) });
+    doc.getElementById('sel').fire('click');
+    const s = doc.getElementById('status');
+    assert.equal(s.className, 'err');
+    assert.ok(s.textContent.includes(word), `${language}: ${s.textContent}`);
+    assert.ok(!s.textContent.includes('PERMISSION_DENIED'));
+  }
+});
+
+test('panel: til menyu bilan bir xil (server tili), lekin foydalanuvchi tanlovi ustun', () => {
+  assert.equal(boot({ language: 'en-US', serverLang: 'ru' }).sb.state().lang, 'ru');
+  assert.equal(boot({ language: 'en-US', serverLang: 'uz' }).doc.getElementById('sel').textContent, 'Belgilanganni o‘girish');
+  assert.equal(boot({ language: 'en-US', serverLang: 'ru', saved: { lang: 'en' } }).sb.state().lang, 'en');
+  assert.equal(boot({ language: 'ru-RU', serverLang: 'xx' }).sb.state().lang, 'ru');
 });

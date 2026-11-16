@@ -1,7 +1,18 @@
 # Google Workspace Marketplace materiallari
 
 Editor add-on (Docs, Sheets, Slides) uchun listing matnlari, grafika rejasi, scope izohlari va nashr qadamlari.
-Hech narsa hali nashr qilinmagan: Google Cloud loyihasi, OAuth consent screen va Marketplace listingini egasi o‘zi yaratadi.
+Holat (2026-11-16): Google Cloud loyihasi `bitg-workspace-add-on` (raqam 306763065390), Apps Script loyihasi
+bog‘langan, versiya 1 yaratilgan, Marketplace SDK yoqilgan. Docs’da test deployment bilan sinaldi: «Butun hujjat»
+19 joyni o‘girdi (kirill ham), havola o‘zgarmadi, qalin/kursiv saqlandi, bitta Ctrl+Z hammasini qaytardi.
+
+| Qadam | Holat |
+|---|---|
+| OAuth consent screen | **In production**, branding tasdiqlangan va chop etilgan (2026-11-16) |
+| OAuth data access verification (`script.container.ui` sensitive) | **Ko‘rib chiqilmoqda** (2026-11-16 yuborildi); demo video: https://youtu.be/0sgFCePctng (unlisted) |
+| Marketplace Store Listing (en + ru, Free, Office Applications, All Regions) | **Review’da** (2026-11-16 yuborildi); tasdiqlansa avtomatik chiqadi |
+| Sheets / Slides real Google’da | hali qo‘lda sinalmagan (Docs sinaldi) |
+
+Review vaqtida listingni tahrirlab bo‘lmaydi. Google savol yuborsa, xat Developer contact email’ga keladi.
 
 Talablar manbasi: [Create a listing](https://developers.google.com/workspace/marketplace/create-listing),
 [Configure the Marketplace SDK](https://developers.google.com/workspace/marketplace/enable-configure-sdk),
@@ -141,14 +152,19 @@ Uch joyda bir xil ro‘yxat bo‘lishi shart: `src/appsscript.json`, OAuth conse
 | `https://www.googleapis.com/auth/presentations.currentonly` | Reads text of the open presentation (selection or all slides) and writes the converted text back. |
 | `https://www.googleapis.com/auth/script.container.ui` | Shows the add-on menu and the sidebar inside Docs, Sheets and Slides. |
 
-Tasnif (sensitive / non-sensitive) Google hujjatida yozilmagan — Cloud Console’da scope qo‘shilganda ko‘rinadi. Agar
-birortasi “sensitive” chiqsa: verification’ga yuqoridagi izoh + YouTube (unlisted) demo video (consent → menyu →
-o‘girish → natija, har uch muharrir) qo‘shiladi. Restricted scope yo‘q → security assessment kerak emas.
+Cloud Console tasnifi (2026-11-16 da tekshirildi): uchta `*.currentonly` — **non-sensitive**,
+`script.container.ui` — **sensitive**. Shuning uchun Public nashrdan oldin OAuth verification kerak: yuqoridagi izoh +
+YouTube (unlisted) demo video (consent → menyu → o‘girish → natija, har uch muharrir) + bitg.uz domeni Search
+Console’da shu Cloud loyihasi egasi akkauntida tasdiqlangan bo‘lishi. Restricted scope yo‘q → security assessment kerak emas.
+
+Ma’lum cheklov: brauzerda bir nechta Google akkaunt ochiq bo‘lsa va fayl standart bo‘lmagan akkauntda ochilsa, panel
+chaqiruvlari (`google.script.run`) `PERMISSION_DENIED` qaytaradi (Apps Script cheklovi). Menyu buyruqlari ishlaydi; panel
+bu holatda xom xato o‘rniga tushuntirish ko‘rsatadi (`denied` matni).
 
 ## Maxfiylik sahifasiga qo‘shimcha (nashrdan oldin)
 
-`web/pages/en/privacy.html` va `web/pages/maxfiylik.html` ochiq PR #100 da o‘zgarmoqda — shu PR merge bo‘lgach qo‘shing.
-Google API Services User Data Policy (Limited Use) bayonoti talab qilinadi:
+Qo‘shildi: `web/pages/en/privacy.html` va `web/pages/maxfiylik.html` da alohida bo‘lim (PR #100 hunk’lariga tegmaydigan
+joyda). Google API Services User Data Policy (Limited Use) bayonoti:
 
 ```
 Google Docs, Sheets and Slides add-on
