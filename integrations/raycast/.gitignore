@@ -1,0 +1,4 @@
+/node_modules
+raycast-env.d.ts
+/assets/bitg_core.wasm
+.DS_Store
