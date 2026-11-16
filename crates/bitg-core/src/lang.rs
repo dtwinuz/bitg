@@ -376,6 +376,24 @@ const RESTORE_MARGIN_STEM: f32 = 0.8;
 const RESTORE_KNOWN_STEM: f32 = 3.2;
 /// Nomzodning eng kichik og'irligi (siyrak so'zlarga taxmin qilmaymiz).
 const RESTORE_MIN: f32 = 2.0;
+/// Bosh harfli so'z nomzodi korpusda o'zi uchramay, faqat shu uzunlikdagi (harf, apostrofsiz) qisqa o'zak
+/// orqali taxmin qilinsa (Jordan → jo'r|dan) — tiklanmaydi: bu ko'pincha lug'atda yo'q xorijiy nom. Uzun o'zakli
+/// o'zbek nomlari (To'raqulov|dan, G'iloniy|ga) tiklanaveradi.
+const RESTORE_CAP_ROOT_MAX: usize = 3;
+
+/// `cand` ning eng uzun lug'atdagi o'zagi (qolgani qo'shimchalar zanjiri) `RESTORE_CAP_ROOT_MAX` harfdan oshmaydi.
+fn short_root(cand: &str) -> bool {
+    let root = cand
+        .char_indices()
+        .map(|(i, _)| i)
+        .filter(|&i| i > 0)
+        .filter(|&i| {
+            let (r, suf) = cand.split_at(i);
+            !suf.starts_with('\'') && is_suffix(suf) && uz().contains_key(r)
+        })
+        .max();
+    root.is_some_and(|i| cand[..i].chars().filter(|&c| c != '\'').count() <= RESTORE_CAP_ROOT_MAX)
+}
 /// o/g o'rinlari ko'pi bilan (2^6 = 64 nomzod).
 const RESTORE_MAX_SLOTS: usize = 6;
 
@@ -546,6 +564,10 @@ fn restore_impl(word: &str, uz_context: bool, loose: bool, probe: bool) -> Optio
     if w < min || w < w0 + margin {
         return None;
     }
+    let title_case = wc[0].is_uppercase() && wc[1..].iter().all(|c| !c.is_uppercase());
+    if title_case && !cand_direct && short_root(&with_apostrophes(&kc, &slots, mask)) {
+        return None;
+    }
     let cand_key = with_apostrophes(&kc, &slots, mask);
     let ambiguous = NEVER_RESTORE.contains(&key.as_str()) || ambiguous_roots(&key, &cand_key);
     // Ikki haqiqiy o'zakdan yasalgan, apostrofsiz shakli korpusda o'zi uchramaydi, nomzod ham siyrak (ochmaydi /
@@ -620,6 +642,18 @@ mod tests {
     fn names_with_short_stem_or_w() {
         assert_eq!(name_kind("Shoga"), NameKind::Other);
         assert_eq!(name_kind("Shwartz"), NameKind::Foreign);
+    }
+
+    #[test]
+    fn capitalized_short_root_guess_is_not_restored() {
+        // Jordan = jo'r|dan faqat taxmin: xorijiy nom tegilmaydi; kichik harfli so'z va uzun o'zakli nom tiklanadi.
+        assert_eq!(restore_apostrophes("Jordan", false, false), None);
+        assert_eq!(
+            restore_apostrophes("Toraqulovdan", false, false).as_deref(),
+            Some("To'raqulovdan")
+        );
+        assert!(short_root("jo'rdan"));
+        assert!(!short_root("to'raqulovdan"));
     }
 
     #[test]

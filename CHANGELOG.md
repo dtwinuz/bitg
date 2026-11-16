@@ -48,6 +48,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 - `.deb`: `/etc/xdg/autostart/bitg.desktop` conffile — foydalanuvchi o'zgarishi yangilashda saqlanadi, `purge` da o'chadi.
 
 ### Tuzatildi
+- Yolg'iz xorijiy nom apostrof tiklashda buzilmaydi: «Jordan keldi.» endi «Jördan» bo'lmaydi. Bosh harfli so'z
+  faqat qisqa o'zak orqali taxmin qilinsa (jo'r|dan) tiklanmaydi; uzun o'zakli o'zbek nomlari (To'raqulovdan,
+  G'iloniyga) avvalgidek tiklanadi. Eval o'zgarmadi (uz 2966, en 2992, uz-noapos 2436).
 - Brendlar asl yozuvida qoladi: Shein, Bershka, Shiseido ([#66](https://github.com/dtwinuz/bitg/issues/66)),
   Chirey, Changhe, Tchibo ([#65](https://github.com/dtwinuz/bitg/issues/65), [#70](https://github.com/dtwinuz/bitg/pull/70) — @Abdulazim1771).
 - Linux indikatori `settings.ini` ni IME bilan bir xil o'qiydi: BOM, katta-kichik harfli kalit, noto'g'ri qiymat
