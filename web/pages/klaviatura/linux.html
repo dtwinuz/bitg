@@ -1,0 +1,95 @@
+---json
+{
+ "slug": "/klaviatura/linux/",
+ "lang": "uz",
+ "title": "Linux’da yangi alifbo: IBus, Fcitx5, Ubuntu, Arch · bitg",
+ "description": "Linux’da Ö, Ğ, Ş, Ç yozish: bitg IBus (GNOME, Ubuntu) va Fcitx5 (KDE) uchun, apt ombori, Arch paketlari, Turkish Q tartibi va Compose tugmasi birikmalari.",
+ "h1": "Linux’da yangi alifboda yozish: IBus, Fcitx5, Compose",
+ "crumb": "Linux",
+ "card": "Ubuntu, Debian, Arch: bitg IBus/Fcitx5, apt ombori, Compose tugmasi.",
+ "lead": "bitg Linux’da kiritish usuli sifatida ishlaydi: eskicha yozasiz, so‘z tugashi bilan <span data-no-conv>shahar → şahar</span>. Dasturisiz yo‘llar ham bor — Turkish Q tartibi va <kbd>Compose</kbd> tugmasi.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/klaviatura/", "/yuklab-olish/", "/yangi-alifbo-kompyuter/", "/yangi-harflarni-yozish/", "/konvertor/"],
+ "sources": [
+  {"title": "bitg README: Linux’ga o‘rnatish — GitHub", "url": "https://github.com/dtwinuz/bitg/blob/main/README.md", "note": "IBus, Fcitx5, apt ombori, Arch PKGBUILD"},
+  {"title": "libX11 Compose jadvali (en_US.UTF-8) — freedesktop.org", "url": "https://gitlab.freedesktop.org/xorg/lib/libx11/-/blob/master/nls/en_US.UTF-8/Compose.pre", "note": "ö, ğ, ş, ç birikmalari"},
+  {"title": "Insert special characters — GNOME Help", "url": "https://help.gnome.org/users/gnome-help/stable/tips-specialchars.html.en", "note": "Compose tugmasini yoqish, Ctrl+Shift+U"},
+  {"title": "bitg CHANGELOG — GitHub", "url": "https://github.com/dtwinuz/bitg/blob/main/CHANGELOG.md", "note": "Arch pacman ombori (keyingi reliz)"}
+ ]
+}
+---
+      <h2>Qisqa javob</h2>
+      <div class="dc-table"><table>
+        <tr><th>Tizim</th><th>bitg (avtomatik)</th><th>Dasturisiz</th></tr>
+        <tr><td>Ubuntu, Debian (GNOME)</td><td><a href="#ibus">IBus</a>: .deb yoki apt ombori</td><td>Turkish Q yoki Compose</td></tr>
+        <tr><td>KDE va boshqa Fcitx5 muhitlar</td><td><a href="#fcitx5">Fcitx5</a> qo‘shimchasi (sinov)</td><td>Turkish Q yoki Compose</td></tr>
+        <tr><td>Arch, Manjaro, EndeavourOS</td><td><a href="#arch">PKGBUILD</a>; pacman ombori — 0.5.0 dan</td><td>Turkish Q yoki Compose</td></tr>
+      </table></div>
+      <p>Talab: Ubuntu 22.04+ yoki Debian 12+ (x64). Har PR’da Ubuntu 22.04 va 24.04 da IBus avtomatik sinovdan o‘tadi.</p>
+
+      <h2 id="ibus">Ubuntu va Debian: bitg (IBus)</h2>
+      <ol class="dc-steps">
+        <li><b>O‘rnating.</b> <a href="/yuklab-olish/#linux">{{debName}}</a> ({{debSizeUz}}) ni yuklab oling: <code data-no-conv>sudo apt install ./{{debName}}</code>, so‘ng <code data-no-conv>ibus restart</code> (yoki tizimdan chiqib qayta kiring).</li>
+        <li><b>Kiritish manbasini qo‘shing.</b> Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg.</li>
+        <li><b>Tanlang va yozing.</b> <kbd>Super</kbd> + <kbd>Probel</kbd> bilan bitg’ga o‘ting. Yuqori paneldagi til belgisida «ö» turadi.</li>
+      </ol>
+      <p>bitg o‘z tartibiga ega emas — joriy tartibning harflarini oladi. Kirill tartibidan bitg’ga o‘tsangiz, kirillcha yozasiz va so‘z ham yangi lotinga o‘tadi: <span data-no-conv>чой шаҳар → çoy şahar</span>. Parol, PIN, email maydonlari va terminallarda bitg o‘chiq.</p>
+
+      <h3 id="apt">apt ombori: o‘zi yangilanib tursin</h3>
+      <p>Ombor imzolangan, kalit izi: <code data-no-conv>{{aptFingerprint}}</code>.</p>
+      <pre><code data-no-conv>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://bitg.uz/apt/bitg.gpg | sudo tee /etc/apt/keyrings/bitg.gpg >/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bitg.gpg] https://bitg.uz/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/bitg.list
+sudo apt update && sudo apt install bitg</code></pre>
+      <p>Keyingi versiyalar odatdagi <code data-no-conv>sudo apt upgrade</code> bilan keladi. Fcitx5 uchun paket nomi: <code data-no-conv>fcitx5-bitg</code>.</p>
+
+      <h2 id="fcitx5">KDE va Fcitx5</h2>
+      <p>Fcitx5 ishlatsangiz (KDE Plasma va boshqalar), <a href="/yuklab-olish/#linux">{{fcitxName}}</a> ni o‘rnating (yoki apt omboridan <code data-no-conv>sudo apt install fcitx5-bitg</code>), so‘ng <code data-no-conv>fcitx5-configtool</code> da «bitg» ni qo‘shing.</p>
+      <p class="dc-note">Fcitx5 qo‘shimchasi sinov bosqichida: CI’da paket o‘rnatilishi va kutubxona yuklanishi tekshiriladi, lekin Fcitx5’da yozish hali avtomatik sinalmaydi. Natijani <a href="https://github.com/dtwinuz/bitg/issues" rel="noopener">GitHub’da</a> yozing.</p>
+
+      <h2 id="arch">Arch Linux, Manjaro, EndeavourOS</h2>
+      <p>bitg 0.5.0 dan Arch uchun o‘z pacman ombori (<span data-no-conv>bitg.uz/arch</span>) bilan keladi: bir marta ulanadi, keyin <code data-no-conv>sudo pacman -Syu</code> bilan yangilanadi. Ikkita paket: <code data-no-conv>bitg</code> (IBus va CLI) va <code data-no-conv>fcitx5-bitg</code>. AUR’da hali yo‘q. Ombor ochilgunga qadar paketni manbadan o‘zingiz yig‘ishingiz mumkin:</p>
+      <pre><code data-no-conv>git clone --depth 1 https://github.com/dtwinuz/bitg.git && cd bitg/packaging/aur
+makepkg --syncdeps
+sudo pacman -U bitg-[0-9]*.pkg.tar.zst
+ibus restart</code></pre>
+      {{pacmanSection}}
+
+      <h2>Dasturisiz: Turkish Q tartibi</h2>
+      <p>Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → Turkcha (Turkish Q). Unda ö ğ ş ç alohida tugmada turadi. Kamchiligi: ba’zi belgilar ko‘chadi, <kbd>i</kbd> esa nuqtasiz ı yozadi.</p>
+
+      <h2 id="compose">Dasturisiz: Compose tugmasi</h2>
+      <p><kbd>Compose</kbd> tugmasi bosilgach, keyingi ikki tugma bitta belgiga birlashadi. GNOME’da yoqish: Sozlamalar → Klaviatura → «Maxsus belgilar yozish» bo‘limidagi Compose Key → qaysi tugma bo‘lishini tanlang (masalan, o‘ng Alt).</p>
+      <div class="dc-table"><table>
+        <tr><th>Harf</th><th>Kichik</th><th>Bosh harf</th></tr>
+        <tr><td class="dc-big" data-no-conv>ö</td><td><kbd>Compose</kbd> <kbd>"</kbd> <kbd>o</kbd></td><td><kbd>Compose</kbd> <kbd>"</kbd> <kbd>O</kbd></td></tr>
+        <tr><td class="dc-big" data-no-conv>ğ</td><td><kbd>Compose</kbd> <kbd>U</kbd> <kbd>g</kbd> yoki <kbd>Compose</kbd> <kbd>b</kbd> <kbd>g</kbd></td><td><kbd>Compose</kbd> <kbd>U</kbd> <kbd>G</kbd></td></tr>
+        <tr><td class="dc-big" data-no-conv>ş</td><td><kbd>Compose</kbd> <kbd>,</kbd> <kbd>s</kbd></td><td><kbd>Compose</kbd> <kbd>,</kbd> <kbd>S</kbd></td></tr>
+        <tr><td class="dc-big" data-no-conv>ç</td><td><kbd>Compose</kbd> <kbd>,</kbd> <kbd>c</kbd></td><td><kbd>Compose</kbd> <kbd>,</kbd> <kbd>C</kbd></td></tr>
+      </table></div>
+      <p>Bu birikmalar X11’ning standart Compose jadvalidan (en_US.UTF-8). Yana bir yo‘l — Unicode kodi: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>U</kbd>, keyin to‘rt belgili kod va <kbd>Probel</kbd>: <code>011f</code> → <span data-no-conv>ğ</span>, <code>015f</code> → <span data-no-conv>ş</span>, <code>02bc</code> → <span data-no-conv>ʼ</span>.</p>
+
+      <h2>Savollar</h2>
+
+      <h3 data-faq>Ubuntu’da yangi alifboda qanday yozaman?</h3>
+      <p>bitg .deb paketini o‘rnating (sudo apt install ./bitg_…_amd64.deb), so‘ng Sozlamalar → Klaviatura → Kiritish manbasi qo‘shish → O‘zbek → bitg ni tanlang va Super + Probel bilan almashing. Eskicha yozasiz, so‘z tugashi bilan ö ğ ş ç ga o‘tadi.</p>
+
+      <h3 data-faq>KDE’da bitg ishlaydimi?</h3>
+      <p>KDE odatda Fcitx5 ishlatadi. Buning uchun alohida fcitx5-bitg paketi bor, uni fcitx5-configtool da qo‘shasiz. Bu qo‘shimcha hozircha sinov bosqichida.</p>
+
+      <h3 data-faq>Arch Linux uchun bitg bormi?</h3>
+      <p>Ha. bitg 0.5.0 dan bitg.uz/arch pacman ombori bilan keladi (bitg va fcitx5-bitg paketlari). Unga qadar packaging/aur papkasidagi PKGBUILD bilan makepkg orqali o‘zingiz yig‘asiz. AUR’da hozircha yo‘q.</p>
+
+      <h3 data-faq>Compose tugmasi bilan ş qanday yoziladi?</h3>
+      <p>Compose, keyin vergul, keyin s: ş chiqadi. ç uchun Compose, vergul, c; ğ uchun Compose, U, g; ö uchun Compose, qo‘shtirnoq, o. GNOME’da Compose tugmasi Sozlamalar → Klaviatura bo‘limida yoqiladi.</p>
+
+      <div class="dc-cta">
+        <div>
+          <h2>bitg’ni Linux’ga o‘rnating</h2>
+          <p>IBus va Fcitx5 uchun. Bepul, internetsiz, ochiq kod.</p>
+        </div>
+        <div class="dc-cta__btns"><a class="bg-btn bg-btn--pri" href="/yuklab-olish/#linux">Yuklab olish</a></div>
+      </div>

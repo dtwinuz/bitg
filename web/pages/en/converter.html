@@ -1,0 +1,70 @@
+---json
+{
+ "slug": "/en/converter/",
+ "lang": "en",
+ "alt": "converter",
+ "title": "Uzbek new alphabet converter: old Latin & Cyrillic · bitg",
+ "description": "Convert Uzbek text from old Latin or Cyrillic to the new 2026 alphabet (ö ğ ş ç) and back. Free, runs in your browser, leaves English words, links and code intact.",
+ "h1": "Convert Uzbek text to the new 2026 alphabet",
+ "crumb": "Converter",
+ "card": "Old Latin and Cyrillic to the new alphabet, in your browser.",
+ "lead": "Uzbekistan is moving from <b>O‘, G‘, Sh, Ch</b> to <b>Ö, Ğ, Ş, Ç</b>. The free <a href=\"/konvertor/\">bitg converter</a> rewrites existing Uzbek text for you — word by word, with dictionaries for English words and names — entirely inside your browser.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/en/", "/en/ai/", "/en/download/", "/konvertor/"],
+ "sources": [
+  {"title": "Law O‘RQ-1184, official text — lex.uz (National Database of Legislation)", "url": "https://lex.uz/uz/docs/8548754", "note": "Article 1: the new alphabet"},
+  {"title": "bitg source code and quality benchmark — GitHub", "url": "https://github.com/dtwinuz/bitg#readme"}
+ ]
+}
+---
+      <div class="dc-cta">
+        <div>
+          <h2>Open the converter</h2>
+          <p>The interface is in Uzbek, but it takes any input: old Latin, Cyrillic, or Uzbek mixed with English.</p>
+        </div>
+        <div class="dc-cta__btns"><a class="bg-btn bg-btn--pri" href="/konvertor/">Go to the converter</a></div>
+      </div>
+
+      <h2>What it changes — and what it doesn’t</h2>
+      <div class="dc-answer"><p>Each word is checked on its own. Only Uzbek words get <b>o‘ → ö, g‘ → ğ, sh → ş, ch → ç</b>, and apostrophes become the tutuq sign <b>ʼ</b>. English words, links, e-mail addresses and code are left untouched.</p></div>
+      <div class="dc-table"><table>
+        <tr><th>Input</th><th>Output</th><th>Why</th></tr>
+        <tr><td data-no-conv>O‘zbekiston shaharlari</td><td data-no-conv>Özbekiston şaharlari</td><td>o‘ → ö, sh → ş</td></tr>
+        <tr><td data-no-conv>Please check the schedule</td><td data-no-conv>Please check the schedule</td><td>English — not touched</td></tr>
+        <tr><td data-no-conv>keyin choy ichamiz</td><td data-no-conv>keyin çoy içamiz</td><td>ch → ç</td></tr>
+        <tr><td data-no-conv>чой ичамиз</td><td data-no-conv>çoy içamiz</td><td>Cyrillic → new Latin</td></tr>
+        <tr><td data-no-conv>Is’hoq</td><td data-no-conv>Ishoq</td><td>s and h are separate sounds, so no ş</td></tr>
+      </table></div>
+      <p>A naive find-and-replace of every “sh” and “ch” would turn <i>check</i> and <i>shop</i> into nonsense; bitg doesn’t. In our public benchmark of 3,000 sentences each, 98.87% of Uzbek sentences were converted correctly and 99.73% of English sentences came through unchanged (<a href="https://github.com/dtwinuz/bitg#sifat-hozirgi-holat" rel="noopener">method and data</a>).</p>
+
+      <h2>How to use it</h2>
+      <ol class="dc-steps">
+        <li><b>Choose a direction</b> with the buttons at the top: “Eski / kirill → Yangi” (old Latin or Cyrillic → new), “Yangi → Eski” (new → old) or “Lotin → Kirill” (Latin → Cyrillic).</li>
+        <li><b>Paste your text</b> into the left box (“Kiritish”). The result (“Natija”) appears on the right as you type.</li>
+        <li><b>Check highlighted words.</b> Words with two possible readings are marked; click one to switch to the other reading.</li>
+        <li><b>Copy</b> with the “Nusxalash” button.</li>
+      </ol>
+      <p>Three switches below the boxes, all on by default: “Inglizchani himoya” (protect English), “Kirillni o‘girish” (convert Cyrillic) and “Apostrofni tiklash” (restore missing apostrophes).</p>
+
+      <h2 data-faq>Is my text uploaded anywhere?</h2>
+      <p>No. The page downloads the bitg engine (Rust compiled to WebAssembly) once, and conversion then runs on your own computer. The converter sends no request containing your text — you can confirm it in your browser’s Network panel. The site’s content security policy only allows the page to contact bitg.uz itself and Yandex Metrica, and Metrica receives neither your text nor anything typed into the fields.</p>
+
+      <h2 data-faq>Can it convert Uzbek Cyrillic?</h2>
+      <p>Yes, and this is the most accurate route: in Cyrillic, ш, ч, ў and ғ are separate letters, so nothing has to be guessed. Untick “Kirillni o‘girish” to leave Cyrillic words as they are, for example Russian passages in a mixed document.</p>
+
+      <h2 data-faq>Can I convert back to the old alphabet?</h2>
+      <p>Yes: “Yangi → Eski” turns <span data-no-conv>Özbekiston şaharlari</span> into <span data-no-conv>Oʻzbekiston shaharlari</span>, which is useful during the transition for sites and documents that still use the old spelling. “Lotin → Kirill” converts old or new Latin into Uzbek Cyrillic.</p>
+
+      <h2 data-faq>What about text typed without apostrophes?</h2>
+      <p>Many people type “ozbek” or “togri” on phones. With “Apostrofni tiklash” on, bitg fixes a word only when the dictionary leaves no doubt (<span data-no-conv>ozbek → özbek</span>) and doesn’t guess on ambiguous pairs such as <span data-no-conv>qol / qo‘l</span>. In our benchmark 81.2% of such sentences come out fully correct, so review the result.</p>
+
+      <h2>For organisations, developers and AI assistants</h2>
+      <ul>
+        <li><b>Staff who type Uzbek every day:</b> the <a href="/en/download/">bitg input method</a> for Windows, Linux and macOS (beta) converts each word as it is typed, offline, and can be deployed silently with <code>msiexec</code>.</li>
+        <li><b>AI assistants:</b> connect Claude, ChatGPT, Gemini or any MCP client to the free server at <code data-no-conv>https://bitg.uz/mcp</code> — see <a href="/en/ai/">bitg for AI assistants</a>. No sign-in; text is processed in memory and not stored.</li>
+        <li><b>Developers:</b> the conversion core is a dependency-free Rust library with a command-line tool, a C ABI and a WebAssembly build, under MIT or Apache-2.0 — see the <a href="https://github.com/dtwinuz/bitg" rel="noopener">repository</a>.</li>
+        <li><b>Browser users:</b> the extension for <a href="https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg" rel="noopener">Chrome</a> and <a href="https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee" rel="noopener">Edge</a> converts selected text or, on sites you choose, text as you type.</li>
+        <li><b>Telegram:</b> send text to <a href="https://t.me/bitguzbot" rel="noopener" data-no-conv>@bitguzbot</a>. Messages pass through Telegram; the bot doesn’t store them, but keep confidential documents in the converter or the app.</li>
+      </ul>

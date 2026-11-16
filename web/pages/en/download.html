@@ -1,0 +1,142 @@
+---json
+{
+ "slug": "/en/download/",
+ "lang": "en",
+ "alt": "download",
+ "title": "Download bitg for Windows, macOS and Linux (free) · bitg",
+ "description": "Download bitg, the free new-Uzbek-alphabet input method: Windows MSI, macOS .pkg (beta), Linux .deb and apt repository, browser extension. SHA-256 for every file.",
+ "h1": "Download bitg for Windows, macOS, Linux and your browser",
+ "crumb": "Download",
+ "card": "Windows MSI, macOS .pkg, Linux .deb and apt, browser extension, SHA-256.",
+ "lead": "One file, about a minute: install it, pick bitg as your keyboard and keep typing Uzbek the way you always have — each word switches to the new alphabet (ö ğ ş ç) as soon as you finish it. Free, open source (MIT or Apache-2.0), works offline.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["SoftwareApplication", "FAQPage"],
+ "links": ["/en/", "/en/converter/", "/en/ai/", "/en/privacy/"],
+ "sources": [
+  {"title": "bitg releases — GitHub", "url": "https://github.com/dtwinuz/bitg/releases", "note": "the same files with .sha256 checksums"},
+  {"title": "bitg README — installation, verification, silent install", "url": "https://github.com/dtwinuz/bitg#readme"},
+  {"title": "winget-pkgs pull request for bitg", "url": "https://github.com/microsoft/winget-pkgs/pull/478645", "note": "under review"}
+ ]
+}
+---
+      <div class="dc-dl" id="windows">
+        <div class="dc-dl__top">
+          <div>
+            <div class="dc-dl__name">bitg {{version}} · Windows 10 / 11</div>
+            <p class="dc-dl__meta" data-no-conv>x64 · MSI · {{msiSizeMb}} MB · beta</p>
+          </div>
+          <a class="bg-btn bg-btn--pri" href="{{msiUrl}}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+            Download
+          </a>
+        </div>
+        <div class="dc-dl__sha">
+          <span>SHA-256 (to verify the file):</span>
+          <code data-no-conv>{{sha256}}</code>
+        </div>
+      </div>
+      <p class="dc-note"><b>On a Mac or Linux?</b> Jump to <a href="#mac">macOS</a> or <a href="#linux">Linux</a>. Every file, with its <code>.sha256</code>, is also on <a href="https://github.com/dtwinuz/bitg/releases" rel="noopener">GitHub Releases</a>, and the source code is open if you prefer to build it yourself.</p>
+
+      <h2>Install on Windows in three steps</h2>
+      <ol class="dc-steps">
+        <li><b>Open the file.</b> Double-click <code data-no-conv>{{msiName}}</code>. The installer sets bitg up for all users (administrator rights are needed; it goes to <code data-no-conv>C:\Program Files\bitg\</code>).</li>
+        <li><b>bitg starts by itself</b> at the end of setup and adds its keyboard to the “Uzbek (Latin)” language.</li>
+        <li><b>Pick it.</b> Press <kbd>Win</kbd> + <kbd>Space</kbd> and choose bitg. Now type the old way in any app: <span data-no-conv>“o‘zbek” → “özbek”</span>.</li>
+      </ol>
+      <p>Updating works the same way: open the new MSI. You don’t need to close Chrome or Telegram or restart the computer. No internet connection is needed — conversion happens on your machine.</p>
+
+      <h2 data-faq>Windows says “Windows protected your PC”. Is that normal?</h2>
+      <p>Yes. The beta installer is not code-signed yet, so SmartScreen warns about an unknown publisher. Click “More info” → “Run anyway”. To be sure the file is ours, check its SHA-256 as shown below.</p>
+
+      <h2 id="verify">Verify the file</h2>
+      <p>In PowerShell, the hash must match the SHA-256 above character for character. Since v0.3.1 you can also prove with the GitHub CLI that the file was built by GitHub Actions from the dtwinuz/bitg repository:</p>
+      <pre><code data-no-conv>Get-FileHash .\{{msiName}} -Algorithm SHA256
+gh attestation verify .\{{msiName}} -R dtwinuz/bitg</code></pre>
+      <p>If anything differs, don’t run the file — tell us via <a href="https://t.me/bitguzbot?start=fikr" rel="noopener">Telegram</a> or <a href="https://github.com/dtwinuz/bitg/issues" rel="noopener">GitHub issues</a>. bitg is distributed only from bitg.uz and GitHub; there is no phone app, so be careful with “new alphabet keyboard” files shared in Telegram chats.</p>
+
+      <h2>Deploying across an organisation</h2>
+      <p>Silent install via GPO, Intune, SCCM or PDQ:</p>
+      <pre><code data-no-conv>msiexec /i {{msiName}} /qn /l*v bitg-install.log
+msiexec /i {{msiName}} /qn AUTOSTART=0 ADDKEYBOARD=0
+msiexec /x {{msiName}} /qn</code></pre>
+      <p><code>AUTOSTART=0</code> keeps the tray app from starting with Windows; <code>ADDKEYBOARD=0</code> stops the keyboard from being added to each user’s language list automatically. Exit codes are standard: <code>0</code> success, <code>3010</code> restart recommended, <code>1603</code> failure (see the log).</p>
+      <p>Package managers: <code data-no-conv>winget install bitg</code> is <a href="https://github.com/microsoft/winget-pkgs/pull/478645" rel="noopener">under review</a> and Chocolatey is coming soon — until they are live, use the MSI.</p>
+
+      <h2 id="mac">macOS (beta)</h2>
+      <div class="dc-dl">
+        <div class="dc-dl__top">
+          <div>
+            <div class="dc-dl__name">bitg {{version}} · macOS</div>
+            <p class="dc-dl__meta" data-no-conv>Apple silicon and Intel · .pkg · macOS 11+ · beta</p>
+          </div>
+          <a class="bg-btn bg-btn--pri" href="{{macUrl}}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+            Download
+          </a>
+        </div>
+        <div class="dc-dl__sha">
+          <span>SHA-256:</span>
+          <code data-no-conv>{{macSha}}</code>
+        </div>
+      </div>
+      <p>One universal file for every Mac, M-series and Intel alike.</p>
+      <ol class="dc-steps">
+        <li><b>Open the file.</b> The installer is not signed by Apple yet, so macOS refuses to open it the first time. Go to System Settings → Privacy &amp; Security, click “Open Anyway” at the bottom and enter your password.</li>
+        <li><b>Install.</b> bitg goes to <code data-no-conv>/Library/Input Methods</code> and adds itself to your input sources. If it doesn’t appear in the menu bar list, log out and back in.</li>
+        <li><b>Pick it.</b> Press <kbd>Control</kbd> + <kbd>Space</kbd> (or the 🌐 key) and choose bitg. If it’s not listed: System Settings → Keyboard → Input Sources → Edit → “+”, then search for “bitg”.</li>
+      </ol>
+      <p id="brew">With <a href="https://brew.sh" rel="noopener">Homebrew</a>, one command installs it and <code data-no-conv>brew upgrade</code> keeps it current:</p>
+      <pre><code data-no-conv>brew install --cask dtwinuz/tap/bitg</code></pre>
+      <p>Or verify and install from the terminal, without the warning dialog:</p>
+      <pre><code data-no-conv>shasum -a 256 ~/Downloads/{{macName}}
+sudo installer -pkg ~/Downloads/{{macName}} -target /</code></pre>
+      <p>The Mac version is new and hasn’t been tested in many apps yet. If a letter is doubled, lost or a word isn’t converted, tell us the app name on <a href="https://t.me/bitguzbot?start=fikr" rel="noopener">Telegram</a>. bitg stays off in Terminal, iTerm, Warp and other terminals.</p>
+
+      <h2 id="linux">Linux (Ubuntu, Debian)</h2>
+      <div class="dc-dl">
+        <div class="dc-dl__top">
+          <div>
+            <div class="dc-dl__name">bitg {{version}} · Linux (IBus)</div>
+            <p class="dc-dl__meta" data-no-conv>amd64 · .deb · Ubuntu 22.04+, Debian 12+</p>
+          </div>
+          <a class="bg-btn bg-btn--pri" href="{{debUrl}}" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+            Download
+          </a>
+        </div>
+        <div class="dc-dl__sha">
+          <span>SHA-256:</span>
+          <code data-no-conv>{{debSha}}</code>
+        </div>
+      </div>
+      <p>IBus is the default input system on Ubuntu and GNOME:</p>
+      <pre><code data-no-conv>sudo apt install ./{{debName}}
+ibus restart</code></pre>
+      <p>Then go to <b>Settings → Keyboard → Add Input Source → Uzbek → bitg</b> and switch with <kbd>Super</kbd> + <kbd>Space</kbd>. bitg stays off in password fields and terminals.</p>
+      <h3 id="apt">apt repository: updates itself</h3>
+      <p>Add it once and new versions arrive with <code data-no-conv>sudo apt upgrade</code>. Packages are signed with our key; apt refuses any file whose signature doesn’t match.</p>
+      <pre><code data-no-conv>sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://bitg.uz/apt/bitg.gpg | sudo tee /etc/apt/keyrings/bitg.gpg >/dev/null
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/bitg.gpg] https://bitg.uz/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/bitg.list
+sudo apt update && sudo apt install bitg
+ibus restart</code></pre>
+      <p>Key fingerprint: <code data-no-conv>{{aptFingerprint}}</code>. To remove the repository: <code data-no-conv>sudo rm /etc/apt/sources.list.d/bitg.list /etc/apt/keyrings/bitg.gpg</code>.</p>
+      <p><b>Fcitx5</b> (KDE and others): install <a href="{{fcitxUrl}}" download data-no-conv>{{fcitxName}}</a> (or <code data-no-conv>sudo apt install fcitx5-bitg</code> from the repository) and add “bitg” in <code data-no-conv>fcitx5-configtool</code>. The Fcitx5 add-on is still in testing. SHA-256: <code data-no-conv>{{fcitxSha}}</code>.</p>
+      <p><b>Arch Linux</b> (Manjaro, EndeavourOS): a signed pacman repository at bitg.uz/arch is planned for the next release. Until then, build the <code data-no-conv>bitg</code> and <code data-no-conv>fcitx5-bitg</code> packages from source with the <a href="https://github.com/dtwinuz/bitg/tree/main/packaging/aur" rel="noopener">PKGBUILD</a>.</p>
+
+      <h2 id="browser">Browser extension</h2>
+      <p>Can’t install software on your work computer? The bitg extension for <a href="https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg" rel="noopener">Chrome Web Store</a> and <a href="https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee" rel="noopener">Microsoft Edge Add-ons</a> runs the same bitg engine (WebAssembly) offline: a pop-up converter, converting selected text, and converting as you type on the sites you choose. Its content security policy blocks external requests, so text never leaves the browser.</p>
+
+      <h2 data-faq>Is there a bitg app for iPhone or Android?</h2>
+      <p>Not yet. On phones we recommend the free Tilmoch keyboard, whose new-alphabet mode inserts ö, ğ, ş, ç automatically; without installing anything, the Turkish (Türkçe) keyboard has all four letters.</p>
+
+      <h2 data-faq>Does bitg need the internet or send my text anywhere?</h2>
+      <p>No. The desktop apps and the browser extension convert text on your device; nothing you type is sent or stored. See the <a href="/en/privacy/">privacy policy</a>.</p>
+
+      <h2 data-faq>How do I uninstall bitg?</h2>
+      <p>Windows: Settings → Apps → bitg → Uninstall, or <code>msiexec /x</code>; your settings in <code>%APPDATA%\bitg</code> are kept. Linux: <code data-no-conv>sudo apt remove bitg</code>. macOS: <code data-no-conv>sudo rm -rf "/Library/Input Methods/bitg.app"</code>, then log out and back in.</p>
+
+      <h2>Just need to convert a text once?</h2>
+      <p>No install needed: paste it into the <a href="/en/converter/">online converter</a>, or let your AI assistant do it through the <a href="/en/ai/">bitg MCP server</a>.</p>

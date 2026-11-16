@@ -1,0 +1,95 @@
+---json
+{
+ "slug": "/ru/raskladka/",
+ "lang": "ru",
+ "alt": "keyboard",
+ "title": "Узбекская раскладка для нового алфавита: Ö Ğ Ş Ç · bitg",
+ "description": "Как печатать Ö, Ğ, Ş, Ç и тутук ʼ нового узбекского алфавита: раскладки bitg для Windows (Tilmoch, Turkish Q, предложенная), Mac, Linux и телефон.",
+ "h1": "Раскладка для нового узбекского алфавита: как печатать Ö, Ğ, Ş, Ç",
+ "crumb": "Раскладка",
+ "card": "Раскладки для Ö Ğ Ş Ç: Windows, Mac, Linux, телефон.",
+ "lead": "Новые буквы можно печатать двумя способами: <b>раскладкой</b> (у каждой буквы своя клавиша, её нужно запомнить) или <b>автозаменой</b> (вы печатаете по-старому, программа сама переводит слово). bitg для Windows умеет и то и другое.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["Article", "FAQPage"],
+ "links": ["/ru/", "/ru/novyy-uzbekskiy-alfavit/", "/ru/konverter/", "/yuklab-olish/"],
+ "sources": [
+  {"title": "Gazeta.uz: макет узбекской латинской клавиатуры показан в Сенате", "url": "https://www.gazeta.uz/oz/2026/09/10/keyboard-uzb--translation-2026-09-10-13-10-21/", "note": "10.09.2026"},
+  {"title": "UzDaily: государственные системы адаптируют к обновлённому алфавиту", "url": "https://www.uzdaily.uz/en/uzbekistan-government-systems-to-adapt-to-updated-alphabet/", "note": "10.09.2026"},
+  {"title": "Раскладка Tilmoch — tilmoch.ai", "url": "https://tilmoch.ai/ru/terilmalar", "note": "основа раскладки Tilmoch в bitg"},
+  {"title": "bitg: раскладки клавиатуры — README на GitHub", "url": "https://github.com/dtwinuz/bitg#readme", "note": "раздел «Klaviatura tartibi»"}
+ ]
+}
+---
+      <h2>Что выбрать на вашем устройстве</h2>
+      <div class="dc-table"><table>
+        <tr><th>Устройство</th><th>bitg</th><th>Что можно сделать сейчас</th></tr>
+        <tr><td>Windows 10 / 11</td><td class="dc-yes">Есть</td><td>Установите <a href="/yuklab-olish/">bitg</a>: автозамена плюс готовые раскладки</td></tr>
+        <tr><td>Mac</td><td class="dc-yes">Бета</td><td>bitg — <a href="/yuklab-olish/#mac">установщик .pkg</a> (автозамена); или раскладка Turkish Q и клавиша <kbd>Option</kbd></td></tr>
+        <tr><td>Linux (Ubuntu, Debian)</td><td class="dc-yes">Есть</td><td>bitg — <a href="/yuklab-olish/#linux">пакет .deb</a>, автозамена в IBus (Fcitx5 — в тестировании); или раскладка Turkish Q / клавиша Compose</td></tr>
+        <tr><td>iPhone, Android</td><td>Нет</td><td>Бесплатная клавиатура Tilmoch или турецкая клавиатура (Türkçe)</td></tr>
+      </table></div>
+
+      <h2>Раскладка или автозамена?</h2>
+      <div class="dc-answer"><p>Тем, кто много печатает, удобнее автозамена: пальцы остаются на привычных местах, английские слова не портятся. Раскладка подходит тем, кто хочет сам контролировать каждую букву.</p></div>
+      <div class="dc-table"><table>
+        <tr><th></th><th>Раскладка</th><th>Автозамена (bitg)</th></tr>
+        <tr><td>Обучение</td><td>нужно запомнить новые клавиши</td><td>не нужно — печатаете по-старому</td></tr>
+        <tr><td>Английские слова</td><td>не меняются</td><td>не меняются — каждое слово проверяется</td></tr>
+        <tr><td>Ошибочная замена</td><td>невозможна</td><td>отменяется клавишей <kbd>Backspace</kbd></td></tr>
+        <tr><td>Скобки и знаки</td><td>часто переезжают на AltGr</td><td>остаются на месте</td></tr>
+      </table></div>
+      <p>В bitg оба режима включаются отдельно: «Avtomatik o‘girish» (автозамена) и «Yangi harflar tugmada» (новые буквы на клавишах). Интерфейс программы — на узбекском.</p>
+
+      <h2>Раскладки в bitg для Windows</h2>
+      <div class="dc-table"><table>
+        <tr><th>Раскладка</th><th>Где новые буквы</th><th>Примечание</th></tr>
+        <tr><td><b>Tilmoch</b> (по умолчанию)</td><td><kbd>[</kbd> ö · <kbd>]</kbd> ğ · <kbd>;</kbd> ş · <kbd>'</kbd> ç · <kbd>`</kbd> ʼ</td><td>по образцу <a href="https://tilmoch.ai/ru/terilmalar" rel="noopener">tilmoch.ai</a>; скобки — через AltGr</td></tr>
+        <tr><td><b>kiritish.uz</b> («Özbekça - yangi»)</td><td>почти как Tilmoch</td><td>AltGr даёт кавычки “ ” ‘ ’ и тире</td></tr>
+        <tr><td><b>TezYechim</b> («Özbek lotin 2026»)</td><td><kbd>[</kbd> ç · <kbd>]</kbd> ö · <kbd>-</kbd> ğ · <kbd>=</kbd> ş</td><td>тутук — правый Alt + <kbd>'</kbd></td></tr>
+        <tr><td><b>Turkish Q</b></td><td><kbd>,</kbd> ö · <kbd>[</kbd> ğ · <kbd>;</kbd> ş · <kbd>.</kbd> ç</td><td>есть в Windows, Mac и на телефоне; но <kbd>i</kbd> печатает ı</td></tr>
+        <tr><td><b>Предложенная</b> (неофициальная)</td><td><kbd>[</kbd> ö · <kbd>]</kbd> ğ · <kbd>;</kbd> ş · <kbd>'</kbd> ç · <kbd>\</kbd> ʼ</td><td>макет, показанный в Сенате; скобки и <kbd>\</kbd> — через AltGr</td></tr>
+        <tr><td><b>Только AltGr</b></td><td>правый <kbd>Alt</kbd> + <kbd>O</kbd> <kbd>G</kbd> <kbd>S</kbd> <kbd>C</kbd></td><td>ни одна клавиша не меняет место</td></tr>
+        <tr><td><b>Своя</b></td><td>как настроите</td><td>в окне bitg нажимаете клавишу и задаёте любой символ</td></tr>
+      </table></div>
+      <p>Tilmoch, Turkish Q и AltGr можно попробовать прямо в браузере на <a href="/#klaviatura">живой клавиатуре</a> на главной странице.</p>
+
+      <h2 id="taklif">Предложенная раскладка (неофициальная)</h2>
+      <div class="dc-answer"><p>Официального стандарта клавиатуры пока нет. 10 сентября 2026 года на заседании Сената руководитель Департамента развития государственного языка при Кабинете министров показал макет «O‘zbek (lotin) klaviaturasi — ma’qul variant», подготовленный специалистами. Министерство цифровых технологий сообщило, что после принятия закона будет разработан единый технический стандарт.</p></div>
+      <div class="dc-table"><table>
+        <tr><th>Клавиша</th><th>Обычно</th><th>Shift</th><th>Правый Alt (AltGr)</th><th>AltGr + Shift</th></tr>
+        <tr><td><kbd>[</kbd></td><td>ö</td><td>Ö</td><td>[</td><td>{</td></tr>
+        <tr><td><kbd>]</kbd></td><td>ğ</td><td>Ğ</td><td>]</td><td>}</td></tr>
+        <tr><td><kbd>;</kbd></td><td>ş</td><td>Ş</td><td>;</td><td>:</td></tr>
+        <tr><td><kbd>'</kbd></td><td>ç</td><td>Ç</td><td>'</td><td>"</td></tr>
+        <tr><td><kbd>\</kbd></td><td>ʼ (тутук)</td><td>ʼ</td><td>\</td><td>|</td></tr>
+      </table></div>
+      <p>Буквы и тутук — как на макете. Куда переносятся вытесненные знаки <kbd>[</kbd> <kbd>]</kbd> <kbd>\</kbd> <kbd>;</kbd> <kbd>'</kbd>, макет не показывает — bitg выводит их через правый Alt. Как включить: Sozlamalar → Klaviatura → «Yangi harflar tugmada» → Tartib: <b>Taklif (rasmiy emas)</b>. Когда выйдет официальный стандарт, раскладка будет обновлена под него.</p>
+
+      <h2>Mac, Linux и телефон без bitg</h2>
+      <ul>
+        <li><b>Mac:</b> ö — <kbd>Option</kbd> + <kbd>U</kbd>, затем <kbd>O</kbd>; ç — <kbd>Option</kbd> + <kbd>C</kbd>. Для ğ и ş добавьте раскладку «Turkish Q»: Системные настройки → Клавиатура → Источники ввода.</li>
+        <li><b>Linux:</b> добавьте раскладку «Турецкая (Turkish Q)» или включите клавишу Compose: <kbd>Compose</kbd> <kbd>"</kbd> <kbd>o</kbd> → ö, <kbd>Compose</kbd> <kbd>,</kbd> <kbd>c</kbd> → ç.</li>
+        <li><b>Windows без установки:</b> Alt-коды на цифровой клавиатуре — ö (<kbd>Alt</kbd> 0246), ç (<kbd>Alt</kbd> 0231); для ğ и ş нужна раскладка Turkish Q.</li>
+        <li><b>Телефон:</b> клавиатура Tilmoch в режиме нового алфавита сама ставит ö, ğ, ş, ç; без приложений — турецкая клавиатура (Türkçe).</li>
+      </ul>
+
+      <h2 data-faq>Есть ли официальная узбекская раскладка для нового алфавита?</h2>
+      <p>Пока нет. В Сенате 10 сентября 2026 года показали предложенный макет, а единый технический стандарт ещё предстоит разработать. В bitg этот макет есть под названием «Taklif (rasmiy emas)» — то есть «предложение, неофициально».</p>
+
+      <h2 data-faq>Работают ли раскладки bitg на Mac и Linux?</h2>
+      <p>Готовые раскладки (Tilmoch, предложенная, AltGr и другие) сейчас есть только в версии для Windows. На Mac и Linux bitg работает как автозамена: вы печатаете в текущей латинской раскладке, а слово переводится в новый алфавит после пробела.</p>
+
+      <h2 data-faq>Как напечатать тутук ʼ?</h2>
+      <p>В раскладке Tilmoch — клавиша <kbd>`</kbd>, в предложенной — <kbd>\</kbd>. В режиме автозамены bitg сам заменяет обычный апостроф: <span data-no-conv>ma'no → maʼno</span>, <span data-no-conv>san'at → sanʼat</span>.</p>
+
+      <h2 data-faq>Можно ли печатать кириллицей?</h2>
+      <p>Да. Если включена автозамена, узбекское слово, набранное кириллицей, после пробела превращается в новую латиницу: <span data-no-conv>чой шаҳар → çoy şahar</span>.</p>
+
+      <div class="dc-cta">
+        <div>
+          <h2>bitg для Windows</h2>
+          <p>Бесплатно, открытый код, без интернета. Установка — около минуты.</p>
+        </div>
+        <div class="dc-cta__btns"><a class="bg-btn bg-btn--pri" href="/yuklab-olish/">Скачать</a><a class="bg-btn" href="/ru/">О программе</a></div>
+      </div>
