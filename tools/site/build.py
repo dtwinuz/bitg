@@ -477,6 +477,102 @@ def redesign(out, v):
         shutil.copyfile(src, shots / name)
 
 
+def _demo_plain(s):
+    return re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s).replace("**", "").replace("`", "").strip()
+
+
+def _demo_news(md):
+    """demo/build.mjs news() bilan bir xil: NEWS.md -> updates.rs news_json tuzilmasi."""
+    versions = []
+    for line in md.splitlines():
+        if line.startswith("## "):
+            v, _, d = line[3:].partition("—")
+            versions.append({"version": v.strip(), "date": d.strip(), "groups": []})
+        elif line.startswith("### ") and versions:
+            title = line[4:].strip()
+            kind = {"yangi": "new", "yaxshilandi": "better", "tuzatildi": "fixed"}.get(title.lower(), "other")
+            versions[-1]["groups"].append({"kind": kind, "title": title, "items": []})
+        elif line.startswith("- ") and versions and versions[-1]["groups"]:
+            m = re.match(r"^\*\*(.+?)\*\*(.*)$", line[2:])
+            item = {"lead": _demo_plain(m[1]), "text": _demo_plain(m[2])} if m else {"lead": "", "text": _demo_plain(line[2:])}
+            versions[-1]["groups"][-1]["items"].append(item)
+    return versions
+
+
+def redesign_demo(out, v):
+    """redesign.bitg.uz/demo/: demo/build.mjs dagi brauzer demosi (haqiqiy sozlamalar oynasi + mock IPC + haqiqiy
+    yadro), lekin sayt CSP'siga mos: inline <style>/<script>/style="" alohida fayllarga chiqariladi.
+    Oyna manbasi (crates/bitg-settings/src/ui.html) o'zgarmaydi."""
+    dest = out / "redesign" / "demo"
+    if not (out / "redesign").exists():
+        return
+    ui = (ROOT / "crates" / "bitg-settings" / "src" / "ui.html").read_text(encoding="utf-8")
+    if ui.count("<style>") != 1 or ui.count("<script>") != 1:
+        raise SystemExit("build: ui.html da bitta <style> va bitta <script> kutilgan")
+    head, rest = ui.split("<style>")
+    css, rest = rest.split("</style>")
+    body, rest = rest.split("<script>")
+    js, tail = rest.split("</script>")
+
+    # style="..." -> .dm-sN klassi (CSP style-src 'self' inline atributni bloklaydi)
+    rules = {}
+
+    def unstyle(m):
+        tag, attrs = m[1], m[2]
+        sm = re.search(r'\sstyle="([^"]*)"', attrs)
+        decl = sm[1].strip().rstrip(";")
+        cls = rules.setdefault(decl, f"dm-s{len(rules) + 1}")
+        attrs = attrs[:sm.start()] + attrs[sm.end():]
+        if re.search(r'\sclass="', attrs):
+            attrs = re.sub(r'\sclass="([^"]*)"', lambda c: f' class="{c[1]} {cls}"', attrs, count=1)
+        else:
+            attrs += f' class="{cls}"'
+        return f"<{tag}{attrs}>"
+
+    body = re.sub(r"<([a-zA-Z][a-zA-Z0-9]*)(\s[^>]*?\sstyle=\"[^\"]*\"[^>]*)>", unstyle, body)
+    body = re.sub(r"<([a-zA-Z][a-zA-Z0-9]*)(\sstyle=\"[^\"]*\"[^>]*)>", unstyle, body)
+    if re.search(r"\sstyle=\"|\son[a-z]+=", body):
+        raise SystemExit("build: ui.html da CSP'ga mos kelmaydigan inline atribut qoldi")
+    css += "\n/* redesign demo: ui.html dagi style=\"\" atributlari */\n"
+    css += "".join(f".{c}{{{d}}}\n" for d, c in rules.items())
+
+    cargo = (ROOT / "Cargo.toml").read_text(encoding="utf-8")
+    fixture = json.loads((ROOT / "demo" / "fixtures" / "layouts.json").read_text(encoding="utf-8"))
+    data = {
+        "version": re.search(r'^version = "(.+)"', cargo, re.M)[1],
+        "layouts": fixture["layouts"],
+        "default_apps": fixture["default_apps"],
+        "news": _demo_news((ROOT / "NEWS.md").read_text(encoding="utf-8")),
+    }
+    ipc = (ROOT / "demo" / "mock-ipc.js").read_text(encoding="utf-8")
+    if ipc.count('fetch("bitg_core.wasm")') != 2:
+        raise SystemExit("build: demo/mock-ipc.js da wasm yo'li o'zgargan")
+    ipc = ipc.replace('fetch("bitg_core.wasm")', 'fetch("/bitg_core.wasm")')
+
+    q = f"?v={v or 'dev'}"
+    head = head.replace("<title>bitg</title>", f"""<title>bitg demo · sozlamalar oynasi</title>
+<meta name="description" content="bitg sozlamalar oynasi brauzerda: haqiqiy yadro, namuna ma'lumotlar.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/redesign/demo/ui.css{q}">
+<link rel="stylesheet" href="/redesign/demo/demo.css{q}">""")
+    pill = """<div class="demo-pill" role="note">Demo · namuna ma'lumotlar, qayta yuklanganda tiklanadi
+  <a href="/">Bosh sahifa</a><a href="https://bitg.uz/yuklab-olish/">Yuklab olish</a></div>
+<div class="demo-toast" id="demoToast" role="status" aria-live="polite"></div>
+"""
+    scripts = (f'<script src="/redesign/demo/data.js{q}"></script>\n'
+               f'<script src="/redesign/demo/mock-ipc.js{q}"></script>\n'
+               f'<script src="/redesign/demo/ui.js{q}"></script>\n')
+    dest.mkdir(parents=True, exist_ok=True)
+    w = lambda name, text: (dest / name).write_text(text, encoding="utf-8", newline="\n")
+    w("index.html", head + body + scripts + pill + tail.lstrip("\n"))
+    w("ui.css", css.strip("\n") + "\n")
+    w("ui.js", js.strip("\n") + "\n")
+    w("data.js", "window.__BITG_DEMO__ = " + json.dumps(data, ensure_ascii=False).replace("<", "\\u003c") + ";\n")
+    w("mock-ipc.js", ipc)
+    shutil.copyfile(ROOT / "demo" / "demo.css", dest / "demo.css")
+
+
 def version_assets(text, v):
     if not v:
         return text
@@ -812,6 +908,7 @@ def main():
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(f, dst)
     redesign(out, a.v)
+    redesign_demo(out, a.v)
 
     for p in pages:
         text = version_assets(render(p, ctx, by_slug, alt_groups), a.v)

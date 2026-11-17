@@ -29,6 +29,17 @@
 		path / /index.html
 	}
 	rewrite @redesignRoot /redesign/index.html
+	# jonli demo (tools/site/build.py redesign_demo): haqiqiy sozlamalar oynasi + yadro
+	@redesignDemoBare {
+		host redesign.bitg.uz
+		path /demo
+	}
+	redir @redesignDemoBare /demo/ 308
+	@redesignDemo {
+		host redesign.bitg.uz
+		path /demo/ /demo/index.html
+	}
+	rewrite @redesignDemo /redesign/demo/index.html
 
 	# tools/site/build.py css/js manzillariga, page.js/app.js wasm'ga ?v=<sha> qo'shadi — uzoq kesh xavfsiz
 	@code path /*.js /*.css /*.wasm /fonts/*
