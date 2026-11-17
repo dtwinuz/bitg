@@ -1,0 +1,16 @@
+{
+  "name": "bitg-demo",
+  "private": true,
+  "type": "module",
+  "description": "bitg sozlamalar oynasi brauzerda: haqiqiy UI + xotiradagi IPC + haqiqiy yadro (WASM)",
+  "license": "MIT OR Apache-2.0",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node scripts/serve.mjs",
+    "site:screenshots": "node build.mjs && node scripts/site-screenshots.mjs",
+    "test:demo": "node build.mjs && playwright test -c playwright.demo.config.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}
