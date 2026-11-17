@@ -349,6 +349,7 @@ $$('[data-tabs]').forEach((box) => {
 // ---------- ilova oynasi: haqiqiy skrinshotlar ----------
 {
   const demo = $('[data-demo]');
+  const SHOTS = ['home', 'try', 'text', 'rules', 'keyboard', 'apps', 'dictionary', 'news', 'feedback'];
   if (demo) {
     const img = $('[data-shot-img]', demo);
     const cap = $('[data-shot-cap]', demo);
@@ -356,7 +357,10 @@ $$('[data-tabs]').forEach((box) => {
     const btns = $$('[role="tab"]', list);
     const show = (b) => {
       btns.forEach((x) => { x.setAttribute('aria-selected', String(x === b)); x.tabIndex = x === b ? 0 : -1; });
-      const src = `/redesign/shots/${b.getAttribute('data-shot')}.jpg`;
+      // faqat build.py nusxalagan rasmlar (DOM qiymati URL'ga to'g'ridan tushmaydi)
+      const name = SHOTS.find((s) => s === b.getAttribute('data-shot'));
+      if (!name) return;
+      const src = `/redesign/shots/${name}.jpg`;
       const pre = new Image();
       pre.src = src;
       img.classList.add('is-swap');
