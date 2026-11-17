@@ -4,6 +4,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versiyalar: [S
 
 ## [Unreleased]
 
+### Tuzatildi
+- Sayt: «Yangi» rejimida eski→yangi harf juftligi namunalari (O‘ → Ö, G‘ → Ğ, Sh → Ş, Ch → Ç va чой → çoy)
+  almashtirgich tomonidan o‘zi ham o‘girilmasin — `data-no-conv` bilan himoyalandi (`/savollar/`, `/yangi-alifbo/`,
+  `/yangi-alifbo-qonuni/`, `/yangi-alifbo-kompyuter/`); aks holda `O‘ → Ö` ekranda `Ö → Ö` ko‘rinardi.
+
 ## [0.5.0] — 2026-11-17
 
 Foydalanuvchi uchun qisqasi — [NEWS.md](NEWS.md).
