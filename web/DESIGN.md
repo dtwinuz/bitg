@@ -24,3 +24,16 @@ Second moment:     7 kun: kunlik commit ustunlari + reliz belgilari (SVG, build 
 Differentiators:   1) tezlik raqamlari bilan, 2) har ish dalil havolasi bilan, 3) holat ochiq (jonli / ko'rib chiqilmoqda / kutilmoqda)
 Deliberately off:  to'qima raqam, "foydalanuvchilar soni", kartochka to'ri, har bo'limga fade-up; inline style yo'q (CSP)
 Ma'lumot:          tools/site/ishlar.json (manba havolasi bilan); raqamlar git/gh/README'dan, buyrug'i JSON'da
+
+## redesign.bitg.uz — sahifa kartasi (web/redesign/)
+
+Subject noun:      klaviatura tugmasi va undagi ikki harfning bitta harfga birlashishi
+States:            yozish → probel → birlashdi (ö ğ ş ç tugmasi yonadi); inglizcha/havola tegilmaydi; 13 joyda ishlaydi
+Register:          product (anthropic.com tili: iliq qog'oz fon, serif displey, qora "slate" bo'limlar, bitta aksent)
+Accent:            #2f62c0 / #8fb0ea — logodagi ö nuqtalari; token ranglari yadro sabablari (c/e/p/x) bo'yicha
+Type:              Source Serif 4 (displey), Hanken Grotesk + Onest kirill (matn), JetBrains Mono (ma'lumot) — wonmor.io shriftlari
+Signature:         three.js 3D klaviatura (kb3d.mjs -> kb3d.js): hero yozuvi bilan sinxron bosiladi, prujina fizikasi
+Second moment:     haqiqiy yadro (bitg_core.wasm) bilan sinov maydoni — so'zlar sababi bo'yicha bo'yaladi, tezlik brauzerda o'lchanadi
+Differentiators:   1) hamma joyda (kompyuter, brauzer, ofis, AI, telefon, Telegram, dasturchi), 2) tushunadi, 3) dalilli ishonch
+Deliberately off:  to'qima raqam va sharh, AI-render rasm, inline style (CSP), har bo'limga fade-up (faqat sarlavhalar)
+Ma'lumot:          raqamlar tools/site/ishlar.json va README'dan; hero misollari bitg_run chiqishi; skrinshotlar docs/screenshots

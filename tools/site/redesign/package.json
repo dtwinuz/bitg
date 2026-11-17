@@ -1,0 +1,14 @@
+{
+  "name": "bitg-redesign-3d",
+  "private": true,
+  "description": "redesign.bitg.uz: 3D klaviatura (three.js) to'plami -> web/redesign/kb3d.js",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild kb3d.mjs --bundle --minify --format=esm --target=es2020 --legal-comments=eof --outfile=../../../web/redesign/kb3d.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "three": "0.180.0"
+  }
+}

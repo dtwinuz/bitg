@@ -32,3 +32,17 @@ path = ["crates/bitg-core/src/data/uz.tsv", "crates/bitg-core/src/data/sh_split.
 precedence = "override"
 SPDX-FileCopyrightText = ["Leipzig Corpora Collection, Leipzig University <https://wortschatz.uni-leipzig.de/>", "2026 dtwinuz and bitg contributors"]
 SPDX-License-Identifier = "CC-BY-4.0"
+
+# redesign.bitg.uz shriftlari: Hanken Grotesk, Onest, Source Serif 4, JetBrains Mono (@fontsource-variable subsetlari)
+[[annotations]]
+path = ["web/redesign/fonts/*.woff2", "web/redesign/fonts/OFL.txt"]
+precedence = "override"
+SPDX-FileCopyrightText = ["2021 The Hanken Grotesk Project Authors", "2021 The Onest Project Authors", "2014-2021 Adobe", "2020 The JetBrains Mono Project Authors"]
+SPDX-License-Identifier = "OFL-1.1"
+
+# redesign.bitg.uz 3D klaviatura to'plami: three.js (MIT) + tools/site/redesign/kb3d.mjs (esbuild, `npm run build`)
+[[annotations]]
+path = "web/redesign/kb3d.js"
+precedence = "override"
+SPDX-FileCopyrightText = ["2010-2025 three.js authors", "2026 dtwinuz and bitg contributors"]
+SPDX-License-Identifier = "MIT"
