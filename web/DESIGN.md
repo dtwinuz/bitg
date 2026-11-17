@@ -14,3 +14,13 @@ Matn eski imloda yozilgan (qidiruv tizimlari shuni indekslaydi, odamlar shunday 
 yadrosi (`toNew`) bilan o'giradi, tanlov eslab qolinadi. Demo va misollar `data-no-conv`; uning ichidagi UI yorlig'i
 `data-conv`. Apostrof: o‘ g‘ = U+2018, tutuq = U+2019.
 Demo natijalari `bitg` CLI va WASM chiqishidan olingan (README'dagi misollar bilan bir xil yadro).
+
+## /qilingan-ishlar/ — sahifa kartasi
+
+Subject noun:      bitta tugma bosish (ikki bosish orasidagi vaqt ichida bitg so'zni o'girib bo'ladi)
+States:            100 000 µs (odam keyingi tugmani bosguncha) → kattalashtirish → 2,7 µs (bitg ishi) → 7 kunlik ish jurnali
+Signature:         "Bir bosish ichida" — scroll bilan 100 ms dan 25 µs gacha logarifmik kattalashadigan chizg'ich (sticky, rAF)
+Second moment:     7 kun: kunlik commit ustunlari + reliz belgilari (SVG, build vaqtida chiziladi; CSP style-src 'self')
+Differentiators:   1) tezlik raqamlari bilan, 2) har ish dalil havolasi bilan, 3) holat ochiq (jonli / ko'rib chiqilmoqda / kutilmoqda)
+Deliberately off:  to'qima raqam, "foydalanuvchilar soni", kartochka to'ri, har bo'limga fade-up; inline style yo'q (CSP)
+Ma'lumot:          tools/site/ishlar.json (manba havolasi bilan); raqamlar git/gh/README'dan, buyrug'i JSON'da
