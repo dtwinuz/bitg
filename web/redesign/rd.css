@@ -379,6 +379,8 @@ mark.t-c, mark.t-e, mark.t-p, mark.t-x { padding: 0 3px; margin: 0 -1px; border-
 .rd-list .rd-st { margin-left: 6px; }
 
 .rd-shot { position: relative; }
+.rd-demo__go { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 18px; }
+.rd-demo__go span { font-size: 14px; color: var(--fg3); }
 .rd-shot figcaption, .rd-demo__cap { margin-top: 14px; font-size: 14px; color: var(--fg3); }
 .rd-win { border-radius: var(--r-m); overflow: hidden; border: 1px solid var(--line); background: var(--card); box-shadow: 0 50px 80px -50px rgba(20, 20, 19, .45); transform: perspective(1400px) rotateY(-6deg) rotateX(2deg); transition: transform 1.2s var(--soft); }
 .rd-win:hover { transform: perspective(1400px) rotateY(-1deg); }
