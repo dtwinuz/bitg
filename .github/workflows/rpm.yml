@@ -1,0 +1,106 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: rpm
+
+# packaging/rpm/bitg.spec (Fedora COPR, openSUSE OBS) toza konteynerlarda shu commit manbasidan sinaladi:
+#   fedora: make-srpm.sh -> SRPM (Source1 = cargo vendor) -> builddep -> rpmbuild --rebuild (tarmoqsiz cargo,
+#           %check bilan) -> rpmlint -> dnf install -> fayllar, CLI, ldd -> dnf remove (hech narsa qolmasin).
+#           spec'dagi bundled(crate(...)) ro'yxati Cargo.lock'dagi haqiqiy runtime crate'lar bilan solishtiriladi.
+#   tumbleweed: o'sha spec openSUSE'da yig'iladi va o'rnatiladi (spec'ning suse_version tarmog'i).
+on:
+  pull_request:
+    paths: ["packaging/rpm/**", "linux/**", "Cargo.lock", ".github/workflows/rpm.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fedora:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container: fedora:45@sha256:a7d72ba2745b100a3351087472e5ee7b2450af7cf331e7673007e3817612839c
+    steps:
+      - name: Asboblar
+        run: dnf -y -q install rpm-build rpmlint cargo git-core tar xz gzip curl 'dnf5-command(builddep)'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: bundled(crate) ro'yxati Cargo.lock bilan bir xil
+        run: |
+          # binarga kiradigan crate'lar: proc-macro va ularning bog'liqliklari (faqat yig'ishda) chiqariladi
+          cargo tree --locked -p bitg-cli -p bitg-ime -e normal,no-proc-macro --prefix none -f '{p}' \
+            --target x86_64-unknown-linux-gnu | sed 's/ (\*)$//' | grep -v -e '^bitg' -e '^$' \
+            | sed 's/^\([^ ]*\) v\([^ ]*\).*/\1 \2/' | sort -u > /tmp/want
+          sed -n 's/^Provides: *bundled(crate(\([^)]*\))) = \(.*\)$/\1 \2/p' packaging/rpm/bitg.spec | sort -u > /tmp/got
+          diff -u /tmp/want /tmp/got
+      - name: SRPM (Source0 = shu commit, Source1 = cargo vendor)
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          srpm=$(packaging/rpm/make-srpm.sh --from-git HEAD --outdir "$RUNNER_TEMP/rpm")
+          echo "SRPM=$srpm" >> "$GITHUB_ENV"
+          ls -la "$RUNNER_TEMP/rpm"
+      - name: builddep
+        run: dnf -y -q builddep "$SRPM"
+      - name: rpmbuild --rebuild (%check bilan)
+        run: rpmbuild --rebuild --define "_topdir $RUNNER_TEMP/rpmbuild" "$SRPM"
+      - name: rpmlint
+        run: rpmlint -r packaging/rpm/bitg.rpmlintrc packaging/rpm/bitg.spec "$SRPM" "$RUNNER_TEMP"/rpmbuild/RPMS/*/*.rpm
+      - name: O'rnatish, sinov, o'chirish
+        run: |
+          r="$RUNNER_TEMP/rpmbuild/RPMS/x86_64"
+          dnf -y -q install "$r"/bitg-[0-9]*.rpm "$r"/fcitx5-bitg-[0-9]*.rpm
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          test "$(bitg 'Please check the schedule')" = 'Please check the schedule'
+          for f in /usr/bin/bitg-indicator /usr/libexec/ibus-engine-bitg /usr/share/ibus/component/bitg.xml \
+            /usr/share/applications/bitg.desktop /etc/xdg/autostart/bitg.desktop /usr/lib64/fcitx5/bitg.so \
+            /usr/share/fcitx5/addon/bitg.conf /usr/share/fcitx5/inputmethod/bitg.conf; do test -e "$f"; done
+          grep -q '<exec>/usr/libexec/ibus-engine-bitg --ibus</exec>' /usr/share/ibus/component/bitg.xml
+          if grep -q '@VERSION@' /usr/share/ibus/component/bitg.xml /usr/share/fcitx5/addon/bitg.conf; then exit 1; fi
+          ldd -r /usr/lib64/fcitx5/bitg.so 2>&1 | tee /tmp/ldd.txt
+          if grep -q 'undefined symbol' /tmp/ldd.txt; then exit 1; fi
+          # indikator bog'liqliklari (Requires) haqiqatan yetarli
+          python3 -c 'import gi; gi.require_version("Gtk","3.0"); gi.require_version("AyatanaAppIndicator3","0.1"); from gi.repository import Gtk, AyatanaAppIndicator3'
+          test "$(rpm -qc bitg)" = /etc/xdg/autostart/bitg.desktop
+          dnf -y -q remove bitg fcitx5-bitg
+          for f in /usr/bin/bitg /usr/libexec/ibus-engine-bitg /usr/lib64/fcitx5/bitg.so /etc/xdg/autostart/bitg.desktop; do
+            if test -e "$f"; then echo "qoldi: $f"; exit 1; fi
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ always() }}
+        with:
+          name: rpm-fedora
+          path: |
+            ${{ runner.temp }}/rpm/*.src.rpm
+            ${{ runner.temp }}/rpmbuild/RPMS/*/*.rpm
+          if-no-files-found: ignore
+
+  tumbleweed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    container: opensuse/tumbleweed@sha256:0e80488c4e2d1fb91ff07a7264deb4171e0c0884d7d141819f1d0826ac35bc0b
+    steps:
+      - name: Asboblar
+        run: zypper -n -q install rpm-build cargo git-core tar xz gzip curl
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: SRPM, BuildRequires, rpmbuild --rebuild
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          srpm=$(packaging/rpm/make-srpm.sh --from-git HEAD --outdir "$RUNNER_TEMP/rpm")
+          # SRPM'ning Requires'i = spec'dagi BuildRequires (openSUSE tarmog'i bilan)
+          rpm -qp --requires "$srpm" | grep -v '^rpmlib(' | sed 's/ //g' > /tmp/br
+          cat /tmp/br
+          xargs -d '\n' zypper -n -q install < /tmp/br
+          rpmbuild --rebuild --define "_topdir $RUNNER_TEMP/rpmbuild" "$srpm"
+      - name: O'rnatish, sinov, o'chirish
+        run: |
+          zypper -n --no-gpg-checks -q install "$RUNNER_TEMP"/rpmbuild/RPMS/*/bitg-[0-9]*.rpm "$RUNNER_TEMP"/rpmbuild/RPMS/*/fcitx5-bitg-[0-9]*.rpm
+          test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
+          test -x /usr/libexec/ibus-engine-bitg && test -e /usr/lib64/fcitx5/bitg.so
+          python3 -c 'import gi; gi.require_version("Gtk","3.0"); gi.require_version("AyatanaAppIndicator3","0.1"); from gi.repository import Gtk, AyatanaAppIndicator3'
+          zypper -n -q remove bitg fcitx5-bitg
+          test ! -e /usr/bin/bitg

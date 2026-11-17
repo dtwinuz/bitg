@@ -43,6 +43,8 @@ CHANNELS = [
      "soon": "tekshiruvda", "url": "https://github.com/microsoft/winget-pkgs/pull/478645"},
     {"os": "Windows", "tool": "Chocolatey", "cmd": "choco install bitg", "live": False,
      "soon": "tez orada", "url": "https://github.com/dtwinuz/bitg/tree/main/packaging/chocolatey"},
+    {"os": "Windows", "tool": "Scoop", "cmd": "scoop install dtwinuz/bitg", "live": True,
+     "note": "bucket’ni bir marta qo‘shing", "url": "#scoop"},
     {"os": "macOS", "tool": "Homebrew", "cmd": "brew install --cask dtwinuz/tap/bitg", "live": True,
      "url": "#brew"},
     {"os": "Ubuntu, Debian", "tool": "apt", "cmd": "sudo apt install bitg", "live": True,

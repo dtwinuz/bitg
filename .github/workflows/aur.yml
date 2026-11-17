@@ -49,6 +49,9 @@ jobs:
           pacman -U --noconfirm ./bitg-[0-9]*.pkg.tar.zst ./fcitx5-bitg-[0-9]*.pkg.tar.zst
           test "$(bitg "O'zbekiston shaharlari")" = 'Özbekiston şaharlari'
           test -x /usr/lib/ibus/ibus-engine-bitg
+          # yuqori panel belgisi (.deb bilan bir xil fayllar)
+          test -x /usr/bin/bitg-indicator && test -f /usr/share/applications/bitg.desktop
+          test -f /etc/xdg/autostart/bitg.desktop && test -f /usr/share/icons/hicolor/scalable/apps/bitg-disabled.svg
           grep -q '<exec>/usr/lib/ibus/ibus-engine-bitg --ibus</exec>' /usr/share/ibus/component/bitg.xml
           # `! cmd` bash -e ni to'xtatmaydi, shuning uchun if bilan
           if grep -q '@VERSION@' /usr/share/ibus/component/bitg.xml /usr/share/fcitx5/addon/bitg.conf; then exit 1; fi
@@ -57,6 +60,7 @@ jobs:
           nm -D --defined-only /usr/lib/fcitx5/bitg.so | grep -q ' fcitx_addon_factory_instance$'
           pacman -R --noconfirm fcitx5-bitg bitg
           test ! -e /usr/bin/bitg && test ! -e /usr/lib/fcitx5/bitg.so
+          test ! -e /usr/bin/bitg-indicator && test ! -e /etc/xdg/autostart/bitg.desktop
       # tools/arch/pacman_repo.py (bitg.uz/arch) haqiqiy pacman bilan: bir martalik kalit, SigLevel Required,
       # ombordan o'rnatish; keyin buzilgan paket imzo tekshiruvidan o'tmasligi.
       - name: pacman ombori (pacman_repo.py) va imzo tekshiruvi

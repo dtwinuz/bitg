@@ -20,6 +20,10 @@ pkgname = bitg
 	depends = gcc-libs
 	depends = glibc
 	optdepends = fcitx5-bitg: the same input method for Fcitx5
+	optdepends = python-gobject: top panel indicator (bitg-indicator)
+	optdepends = gtk3: top panel indicator (bitg-indicator)
+	optdepends = libayatana-appindicator: top panel indicator (bitg-indicator)
+	backup = etc/xdg/autostart/bitg.desktop
 
 pkgname = fcitx5-bitg
 	pkgdesc = Uzbek input method for the new 2026 Latin alphabet (Fcitx5)

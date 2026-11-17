@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: channels
+
+# Tarqatish kanallari (bitg.uz, apt, pacman, Homebrew, Scoop, crates.io, Chocolatey, winget, AUR) so'nggi relizga
+# yetib kelganmi — tools/release/channels.py. Natija summary'da; muammo (lag yoki error) bo'lsa bitta `channels`
+# yorlig'li issue ochiladi yoki yangilanadi, hammasi joyiga tushgach o'zi yopiladi.
+on:
+  schedule:
+    - cron: "47 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: channels
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: c
+        run: |
+          python3 -I tools/release/channels.py --report "$RUNNER_TEMP/channels.md" --json "$RUNNER_TEMP/channels.json" \
+            --github-output "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/channels.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Issue
+        env:
+          PROBLEMS: ${{ steps.c.outputs.problems }}
+          LATEST: ${{ steps.c.outputs.latest }}
+        run: |
+          gh label create channels --color D93F0B --description "Paket kanali so'nggi relizdan ortda (channels workflow)" 2>/dev/null || true
+          num=$(gh issue list --label channels --state open --json number -q '.[0].number')
+          body="$RUNNER_TEMP/body.md"
+          { cat "$RUNNER_TEMP/channels.md"; echo; echo "Oxirgi tekshiruv: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > "$body"
+          title="Paket kanallari: v$LATEST da $PROBLEMS ta muammo"
+          if [ "$PROBLEMS" -gt 0 ]; then
+            if [ -n "$num" ]; then
+              gh issue edit "$num" --title "$title" --body-file "$body"
+              echo "issue #$num yangilandi" >> "$GITHUB_STEP_SUMMARY"
+            else
+              url=$(gh issue create --title "$title" --label channels --assignee XakimovNosirbek --body-file "$body")
+              echo "issue ochildi: $url" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "Hamma kanal v$LATEST ga yetdi: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "issue #$num yopildi" >> "$GITHUB_STEP_SUMMARY"
+          fi

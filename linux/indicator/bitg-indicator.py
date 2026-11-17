@@ -10,10 +10,17 @@ import sys
 import tempfile
 import webbrowser
 
-import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version("AyatanaAppIndicator3", "0.1")
-from gi.repository import Gtk, GLib, AyatanaAppIndicator3 as Indicator
+try:
+    import gi
+    gi.require_version("Gtk", "3.0")
+    gi.require_version("AyatanaAppIndicator3", "0.1")
+    from gi.repository import Gtk, GLib, AyatanaAppIndicator3 as Indicator
+except (ImportError, ValueError) as e:
+    # bog'liqliklar ixtiyoriy (deb: Recommends, Arch: optdepends): sessiya autostart'ida traceback emas, bitta qator
+    print(f"bitg-indicator: panel belgisi uchun PyGObject, GTK 3 va Ayatana AppIndicator kerak ({e}). "
+          "Debian/Ubuntu: python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1; "
+          "Arch: python-gobject gtk3 libayatana-appindicator", file=sys.stderr)
+    sys.exit(0)
 
 KEYS = ("enabled", "auto_convert", "cyrillic")
 LABELS = {"enabled": "Yoqilgan", "auto_convert": "Avtomatik ögiriş",

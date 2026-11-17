@@ -45,7 +45,12 @@ check() {
 
 package_bitg() {
   depends=(ibus glib2 gcc-libs glibc)
-  optdepends=('fcitx5-bitg: the same input method for Fcitx5')
+  optdepends=('fcitx5-bitg: the same input method for Fcitx5'
+              'python-gobject: top panel indicator (bitg-indicator)'
+              'gtk3: top panel indicator (bitg-indicator)'
+              'libayatana-appindicator: top panel indicator (bitg-indicator)')
+  # foydalanuvchi autostart faylini o'zgartirsa, yangilashda saqlanadi (.pacnew)
+  backup=(etc/xdg/autostart/bitg.desktop)
   cd "$pkgbase-$pkgver"
   install -Dm755 target/release/bitg "$pkgdir/usr/bin/bitg"
   # Arch'da IBus dvigatellari /usr/lib/ibus ichida (Debian: /usr/libexec)
@@ -55,6 +60,11 @@ package_bitg() {
     linux/ibus/bitg.xml > "$pkgdir/usr/share/ibus/component/bitg.xml"
   chmod 644 "$pkgdir/usr/share/ibus/component/bitg.xml"
   install -Dm644 web/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/bitg.svg"
+  # yuqori panel belgisi (.deb bilan bir xil: linux/build-deb.sh)
+  install -Dm755 linux/indicator/bitg-indicator.py "$pkgdir/usr/bin/bitg-indicator"
+  install -Dm644 linux/indicator/bitg-disabled.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/bitg-disabled.svg"
+  install -Dm644 linux/indicator/bitg.desktop "$pkgdir/usr/share/applications/bitg.desktop"
+  install -Dm644 linux/indicator/bitg-autostart.desktop "$pkgdir/etc/xdg/autostart/bitg.desktop"
   install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE-MIT LICENSE-APACHE
 }
 
