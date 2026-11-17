@@ -1,0 +1,87 @@
+---json
+{
+ "slug": "/qilingan-ishlar/",
+ "lang": "uz",
+ "title": "bitg: 7 kunda qilingan ishlar — raqamlar va to‘liq ro‘yxat",
+ "description": "bitg loyihasi birinchi commit’dan beri: {{ishlarTotal}} ta ish, 6 reliz, 3 tizim, o‘lchangan tezlik va aniqlik. Har band dalil havolasi va holati bilan.",
+ "h1": "7 kunda qilingan ishlar",
+ "crumb": "Qilingan ishlar",
+ "card": "Raqamlar, tezlik, 7 kunlik jurnal va {{ishlarTotal}} ta ishning to‘liq ro‘yxati — har biri dalil bilan.",
+ "lead": "bitg ochiq kod sifatida <b>2026-yil 11-noyabrda</b> boshlandi. Bu sahifada shundan beri qilingan hamma ish: dastur, sayt, do‘konlar, standartlar va sinovlar. Har raqamning manbasi bor, har band dalil havolasi va hozirgi holati bilan.",
+ "updated": "2026-11-17",
+ "published": "2026-11-17",
+ "schema": ["Article"],
+ "full": true,
+ "assets": "ishlar",
+ "links": ["/sifat/", "/qiyoslash/", "/yuklab-olish/", "/standart/"],
+ "sources": [
+  {"title": "dtwinuz/bitg — birlashtirilgan pull request’lar (GitHub)", "url": "https://github.com/dtwinuz/bitg/pulls?q=is%3Apr+is%3Amerged", "note": "kunlik commit va PR soni: git log, gh pr list"},
+  {"title": "bitg relizlari (GitHub Releases)", "url": "https://github.com/dtwinuz/bitg/releases", "note": "v0.1.0 — v0.5.0"},
+  {"title": "bitg README — «Sifat» va «Tezlik va resurs» bo‘limlari", "url": "https://github.com/dtwinuz/bitg#sifat-hozirgi-holat", "note": "aniqlik va tezlik raqamlari, o‘lchov sanasi 2026-11-12"},
+  {"title": "Baholash to‘plami eval/ (GitHub)", "url": "https://github.com/dtwinuz/bitg/tree/main/eval", "note": "3 000 + 3 000 + 3 000 gap, CC BY 4.0"},
+  {"title": "Sahifa ma’lumoti: tools/site/ishlar.json (GitHub)", "url": "https://github.com/dtwinuz/bitg/blob/main/tools/site/ishlar.json", "note": "har band, holat va manba bitta faylda"}
+ ]
+}
+---
+      {{ishlarKpi}}
+
+      <section class="nt-zoom is-static is-close is-away" data-work="2.7" aria-labelledby="nt-zoom-h">
+        <div class="nt-zoom__stage">
+          <div class="nt-zoom__head">
+            <div>
+              <p class="nt-kicker">Tezlik</p>
+              <h2 id="nt-zoom-h">Bir bosish ichida</h2>
+            </div>
+            <p class="nt-zoom__span" data-no-conv>ekranda <b data-span>25 µs</b> · <b data-times>4&#8239;000×</b></p>
+          </div>
+          <p class="nt-sub">Ikki tugmani bosish orasida taxminan <b>100&#8239;000 mikrosekund</b> (0,1 soniya) o‘tadi. bitg shu oraliqda so‘zni o‘girib bo‘ladi — bunga <b>2,7 mikrosekund</b> ketadi. Pastga aylantiring: chizg‘ich bitg ishi ko‘ringuncha kattalashadi.</p>
+          <div class="nt-ruler" aria-hidden="true" data-no-conv>
+            <div class="nt-ruler__track"></div>
+            <div class="nt-ruler__ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="nt-gap"></div>
+            <span class="nt-gap__lbl">siz keyingi tugmani bosguncha o‘tadigan vaqt</span>
+            <span class="nt-tl" data-t="0">0</span><span class="nt-tl" data-t="1">6,3 µs</span><span class="nt-tl" data-t="2">12,5 µs</span><span class="nt-tl" data-t="3">18,8 µs</span><span class="nt-tl" data-t="4">25 µs</span>
+            <div class="nt-slice"></div>
+            <span class="nt-key nt-key--a" title="probel: so‘z tugadi">␣</span>
+            <div class="nt-bpos"><span class="nt-key nt-key--b">k</span><span class="nt-key__lbl nt-key__lbl--b">keyingi tugma · 100&#8239;000 µs</span></div>
+            <span class="nt-slice__lbl"><b>2,7 µs</b> — bitg «shahar»ni «şahar» qilib bo‘ldi</span>
+          </div>
+          <div class="nt-zoom__foot">
+            <div><b data-no-conv>2,7 µs</b><span>bir o‘zbekcha so‘zni o‘girish (lug‘at va kontekst tekshiruvi bilan)</span></div>
+            <div><b data-no-conv>1,4 µs</b><span>inglizcha so‘z: unga tegmaslik kerakligini aniqlash</span></div>
+            <div><b data-no-conv>≈37&#8239;000×</b><span>ikki bosish orasidagi vaqt bitg ishidan shuncha uzun — yozayotgan odam kechikishni sezmaydi</span></div>
+          </div>
+          <p class="nt-zoom__hint">↓ aylantiring</p>
+        </div>
+      </section>
+
+      <section class="nt-sec" aria-labelledby="nt-q-h">
+        <p class="nt-kicker">Sifat</p>
+        <h2 id="nt-q-h">Aniqlik ochiq to‘plamda o‘lchanadi</h2>
+        <p class="nt-sub">Uchta to‘plamda 3&#8239;000 tadan gap. Har o‘zgarish shu o‘lchovdan o‘tadi; to‘plamni yuklab olib, natijani o‘zingiz qaytara olasiz — <a href="/sifat/">usul va buyruqlar</a>.</p>
+        {{ishlarRings}}
+        {{ishlarBars}}
+        <p class="nt-sub">Bir xil 3&#8239;000 gapda, bitta kompyuterda, 5 marta o‘rtachasi. Faqat jadval bilan almashtiradigan konvertorlar o‘zbekcha matnda biroz tezroq — bitg har so‘zni lug‘at va kontekst bilan tekshiradi. Inglizcha matnda bitg eng tez, xotirada esa farq yigirma baravardan ortiq.</p>
+      </section>
+
+      <section class="nt-sec" aria-labelledby="nt-d-h">
+        <p class="nt-kicker">Ish sur’ati</p>
+        <h2 id="nt-d-h">7 kun, kunma-kun</h2>
+        <p class="nt-sub">Har ustun — o‘sha kuni asosiy tarmoqqa kirgan commitlar va birlashtirilgan pull request’lar. Tepadagi belgilar — relizlar (Toshkent vaqti).</p>
+        {{ishlarDays}}
+        <p class="nt-legend"><span><i></i>commit</span><span><i class="is-pr"></i>birlashtirilgan PR</span><span><i class="is-rel"></i>reliz</span></p>
+      </section>
+
+      <section class="nt-sec" aria-labelledby="nt-c-h">
+        <p class="nt-kicker">Qayerda bor</p>
+        <h2 id="nt-c-h">{{ishlarChLive}} joyda ishlaydi, {{ishlarChReview}} tasi ko‘rib chiqilmoqda</h2>
+        <p class="nt-sub">Do‘kon va kataloglarda yangi dasturni odatda inson moderator tekshiradi — «Ko‘rib chiqilmoqda» shuni bildiradi. «Kutilmoqda» — boshqa tomonga bog‘liq qadam.</p>
+        {{ishlarChannels}}
+      </section>
+
+      <section class="nt-sec" aria-labelledby="nt-l-h">
+        <p class="nt-kicker">To‘liq ro‘yxat</p>
+        <h2 id="nt-l-h">Hamma ish, yangisidan eskisiga</h2>
+        <p class="nt-sub">{{ishlarTotal}} ta band, {{ishlarLive}} tasi foydalanuvchilarga ochiq. Yo‘nalish yoki holat bo‘yicha saralang, nom bo‘yicha qidiring.</p>
+        {{ishlarLog}}
+      </section>

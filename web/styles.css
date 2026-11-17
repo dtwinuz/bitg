@@ -405,3 +405,12 @@ button.bg-key.is-new:hover { background: color-mix(in srgb, var(--accent) 24%, v
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .bg-caret { animation: none; }
 }
+
+/* Bosh sahifa: «Raqamlarda» qatori (/qilingan-ishlar/ ga kirish) */
+.bg-proof__row { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.bg-proof__row li { padding: 20px 20px 22px 0; border-bottom: 1px solid var(--line); }
+.bg-proof__row b { display: block; font: 700 clamp(28px, 3.6vw, 42px)/1 var(--sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--text); }
+.bg-proof__row span { display: block; margin-top: 10px; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+.bg-proof__more { margin: 22px 0 0; }
+@media (max-width: 860px) { .bg-proof__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .bg-proof__row { grid-template-columns: 1fr; } }

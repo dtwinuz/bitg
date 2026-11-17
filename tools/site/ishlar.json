@@ -1,0 +1,1259 @@
+{
+ "_manba": "Raqamlar: git log origin/main (Toshkent vaqti), gh pr list --state merged, gh release list, README «Sifat». Yangilash: shu faylni tahrirlang, build.py --selftest.",
+ "kpi": [
+  {
+   "v": 7,
+   "unit": "kun",
+   "label": "11-noyabrdagi birinchi commit’dan bugungacha",
+   "href": "https://github.com/dtwinuz/bitg/commits/main"
+  },
+  {
+   "v": 6,
+   "unit": "reliz",
+   "label": "v0.1.0 dan v0.5.0 gacha",
+   "href": "https://github.com/dtwinuz/bitg/releases"
+  },
+  {
+   "v": 127,
+   "unit": "commit",
+   "label": "asosiy tarmoqda",
+   "href": "https://github.com/dtwinuz/bitg/commits/main"
+  },
+  {
+   "v": 82,
+   "unit": "PR",
+   "label": "birlashtirilgan pull request",
+   "href": "https://github.com/dtwinuz/bitg/pulls?q=is%3Apr+is%3Amerged"
+  },
+  {
+   "v": 2.7,
+   "dec": 1,
+   "unit": "µs",
+   "label": "bir o‘zbekcha so‘zni o‘girish",
+   "href": "https://github.com/dtwinuz/bitg#sifat-hozirgi-holat"
+  },
+  {
+   "v": 98.87,
+   "dec": 2,
+   "unit": "%",
+   "label": "o‘zbekcha gaplar to‘g‘ri o‘giriladi",
+   "href": "https://github.com/dtwinuz/bitg#sifat-hozirgi-holat"
+  },
+  {
+   "v": 1.1,
+   "dec": 1,
+   "unit": "MB",
+   "label": "xotira; ishga tushish 0 ms",
+   "href": "https://github.com/dtwinuz/bitg#tezlik-va-resurs-raqobatchilar-bilan-bir-xil-matnda"
+  },
+  {
+   "v": 280,
+   "unit": "test",
+   "label": "Rust testi, qamrov darvozasi: qatorlar ≥ 95 %",
+   "href": "https://github.com/dtwinuz/bitg/actions/workflows/ci.yml"
+  },
+  {
+   "v": 100,
+   "unit": "%",
+   "label": "OpenSSF Baseline 1–3; Best Practices — gold",
+   "href": "https://www.bestpractices.dev/projects/16620"
+  },
+  {
+   "v": 8.8,
+   "dec": 1,
+   "unit": "/ 10",
+   "label": "OpenSSF Scorecard bahosi",
+   "href": "https://scorecard.dev/viewer/?uri=github.com/dtwinuz/bitg"
+  },
+  {
+   "v": 10,
+   "unit": "kishi",
+   "label": "kodga hissa qo‘shgan",
+   "href": "https://github.com/dtwinuz/bitg/graphs/contributors"
+  },
+  {
+   "v": 272,
+   "unit": "marta",
+   "label": "bitg.uz’dan yuklab olingan (ochiq hisob)",
+   "href": "https://bitg.uz/stats.json"
+  }
+ ],
+ "rings": [
+  {
+   "v": 98.87,
+   "label": "o‘zbekcha gaplar (3 000 ta, apostrof turlari aralash) to‘g‘ri"
+  },
+  {
+   "v": 99.73,
+   "label": "inglizcha gaplar (sh, ch, apostrof bor) o‘zgarmay qoladi"
+  },
+  {
+   "v": 81.2,
+   "label": "apostrofsiz yozilgan gaplar («ozbek», «togri») butunligicha to‘g‘ri"
+  }
+ ],
+ "bars": [
+  {
+   "title": "Inglizcha matn: bir so‘zga vaqt (kam — yaxshi)",
+   "rows": [
+    {
+     "name": "bitg",
+     "note": "Rust, lug‘at + kontekst",
+     "v": 1.4,
+     "label": "1,40 µs",
+     "us": true
+    },
+    {
+     "name": "alifbochi.uz",
+     "note": "JS",
+     "v": 1.45,
+     "label": "1,45 µs"
+    },
+    {
+     "name": "alifbo.akbarovlabs.uz",
+     "note": "JS",
+     "v": 1.93,
+     "label": "1,93 µs"
+    },
+    {
+     "name": "webnum.uz",
+     "note": "JS",
+     "v": 2.06,
+     "label": "2,06 µs"
+    }
+   ]
+  },
+  {
+   "title": "O‘zbekcha matn: bir so‘zga vaqt (kam — yaxshi)",
+   "rows": [
+    {
+     "name": "bitg",
+     "note": "har so‘z lug‘at va kontekst bilan tekshiriladi",
+     "v": 2.72,
+     "label": "2,72 µs",
+     "us": true
+    },
+    {
+     "name": "alifbochi.uz",
+     "note": "faqat jadval",
+     "v": 2.33,
+     "label": "2,33 µs"
+    },
+    {
+     "name": "alifbo.akbarovlabs.uz",
+     "note": "faqat jadval",
+     "v": 3.39,
+     "label": "3,39 µs"
+    },
+    {
+     "name": "webnum.uz",
+     "note": "faqat jadval",
+     "v": 2.27,
+     "label": "2,27 µs"
+    }
+   ]
+  },
+  {
+   "title": "Xotira (kam — yaxshi)",
+   "rows": [
+    {
+     "name": "bitg",
+     "note": "lug‘at binarda tayyor jadval",
+     "v": 1.1,
+     "label": "1,1 MB",
+     "us": true
+    },
+    {
+     "name": "JS konvertorlar",
+     "note": "Node jarayoni",
+     "v": 26,
+     "label": "26–41 MB"
+    }
+   ]
+  }
+ ],
+ "days": [
+  {
+   "date": "2026-11-11",
+   "commits": 7,
+   "prs": 0,
+   "releases": []
+  },
+  {
+   "date": "2026-11-12",
+   "commits": 56,
+   "prs": 18,
+   "releases": [
+    "v0.1.0",
+    "v0.2.0",
+    "v0.3.0"
+   ]
+  },
+  {
+   "date": "2026-11-13",
+   "commits": 45,
+   "prs": 45,
+   "releases": [
+    "v0.3.1",
+    "v0.4.0"
+   ]
+  },
+  {
+   "date": "2026-11-14",
+   "commits": 8,
+   "prs": 8,
+   "releases": []
+  },
+  {
+   "date": "2026-11-15",
+   "commits": 1,
+   "prs": 1,
+   "releases": []
+  },
+  {
+   "date": "2026-11-16",
+   "commits": 3,
+   "prs": 3,
+   "releases": []
+  },
+  {
+   "date": "2026-11-17",
+   "commits": 7,
+   "prs": 7,
+   "releases": [
+    "v0.5.0"
+   ]
+  }
+ ],
+ "cats": {
+  "core": "Yadro",
+  "windows": "Windows",
+  "linux": "Linux",
+  "macos": "macOS",
+  "web": "Sayt",
+  "ai": "AI",
+  "browser": "Brauzer",
+  "office": "Ofis",
+  "stores": "Do‘konlar",
+  "standards": "Standartlar",
+  "security": "Xavfsizlik",
+  "community": "Hamjamiyat",
+  "docs": "Hujjatlar"
+ },
+ "channels": [
+  {
+   "name": "bitg.uz",
+   "note": "Windows MSI, Linux .deb, macOS .pkg",
+   "url": "https://bitg.uz/yuklab-olish/",
+   "status": "live"
+  },
+  {
+   "name": "GitHub Releases",
+   "note": "imzolangan kelib chiqish, SBOM",
+   "url": "https://github.com/dtwinuz/bitg/releases",
+   "status": "live"
+  },
+  {
+   "name": "apt ombori",
+   "note": "Ubuntu, Debian · avtomatik yangilanish",
+   "url": "https://bitg.uz/yuklab-olish/#apt",
+   "status": "live"
+  },
+  {
+   "name": "pacman ombori",
+   "note": "Arch, Manjaro, EndeavourOS",
+   "url": "https://bitg.uz/yuklab-olish/#pacman",
+   "status": "live"
+  },
+  {
+   "name": "Homebrew",
+   "note": "brew install --cask dtwinuz/tap/bitg",
+   "url": "https://github.com/dtwinuz/homebrew-tap",
+   "status": "live"
+  },
+  {
+   "name": "crates.io",
+   "note": "bitg-core Rust kutubxonasi",
+   "url": "https://crates.io/crates/bitg-core",
+   "status": "live"
+  },
+  {
+   "name": "Chrome Web Store",
+   "note": "brauzer kengaytmasi",
+   "url": "https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg",
+   "status": "live"
+  },
+  {
+   "name": "Microsoft Edge Add-ons",
+   "note": "brauzer kengaytmasi",
+   "url": "https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee",
+   "status": "live"
+  },
+  {
+   "name": "Claude katalogi",
+   "note": "MCP konnektor",
+   "url": "https://claude.ai/directory/connectors/bitg",
+   "status": "live"
+  },
+  {
+   "name": "MCP Registry",
+   "note": "uz.bitg/bitg · ChatGPT, Gemini, Le Chat, Perplexity",
+   "url": "https://bitg.uz/ai/",
+   "status": "live"
+  },
+  {
+   "name": "Keyman",
+   "note": "Uzbek Latin 2026 · 7 platforma",
+   "url": "https://keyman.com/keyboards/uzbek_latin_2026",
+   "status": "live"
+  },
+  {
+   "name": "Telegram",
+   "note": "@bitguzbot — matnni o‘giradi",
+   "url": "https://t.me/bitguzbot",
+   "status": "live"
+  },
+  {
+   "name": "Onlayn konvertor",
+   "note": "brauzerda, o‘rnatsa bo‘ladigan ilova (PWA)",
+   "url": "https://bitg.uz/konvertor/",
+   "status": "live"
+  },
+  {
+   "name": "winget",
+   "note": "Windows Package Manager",
+   "url": "https://github.com/microsoft/winget-pkgs/pull/478645",
+   "status": "review"
+  },
+  {
+   "name": "Chocolatey",
+   "note": "choco install bitg",
+   "url": "https://community.chocolatey.org/packages/bitg",
+   "status": "review"
+  },
+  {
+   "name": "Firefox Add-ons",
+   "note": "kengaytma va imlo lug‘ati",
+   "status": "review"
+  },
+  {
+   "name": "LibreOffice Extensions",
+   "note": "yangi alifbo imlo lug‘ati",
+   "status": "review"
+  },
+  {
+   "name": "Google Workspace Marketplace",
+   "note": "Docs, Sheets, Slides qo‘shimchasi",
+   "status": "review"
+  },
+  {
+   "name": "Raycast Store",
+   "note": "macOS kengaytmasi",
+   "url": "https://github.com/raycast/extensions/pull/33619",
+   "status": "review"
+  },
+  {
+   "name": "AUR",
+   "note": "paket tayyor; AUR ro‘yxatdan o‘tishni vaqtincha yopgan",
+   "status": "waiting"
+  },
+  {
+   "name": "Microsoft Store",
+   "note": "konvertor ilovasi (MSIX)",
+   "status": "waiting"
+  }
+ ],
+ "items": [
+  {
+   "date": "2026-11-11",
+   "category": "core",
+   "status": "live",
+   "title_uz": "bitg-core: 2026 alifbosi dvigateli (Rust)",
+   "detail_uz": "Eski lotin va kirill matnni yangi alifboga o‘giradi; havola, email, kod va inglizcha so‘zlarga tegmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/aa9ee7106075f5095c5b1aa9afdc606ac0aac078",
+   "proof_label": "commit aa9ee71"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Tushib qolgan o‘/g‘ apostroflarini lug‘at bo‘yicha tiklash",
+   "detail_uz": "\"ozbek\" kabi apostrofsiz yozilgan so‘zlar lug‘at va o‘zak tahlili bilan to‘g‘ri harfga o‘giriladi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/07b1990f7c50b8d5794b3d612c2430156438edc5",
+   "proof_label": "commit 07b1990"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Windows uchun bitg-tsf kiritish usuli (TSF IME)",
+   "detail_uz": "So‘z tugashi bilan yangi alifboga o‘giradi; matnni yashiradigan dasturlar (Telegram) uchun tugma yo‘li bor.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/8faf411631aa326dba02daeedb79148ab1183328",
+   "proof_label": "commit 8faf411"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Sozlamalar oynasi va tray ilovasi",
+   "detail_uz": "Jonli ko‘rinishli sozlamalar oynasi; IME sozlamani qayta ishga tushirmasdan o‘qiydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/bc96a38afd882192aaef4c9c9394d74392720c95",
+   "proof_label": "commit bc96a38"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "MSI o‘rnatuvchi (WiX 5), jim o‘rnatish",
+   "detail_uz": "Kompyuter darajasidagi MSI paket: tashkilotlarda jim (silent) o‘rnatish mumkin.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/ef58a2bfb802b5a93b1d967f22344828d55e6d01",
+   "proof_label": "commit ef58a2b"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Klaviatura rejimi: yangi harflarni to‘g‘ridan-to‘g‘ri yozish",
+   "detail_uz": "TSF ichida klaviatura xaritasi, Backspace bilan bekor qilish, kirill tartibi va 32-bit DLL.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/7af8eddd0900afaba0486124214026efd214b2da",
+   "proof_label": "commit 7af8edd"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Sayt: brauzerda ishlaydigan WASM konvertor",
+   "detail_uz": "bitg-core WebAssembly’ga yig‘ildi: matn serverga yuborilmasdan brauzerning o‘zida o‘giriladi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/5563560443d23eae1d58f4df5ee33660586ced10",
+   "proof_label": "commit 5563560"
+  },
+  {
+   "date": "2026-11-11",
+   "category": "community",
+   "status": "live",
+   "title_uz": "@bitguzbot Telegram boti",
+   "detail_uz": "bitg-core asosidagi bot: Telegram’da yuborilgan matnni yangi alifboga o‘girib qaytaradi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/9d99adf2c4c47f580491975b2bef8fcee0c1ae41",
+   "proof_label": "commit 9d99adf"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Telegram va Qt dasturlarida ishonchli o‘girish",
+   "detail_uz": "Oldindan bosilgan tugmalar tartibi saqlanadi, o‘z Backspace’lari bekor qilish deb olinmaydi; Qt e2e sinovi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/31bdba26d58ba4f95d0c7f7530e4526674f7a000",
+   "proof_label": "commit 31bdba2"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "core",
+   "status": "live",
+   "title_uz": "CLI: Word/Excel fayllarini o‘girish, diff va kirillga o‘girish",
+   "detail_uz": "bitg file (.docx, .xlsx, .txt, .md), bitg diff / --dry-run va lotindan kirillga bitg cyr.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/ee2b9aa700ec2bc58c5c9e8b6142bfcd92191637",
+   "proof_label": "commit ee2b9aa"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Belgilangan matnni Ctrl+Shift+Y bilan o‘girish",
+   "detail_uz": "Istalgan dasturda belgilangan matn global tezkor tugma bilan yangi alifboga o‘tadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/87296f8332ca84221f2a271293487644c9610d0d",
+   "proof_label": "commit 87296f8"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Lug‘at kengaytirildi, ochiq baholash to‘plami (CC BY 4.0)",
+   "detail_uz": "Apostrofsiz matnda aniqlik 69% dan 81% ga oshdi; eval/ to‘plami lug‘atdan ajratilgan holda ochiq.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/b3102bc0f4127e8ccb9f05a21a76cce20275353e",
+   "proof_label": "commit b3102bc"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "v0.1.0 — birinchi reliz (Windows)",
+   "detail_uz": "Windows 10/11 uchun MSI: kiritish usuli, sozlamalar, tray va CLI.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.1.0",
+   "proof_label": "Release v0.1.0"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "web",
+   "status": "live",
+   "title_uz": "bitg.uz asosiy domen va birinchi SEO sahifalari",
+   "detail_uz": "Sayt bitg.uz ga ko‘chdi; alifbo, qonun, klaviatura va savollar sahifalari ochildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/commit/af5d3b6de89123e53c1db35b328bfdd201ba6bf0",
+   "proof_label": "commit af5d3b6"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "linux",
+   "status": "live",
+   "title_uz": "Linux: IBus dvigateli, Fcitx5 qo‘shimchasi va .deb paketlar",
+   "detail_uz": "Ubuntu 22.04+ va Debian 12+ uchun; haqiqiy ibus-daemon bilan uchidan-uchiga sinov CI’da.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/2",
+   "proof_label": "PR #2"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "linux",
+   "status": "live",
+   "title_uz": "v0.2.0 — Linux relizi",
+   "detail_uz": "Windows MSI bilan birga IBus va Fcitx5 .deb paketlari, har fayl yonida SHA-256.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.2.0",
+   "proof_label": "Release v0.2.0"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "docs",
+   "status": "live",
+   "title_uz": "Hamjamiyat hujjatlari: CHANGELOG, CONTRIBUTING, SECURITY",
+   "detail_uz": "Issue formalari, xavfsizlik xabari yo‘li va hissa qo‘shish qo‘llanmasi repoga qo‘shildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/3",
+   "proof_label": "PR #3"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Telefon uchun yo‘l: iPhone va Android klaviaturasi sahifasi",
+   "detail_uz": "Saytda mobil qurilmalarda yangi alifboda yozish uchun Tilmoch klaviaturasiga yo‘l ko‘rsatildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/4",
+   "proof_label": "PR #4"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "macos",
+   "status": "live",
+   "title_uz": "macOS: InputMethodKit kiritish usuli (beta)",
+   "detail_uz": "Universal (Apple Silicon + Intel) .pkg o‘rnatuvchi va saytda yuklab olish.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/7",
+   "proof_label": "PR #7"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Ikki ma’noli so‘zlar va xorijiy ismlar buzilmaydi",
+   "detail_uz": "Foydalanuvchi xabarlari (#5, #6): \"Richard\", \"Chicago\" kabi nomlar va noaniq so‘zlar o‘zgarmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/8",
+   "proof_label": "PR #8"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "macos",
+   "status": "live",
+   "title_uz": "macOS: sozlamalar menyusi, tezroq ishlash, Intel CI",
+   "detail_uz": "Dastur bilan kamroq murojaat, kiritish menyusida sozlamalar; Intel Mac uchun alohida CI.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/9",
+   "proof_label": "PR #9, #11"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Tizimni aniqlab yuklab olish, fikr sahifasi, maxfiy statistika",
+   "detail_uz": "Sayt tizimni o‘zi aniqlaydi; IP manzilsiz yuklab olish statistikasi ochiq stats.json da.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/10",
+   "proof_label": "PR #10"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "stores",
+   "status": "live",
+   "title_uz": "Imzolangan apt ombori: bitg.uz/apt",
+   "detail_uz": "Ubuntu va Debian’da apt orqali o‘rnatish va avtomatik yangilanish.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/10",
+   "proof_label": "PR #10"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "macos",
+   "status": "live",
+   "title_uz": "v0.3.0 — macOS paketi relizda",
+   "detail_uz": "Release’da Windows MSI, ikki Linux .deb va macOS .pkg bor.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.3.0",
+   "proof_label": "Release v0.3.0"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "stores",
+   "status": "live",
+   "title_uz": "Homebrew: brew install --cask dtwinuz/tap/bitg",
+   "detail_uz": "dtwinuz/homebrew-tap ochildi; CI macOS’da o‘rnatib-o‘chirib tekshiradi.",
+   "proof_url": "https://github.com/dtwinuz/homebrew-tap/pull/1",
+   "proof_label": "homebrew-tap PR #1"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "stores",
+   "status": "review",
+   "title_uz": "winget (Windows Package Manager) ga ariza",
+   "detail_uz": "microsoft/winget-pkgs ga yangi paket: barcha tekshiruvlar o‘tgan, moderator tasdig‘i kutilmoqda.",
+   "proof_url": "https://github.com/microsoft/winget-pkgs/pull/478645",
+   "proof_label": "winget-pkgs PR #478645"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Windows 11 Pro: bitg o‘zi o‘chib qolmaydi (#13)",
+   "detail_uz": "Faollashtirish muvaffaqiyatsiz bo‘lsa ham bitg tanlangan holda qoladi; CodeQL ogohlantirishlari tuzatildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/15",
+   "proof_label": "PR #15"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Reliz attestatsiyasi, SBOM va OpenSSF Scorecard",
+   "detail_uz": "Har reliz fayli kelib chiqishi imzolangan; SBOM va Scorecard tekshiruvi; xulq-atvor kodeksi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/16",
+   "proof_label": "PR #16"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Fuzzing, imzolangan reliz to‘plamlari, qotirilgan image’lar",
+   "detail_uz": "cargo-fuzz bilan konvertor va yozish sessiyasi sinovi; Docker image’lar digest bilan qotirilgan.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/17",
+   "proof_label": "PR #17"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "community",
+   "status": "live",
+   "title_uz": "Telegram: bot buyruqlari, reliz e’lonlari, rejali postlar",
+   "detail_uz": "@bitguzbot /fikr va /yuklash; @bitguz va @bitgtech kanallariga reliz e’loni avtomatik.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/20",
+   "proof_label": "PR #20, #23, #25, #31"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "REUSE 3.3: har faylda litsenziya va SPDX sarlavha",
+   "detail_uz": "Barcha fayllar litsenziyasi mashina o‘qiy oladigan shaklda; reuse lint CI’da.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/22",
+   "proof_label": "PR #22"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "OpenSSF Best Practices: passing darajasi",
+   "detail_uz": "bestpractices.dev 16620 loyihasi: passing 2026-11-12 da olindi.",
+   "proof_url": "https://www.bestpractices.dev/projects/16620",
+   "proof_label": "OpenSSF #16620"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "docs",
+   "status": "live",
+   "title_uz": "Boshqaruv, yo‘l xaritasi, arxitektura va xavfsizlik asoslari",
+   "detail_uz": "GOVERNANCE, ROADMAP, ARCHITECTURE va assurance case hujjatlari; test qamrovi o‘lchandi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/24",
+   "proof_label": "PR #24"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "OpenSSF Best Practices: silver darajasi",
+   "detail_uz": "Silver 2026-11-12 da olindi (achieved_silver_at).",
+   "proof_url": "https://www.bestpractices.dev/projects/16620",
+   "proof_label": "OpenSSF #16620"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Parol, PIN va email maydonlarida bitg o‘chadi (#26)",
+   "detail_uz": "TSF maydon turini (input scope) o‘qiydi: maxfiy maydonda matn o‘zgartirilmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/30",
+   "proof_label": "PR #30"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "docs",
+   "status": "live",
+   "title_uz": "Demo GIF, AUR paket qoralamasi va README yangilandi",
+   "detail_uz": "README’dagi GIF reliz MSI’dan Windows VM’da yozib olinadi; PKGBUILD CI’da tekshiriladi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/32",
+   "proof_label": "PR #32"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "v0.3.1 — imzolangan kelib chiqish, takrorlanadigan .deb",
+   "detail_uz": "Release’da provenance (.intoto.jsonl), SBOM va maxfiy maydon tuzatishi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.3.1",
+   "proof_label": "Release v0.3.1"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Office fayllarida \"zip bomb\" himoyasi (#27)",
+   "detail_uz": "bitg file ochilgan XML qism hajmini cheklaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/34",
+   "proof_label": "PR #34"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Test qamrovi darvozasi: tarmoqlar ≥ 90%, qatorlar ≥ 95%",
+   "detail_uz": "CI qamrov shu chegaradan tushsa PR o‘tmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/36",
+   "proof_label": "PR #36"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "web",
+   "status": "live",
+   "title_uz": "bitg.uz uzilishsiz yangilanadi",
+   "detail_uz": "Yangi versiya symlink almashtirish va Caddy reload bilan, sayt to‘xtamasdan joylanadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/40",
+   "proof_label": "PR #40"
+  },
+  {
+   "date": "2026-11-12",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Takrorlanadigan MSI va .pkg, xavfsizlik tahlili",
+   "detail_uz": "Bir xil manbadan bit-bit bir xil o‘rnatuvchi; ASSURANCE hujjatida xavfsizlik ko‘rigi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/48",
+   "proof_label": "PR #48"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Panic himoyasi, xavfsiz fayl yozish, zaiflik darvozasi",
+   "detail_uz": "C ABI va COM kirishlarida panic ushlanadi; bog‘liqlik zaifligi bo‘lsa reliz to‘xtaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/49",
+   "proof_label": "PR #49"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "security",
+   "status": "live",
+   "title_uz": "OpenSSF Best Practices: gold darajasi",
+   "detail_uz": "Gold 2026-11-13 da olindi; ochiq JSON’da badge_level = gold.",
+   "proof_url": "https://www.bestpractices.dev/projects/16620",
+   "proof_label": "OpenSSF #16620"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "security",
+   "status": "live",
+   "title_uz": "SLSA Build L3 reliz konveyeri",
+   "detail_uz": "Qayta ishlatiladigan build.yml; reliz nashrdan oldin attestatsiya bilan tekshiriladi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/63",
+   "proof_label": "PR #63"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "community",
+   "status": "live",
+   "title_uz": "Tashqi hissa: xorijiy ismlar uchun regression testlar",
+   "detail_uz": "Loyihaga aloqasi yo‘q hissachining birinchi PR’i (issue #50).",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/64",
+   "proof_label": "PR #64"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "community",
+   "status": "live",
+   "title_uz": "Tashqi hissa: o‘zbekcha qo‘shimchalar testlari",
+   "detail_uz": "Qo‘shimchali so‘zlarni o‘girish testlari kengaytirildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/67",
+   "proof_label": "PR #67"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "security",
+   "status": "live",
+   "title_uz": "OpenSSF Baseline 1, 2, 3 darajalari 100%",
+   "detail_uz": "DCO, litsenziya manbalari, advisories job, VEX, security-insights, CITATION.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/72",
+   "proof_label": "PR #72"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "docs",
+   "status": "live",
+   "title_uz": "Maintainer qo‘llanmasi, PR va bug shablonlari",
+   "detail_uz": "Review, reliz va paketlash tartibi; bug xabarida OS versiyasi va tsf.log joyi so‘raladi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/59",
+   "proof_label": "PR #57, #58, #59"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "security",
+   "status": "live",
+   "title_uz": "Bog‘liqliklar litsenziyasi va yangilanish nazorati",
+   "detail_uz": "cargo-deny litsenziyalarni tekshiradi; Python vositalari uchun Dependabot.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/54",
+   "proof_label": "PR #54, #55"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "stores",
+   "status": "live",
+   "title_uz": "crates.io: bitg-core kutubxonasi",
+   "detail_uz": "Rust dasturchilari bitg-core ni crates.io dan oladi; nashr trusted publishing bilan.",
+   "proof_url": "https://crates.io/crates/bitg-core",
+   "proof_label": "PR #74, crates.io"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "linux",
+   "status": "live",
+   "title_uz": "Ubuntu: yuqori paneldagi bitg indikatori",
+   "detail_uz": "Kontekst menyuli ikonka, kirillcha yozish tekshirildi (#75); tashqi maintainer PR’i.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/81",
+   "proof_label": "PR #81"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Shaxsiy lug‘at, ilova ichidan fikr, tekshirilgan yangilanish",
+   "detail_uz": "so‘z=yozuv lug‘ati, skrinshotli xabar, SHA-256 bilan bir bosishda yangilanish, \"Yangiliklar\".",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/82",
+   "proof_label": "PR #82"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "core",
+   "status": "live",
+   "title_uz": "55 ta brend va texnik atama o‘zgarishsiz qoladi",
+   "detail_uz": "Tashqi hissachi qo‘shgan brendlar ro‘yxati.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/69",
+   "proof_label": "PR #69"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "core",
+   "status": "live",
+   "title_uz": "2025 ta xorijiy ism va familiya o‘zgarishsiz qoladi",
+   "detail_uz": "Tashqi hissachi qo‘shgan xorijiy ismlar ro‘yxati.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/71",
+   "proof_label": "PR #71"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "v0.4.0 — lug‘at, fikr, yangilanish, Ubuntu indikatori",
+   "detail_uz": "Shaxsiy lug‘at, ilova ichidan xabar, avtomatik yangilanish va Linux indikatori.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.4.0",
+   "proof_label": "Release v0.4.0"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "core",
+   "status": "live",
+   "title_uz": "CLI --exceptions, C ABI testi, Windows muammolar bo‘limi",
+   "detail_uz": "Kichik vazifalar (#38, #39, #51, #84) bitta to‘plamda yopildi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/86",
+   "proof_label": "PR #86"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Chirey, Changhe, Tchibo brendlari buzilmaydi (#65)",
+   "detail_uz": "Yangi hissachining birinchi PR’i.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/70",
+   "proof_label": "PR #70"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "stores",
+   "status": "live",
+   "title_uz": "Relizdan do‘konlarga avtomatik nashr",
+   "detail_uz": "winget, Chocolatey, AUR va Homebrew tap reliz chiqqanda o‘zi yangilanadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/90",
+   "proof_label": "PR #88, #90, tap #3"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "linux",
+   "status": "live",
+   "title_uz": "Ubuntu sinov matritsasi va indikator testlari",
+   "detail_uz": "Bir nechta Ubuntu versiyasida CI sinovi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/89",
+   "proof_label": "PR #89"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "stores",
+   "status": "review",
+   "title_uz": "Chocolatey: choco install bitg",
+   "detail_uz": "Paket community.chocolatey.org ga yuborildi; birinchi versiya inson moderatsiyasida.",
+   "proof_url": "https://community.chocolatey.org/packages/bitg",
+   "proof_label": "PR #53, #92"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "web",
+   "status": "live",
+   "title_uz": "/xavfsizmi/ — soxta ilovadan qanday saqlanish",
+   "detail_uz": "SHA-256, attestatsiya va ochiq kod bilan haqiqiy bitg‘ni tekshirish yo‘li.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/87",
+   "proof_label": "PR #87"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "ai",
+   "status": "live",
+   "title_uz": "Ochiq MCP server: bitg.uz/mcp",
+   "detail_uz": "AI yordamchilar convert_text vositasi orqali yangi alifboga o‘giradi; login yo‘q, matn saqlanmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/91",
+   "proof_label": "PR #91, #93, #96"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "browser",
+   "status": "live",
+   "title_uz": "Brauzer kengaytmasi (Chrome, Edge, Firefox)",
+   "detail_uz": "Belgilangan matn, butun sahifa va popup konvertor; yadro WASM, matn brauzerdan chiqmaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/91",
+   "proof_label": "PR #91"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "ai",
+   "status": "live",
+   "title_uz": "MCP Registry: uz.bitg/bitg",
+   "detail_uz": "Rasmiy MCP reyestrida faol yozuv.",
+   "proof_url": "https://registry.modelcontextprotocol.io/v0/servers?search=uz.bitg",
+   "proof_label": "MCP Registry"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Maxfiylik siyosati (en) va foydalanish shartlari (uz, en)",
+   "detail_uz": "Do‘konlar va AI kataloglari talab qiladigan sahifalar.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/97",
+   "proof_label": "PR #95, #97"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "ai",
+   "status": "ready",
+   "title_uz": "ChatGPT plugin paketi tayyor",
+   "detail_uz": "Paket repoda tayyor; OpenAI tasdig‘i pullik bo‘lgani uchun yuborilmagan.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/98",
+   "proof_label": "PR #98"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "linux",
+   "status": "live",
+   "title_uz": "Arch Linux paketlari va imzolangan pacman ombori",
+   "detail_uz": "Release’da .pkg.tar.zst; bitg.uz/arch ombori.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/94",
+   "proof_label": "PR #94"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "stores",
+   "status": "waiting",
+   "title_uz": "AUR paketi tayyor, AUR ro‘yxatdan o‘tishi yopiq",
+   "detail_uz": "PKGBUILD CI’da tekshirilgan; AUR yangi akkaunt ochishni vaqtincha to‘xtatgan.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/32",
+   "proof_label": "PR #32, #90"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "ai",
+   "status": "review",
+   "title_uz": "awesome-remote-mcp-servers ro‘yxatiga ariza",
+   "detail_uz": "bitg MCP serverini ochiq ro‘yxatga qo‘shish so‘rovi.",
+   "proof_url": "https://github.com/punkpeye/awesome-remote-mcp-servers/pull/4649",
+   "proof_label": "PR #4649"
+  },
+  {
+   "date": "2026-11-13",
+   "category": "linux",
+   "status": "review",
+   "title_uz": "Scoop, RPM (Fedora/openSUSE) va Nix paketlari",
+   "detail_uz": "PR ochiq, maintainer review kutilmoqda.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/99",
+   "proof_label": "PR #99"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "browser",
+   "status": "live",
+   "title_uz": "Chrome Web Store’da bitg",
+   "detail_uz": "Kengaytma tekshiruvdan o‘tib nashr qilindi.",
+   "proof_url": "https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg",
+   "proof_label": "Chrome Web Store"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "browser",
+   "status": "live",
+   "title_uz": "Microsoft Edge Add-ons’da bitg",
+   "detail_uz": "Kengaytma (0.1.0) Edge do‘konida mavjud.",
+   "proof_url": "https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee",
+   "proof_label": "Edge Add-ons"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "browser",
+   "status": "review",
+   "title_uz": "Firefox Add-ons (AMO) ga yuborildi",
+   "detail_uz": "Kengaytma va manba arxivi yuklandi; Mozilla tekshiruvi kutilmoqda.",
+   "proof_url": null,
+   "proof_label": "AMO"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "ai",
+   "status": "live",
+   "title_uz": "Claude katalogida bitg konnektori",
+   "detail_uz": "Claude Connectors Directory’da community konnektor sifatida nashr qilindi.",
+   "proof_url": "https://claude.ai/directory/connectors/bitg",
+   "proof_label": "Claude Directory"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "community",
+   "status": "live",
+   "title_uz": "Qo‘llab-quvvatlovchi: wonmortech; /homiylar/ sahifasi",
+   "detail_uz": "README’da badge va saytda homiylar sahifasi (uz, ru, en).",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/105",
+   "proof_label": "PR #104, #105"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Marshall, Shokz, Chigo brendlari buzilmaydi",
+   "detail_uz": "@wonmors hissasi (issue #101).",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/107",
+   "proof_label": "PR #107"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "Senatda ko‘rsatilgan klaviatura tartibi (taklif)",
+   "detail_uz": "[ → Ö, ] → Ğ, ; → Ş, apostrof tugmasi → Ç; sozlamada \"Taklif (rasmiy emas)\" deb turadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/106",
+   "proof_label": "PR #106"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "core",
+   "status": "live",
+   "title_uz": "OʻZBEKISTON (katta harf) va Michael Jordan tuzatildi",
+   "detail_uz": "uz.wikipedia sinovida topilgan xatolar; eval natijasi o‘zgarmadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/106",
+   "proof_label": "PR #106"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Yangi sahifalar: kompyuterda yangi alifbo, sifat, standart",
+   "detail_uz": "/yangi-alifbo-kompyuter/, /sifat/ (o‘lchovlar) va /standart/ sahifalari.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/106",
+   "proof_label": "PR #106"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "office",
+   "status": "live",
+   "title_uz": "Google Docs, Sheets, Slides uchun bitg qo‘shimchasi",
+   "detail_uz": "Apps Script ichida WASM yadro: butun hujjat, jadval yoki taqdimotni o‘giradi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/106",
+   "proof_label": "PR #106"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "standards",
+   "status": "live",
+   "title_uz": "bitg-hunspell: yangi alifbo imlo lug‘ati",
+   "detail_uz": "dtwinuz/bitg-hunspell ochiq repo; Firefox .xpi va LibreOffice .oxt relizi.",
+   "proof_url": "https://github.com/dtwinuz/bitg-hunspell/releases/tag/v0.1.0",
+   "proof_label": "bitg-hunspell v0.1.0"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "standards",
+   "status": "review",
+   "title_uz": "Imlo lug‘ati Firefox Add-ons ga yuborildi",
+   "detail_uz": "Lug‘at AMO validatsiyasidan xatosiz o‘tdi; Mozilla tekshiruvi kutilmoqda.",
+   "proof_url": null,
+   "proof_label": "AMO"
+  },
+  {
+   "date": "2026-11-14",
+   "category": "linux",
+   "status": "review",
+   "title_uz": "Chuqur tekshiruv: Fcitx5 o‘girishi, maxfiy maydonlar, reliz to‘siqlari",
+   "detail_uz": "Fcitx5 qo‘shimchasida so‘z o‘girilmasligi tuzatildi; PR ochiq, review kutilmoqda.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/100",
+   "proof_label": "PR #100"
+  },
+  {
+   "date": "2026-11-15",
+   "category": "standards",
+   "status": "review",
+   "title_uz": "uz-hunspell loyihasiga yangi alifbo varianti taklifi",
+   "detail_uz": "uz_UZ lug‘atidan yaratilgan ö ğ ş ç varianti upstream’ga taklif qilindi.",
+   "proof_url": "https://github.com/uzbek-net/uz-hunspell/issues/2",
+   "proof_label": "uz-hunspell #2"
+  },
+  {
+   "date": "2026-11-15",
+   "category": "standards",
+   "status": "review",
+   "title_uz": "O‘zbekcha Vikipediya konverteriga yangi alifbo varianti",
+   "detail_uz": "MediaWiki yamog‘i, 268 qatorli test korpusi; forumda taklif muhokamada.",
+   "proof_url": "https://uz.wikipedia.org/wiki/Foydalanuvchi:Xnosir/uz-latn-2026",
+   "proof_label": "uz.wikipedia"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "office",
+   "status": "review",
+   "title_uz": "Google Workspace Marketplace’ga yuborildi",
+   "detail_uz": "Listing (en, ru), maxfiylik bo‘limi; Docs, Sheets, Slides real sinovdan o‘tdi; Google review’da.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/108",
+   "proof_label": "PR #108, #109"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "standards",
+   "status": "live",
+   "title_uz": "LibreOffice Writer lug‘atni ishlatadi (v0.1.1)",
+   "detail_uz": "Lug‘at uz-Latn-UZ sifatida ro‘yxatga olindi, Writer imlo tekshiruvida ishlaydi.",
+   "proof_url": "https://github.com/dtwinuz/bitg-hunspell/releases/tag/v0.1.1",
+   "proof_label": "bitg-hunspell v0.1.1"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "core",
+   "status": "live",
+   "title_uz": "Yolg‘iz xorijiy nom (\"Jordan keldi.\") buzilmaydi",
+   "detail_uz": "Qisqa o‘zak orqali taxmin qilingan bosh harfli so‘z tiklanmaydi; eval o‘zgarmadi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/110",
+   "proof_label": "PR #110"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "docs",
+   "status": "live",
+   "title_uz": "Zenodo DOI: ilmiy iqtibos uchun",
+   "detail_uz": "bitg relizi Zenodo‘da 10.5281/zenodo.24293839 DOI bilan arxivlandi.",
+   "proof_url": "https://doi.org/10.5281/zenodo.24293839",
+   "proof_label": "Zenodo"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "windows",
+   "status": "live",
+   "title_uz": "v0.5.0 — klaviatura tartibi, Arch, Google Workspace",
+   "detail_uz": "Taklif klaviatura tartibi, Arch paketlari, yadro tuzatishlari; MSI, .deb, .pkg, Arch.",
+   "proof_url": "https://github.com/dtwinuz/bitg/releases/tag/v0.5.0",
+   "proof_label": "Release v0.5.0"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "web",
+   "status": "live",
+   "title_uz": "SEO 2-to‘lqin: 12 yangi sahifa, ru va en bo‘limlari",
+   "detail_uz": "Mac, Linux, Android, iPhone klaviaturasi, kirilldan o‘tish, qonun va yuklab olish (ru/en).",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/112",
+   "proof_label": "PR #112"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Konvertor PWA: brauzerdan ilova sifatida o‘rnatish",
+   "detail_uz": "/konvertor/ sahifasi manifest va service worker bilan o‘rnatiladigan ilova.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/112",
+   "proof_label": "PR #112"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "standards",
+   "status": "live",
+   "title_uz": "Keyman: Uzbek Latin 2026 klaviaturasi",
+   "detail_uz": "keyman.com’da nashr (1.0): Windows, macOS, Linux, iOS, Android va veb.",
+   "proof_url": "https://github.com/keymanapp/keyboards/pull/4217",
+   "proof_label": "keymanapp/keyboards #4217"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "ai",
+   "status": "live",
+   "title_uz": "Le Chat (Mistral) va Perplexity’ga ulash yo‘li",
+   "detail_uz": "/ai/ sahifasida bitg MCP serverini boshqa AI yordamchilarga ulash qo‘llanmasi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/114",
+   "proof_label": "PR #114"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "stores",
+   "status": "review",
+   "title_uz": "Raycast kengaytmasi",
+   "detail_uz": "Repoda kengaytma; Raycast Store’ga qo‘shish so‘rovi ko‘rib chiqilmoqda.",
+   "proof_url": "https://github.com/raycast/extensions/pull/33619",
+   "proof_label": "raycast/extensions #33619"
+  },
+  {
+   "date": "2026-11-16",
+   "category": "web",
+   "status": "live",
+   "title_uz": "Klaviatura sahifalarida Keyman yo‘li",
+   "detail_uz": "/klaviatura/ sahifalarida Keyman orqali o‘rnatish bo‘limi.",
+   "proof_url": "https://github.com/dtwinuz/bitg/pull/117",
+   "proof_label": "PR #117"
+  },
+  {
+   "date": "2026-11-17",
+   "category": "standards",
+   "status": "review",
+   "title_uz": "LibreOffice Extensions saytiga lug‘at yuborildi",
+   "detail_uz": "Uzbek spelling dictionary (2026 Latin alphabet) 0.1.1; TDF tekshiruvi kutilmoqda.",
+   "proof_url": null,
+   "proof_label": "extensions.libreoffice.org"
+  },
+  {
+   "date": "2026-11-17",
+   "category": "standards",
+   "status": "review",
+   "title_uz": "Unicode CLDR: o‘zbek lotin alifbosi ma’lumotlari",
+   "detail_uz": "Harflar to‘plami, saralash tartibi va klaviatura XML; CLDR-19783 tiketiga izoh qoldirildi.",
+   "proof_url": "https://unicode-org.atlassian.net/browse/CLDR-19783",
+   "proof_label": "CLDR-19783"
+  },
+  {
+   "date": "2026-11-17",
+   "category": "stores",
+   "status": "waiting",
+   "title_uz": "Microsoft Store (MSIX konvertor)",
+   "detail_uz": "PWA tayyor; Microsoft Store dasturchi akkaunti ochilishi kutilmoqda.",
+   "proof_url": null,
+   "proof_label": null
+  }
+ ]
+}

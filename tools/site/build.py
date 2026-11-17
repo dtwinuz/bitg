@@ -94,7 +94,7 @@ UI = {
                         ("/qiyoslash/", "Vositalarni taqqoslash"), ("https://github.com/dtwinuz/bitg", "Manba kodi")]),
             ("Alifbo", [("/yangi-alifbo/", "Yangi o‘zbek alifbosi"), ("/yangi-alifbo-qonuni/", "Alifbo qonuni"),
                         ("/yangi-harflarni-yozish/", "Ş, Ç, Ğ, Ö yozish"), ("/konvertor/", "Onlayn konvertor")]),
-            ("Loyiha", [("/haqida/", "bitg haqida"), ("/maxfiylik/", "Maxfiylik"), ("/xavfsizmi/", "Xavfsizmi?"), ("/savollar/", "Savol-javob"),
+            ("Loyiha", [("/haqida/", "bitg haqida"), ("/qilingan-ishlar/", "Qilingan ishlar"),("/maxfiylik/", "Maxfiylik"), ("/xavfsizmi/", "Xavfsizmi?"), ("/savollar/", "Savol-javob"),
                         ("/homiylar/", "Qo‘llab-quvvatlash"), ("https://t.me/bitguz", "Telegram kanal")]),
             ("Til", [("/ru/", "Русский"), ("/en/", "English")]),
         ],
@@ -355,7 +355,16 @@ def render(meta, ctx, by_slug, alt_groups):
     if meta.get("pwa"):
         robots += '<link rel="manifest" href="/konvertor.webmanifest">\n'
         dl_js += '<script src="/pwa.js" defer></script>\n'
-    article_cls = "dc-article" + (" dc-article--wide" if meta.get("wide") else "")
+    # assets: sahifaga xos web/<nom>.css va web/<nom>.js (masalan /qilingan-ishlar/ -> "ishlar")
+    page_css = ""
+    if meta.get("assets"):
+        name = meta["assets"]
+        if not re.fullmatch(r"[a-z0-9-]+", name) or not (WEB / f"{name}.css").exists() or not (WEB / f"{name}.js").exists():
+            fail(f"{meta['src']}: assets '{name}' uchun web/{name}.css va web/{name}.js kerak")
+        page_css = f'<link rel="stylesheet" href="/{name}.css">\n'
+        dl_js += f'<script src="/{name}.js" defer></script>\n'
+    article_cls = "dc-article" + (" dc-article--full" if meta.get("full") else
+                                  " dc-article--wide" if meta.get("wide") else "")
     dl_btn = "" if slug == DL_PAGE[lang] else \
         f'<a class="bg-btn bg-btn--pri bg-btn--sm bg-hide-sm" href="{DL_PAGE[lang]}">{ui["dl"]}</a>'
     home = HOME[lang]
@@ -387,7 +396,7 @@ def render(meta, ctx, by_slug, alt_groups):
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/doc.css">
-<script src="/theme.js"></script>
+{page_css}<script src="/theme.js"></script>
 <script type="application/ld+json">
 {jsonld(meta, by_slug, ctx)}
 </script>
@@ -548,6 +557,137 @@ def update_manifest(version, msi, news_text, today):
     }
 
 
+# ---------- /qilingan-ishlar/: tools/site/ishlar.json -> {{ishlar*}} bo'laklari ----------
+ISHLAR = ROOT / "tools" / "site" / "ishlar.json"
+ISH_STATUS = {"live": "Jonli", "review": "Ko‘rib chiqilmoqda", "waiting": "Kutilmoqda", "ready": "Tayyor"}
+UZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"]
+UZ_WEEK = ["dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba", "yakshanba"]
+
+
+def num_uz(v, dec=0):
+    s = f"{v:,.{dec}f}".replace(",", " ").replace(".", ",")
+    return s
+
+
+def ishlar_ctx(data):
+    """ishlar.json -> HTML bo'laklari. Har raqam JSON'dagi manba bilan; inline style yo'q (CSP)."""
+    e = html.escape
+    out = {}
+
+    # KPI qatori
+    li = []
+    for k in data["kpi"]:
+        dec = k.get("dec", 0)
+        lbl = e(k["label"])
+        if k.get("href"):
+            lbl = f'<a href="{e(k["href"])}" rel="noopener">{lbl}</a>'
+        li.append(f'<li><span class="nt-kpi__v"><span data-count="{k["v"]}" data-dec="{dec}">{num_uz(k["v"], dec)}</span>'
+                  f'<small>{e(k.get("unit", ""))}</small></span><span class="nt-kpi__l">{lbl}</span></li>')
+    out["ishlarKpi"] = '<ul class="nt-kpi">' + "".join(li) + "</ul>"
+
+    # aniqlik halqalari (pathLength=100: stroke-dashoffset = 100 - foiz)
+    li = []
+    for r in data["rings"]:
+        off = f"{100 - r['v']:.2f}"
+        li.append(f'<li><svg class="nt-ring" viewBox="0 0 92 92" aria-hidden="true"><circle class="nt-ring__bg" cx="46" cy="46" r="40"/>'
+                  f'<circle class="nt-ring__fg" cx="46" cy="46" r="40" pathLength="100" stroke-dasharray="100" stroke-dashoffset="{off}" data-off="{off}"/></svg>'
+                  f'<div><b><span data-count="{r["v"]}" data-dec="2">{num_uz(r["v"], 2)}</span> %</b><span>{e(r["label"])}</span></div></li>')
+    out["ishlarRings"] = '<ul class="nt-rings" data-anim>' + "".join(li) + "</ul>"
+
+    # resurs ustunlari (logarifmik emas: qiymat / maksimum)
+    blocks = []
+    for b in data["bars"]:
+        mx = max(r["v"] for r in b["rows"])
+        rows = []
+        for r in b["rows"]:
+            w = max(r["v"] / mx * 100, 0.6)
+            cls = "nt-bars__row is-us" if r.get("us") else "nt-bars__row"
+            rows.append(f'<div class="{cls}"><span class="nt-bars__name" data-no-conv>{e(r["name"])}<small>{e(r.get("note", ""))}</small></span>'
+                        f'<svg viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true"><rect class="nt-grow nt-grow--x" x="0" y="2" height="10" rx="2" width="{w:.2f}"/></svg>'
+                        f'<span class="nt-bars__val">{e(r["label"])}</span></div>')
+        blocks.append(f'<div class="nt-bars" data-anim><h3>{e(b["title"])}</h3>' + "".join(rows) + "</div>")
+    out["ishlarBars"] = "".join(blocks)
+
+    # 7 kunlik jurnal: commit ustuni + PR ustuni + reliz belgilari
+    days = data["days"]
+    W, H, top, base = 1000, 300, 108, 250  # tepada 3 tagacha reliz belgisi uchun joy
+    mx = max(max(d["commits"], d["prs"]) for d in days)
+    col = W / len(days)
+    bw = min(34, col * 0.28)
+    parts = [f'<line class="nt-d__base" x1="0" y1="{base}" x2="{W}" y2="{base}"/>']
+    for i, d in enumerate(days):
+        cx = col * i + col / 2
+        for j, (key, cls) in enumerate((("commits", "nt-d__bar"), ("prs", "nt-d__bar nt-d__bar--pr"))):
+            h = d[key] / mx * (base - top)
+            x = cx - bw - 3 if j == 0 else cx + 3
+            if d[key]:
+                parts.append(f'<rect class="{cls} nt-grow nt-grow--y" x="{x:.1f}" y="{base - h:.1f}" width="{bw:.1f}" height="{h:.1f}" rx="3"/>')
+            parts.append(f'<text class="nt-d__num nt-fade" x="{x + bw / 2:.1f}" y="{base - h - 8:.1f}" text-anchor="middle">{d[key]}</text>')
+        dd = dt.date.fromisoformat(d["date"])
+        parts.append(f'<text class="nt-d__day" x="{cx:.1f}" y="{base + 24}" text-anchor="middle">{dd.day} {UZ_MONTHS[dd.month - 1][:3]}</text>')
+        for k, tag in enumerate(d.get("releases", [])):
+            y = 10 + k * 26
+            parts.append(f'<g class="nt-d__pin nt-fade"><line x1="{cx:.1f}" y1="{y + 20}" x2="{cx:.1f}" y2="{base}"/>'
+                         f'<rect x="{cx - 30:.1f}" y="{y}" width="60" height="20" rx="4"/>'
+                         f'<text x="{cx:.1f}" y="{y + 14}" text-anchor="middle">{e(tag)}</text></g>')
+    tc, tp = sum(d["commits"] for d in days), sum(d["prs"] for d in days)
+    out["ishlarDays"] = (f'<figure class="nt-days" data-anim><svg viewBox="0 0 {W} {H}" role="img" aria-label="'
+                         f'{len(days)} kunda {tc} commit va {tp} ta birlashtirilgan PR; kunma-kun ustunlar">' + "".join(parts) + "</svg></figure>")
+
+    # qayerda bor
+    li = []
+    for c in data["channels"]:
+        name = e(c["name"])
+        name = f'<a href="{e(c["url"])}" rel="noopener">{name}</a>' if c.get("url") else f'<span class="nt-ch__n">{name}</span>'
+        li.append(f'<li><span>{name}<small>{e(c.get("note", ""))}</small></span>'
+                  f'<span class="nt-st nt-st--{c["status"]}">{ISH_STATUS[c["status"]]}</span></li>')
+    out["ishlarChannels"] = '<ul class="nt-ch">' + "".join(li) + "</ul>"
+    cnt = {s: sum(1 for c in data["channels"] if c["status"] == s) for s in ISH_STATUS}
+    out["ishlarChLive"], out["ishlarChReview"], out["ishlarChWait"] = cnt["live"], cnt["review"], cnt["waiting"] + cnt["ready"]
+
+    # to'liq ro'yxat: kun bo'yicha guruh, filtr tugmalari
+    items = sorted(data["items"], key=lambda x: x["date"])
+    cats = data["cats"]
+    for it in items:
+        if it["category"] not in cats or it["status"] not in ISH_STATUS:
+            fail(f"ishlar.json: noma'lum category/status: {it}")
+    by_day = {}
+    for it in items:
+        by_day.setdefault(it["date"], []).append(it)
+    chips = [f'<button type="button" class="nt-chip" data-f="cat" data-v="all" aria-pressed="true">Hammasi <span>{len(items)}</span></button>']
+    for k, name in cats.items():
+        n = sum(1 for i in items if i["category"] == k)
+        if n:
+            chips.append(f'<button type="button" class="nt-chip" data-f="cat" data-v="{k}" aria-pressed="false">{e(name)} <span>{n}</span></button>')
+    stc = [f'<button type="button" class="nt-chip" data-f="st" data-v="all" aria-pressed="true">Har qanday holat</button>']
+    for k, name in ISH_STATUS.items():
+        n = sum(1 for i in items if i["status"] == k)
+        if n:
+            stc.append(f'<button type="button" class="nt-chip" data-f="st" data-v="{k}" aria-pressed="false">{name} <span>{n}</span></button>')
+    tools = (f'<div class="nt-tools" hidden><div class="nt-tools__row" role="group" aria-label="Yo‘nalish">{"".join(chips)}</div>'
+             f'<div class="nt-tools__row"><input class="nt-search" type="search" placeholder="Qidirish: Keyman, Linux, reliz…" aria-label="Ro‘yxatdan qidirish">'
+             f'<span role="group" aria-label="Holat">{"".join(stc)}</span>'
+             f'<span class="nt-count" aria-live="polite" data-tpl="{{n}} ta ish">{len(items)} ta ish</span></div></div>')
+    groups = []
+    for day, its in sorted(by_day.items(), reverse=True):
+        dd = dt.date.fromisoformat(day)
+        lis = []
+        for it in its:
+            proof = (f'<a href="{e(it["proof_url"])}" rel="noopener" data-no-conv>{e(it.get("proof_label") or "Dalil")}</a>'
+                     if it.get("proof_url") else "")
+            lis.append(f'<li class="nt-it" data-cat="{it["category"]}" data-st="{it["status"]}"><h3>{e(it["title_uz"])}</h3>'
+                       f'<span class="nt-st nt-st--{it["status"]}">{ISH_STATUS[it["status"]]}</span>'
+                       f'<p>{e(it.get("detail_uz", ""))}</p>'
+                       f'<span class="nt-it__meta"><span class="nt-cat">{e(cats[it["category"]])}</span>{proof}</span></li>')
+        groups.append(f'<section class="nt-day" aria-label="{dd.day}-{UZ_MONTHS[dd.month - 1]}">'
+                      f'<h3 class="nt-day__h">{dd.day}-{UZ_MONTHS[dd.month - 1]}<small>{UZ_WEEK[dd.weekday()]} · {len(its)} ta</small></h3>'
+                      f'<ul class="nt-items">{"".join(lis)}</ul></section>')
+    out["ishlarLog"] = tools + '<div class="nt-log">' + "".join(groups) + '<p class="nt-empty" hidden>Bu filtr bo‘yicha ish topilmadi.</p></div>'
+    out["ishlarTotal"] = len(items)
+    out["ishlarLive"] = sum(1 for i in items if i["status"] == "live")
+    return out
+
+
 def selftest():
     news = ("# x\n\n## 0.4.0 — 2026-11-14\n\n### Yangi\n- **Lug'at.** `a=b` [sayt](https://bitg.uz) bor.\n"
             + "".join(f"- n{i}\n" for i in range(8)) + "\n## 0.3.1 — 2026-11-13\n- eski\n## 0.3.0\n- **Bir.** ikki\n")
@@ -573,6 +713,13 @@ def selftest():
         msi9.write_bytes(b"x")
         m = update_manifest("0.9.0", msi9, news, "2026-01-01")
         assert m["notes"] == [] and m["date"] == "2026-01-01"
+    # ishlar.json: haqiqiy fayl xatosiz chiziladi, har band ro'yxatda, inline style yo'q (CSP)
+    data = json.loads(ISHLAR.read_text(encoding="utf-8"))
+    c = ishlar_ctx(data)
+    assert c["ishlarLog"].count('class="nt-it"') == len(data["items"]) == c["ishlarTotal"], "ishlar: band soni"
+    assert all((i.get("proof_url") or "https://").startswith("https://") for i in data["items"]), "ishlar: havola https emas"
+    assert not any('style="' in v for v in c.values() if isinstance(v, str)), "ishlar: inline style (CSP)"
+    assert num_uz(1234.5, 1) == "1 234,5" and num_uz(98.87, 2) == "98,87"
     print("build selftest: OK")
 
 
@@ -607,6 +754,7 @@ def main():
         "pkgChannels": channels_html(arch_repo),
     })
     ctx["pacmanSection"] = pacman_section(ctx["aptFingerprint"]) if arch_repo else ""
+    ctx.update(ishlar_ctx(json.loads(ISHLAR.read_text(encoding="utf-8"))))
     for lg in ("Uz", "Ru", "En"):
         ctx["lawDate" + lg] = human_date(CONFIG["lawDate"], lg.lower())
         ctx["signedDate" + lg] = human_date(CONFIG["signedDate"], lg.lower())
