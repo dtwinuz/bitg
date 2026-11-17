@@ -1,0 +1,588 @@
+<!doctype html>
+<!-- SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors -->
+<!-- SPDX-License-Identifier: MIT OR Apache-2.0 -->
+<html lang="uz" data-abc="old">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>bitg — eskicha yozing, yangicha chiqadi</title>
+<meta name="description" content="bitg o‘zbek matnini 2026-yilgi lotin alifbosiga yozish paytida o‘giradi: Windows, macOS, Linux, brauzer, ofis, telefon va AI yordamchilarda. Ochiq kod, tarmoqsiz, 2,7 µs.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://bitg.uz/">
+<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="bitg — eskicha yozing, yangicha chiqadi">
+<meta property="og:description" content="Yangi o‘zbek alifbosi yozish paytida, hamma joyda. Ochiq kod.">
+<meta property="og:image" content="https://bitg.uz/og.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/redesign/fonts/serif-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/redesign/fonts/sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/redesign/rd.css?v=__V__">
+<script type="module" src="/redesign/rd.js?v=__V__"></script>
+</head>
+<body>
+<a class="rd-skip" href="#asosiy">Asosiy qismga o‘tish</a>
+
+<header class="rd-top" data-top>
+  <div class="rd-top__in">
+    <a class="rd-logo" href="#asosiy" aria-label="bitg — bosh sahifa">
+      <svg viewBox="0 0 32 32" aria-hidden="true" class="rd-logo__mark"><rect width="32" height="32" rx="7.4" class="rd-logo__bg"/><path d="M10.748 8.2v15.6" class="rd-logo__ink"/><path d="M11.476 18.912a4.888 4.888 0 1 1 9.776 0a4.888 4.888 0 1 1-9.776 0z" class="rd-logo__ink"/><circle cx="15.116" cy="9.552" r="1.664" class="rd-logo__dot"/><circle cx="19.276" cy="9.552" r="1.664" class="rd-logo__dot"/></svg>
+      <span class="rd-logo__word" data-no-conv>bitg</span>
+    </a>
+    <nav class="rd-nav" aria-label="Bo‘limlar">
+      <a href="#sinash">Sinash</a>
+      <a href="#hamma-joyda">Qayerda ishlaydi</a>
+      <a href="#raqamlar">Raqamlar</a>
+      <a href="#ishonch">Xavfsizlik</a>
+      <a href="#yol">7 kun</a>
+    </nav>
+    <div class="rd-top__act">
+      <div class="rd-abc" role="group" aria-label="Sahifa alifbosi" data-no-conv>
+        <button type="button" data-abc-btn="old" aria-pressed="true">Eski</button>
+        <button type="button" data-abc-btn="new" aria-pressed="false">Yangi</button>
+      </div>
+      <a class="rd-btn rd-btn--ink rd-btn--sm rd-top__dl" href="#ornatish">Yuklab olish</a>
+      <button class="rd-burger" type="button" aria-label="Menyu" aria-expanded="false" data-burger><i></i><i></i></button>
+    </div>
+  </div>
+  <nav class="rd-sheet" aria-label="Menyu" data-sheet hidden>
+    <a href="#sinash">Sinash</a><a href="#hamma-joyda">Qayerda ishlaydi</a><a href="#ilova">Ilova</a><a href="#raqamlar">Raqamlar</a><a href="#ishonch">Xavfsizlik</a><a href="#standart">Standartlar</a><a href="#yol">7 kun</a><a href="#ornatish">Yuklab olish</a>
+  </nav>
+</header>
+
+<main id="asosiy">
+
+<!-- 1. HERO: 3D klaviatura + jonli yozuv -->
+<section class="rd-hero" aria-labelledby="rd-h1">
+  <div class="rd-hero__copy">
+    <p class="rd-eyebrow"><span class="rd-dot"></span> O‘RQ-1184 qonuni · <span data-days>157</span> kundan keyin kuchga kiradi</p>
+    <h1 id="rd-h1" class="rd-display"><span class="rd-line">Eskicha yozing.</span> <em class="rd-line">Yangicha chiqadi.</em></h1>
+    <p class="rd-lead">bitg siz yozgan so‘zni probel bosilishi bilan 2026-yilgi alifboga o‘giradi — <b data-no-conv>sh → ş</b>, <b data-no-conv>o‘ → ö</b>. Inglizcha so‘z, havola va kodga tegmaydi. Kompyuter, brauzer, ofis, telefon va AI yordamchilarda.</p>
+    <div class="rd-cta">
+      <a class="rd-btn rd-btn--ink" href="#ornatish" data-dl-main>Bepul yuklab olish</a>
+      <a class="rd-btn rd-btn--ghost" href="#sinash">Brauzerda sinash</a>
+    </div>
+    <ul class="rd-hero__facts" aria-label="Qisqacha" data-no-conv>
+      <li><b>2,7 µs</b> <span data-conv>bir so‘zga</span></li>
+      <li><b>98,87 %</b> <span data-conv>aniqlik</span></li>
+      <li><b>0</b> <span data-conv>tarmoq so‘rovi</span></li>
+    </ul>
+  </div>
+  <div class="rd-hero__stage" data-stage>
+    <div class="rd-editor" aria-hidden="true" data-no-conv>
+      <div class="rd-editor__bar"><i></i><i></i><i></i><span>Hujjat — bitg yoqilgan</span></div>
+      <p class="rd-editor__line" data-typer><span class="rd-caret"></span></p>
+      <p class="rd-editor__note" data-typer-note>&nbsp;</p>
+    </div>
+    <canvas class="rd-kb" data-kb aria-hidden="true"></canvas>
+    <p class="rd-sr">Animatsiya: klaviaturada eskicha yozilgan «shaharda», «choy», «O‘zbekiston» so‘zlari probel bosilganda «şaharda», «çoy», «Özbekiston» bo‘ladi; «check» va «bitg.uz» o‘zgarmaydi.</p>
+  </div>
+</section>
+
+<!-- 2. To'rt harf -->
+<section class="rd-sec rd-letters" id="harflar" aria-labelledby="rd-h-letters">
+  <div class="rd-wrap">
+    <header class="rd-head">
+      <p class="rd-kicker">Qonun nimani o‘zgartirdi</p>
+      <h2 id="rd-h-letters" class="rd-h2">Ikki belgi — <em>bitta harf.</em></h2>
+      <p class="rd-sub">2026-yil 21-oktabrda imzolangan qonun to‘rtta harfni almashtirdi. Ularni yozish uchun yangi klaviatura sotib olish shart emas — bitg ikki belgini o‘zi birlashtiradi.</p>
+    </header>
+    <ol class="rd-fuse" data-no-conv>
+      <li class="rd-fuse__t" tabindex="0"><span class="rd-fuse__glyph"><span class="rd-fuse__pair"><span class="a">O</span><span class="b">‘</span></span><span class="rd-fuse__new">Ö</span></span><span class="rd-fuse__ex">o‘zbek → <b>özbek</b></span></li>
+      <li class="rd-fuse__t" tabindex="0"><span class="rd-fuse__glyph"><span class="rd-fuse__pair"><span class="a">G</span><span class="b">‘</span></span><span class="rd-fuse__new">Ğ</span></span><span class="rd-fuse__ex">tog‘ → <b>toğ</b></span></li>
+      <li class="rd-fuse__t" tabindex="0"><span class="rd-fuse__glyph"><span class="rd-fuse__pair"><span class="a">S</span><span class="b">h</span></span><span class="rd-fuse__new">Ş</span></span><span class="rd-fuse__ex">shahar → <b>şahar</b></span></li>
+      <li class="rd-fuse__t" tabindex="0"><span class="rd-fuse__glyph"><span class="rd-fuse__pair"><span class="a">C</span><span class="b">h</span></span><span class="rd-fuse__new">Ç</span></span><span class="rd-fuse__ex">choy → <b>çoy</b></span></li>
+    </ol>
+    <div class="rd-count">
+      <div class="rd-count__n"><b data-days>157</b><span>kun qoldi</span></div>
+      <p>Qonun 2027-yil 22-aprelda kuchga kiradi. Birinchi sinf darsliklari 2027-yildan yangi alifboda chop etiladi. <a href="https://bitg.uz/yangi-alifbo-qachon/">Barcha sanalar →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Sinash: haqiqiy yadro -->
+<section class="rd-sec rd-try theme-slate" id="sinash" aria-labelledby="rd-h-try">
+  <div class="rd-wrap">
+    <header class="rd-head">
+      <p class="rd-kicker">Haqiqiy yadro, brauzeringizda</p>
+      <h2 id="rd-h-try" class="rd-h2">O‘z matningiz bilan <em>sinab ko‘ring.</em></h2>
+      <p class="rd-sub">Bu yerda ilovalardagi aynan o‘sha Rust yadrosi WebAssembly bo‘lib ishlaydi. Matn hech qayerga yuborilmaydi.</p>
+    </header>
+    <div class="rd-play" data-play>
+      <div class="rd-seg" role="tablist" aria-label="Yo‘nalish" data-no-conv>
+        <button type="button" role="tab" aria-selected="true" data-mode="0">Eski lotin → yangi</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="cyr" tabindex="-1">Kirill → yangi</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="1" tabindex="-1">Yangi → eski</button>
+      </div>
+      <div class="rd-play__grid">
+        <label class="rd-play__box">
+          <span class="rd-play__lbl">Siz yozasiz</span>
+          <textarea data-in spellcheck="false" rows="6" data-no-conv>Bugun shaharda choy ichdik, keyin check qildim. O'zbekiston tog'lari haqida bitg.uz saytida o'qing. Michael Jordan Toshkentga keldi.</textarea>
+        </label>
+        <div class="rd-play__box rd-play__box--out">
+          <span class="rd-play__lbl">bitg chiqaradi <button type="button" class="rd-copy" data-copy-out>Nusxa</button></span>
+          <p class="rd-play__out" data-out aria-live="polite" data-no-conv></p>
+        </div>
+      </div>
+      <div class="rd-play__foot">
+        <ul class="rd-legend" aria-label="Belgilar">
+          <li><i class="t-c"></i>o‘girildi</li>
+          <li><i class="t-e"></i>inglizcha — tegilmadi</li>
+          <li><i class="t-p"></i>havola, kod, @nom</li>
+          <li><i class="t-x"></i>istisno</li>
+        </ul>
+        <p class="rd-play__stat" data-stat data-no-conv>yadro yuklanmoqda…</p>
+      </div>
+      <div class="rd-chips" aria-label="Misollar" data-no-conv>
+        <button type="button" data-ex="Please check the schedule, keyin choy ichamiz" data-ex-mode="0">Inglizcha aralash</button>
+        <button type="button" data-ex="Ўзбекистон шаҳарлари: Тошкент, Самарқанд" data-ex-mode="cyr">Kirill</button>
+        <button type="button" data-ex="push() va @bitguzbot ga yozing: https://bitg.uz/konvertor/" data-ex-mode="0">Kod va havola</button>
+        <button type="button" data-ex="Is'hoq ma'lumot yubordi, O`zbekiston g‘alabasi" data-ex-mode="0">Apostrof turlari</button>
+        <button type="button" data-ex="Özbekiston şaharlari: Toşkent, Samarqand" data-ex-mode="1">Teskari</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Aqlli qoidalar -->
+<section class="rd-sec rd-smart" id="aqlli" aria-labelledby="rd-h-smart">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Nimasi bilan boshqacha</p>
+        <h2 id="rd-h-smart" class="rd-h2">Oddiy almashtirish emas — <em>tushunadi.</em></h2>
+      </div>
+      <p class="rd-sub">Jadval bo‘yicha almashtiradigan konvertor «check»ni «çeck» qiladi. bitg har so‘zni lug‘at, qo‘shimcha va gap konteksti bilan tekshiradi: dalil bo‘lmasa tegmaydi.</p>
+    </header>
+    <div class="rd-rules">
+      <article class="rd-rule rd-rule--wide">
+        <h3>Inglizchani taniydi</h3>
+        <p>O‘zbek korpusi va inglizcha SCOWL lug‘atlari, qo‘shimchalar va gap konteksti.</p>
+        <div class="rd-io" data-no-conv><s>Please check the schedule, keyin choy ichamiz</s><span>Please <mark class="t-e">check</mark> the <mark class="t-e">schedule</mark>, keyin <mark class="t-c">çoy</mark> <mark class="t-c">içamiz</mark></span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>Havola va kodga tegmaydi</h3>
+        <p>URL, email, @nom, #teg, snake_case, push().</p>
+        <div class="rd-io" data-no-conv><s>push() va @bitguzbot</s><span><mark class="t-p">push()</mark> va <mark class="t-p">@bitguzbot</mark></span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>12 xil apostrof</h3>
+        <p>Hammasi bitta deb qaraladi; tirnoq va tutuq ajratiladi.</p>
+        <div class="rd-io" data-no-conv><s>Is'hoq ma'lumot</s><span><mark class="t-c">Ishoq</mark> <mark class="t-c">maʼlumot</mark></span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>Ismlarni buzmaydi</h3>
+        <p>2 025 xorijiy ism va 55 brend o‘z yozuvida qoladi.</p>
+        <div class="rd-io" data-no-conv><s>Michael Jordan Toshkentga keldi</s><span><mark class="t-e">Michael</mark> <mark class="t-e">Jordan</mark> <mark class="t-c">Toşkentga</mark> keldi</span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>⌫ bilan qaytadi</h3>
+        <p>O‘girish kerak bo‘lmasa, Backspace bir bosishda eski holiga qaytaradi.</p>
+        <div class="rd-io rd-io--undo" data-no-conv><span><mark class="t-c">şahar</mark> <kbd>⌫</kbd> shahar</span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>Uch yo‘nalish</h3>
+        <p>Eski lotin va kirill → yangi; yangi → eski (o‘tish davri saytlari uchun).</p>
+        <div class="rd-io" data-no-conv><s>Ўзбекистон</s><span><mark class="t-c">Özbekiston</mark> ⇄ O‘zbekiston</span></div>
+      </article>
+      <article class="rd-rule">
+        <h3>Taxmin qilmaydi</h3>
+        <p>Ikki xil o‘qiladigan so‘zda ikkinchi variant ham ko‘rsatiladi — siz tanlaysiz.</p>
+        <div class="rd-io" data-no-conv><span><mark class="t-c">öçmaydi</mark> <small>yoki</small> oçmaydi?</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Hamma joyda -->
+<section class="rd-sec rd-eco" id="hamma-joyda" aria-labelledby="rd-h-eco">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Bitta yadro — hamma joyda</p>
+        <h2 id="rd-h-eco" class="rd-h2">13 joyda ishlaydi, <em>6 tasi ko‘rib chiqilmoqda.</em></h2>
+      </div>
+      <p class="rd-sub">Kompyuter, brauzer, ofis, telefon, Telegram va AI yordamchilar — hammasida bir xil qoida, bir xil natija. Do‘konlarda yangi dasturni inson moderator tekshiradi; holat ochiq ko‘rsatilgan.</p>
+    </header>
+
+    <div class="rd-orbit" aria-hidden="true" data-orbit data-no-conv>
+      <svg class="rd-orbit__lines" viewBox="0 0 1000 420" preserveAspectRatio="none"><ellipse cx="500" cy="210" rx="300" ry="120"/><ellipse cx="500" cy="210" rx="470" ry="190"/></svg>
+      <div class="rd-orbit__core"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="7.4" class="rd-logo__bg"/><path d="M10.748 8.2v15.6" class="rd-logo__ink"/><path d="M11.476 18.912a4.888 4.888 0 1 1 9.776 0a4.888 4.888 0 1 1-9.776 0z" class="rd-logo__ink"/><circle cx="15.116" cy="9.552" r="1.664" class="rd-logo__dot"/><circle cx="19.276" cy="9.552" r="1.664" class="rd-logo__dot"/></svg><span>bitg-core · Rust</span></div>
+      <ul class="rd-orbit__ring rd-orbit__ring--1"><li>Windows</li><li>macOS</li><li>Linux</li><li>Chrome</li><li>Edge</li><li>Firefox</li></ul>
+      <ul class="rd-orbit__ring rd-orbit__ring--2"><li>Google Docs</li><li>LibreOffice</li><li>Telegram</li><li>Claude</li><li>ChatGPT</li><li>Keyman</li><li>Raycast</li><li>Gemini</li><li>CLI</li><li>WASM</li></ul>
+    </div>
+
+    <div class="rd-tabs" data-tabs>
+      <div class="rd-tabs__list" role="tablist" aria-label="Qayerda">
+        <button role="tab" aria-selected="true" aria-controls="eco-pc" id="t-pc">Kompyuter</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-br" id="t-br" tabindex="-1">Brauzer</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-of" id="t-of" tabindex="-1">Ofis</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-ai" id="t-ai" tabindex="-1">AI yordamchilar</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-ph" id="t-ph" tabindex="-1">Telefon</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-tg" id="t-tg" tabindex="-1">Telegram va onlayn</button>
+        <button role="tab" aria-selected="false" aria-controls="eco-dev" id="t-dev" tabindex="-1">Dasturchilar</button>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-pc" aria-labelledby="t-pc">
+        <div class="rd-panel__txt">
+          <h3>Tizimning o‘z klaviaturasi bo‘lib ishlaydi</h3>
+          <p>bitg — kiritish usuli (IME). Til almashtirgichda (<kbd data-no-conv>Win + Probel</kbd>) tanlaysiz va istalgan dasturda odatdagidek yozasiz: Word, Telegram, brauzer, 1C.</p>
+          <ul class="rd-list">
+            <li><b>Windows 10/11</b> — TSF kiritish usuli, MSI, sozlamalar oynasi, <kbd data-no-conv>Ctrl+Shift+Y</kbd> bilan belgilangan matnni o‘girish <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Klaviatura rejimi</b> — ö ğ ş ç bitta tugmada; 7 ta tayyor tartib, Senatda ko‘rsatilgan tartib ham <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Linux</b> — IBus (.deb), Fcitx5, Ubuntu paneldagi indikator, imzolangan apt va pacman omborlari <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>macOS 11+</b> — InputMethodKit, universal .pkg, Homebrew <span class="rd-st rd-st--beta">sinov</span></li>
+          </ul>
+          <a class="rd-more" href="https://bitg.uz/yangi-alifbo-kompyuter/">Kompyuterda yangi alifbo →</a>
+        </div>
+        <figure class="rd-shot"><div class="rd-win"><div class="rd-win__bar"><i></i><i></i><i></i><span data-no-conv>bitg — sozlamalar</span></div><img src="/redesign/shots/keyboard.jpg" alt="bitg sozlamalar oynasi: klaviatura tartiblari va yangi harflar tugmalari" width="1440" height="900" loading="lazy" decoding="async"></div><figcaption>Haqiqiy Windows sozlamalar oynasi: klaviatura tartiblari</figcaption></figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-br" aria-labelledby="t-br" hidden>
+        <div class="rd-panel__txt">
+          <h3>Saytlarda ham — dastur o‘rnatmasdan</h3>
+          <p>Brauzer kengaytmasi istalgan saytdagi matn maydonida yozishni o‘giradi va belgilangan matnni bir bosishda yangi alifboga o‘tkazadi.</p>
+          <ul class="rd-list">
+            <li><b>Chrome Web Store</b> <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Microsoft Edge Add-ons</b> <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Firefox Add-ons</b> — kengaytma va imlo lug‘ati <span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span></li>
+          </ul>
+          <div class="rd-cta rd-cta--sm">
+            <a class="rd-btn rd-btn--ink rd-btn--sm" href="https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg" rel="noopener">Chrome’ga qo‘shish</a>
+            <a class="rd-btn rd-btn--ghost rd-btn--sm" href="https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee" rel="noopener">Edge’ga qo‘shish</a>
+          </div>
+        </div>
+        <figure class="rd-shot rd-shot--stack">
+          <img src="/redesign/shots/ext-popup.png" alt="bitg brauzer kengaytmasi oynasi" width="1280" height="800" loading="lazy" decoding="async">
+          <img src="/redesign/shots/ext-selection.png" alt="Saytda belgilangan matnni bitg bilan o‘girish" width="1280" height="800" loading="lazy" decoding="async">
+          <figcaption>Chrome Web Store’dagi haqiqiy skrinshotlar</figcaption>
+        </figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-of" aria-labelledby="t-of" hidden>
+        <div class="rd-panel__txt">
+          <h3>Hujjatlar, jadvallar, imlo</h3>
+          <p>Google Docs, Sheets va Slides’da butun hujjatni bir buyruq bilan o‘giring. LibreOffice yangi alifbodagi xatoni qizil chiziq bilan ko‘rsatadi. Word va Excel fayllari buyruq qatorida o‘giriladi.</p>
+          <ul class="rd-list">
+            <li><b>Google Workspace qo‘shimchasi</b> — Docs, Sheets, Slides <span class="rd-st rd-st--rev">Marketplace tekshiruvida</span></li>
+            <li><b>bitg-hunspell</b> — yangi alifbo imlo lug‘ati; LibreOffice Writer ishlatadi <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>LibreOffice Extensions</b> sayti <span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span></li>
+            <li><b>CLI</b> — Word va Excel fayllari, diff, kirillga <span class="rd-st rd-st--live">jonli</span></li>
+          </ul>
+        </div>
+        <figure class="rd-doc" aria-hidden="true" data-no-conv>
+          <div class="rd-doc__bar"><span></span><b>Shartnoma.docx</b><em>Kengaytmalar ▸ bitg ▸ Yangi alifboga</em></div>
+          <div class="rd-doc__page">
+            <p class="rd-doc__h">SHARTNOMA № 14</p>
+            <p><mark class="t-c">Toşkent</mark> <mark class="t-c">şahri</mark>, 2027-yil 22-aprel</p>
+            <p>«<mark class="t-c">Özbekiston</mark> temir <mark class="t-c">yöllari</mark>» AJ, bundan keyin «Buyurtmaçi» deb ataladi, bir tomondan…</p>
+            <p class="rd-doc__sq"><u>Toshkent</u> <span>→ Toşkent?</span></p>
+          </div>
+        </figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-ai" aria-labelledby="t-ai" hidden>
+        <div class="rd-panel__txt">
+          <h3>AI yordamchi yangi alifboda yozadi</h3>
+          <p>Ochiq MCP server <code data-no-conv>bitg.uz/mcp</code> — login va kalitsiz. Claude, ChatGPT, Gemini, Le Chat va Perplexity unga ulanib, matnni taxmin bilan emas, bitg yadrosi bilan o‘giradi.</p>
+          <ul class="rd-list">
+            <li><b>Claude katalogi</b> — konnektor <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>MCP Registry</b> — <code data-no-conv>uz.bitg/bitg</code> <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Gemini CLI, Le Chat, Perplexity</b> — ulash yo‘li <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Raycast</b> — macOS kengaytmasi <span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span></li>
+          </ul>
+          <a class="rd-more" href="https://bitg.uz/ai/">AI bilan ulash →</a>
+        </div>
+        <figure class="rd-chat" aria-hidden="true" data-no-conv>
+          <p class="rd-chat__q">Shu e’lonni yangi alifboga o‘tkazib ber: «Toshkent shahridagi choyxonalar dam olish kunlari ham ochiq»</p>
+          <p class="rd-chat__tool"><span>⚙</span> bitg · convert_text</p>
+          <p class="rd-chat__a">«<mark class="t-c">Toşkent</mark> <mark class="t-c">şahridagi</mark> <mark class="t-c">çoyxonalar</mark> dam oliş kunlari ham <mark class="t-c">oçiq</mark>»</p>
+        </figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-ph" aria-labelledby="t-ph" hidden>
+        <div class="rd-panel__txt">
+          <h3>Telefonda — Keyman klaviaturasi</h3>
+          <p>«Uzbek Latin 2026» klaviaturasi Keyman katalogida nashr qilingan: Android, iPhone, iPad va kompyuterlar. ö ğ ş ç alohida tugmada.</p>
+          <ul class="rd-list">
+            <li><b>Keyman: uzbek_latin_2026</b> — 7 platforma <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Konvertor ilovasi (PWA)</b> — bosh ekranga o‘rnatiladi <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>bitg yadrosi bilan iOS va Android klaviaturasi</b> <span class="rd-st rd-st--soon">rejada</span></li>
+          </ul>
+          <div class="rd-cta rd-cta--sm">
+            <a class="rd-btn rd-btn--ink rd-btn--sm" href="https://keyman.com/keyboards/uzbek_latin_2026" rel="noopener">Keyman’da ochish</a>
+            <a class="rd-btn rd-btn--ghost rd-btn--sm" href="https://bitg.uz/klaviatura/android/">Android</a>
+            <a class="rd-btn rd-btn--ghost rd-btn--sm" href="https://bitg.uz/klaviatura/iphone/">iPhone</a>
+          </div>
+        </div>
+        <figure class="rd-phone" aria-hidden="true" data-no-conv>
+          <div class="rd-phone__scr">
+            <p class="rd-phone__msg">Ertaga <b>Toşkentga</b> boramiz, <b>çoy</b> içamiz</p>
+            <div class="rd-phone__kb">
+              <div><i>q</i><i>w</i><i>e</i><i>r</i><i>t</i><i>y</i><i>u</i><i>i</i><i>o</i><i>p</i></div>
+              <div><i>a</i><i class="is-new">ş</i><i>d</i><i>f</i><i class="is-new">ğ</i><i>h</i><i>j</i><i>k</i><i>l</i></div>
+              <div><i>z</i><i>x</i><i class="is-new">ç</i><i>v</i><i>b</i><i>n</i><i>m</i><i class="is-new">ö</i></div>
+              <div><i class="w">Uzbek Latin 2026</i></div>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-tg" aria-labelledby="t-tg" hidden>
+        <div class="rd-panel__txt">
+          <h3>Hech narsa o‘rnatmasdan</h3>
+          <p>Matnni Telegram botga yuboring yoki saytdagi konvertorga qo‘ying — natija shu zahoti. Konvertorni telefon yoki kompyuterga ilova sifatida o‘rnatsa bo‘ladi.</p>
+          <ul class="rd-list">
+            <li><b>@bitguzbot</b> — matn, kirill, teskari yo‘nalish <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>bitg.uz/konvertor</b> — o‘rnatiladigan ilova (PWA) <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>@bitguz</b> kanali — reliz e’lonlari <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Microsoft Store</b> — konvertor ilovasi <span class="rd-st rd-st--soon">kutilmoqda</span></li>
+          </ul>
+          <div class="rd-cta rd-cta--sm">
+            <a class="rd-btn rd-btn--ink rd-btn--sm" href="https://t.me/bitguzbot" rel="noopener">Botni ochish</a>
+            <a class="rd-btn rd-btn--ghost rd-btn--sm" href="https://bitg.uz/konvertor/">Konvertor</a>
+          </div>
+        </div>
+        <figure class="rd-tg" aria-hidden="true" data-no-conv>
+          <p class="rd-tg__me">Bugun shaharda yangi choyxona ochildi</p>
+          <p class="rd-tg__bot">Bugun <mark class="t-c">şaharda</mark> yangi <mark class="t-c">çoyxona</mark> <mark class="t-c">oçildi</mark><small>@bitguzbot</small></p>
+          <p class="rd-tg__me">Ўзбекистон</p>
+          <p class="rd-tg__bot"><mark class="t-c">Özbekiston</mark><small>@bitguzbot</small></p>
+        </figure>
+      </div>
+
+      <div class="rd-panel" role="tabpanel" id="eco-dev" aria-labelledby="t-dev" hidden>
+        <div class="rd-panel__txt">
+          <h3>O‘z dasturingizga ulang</h3>
+          <p>Yadro — bog‘liqliksiz Rust kutubxonasi: crates.io’da, C ABI bilan istalgan tilga, WebAssembly bilan brauzerga. Buyruq qatori skript va CI uchun.</p>
+          <ul class="rd-list">
+            <li><b>crates.io: bitg-core</b> <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>CLI, C ABI, WASM</b> — bir xil natija <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Ochiq baholash to‘plami</b> — 9 000 gap, CC BY 4.0 <span class="rd-st rd-st--live">jonli</span></li>
+            <li><b>Zenodo DOI</b> — ilmiy iqtibos uchun <span class="rd-st rd-st--live">jonli</span></li>
+          </ul>
+          <a class="rd-more" href="https://github.com/dtwinuz/bitg">GitHub’da manba kodi →</a>
+        </div>
+        <figure class="rd-term" aria-hidden="true" data-no-conv>
+<pre><span class="p">$</span> cargo add bitg-core
+<span class="p">$</span> bitg "O'zbekiston shaharlari: Toshkent"
+<b>Özbekiston şaharlari: Toşkent</b>
+<span class="p">$</span> bitg "Please check the schedule, keyin choy ichamiz"
+<b>Please check the schedule, keyin çoy içamiz</b>
+<span class="p">$</span> bitg old --ascii "Özbekiston şaharlari"
+<b>O'zbekiston shaharlari</b></pre>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Ilova (jonli oyna) -->
+<section class="rd-sec rd-app theme-oat" id="ilova" aria-labelledby="rd-h-app">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Ilovaning o‘zi</p>
+        <h2 id="rd-h-app" class="rd-h2">Hammasi bitta <em>oynada.</em></h2>
+      </div>
+      <p class="rd-sub">Bu Windows ilovasining haqiqiy sozlamalar oynasi. Jonli demoda har tugmani bosib ko‘rish mumkin: o‘girishni haqiqiy yadro qiladi, ma’lumotlar namuna.</p>
+    </header>
+    <div class="rd-demo" data-demo>
+      <div class="rd-demo__nav" role="tablist" aria-label="Ilova sahifalari">
+        <button role="tab" aria-selected="true" data-shot="home" data-cap="Bugun o‘girilgan so‘zlar, 14 kunlik grafik, klaviatura holati va qaysi dasturlarda ko‘p yozilgani.">Bosh sahifa</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="try" data-cap="Yozganingiz shu zahoti yangi alifboda; inglizcha, havola va istisno so‘z belgilanadi.">Sinash</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="text" data-cap="Eski lotin yoki kirill matn butunligicha yangisiga — yoki teskari.">Matnni o‘girish</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="rules" data-cap="Inglizcha himoya, apostrof tiklash, kirill, Backspace bilan qaytarish, tutuq belgisi.">Qoidalar</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="keyboard" data-cap="Avtomatik o‘girish yoki ö ğ ş ç tugmada; 7 ta tayyor tartib va o‘zingizniki.">Klaviatura</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="apps" data-cap="Qaysi dasturda nechta so‘z o‘girildi; terminal va parol oynalarida o‘chiq.">Dasturlar</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="dictionary" data-cap="O‘girilmaydigan ismlar va o‘z yozuvi bor so‘zlar; har harfni alohida tanlash.">Lug‘at</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="news" data-cap="Har versiyada nima o‘zgardi; yangilanishni tekshirish.">Yangiliklar</button>
+        <button role="tab" aria-selected="false" tabindex="-1" data-shot="feedback" data-cap="Xato, taklif yoki noto‘g‘ri o‘girilgan so‘z — ekran parchasi bilan.">Xabar berish</button>
+      </div>
+      <div class="rd-browser">
+        <div class="rd-browser__bar"><i></i><i></i><i></i><span data-no-conv>wonmor.io/demo/bitg/</span><a href="https://wonmor.io/demo/bitg/" rel="noopener">Jonli demo ↗</a></div>
+        <div class="rd-browser__view">
+          <img data-shot-img src="/redesign/shots/home.jpg" alt="bitg sozlamalar oynasi" width="1440" height="900" loading="lazy" decoding="async">
+        </div>
+      </div>
+      <p class="rd-demo__cap" data-shot-cap>Bugun o‘girilgan so‘zlar, 14 kunlik grafik, klaviatura holati va qaysi dasturlarda ko‘p yozilgani.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Raqamlar -->
+<section class="rd-sec rd-num" id="raqamlar" aria-labelledby="rd-h-num">
+  <div class="rd-wrap">
+    <header class="rd-head">
+      <p class="rd-kicker">O‘lchanadi, taxmin qilinmaydi</p>
+      <h2 id="rd-h-num" class="rd-h2">Ikki tugma orasida <em>sezilmaydi.</em></h2>
+      <p class="rd-sub">Ikki tugmani bosish orasida taxminan 100 000 mikrosekund o‘tadi. bitg bir so‘zni 2,7 mikrosekundda o‘giradi — lug‘at va kontekst tekshiruvi bilan.</p>
+    </header>
+    <div class="rd-ruler" data-ruler data-no-conv>
+      <div class="rd-ruler__row"><span data-conv>Siz keyingi tugmani bosguncha</span><div class="rd-ruler__bar"><i class="rd-ruler__you"></i></div><b>100 000 µs</b></div>
+      <div class="rd-ruler__row is-us"><span data-conv>bitg so‘zni o‘giradi</span><div class="rd-ruler__bar"><i class="rd-ruler__us"></i></div><b>2,7 µs</b></div>
+      <p class="rd-ruler__x"><span data-conv>Farq</span> ≈ <b>37 000×</b> — <span data-conv>bu chizg‘ichda bitg ishi bir pikseldan ham ingichka.</span></p>
+    </div>
+
+    <ul class="rd-kpi">
+      <li><b data-no-conv><span data-count="370000">370 000</span></b><span>so‘z soniyasiga bitta yadroda (1 ÷ 2,7 µs)</span></li>
+      <li><b data-no-conv><span data-count="98.87" data-dec="2">98,87</span> %</b><span>o‘zbekcha gaplar to‘g‘ri — 3 000 gaplik ochiq to‘plam</span></li>
+      <li><b data-no-conv><span data-count="99.73" data-dec="2">99,73</span> %</b><span>inglizcha gaplar o‘zgarmay qoladi</span></li>
+      <li><b data-no-conv><span data-count="1.1" data-dec="1">1,1</span> MB</b><span>xotira; JS konvertorlarda 26–41 MB</span></li>
+      <li><b data-no-conv>0 ms</b><span>ishga tushish: lug‘at binarda tayyor jadval</span></li>
+      <li><b data-no-conv><span data-count="280">280</span></b><span>Rust testi, qatorlar qamrovi ≥ 95 %</span></li>
+    </ul>
+
+    <div class="rd-bars" data-bars>
+      <h3 class="rd-h3">Inglizcha matn: bir so‘zga vaqt <small>kam — yaxshi</small></h3>
+      <div class="rd-bar is-us" data-no-conv><span>bitg</span><i class="w-140"></i><b>1,40 µs</b></div>
+      <div class="rd-bar" data-no-conv><span>alifbochi.uz</span><i class="w-145"></i><b>1,45 µs</b></div>
+      <div class="rd-bar" data-no-conv><span>alifbo.akbarovlabs.uz</span><i class="w-193"></i><b>1,93 µs</b></div>
+      <div class="rd-bar" data-no-conv><span>webnum.uz</span><i class="w-206"></i><b>2,06 µs</b></div>
+      <p class="rd-note">Bir xil 3 000 gapda, bitta kompyuterda, 5 marta o‘rtachasi. O‘zbekcha matnda jadval konvertorlari biroz tezroq (2,27–3,39 µs) — bitg har so‘zni lug‘at bilan tekshiradi. <a href="https://bitg.uz/sifat/">Usul va buyruqlar</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Ishonch -->
+<section class="rd-sec rd-trust theme-slate" id="ishonch" aria-labelledby="rd-h-trust">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Xavfsizlik va ochiqlik</p>
+        <h2 id="rd-h-trust" class="rd-h2">Klaviaturaga ishonch — <em>dalil bilan.</em></h2>
+      </div>
+      <p class="rd-sub">Kiritish usuli siz yozgan hamma narsani ko‘radi. Shuning uchun bitg tarmoqqa chiqmaydi, telemetriya yig‘maydi, kodi ochiq va har reliz qaysi commit’dan, qaysi mashinada qurilgani tekshiriladi.</p>
+    </header>
+    <ul class="rd-seals">
+      <li class="rd-seal rd-seal--gold"><b data-no-conv>Gold</b><span>OpenSSF Best Practices</span><a href="https://www.bestpractices.dev/projects/16620" rel="noopener" data-no-conv>bestpractices.dev ↗</a></li>
+      <li class="rd-seal"><b data-no-conv><span data-count="8.8" data-dec="1">8,8</span><small>/10</small></b><span>OpenSSF Scorecard</span><a href="https://scorecard.dev/viewer/?uri=github.com/dtwinuz/bitg" rel="noopener" data-no-conv>scorecard.dev ↗</a></li>
+      <li class="rd-seal"><b data-no-conv>100 %</b><span>OpenSSF Baseline 1–3</span><a href="https://github.com/dtwinuz/bitg/blob/main/SECURITY.md" rel="noopener" data-no-conv>SECURITY.md ↗</a></li>
+      <li class="rd-seal"><b data-no-conv>SLSA L3</b><span>reliz kelib chiqishi imzolangan</span><a href="https://github.com/dtwinuz/bitg/attestations" rel="noopener">attestatsiyalar ↗</a></li>
+    </ul>
+    <ul class="rd-proofs">
+      <li><b>Tarmoqsiz</b>Yadro internetga ulanmaydi; matn kompyuterdan chiqmaydi.</li>
+      <li><b>Parol maydonida o‘chadi</b>Parol, PIN va email maydonlarida bitg ishlamaydi.</li>
+      <li><b>Har relizda SBOM</b>Ichida nima borligi ro‘yxati; <code data-no-conv>gh attestation verify</code> bilan tekshiriladi.</li>
+      <li><b>Takrorlanadigan qurish</b>MSI, .pkg va .deb bir xil manbadan baytma-bayt bir xil chiqadi.</li>
+      <li><b>Fuzzing va qamrov darvozasi</b>Tarmoqlar ≥ 90 %, qatorlar ≥ 95 % — kam bo‘lsa CI o‘tkazmaydi.</li>
+      <li><b>REUSE 3.3</b>Har faylda litsenziya; MIT yoki Apache-2.0.</li>
+    </ul>
+    <p class="rd-trust__more"><a href="https://bitg.uz/xavfsizmi/">Soxta ilovadan qanday saqlanish</a> · <a href="https://bitg.uz/kod-imzosi/">Kod imzosi haqida</a> · <a href="https://bitg.uz/maxfiylik/">Maxfiylik</a></p>
+  </div>
+</section>
+
+<!-- 9. Standartlar -->
+<section class="rd-sec rd-std" id="standart" aria-labelledby="rd-h-std">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Faqat ilova emas</p>
+        <h2 id="rd-h-std" class="rd-h2">Yangi alifbo uchun <em>ochiq infratuzilma.</em></h2>
+      </div>
+      <p class="rd-sub">Alifbo hamma joyda to‘g‘ri ishlashi uchun lug‘at, klaviatura tartibi va til ma’lumotlari umumiy standartlarga kiritilmoqda.</p>
+    </header>
+    <ol class="rd-steps">
+      <li><span class="rd-st rd-st--live">jonli</span><b>Keyman</b>Uzbek Latin 2026 klaviaturasi rasmiy katalogda, 7 platforma.</li>
+      <li><span class="rd-st rd-st--live">jonli</span><b>bitg-hunspell</b>Yangi alifbo imlo lug‘ati: LibreOffice va Firefox uchun, ochiq litsenziya.</li>
+      <li><span class="rd-st rd-st--live">jonli</span><b>Ochiq baholash to‘plami</b>9 000 gap, CC BY 4.0 — har konvertorni bir xil o‘lchash uchun.</li>
+      <li><span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span><b>Unicode CLDR</b>O‘zbek lotin alifbosi ma’lumotlari.</li>
+      <li><span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span><b>O‘zbekcha Vikipediya</b>Maqolani yangi alifboda o‘qish varianti; MediaWiki testlari o‘tdi.</li>
+      <li><span class="rd-st rd-st--rev">ko‘rib chiqilmoqda</span><b>uz-hunspell</b>Asosiy imlo lug‘ati loyihasiga yangi alifbo varianti.</li>
+      <li><span class="rd-st rd-st--beta">taklif</span><b>Klaviatura tartibi</b>Senatda ko‘rsatilgan tartib ilovada tayyor.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 10. 7 kun -->
+<section class="rd-sec rd-road theme-ivory-medium" id="yol" aria-labelledby="rd-h-road">
+  <div class="rd-wrap">
+    <header class="rd-head rd-head--split">
+      <div>
+        <p class="rd-kicker">Ish sur’ati</p>
+        <h2 id="rd-h-road" class="rd-h2">7 kunda <em>6 reliz.</em></h2>
+      </div>
+      <p class="rd-sub">Birinchi commit 11-noyabrda. Shundan beri 127 commit, 82 ta birlashtirilgan pull request va 10 hissador. Har bandning dalili bor.</p>
+    </header>
+    <ol class="rd-tl" data-tl>
+      <li><time datetime="2026-11-12">12-noyabr</time><b data-no-conv>v0.1.0</b><span>Yadro, CLI, Windows IME, MSI</span></li>
+      <li><time datetime="2026-11-12">12-noyabr</time><b data-no-conv>v0.2.0</b><span>Linux: IBus, Fcitx5, .deb</span></li>
+      <li><time datetime="2026-11-12">12-noyabr</time><b data-no-conv>v0.3.0</b><span>macOS beta, sayt, apt, Homebrew</span></li>
+      <li><time datetime="2026-11-13">13-noyabr</time><b data-no-conv>v0.3.1</b><span>SLSA, SBOM, takrorlanadigan .deb</span></li>
+      <li><time datetime="2026-11-13">13-noyabr</time><b data-no-conv>v0.4.0</b><span>Shaxsiy lug‘at, fikr, yangilanish</span></li>
+      <li><time datetime="2026-11-17">17-noyabr</time><b data-no-conv>v0.5.0</b><span>Klaviatura tartibi, Arch, Google Workspace</span></li>
+      <li class="is-next"><time datetime="2027-04-22">2027-yil aprel</time><b data-no-conv>v1.0</b><span>Qonun kuchga kirguncha: aniqlik 99 %+, barqaror API</span></li>
+    </ol>
+    <div class="rd-cta rd-cta--center">
+      <a class="rd-btn rd-btn--ink" href="https://bitg.uz/qilingan-ishlar/">99 ta ishning to‘liq ro‘yxati</a>
+      <a class="rd-btn rd-btn--ghost" href="https://github.com/dtwinuz/bitg/releases" rel="noopener">Relizlar</a>
+    </div>
+  </div>
+</section>
+
+<!-- 11. O'rnatish -->
+<section class="rd-sec rd-inst" id="ornatish" aria-labelledby="rd-h-inst">
+  <div class="rd-wrap">
+    <header class="rd-head">
+      <p class="rd-kicker">Bepul · ochiq kod · reklamasiz</p>
+      <h2 id="rd-h-inst" class="rd-h2">O‘rnating — <em>bir daqiqa.</em></h2>
+      <p class="rd-sub">So‘ng til almashtirgichda «bitg»ni tanlang va odatdagidek yozing. <span data-dl-count></span></p>
+    </header>
+    <div class="rd-tabs rd-inst__tabs" data-tabs data-os-tabs>
+      <div class="rd-tabs__list" role="tablist" aria-label="Tizim">
+        <button role="tab" aria-selected="true" aria-controls="in-win" id="ti-win" data-os="win">Windows</button>
+        <button role="tab" aria-selected="false" aria-controls="in-mac" id="ti-mac" data-os="mac" tabindex="-1">macOS</button>
+        <button role="tab" aria-selected="false" aria-controls="in-deb" id="ti-deb" data-os="linux" tabindex="-1">Ubuntu / Debian</button>
+        <button role="tab" aria-selected="false" aria-controls="in-arch" id="ti-arch" tabindex="-1">Arch</button>
+        <button role="tab" aria-selected="false" aria-controls="in-br" id="ti-br" tabindex="-1">Brauzer</button>
+      </div>
+      <div class="rd-panel rd-panel--inst" role="tabpanel" id="in-win" aria-labelledby="ti-win">
+        <div><h3>Windows 10/11 · x64</h3><p>MSI o‘rnatuvchi. Fayl GitHub’da qurilgani attestatsiya bilan tekshirilgan.</p>
+          <div class="rd-cta rd-cta--sm"><a class="rd-btn rd-btn--ink" href="https://bitg.uz/yuklab-olish/">MSI’ni yuklab olish</a></div></div>
+        <div class="rd-cmd" data-no-conv><span>Scoop</span><code>scoop bucket add dtwinuz https://github.com/dtwinuz/scoop-bucket; scoop install dtwinuz/bitg</code><button type="button" data-copy>Nusxa</button></div>
+      </div>
+      <div class="rd-panel rd-panel--inst" role="tabpanel" id="in-mac" aria-labelledby="ti-mac" hidden>
+        <div><h3>macOS 11+ · Apple M va Intel</h3><p>Sinov versiyasi: universal .pkg yoki Homebrew.</p>
+          <div class="rd-cta rd-cta--sm"><a class="rd-btn rd-btn--ink" href="https://bitg.uz/yuklab-olish/">.pkg’ni yuklab olish</a></div></div>
+        <div class="rd-cmd" data-no-conv><span>Homebrew</span><code>brew install --cask dtwinuz/tap/bitg</code><button type="button" data-copy>Nusxa</button></div>
+      </div>
+      <div class="rd-panel rd-panel--inst" role="tabpanel" id="in-deb" aria-labelledby="ti-deb" hidden>
+        <div><h3>Ubuntu 22.04+, Debian 12+</h3><p>Imzolangan apt ombori: bitg tizim bilan birga yangilanadi. IBus va Fcitx5. Ombor ulash buyruqlari yuklab olish sahifasida.</p>
+          <div class="rd-cta rd-cta--sm"><a class="rd-btn rd-btn--ink" href="https://bitg.uz/yuklab-olish/#apt">apt omborini ulash</a></div></div>
+        <div class="rd-cmd" data-no-conv><span>ombor ulangach</span><code>sudo apt install bitg</code><button type="button" data-copy>Nusxa</button></div>
+      </div>
+      <div class="rd-panel rd-panel--inst" role="tabpanel" id="in-arch" aria-labelledby="ti-arch" hidden>
+        <div><h3>Arch, Manjaro, EndeavourOS</h3><p>Imzolangan pacman ombori — kalitni qo‘shish va sozlash yo‘riqnomasi yuklab olish sahifasida.</p>
+          <div class="rd-cta rd-cta--sm"><a class="rd-btn rd-btn--ink" href="https://bitg.uz/yuklab-olish/#pacman">Yo‘riqnoma</a></div></div>
+      </div>
+      <div class="rd-panel rd-panel--inst" role="tabpanel" id="in-br" aria-labelledby="ti-br" hidden>
+        <div><h3>Brauzer kengaytmasi</h3><p>Chrome va Edge; Firefox tekshiruvda. Dastur o‘rnatish shart emas.</p>
+          <div class="rd-cta rd-cta--sm">
+            <a class="rd-btn rd-btn--ink" href="https://chromewebstore.google.com/detail/fmjgmkfdoldedmbdahcfembamephbgpg" rel="noopener">Chrome Web Store</a>
+            <a class="rd-btn rd-btn--ghost" href="https://microsoftedge.microsoft.com/addons/detail/gpmpfpbghbabliginmegioeglofeooee" rel="noopener">Edge Add-ons</a>
+          </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="rd-foot theme-slate">
+  <div class="rd-wrap">
+    <div class="rd-foot__big">
+      <p class="rd-display rd-display--foot">Eskicha yozing. <em>Yangicha chiqadi.</em></p>
+      <a class="rd-btn rd-btn--light" href="#ornatish">Yuklab olish</a>
+    </div>
+    <div class="rd-foot__cols">
+      <div><h2>Dastur</h2><a href="https://bitg.uz/yuklab-olish/">Yuklab olish</a><a href="https://bitg.uz/konvertor/">Onlayn konvertor</a><a href="https://bitg.uz/ai/">AI bilan</a><a href="https://wonmor.io/demo/bitg/">Jonli demo</a><a href="https://bitg.uz/savollar/">Savollar</a></div>
+      <div><h2>Alifbo</h2><a href="https://bitg.uz/yangi-alifbo/">Yangi alifbo</a><a href="https://bitg.uz/yangi-alifbo-qonuni/">Qonun</a><a href="https://bitg.uz/yangi-alifbo-qachon/">Qachon</a><a href="https://bitg.uz/yangi-harflarni-yozish/">Harflarni yozish</a><a href="https://bitg.uz/kirilldan-yangi-alifboga/">Kirilldan</a></div>
+      <div><h2>Loyiha</h2><a href="https://bitg.uz/qilingan-ishlar/">Qilingan ishlar</a><a href="https://bitg.uz/sifat/">Sifat</a><a href="https://bitg.uz/standart/">Standart</a><a href="https://bitg.uz/homiylar/">Homiylar</a><a href="https://github.com/dtwinuz/bitg" rel="noopener">GitHub</a></div>
+      <div><h2>Til</h2><a href="https://bitg.uz/">O‘zbekcha</a><a href="https://bitg.uz/ru/" lang="ru" data-no-conv>Русский</a><a href="https://bitg.uz/en/" lang="en" data-no-conv>English</a></div>
+    </div>
+    <p class="rd-foot__legal">Ochiq kod: MIT yoki Apache-2.0. Bu sahifa — bitg.uz yangi dizaynining sinov versiyasi. <a href="https://bitg.uz/maxfiylik/">Maxfiylik</a> · <a href="https://bitg.uz/shartlar/">Shartlar</a></p>
+  </div>
+</footer>
+</body>
+</html>

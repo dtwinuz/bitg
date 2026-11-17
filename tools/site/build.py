@@ -456,6 +456,27 @@ def render(meta, ctx, by_slug, alt_groups):
 """
 
 
+REDESIGN_SHOTS = {f"{n}.jpg": ROOT / "docs" / "screenshots" / f"{n}.jpg" for n in
+                  ("home", "try", "text", "rules", "keyboard", "apps", "dictionary", "news", "feedback")}
+REDESIGN_SHOTS["ext-popup.png"] = ROOT / "extension" / "store-assets" / "shot-1-popup.png"
+REDESIGN_SHOTS["ext-selection.png"] = ROOT / "extension" / "store-assets" / "shot-2-selection.png"
+
+
+def redesign(out, v):
+    """redesign.bitg.uz (web/redesign/, deploy/Caddyfile host qoidasi): __V__ -> kesh versiyasi, haqiqiy
+    skrinshotlar docs/ va extension/ dan nusxalanadi (repoda ikki marta saqlanmaydi)."""
+    page = out / "redesign" / "index.html"
+    if not page.exists():
+        return
+    page.write_text(page.read_text(encoding="utf-8").replace("__V__", v or "dev"), encoding="utf-8", newline="\n")
+    shots = out / "redesign" / "shots"
+    shots.mkdir(exist_ok=True)
+    for name, src in REDESIGN_SHOTS.items():
+        if not src.exists():
+            raise SystemExit(f"build: redesign skrinshoti yo'q: {src.relative_to(ROOT)}")
+        shutil.copyfile(src, shots / name)
+
+
 def version_assets(text, v):
     if not v:
         return text
@@ -790,6 +811,7 @@ def main():
         dst = out / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(f, dst)
+    redesign(out, a.v)
 
     for p in pages:
         text = version_assets(render(p, ctx, by_slug, alt_groups), a.v)

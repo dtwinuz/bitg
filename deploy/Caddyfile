@@ -20,6 +20,16 @@
 	root * /www/current
 	encode zstd gzip
 
+	# redesign.bitg.uz (dtwin edge shu hostni ham shu konteynerga yuboradi): bosh sahifa = web/redesign/,
+	# qolgan yo'llar (bitg_core.wasm, stats.json, /redesign/* fayllari) umumiy. Sinov dizayni qidiruvga kirmaydi.
+	@redesign host redesign.bitg.uz
+	header @redesign X-Robots-Tag "noindex, nofollow"
+	@redesignRoot {
+		host redesign.bitg.uz
+		path / /index.html
+	}
+	rewrite @redesignRoot /redesign/index.html
+
 	# tools/site/build.py css/js manzillariga, page.js/app.js wasm'ga ?v=<sha> qo'shadi — uzoq kesh xavfsiz
 	@code path /*.js /*.css /*.wasm /fonts/*
 	header @code Cache-Control "public, max-age=31536000, immutable"
