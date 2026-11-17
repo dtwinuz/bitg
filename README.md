@@ -1,5 +1,8 @@
 # bitg
 
+**O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
+*Uzbek text to the 2026 Latin alphabet (ö ğ ş ç ʼ) — as you type, everywhere, without breaking English.*
+
 [![ci](https://github.com/dtwinuz/bitg/actions/workflows/ci.yml/badge.svg)](https://github.com/dtwinuz/bitg/actions/workflows/ci.yml)
 [![linux](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml/badge.svg)](https://github.com/dtwinuz/bitg/actions/workflows/linux.yml)
 [![release](https://img.shields.io/github/v/release/dtwinuz/bitg?label=release)](https://github.com/dtwinuz/bitg/releases/latest)
@@ -11,20 +14,37 @@
 [![platforms](https://img.shields.io/badge/platform-Windows%2010%2F11%20%C2%B7%20Linux%20%C2%B7%20macOS-informational)](https://bitg.uz/yuklab-olish/)
 [![Supported by wonmortech](https://img.shields.io/badge/supported%20by-wonmortech-1f6feb)](#qollab-quvvatlovchilar)
 
-**O'zbek matnini 2026-yilgi lotin alifbosiga o'giradi — yozish paytida, hamma joyda, inglizchani buzmasdan.**
-*Uzbek text to the 2026 Latin alphabet (ö ğ ş ç ʼ) — as you type, everywhere, without breaking English.*
+**[bitg.uz](https://bitg.uz) · [Jonli demo](https://wonmor.io/demo/bitg/) · [Yuklab olish](https://bitg.uz/yuklab-olish/) · [Releases](https://github.com/dtwinuz/bitg/releases) · [Yangiliklar](NEWS.md)**
 
-> Bitig — qadimgi turkiy tilda «yozuv». [bitg.uz](https://bitg.uz)
+<p align="center">
+  <a href="https://wonmor.io/demo/bitg/"><img src="docs/screenshots/home.jpg" width="900" alt="bitg sozlamalar oynasi: bugun o'girilgan so'zlar, 14 kunlik grafik, klaviatura holati va qaysi dasturlarda ko'p yozilgani"></a>
+</p>
 
-O'RQ-1184 qonuni (2026-10-21) to'rtta harfni almashtirdi: **Oʻ → Ö, Gʻ → Ğ, Sh → Ş, Ch → Ç**. Qonun 2027-yil
-aprelida kuchga kiradi. bitg — shu o'tishni bir klaviatura bosishiga aylantiradigan ochiq kodli yadro va ilovalar.
+> Bitig — qadimgi turkiy tilda «yozuv». O'RQ-1184 qonuni (2026-10-21) to'rtta harfni almashtirdi: **Oʻ → Ö, Gʻ → Ğ,
+> Sh → Ş, Ch → Ç**. Qonun 2027-yil aprelida kuchga kiradi. bitg — shu o'tishni bir klaviatura bosishiga aylantiradigan
+> ochiq kodli yadro va ilovalar.
+
+**[Jonli demo](https://wonmor.io/demo/bitg/)** — Windows ilovasining haqiqiy sozlamalar oynasi brauzerda: o'girishni
+haqiqiy yadro (Rust → WASM) qiladi, statistika va lug'at namuna ma'lumot, o'zgarishlar sahifa qayta yuklanganda tiklanadi.
+
+| | |
+|---|---|
+| <img src="docs/screenshots/try.jpg" alt="Sinash sahifasi"> | <img src="docs/screenshots/text.jpg" alt="Matnni o'girish sahifasi"> |
+| **Sinash** — yozganingiz shu zahoti yangi alifboda; inglizcha, havola va istisno so'z belgilanadi | **Matnni o'girish** — eski lotin yoki kirill matn butunligicha yangisiga, yoki teskari |
+| <img src="docs/screenshots/rules.jpg" alt="Qoidalar sahifasi"> | <img src="docs/screenshots/keyboard.jpg" alt="Klaviatura sahifasi"> |
+| **Qoidalar** — inglizcha himoya, apostrof tiklash, kirill, Backspace bilan qaytarish, tutuq belgisi | **Klaviatura** — avtomatik o'girish yoki ö ğ ş ç tugmada; 7 ta tayyor tartib va o'zingizniki |
+| <img src="docs/screenshots/apps.jpg" alt="Dasturlar sahifasi"> | <img src="docs/screenshots/dictionary.jpg" alt="Lug'at sahifasi"> |
+| **Dasturlar** — qaysi dasturda nechta so'z o'girildi, terminal va parol oynalarida o'chiq | **Lug'at** — o'girilmaydigan ismlar va o'z yozuvi bo'lgan so'zlar, har harfni alohida tanlash |
+| <img src="docs/screenshots/news.jpg" alt="Yangiliklar sahifasi"> | <img src="docs/screenshots/feedback.jpg" alt="Xabar berish sahifasi"> |
+| **Yangiliklar** — har versiyada nima o'zgardi, yangilanishni tekshirish | **Xabar berish** — xato, taklif yoki noto'g'ri o'girilgan so'z, ekran parchasi bilan |
 
 <p align="center">
   <img src="docs/media/demo.gif" width="720" alt="bitg Windows'da: eskicha yozilgan «O'zbekiston shaharlari: Toshkent» probel bosilishi bilan «Özbekiston şaharlari: Toşkent» bo'ladi; «Please check the schedule» inglizcha qoladi, «keyin choy ichamiz» esa «keyin çoy içamiz» bo'ladi">
 </p>
 
 <sub>Haqiqiy yozuv: Release'dagi MSI toza Windows VM'ga o'rnatilgan, tugmalar odam tezligida bosilgan, natija yadro bilan
-solishtirilgan ([`tools/demo`](tools/demo), [`demo.yml`](.github/workflows/demo.yml)).</sub>
+solishtirilgan ([`tools/demo`](tools/demo), [`demo.yml`](.github/workflows/demo.yml)). Demo skrinshotlari:
+`cd demo && npm ci && npm run site:screenshots` ([`demo/`](demo/README.md)).</sub>
 
 ```text
 $ bitg "O'zbekiston shaharlari: Toshkent, Samarqand"
@@ -36,6 +56,17 @@ Please check the schedule, keyin çoy içamiz
 $ bitg old --ascii "Özbekiston şaharlari"
 O'zbekiston shaharlari
 ```
+
+## Tez boshlash
+
+| Tizim | Bitta buyruq | Batafsil |
+|---|---|---|
+| Windows 10/11 | [MSI](https://github.com/dtwinuz/bitg/releases/latest) yoki `scoop bucket add dtwinuz https://github.com/dtwinuz/scoop-bucket; scoop install dtwinuz/bitg` | [O'rnatish (Windows)](#ornatish-windows-1011-x64) |
+| Ubuntu / Debian | `sudo apt install bitg` ([bitg.uz/apt](https://bitg.uz/apt/) ombori ulangandan keyin) | [O'rnatish (Linux)](#ornatish-linux-ubuntu-2204-debian-12-x64) |
+| macOS 11+ (sinov) | `brew install --cask dtwinuz/tap/bitg` | [O'rnatish (macOS)](#ornatish-macos-11-apple-m-va-intel--sinov) |
+| Brauzerda | o'rnatmasdan: [jonli demo](https://wonmor.io/demo/bitg/) yoki [bitg.uz](https://bitg.uz) | [`demo/`](demo/README.md) |
+
+So'ng tizimning til almashtirgichida (Windows'da **Win + Probel**) «bitg» ni tanlang va odatdagidek yozing.
 
 ## Nimasi bilan boshqacha
 

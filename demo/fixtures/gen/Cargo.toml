@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 dtwinuz and bitg contributors
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# Ish maydoniga kirmaydi (alohida [workspace]): faqat demo ma'lumotini yangilash uchun.
+[package]
+name = "bitg-demo-fixtures"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+bitg-tsf = { path = "../../../crates/bitg-tsf" }
+
+[workspace]
