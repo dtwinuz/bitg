@@ -41,6 +41,16 @@
 	}
 	rewrite @redesignDemo /redesign/demo/index.html
 
+	# redesign2.bitg.uz (dtwin edge shu hostni ham shu konteynerga yuboradi): bosh sahifa = web/redesign2/
+	# (3 yo'nalishli A/B/C rebrand preview). Qolgan yo'llar (/redesign2/*, /bitg_core.wasm) umumiy. Qidiruvga kirmaydi.
+	@redesign2 host redesign2.bitg.uz
+	header @redesign2 X-Robots-Tag "noindex, nofollow"
+	@redesign2Root {
+		host redesign2.bitg.uz
+		path / /index.html
+	}
+	rewrite @redesign2Root /redesign2/index.html
+
 	# tools/site/build.py css/js manzillariga, page.js/app.js wasm'ga ?v=<sha> qo'shadi — uzoq kesh xavfsiz
 	@code path /*.js /*.css /*.wasm /fonts/*
 	header @code Cache-Control "public, max-age=31536000, immutable"

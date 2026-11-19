@@ -477,6 +477,15 @@ def redesign(out, v):
         shutil.copyfile(src, shots / name)
 
 
+def redesign2(out, v):
+    """redesign2.bitg.uz (web/redesign2/, 3 yo'nalishli (A/B/C) rebrand preview; deploy/Caddyfile host qoidasi):
+    __V__ -> kesh versiyasi. r2.css/r2.js va /bitg_core.wasm umumiy nusxadan beriladi."""
+    page = out / "redesign2" / "index.html"
+    if not page.exists():
+        return
+    page.write_text(page.read_text(encoding="utf-8").replace("__V__", v or "dev"), encoding="utf-8", newline="\n")
+
+
 def _demo_plain(s):
     return re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s).replace("**", "").replace("`", "").strip()
 
@@ -909,6 +918,7 @@ def main():
         shutil.copyfile(f, dst)
     redesign(out, a.v)
     redesign_demo(out, a.v)
+    redesign2(out, a.v)
 
     for p in pages:
         text = version_assets(render(p, ctx, by_slug, alt_groups), a.v)
