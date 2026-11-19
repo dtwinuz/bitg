@@ -117,6 +117,17 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ff-sans); tra
 .r2-grid { display:grid; gap:clamp(16px,2.4vw,28px); }
 .r2-card { background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(18px,2.4vw,28px); }
 
+/* ---------- utilities (CSP style-src 'self' — inline style="" ishlatilmaydi) ---------- */
+.r2-mt { margin-top:clamp(20px,3vw,28px); }
+.r2-dot-accent { color:var(--accent); }
+.r2-grid--cards { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+.r2-grid--wide { grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+.r2-cardnote { font-size:15px; margin-top:8px; color:var(--mut); max-width:52ch; }
+.r2-btn--start { justify-content:flex-start; }
+.r2-center { text-align:center; }
+.r2-center .r2-kicker { justify-content:center; }
+.r2-center .r2-lead { margin-inline:auto; }
+
 /* ---------- hero ---------- */
 .r2-hero { padding-block:clamp(48px,8vh,96px) var(--sec-y); }
 .r2-hero__grid { display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(24px,4vw,56px); align-items:center; }

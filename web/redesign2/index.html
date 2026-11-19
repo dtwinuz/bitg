@@ -48,7 +48,7 @@
   <section class="r2-hero r2-wrap" aria-labelledby="r2-h1">
     <div class="r2-hero__grid">
       <div>
-        <p class="r2-eyebrow"><span class="r2-chip__d" style="color:var(--accent)"></span> O'RQ-1184 qonuni · <b><span data-days>157</span> kundan keyin</b> kuchga kiradi</p>
+        <p class="r2-eyebrow"><span class="r2-chip__d r2-dot-accent"></span> O'RQ-1184 qonuni · <b><span data-days>157</span> kundan keyin</b> kuchga kiradi</p>
         <h1 id="r2-h1" class="r2-display">Eskicha yozing.<em>Yangicha chiqadi.</em></h1>
         <p class="r2-hero__sub" data-no-conv>So'z tugashi bilan <b class="r2-new">sh → ş</b>, <b class="r2-new">o' → ö</b>. Inglizcha so'z, havola va kodga tegmaydi. Qayta o'rganish shart emas.</p>
         <div class="r2-cta">
@@ -76,7 +76,7 @@
       <p class="r2-kicker">Asosi</p>
       <h2 id="r2-h2a" class="r2-h2">Ikki belgi — <em>bitta harf.</em></h2>
       <p class="r2-lead">Bosing — qanday birlashishini ko'ring.</p>
-      <ol class="r2-fuse" data-fuse data-no-conv>
+      <ol class="r2-fuse r2-mt" data-fuse data-no-conv>
         <li data-from="o'" data-to="ö">o'<small>→ ö</small></li>
         <li data-from="g'" data-to="ğ">g'<small>→ ğ</small></li>
         <li data-from="sh" data-to="ş">sh<small>→ ş</small></li>
@@ -92,7 +92,7 @@
       <p class="r2-kicker">Jonli</p>
       <h2 id="r2-h3" class="r2-h2">O'z matningiz bilan <em>sinab ko'ring.</em></h2>
       <p class="r2-lead">bitg yadrosi (Rust → WASM) brauzeringizda ishlaydi — matn hech qayerga yuborilmaydi.</p>
-      <div class="r2-play" data-play style="margin-top:28px">
+      <div class="r2-play r2-mt" data-play>
         <div class="r2-seg" role="tablist" aria-label="Yo'nalish" data-no-conv>
           <button role="tab" aria-selected="true" data-mode="0">Eski lotin → yangi</button>
           <button role="tab" aria-selected="false" data-mode="cyr">Kirill → yangi</button>
@@ -117,13 +117,13 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">Farqi</p>
       <h2 id="r2-h4" class="r2-h2">Oddiy almashtirish emas — <em>tushunadi.</em></h2>
-      <div class="r2-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:24px" data-no-conv>
-        <div class="r2-card"><b>Inglizchaga tegmaydi</b><p class="r2-lead" style="font-size:15px;margin-top:8px">Please <span class="r2-new">check</span> the <span class="r2-new">schedule</span> — o'girilmaydi.</p></div>
-        <div class="r2-card"><b>Kod va havola saqlanadi</b><p class="r2-lead" style="font-size:15px;margin-top:8px"><span class="r2-new">push()</span>, <span class="r2-new">@bitguzbot</span>, URL — o'zgarmaydi.</p></div>
-        <div class="r2-card"><b>Apostrof turlari</b><p class="r2-lead" style="font-size:15px;margin-top:8px">Is'hoq → Ishoq, ma'lumot → maʼlumot.</p></div>
-        <div class="r2-card"><b>⌫ bilan qaytadi</b><p class="r2-lead" style="font-size:15px;margin-top:8px">şahar <kbd>⌫</kbd> shahar — o'girishni bekor qiladi.</p></div>
-        <div class="r2-card"><b>Kirill ham</b><p class="r2-lead" style="font-size:15px;margin-top:8px">Ўзбекистон → Özbekiston ⇄ O'zbekiston.</p></div>
-        <div class="r2-card"><b>Noaniq so'zlar</b><p class="r2-lead" style="font-size:15px;margin-top:8px">öçmaydi / oçmaydi — lug'at hal qiladi.</p></div>
+      <div class="r2-grid r2-grid--cards r2-mt" data-no-conv>
+        <div class="r2-card"><b>Inglizchaga tegmaydi</b><p class="r2-cardnote">Please <span class="r2-new">check</span> the <span class="r2-new">schedule</span> — o'girilmaydi.</p></div>
+        <div class="r2-card"><b>Kod va havola saqlanadi</b><p class="r2-cardnote"><span class="r2-new">push()</span>, <span class="r2-new">@bitguzbot</span>, URL — o'zgarmaydi.</p></div>
+        <div class="r2-card"><b>Apostrof turlari</b><p class="r2-cardnote">Is'hoq → Ishoq, ma'lumot → maʼlumot.</p></div>
+        <div class="r2-card"><b>⌫ bilan qaytadi</b><p class="r2-cardnote">şahar <kbd>⌫</kbd> shahar — o'girishni bekor qiladi.</p></div>
+        <div class="r2-card"><b>Kirill ham</b><p class="r2-cardnote">Ўзбекистон → Özbekiston ⇄ O'zbekiston.</p></div>
+        <div class="r2-card"><b>Noaniq so'zlar</b><p class="r2-cardnote">öçmaydi / oçmaydi — lug'at hal qiladi.</p></div>
       </div>
     </div>
   </section>
@@ -134,8 +134,8 @@
       <p class="r2-kicker">Qamrov</p>
       <h2 id="r2-h5" class="r2-h2">Hamma joyda — <em>bir xil yadro.</em></h2>
       <p class="r2-lead">Qaysi dasturda yozsangiz ham, qaysi platformada bo'lsangiz ham.</p>
-      <div class="r2-eco" style="margin-top:26px" data-no-conv>
-        <div class="r2-eco__item"><div class="r2-card"><b>Windows</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>jonli</span><p class="r2-lead" style="font-size:14px;margin-top:8px">TSF kiritish usuli, MSI, Ctrl+Shift+Y.</p></div></div>
+      <div class="r2-eco r2-mt" data-no-conv>
+        <div class="r2-eco__item"><div class="r2-card"><b>Windows</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>jonli</span><p class="r2-cardnote">TSF kiritish usuli, MSI, Ctrl+Shift+Y.</p></div></div>
         <div class="r2-eco__item"><div class="r2-card"><b>Linux</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>IBus</span> <span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>Fcitx5</span></div></div>
         <div class="r2-eco__item"><div class="r2-card"><b>macOS</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>beta</span></div></div>
         <div class="r2-eco__item"><div class="r2-card"><b>Brauzer</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Chrome · Edge</span></div></div>
@@ -152,8 +152,8 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">AI yordamchilar</p>
       <h2 id="r2-h6" class="r2-h2">Taxmin bilan emas — <em>yadro bilan.</em></h2>
-      <p class="r2-lead">Ochiq MCP server (login va kalitsiz) AI yordamchilarга bitg yadrosini beradi.</p>
-      <div class="r2-chips" style="margin-top:20px" data-no-conv>
+      <p class="r2-lead">Ochiq MCP server (login va kalitsiz) AI yordamchilarga bitg yadrosini beradi.</p>
+      <div class="r2-chips r2-mt" data-no-conv>
         <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Claude katalogi</span>
         <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Gemini (MCP)</span>
         <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Le Chat (MCP)</span>
@@ -167,7 +167,7 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">Ishonch</p>
       <h2 id="r2-h7" class="r2-h2">Ruxsat so'ramaydi. <em>Ochiq. Tekshirilgan.</em></h2>
-      <div class="r2-stats" style="margin-top:28px" data-no-conv>
+      <div class="r2-stats r2-mt" data-no-conv>
         <div><b>Gold</b><span>OpenSSF Scorecard</span></div>
         <div><b>SLSA L3</b><span>ta'minot zanjiri</span></div>
         <div><b>SHA-256</b><span>+ attestatsiya</span></div>
@@ -181,7 +181,7 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">Yo'lda</p>
       <h2 id="r2-h8" class="r2-h2">Yaqinda <em>keladigan.</em></h2>
-      <div class="r2-eco" style="margin-top:24px" data-no-conv>
+      <div class="r2-eco r2-mt" data-no-conv>
         <div class="r2-eco__item"><div class="r2-card"><b>Microsoft Store</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>Tez kunda</span></div></div>
         <div class="r2-eco__item"><div class="r2-card"><b>Google Docs add-on</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
         <div class="r2-eco__item"><div class="r2-card"><b>Word add-in</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
@@ -194,10 +194,10 @@
 
   <!-- 9. DEADLINE -->
   <section class="r2-sec" id="muddat" aria-labelledby="r2-h9">
-    <div class="r2-wrap r2-rev" style="text-align:center">
-      <p class="r2-kicker" style="justify-content:center">Muddat</p>
+    <div class="r2-wrap r2-rev r2-center">
+      <p class="r2-kicker">Muddat</p>
       <h2 id="r2-h9" class="r2-h2">Qonun <em><span data-days>157</span> kundan keyin.</em></h2>
-      <p class="r2-lead" style="margin-inline:auto">O'RQ-1184 — yangi o'zbek lotin alifbosi 2027-yil 22-aprelda kuchga kiradi. Bugundan tayyorlaning.</p>
+      <p class="r2-lead">O'RQ-1184 — yangi o'zbek lotin alifbosi 2027-yil 22-aprelda kuchga kiradi. Bugundan tayyorlaning.</p>
     </div>
   </section>
 
@@ -206,11 +206,11 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">O'rnating</p>
       <h2 id="r2-h10" class="r2-h2">Bir daqiqa, <em>bepul.</em></h2>
-      <div class="r2-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:24px">
-        <a class="r2-card r2-btn" href="/yuklab-olish/" style="justify-content:flex-start" data-no-conv><b>Windows 10 / 11</b></a>
-        <a class="r2-card r2-btn" href="/klaviatura/linux/" style="justify-content:flex-start" data-no-conv><b>Linux</b></a>
-        <a class="r2-card r2-btn" href="/klaviatura/mac/" style="justify-content:flex-start" data-no-conv><b>macOS</b></a>
-        <a class="r2-card r2-btn" href="/klaviatura/iphone/" style="justify-content:flex-start" data-no-conv><b>Telefon</b></a>
+      <div class="r2-grid r2-grid--wide r2-mt">
+        <a class="r2-card r2-btn r2-btn--start" href="/yuklab-olish/" data-no-conv><b>Windows 10 / 11</b></a>
+        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/linux/" data-no-conv><b>Linux</b></a>
+        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/mac/" data-no-conv><b>macOS</b></a>
+        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/iphone/" data-no-conv><b>Telefon</b></a>
       </div>
     </div>
   </section>
@@ -220,15 +220,15 @@
     <div class="r2-wrap r2-rev">
       <p class="r2-kicker">Hammasi</p>
       <h2 id="r2-h11" class="r2-h2">Barcha <em>imkoniyatlar.</em></h2>
-      <div class="r2-eco" style="margin-top:22px">
-        <a class="r2-card r2-btn" href="/konvertor/" data-no-conv>Konvertor</a>
-        <a class="r2-card r2-btn" href="/yangi-alifbo/" data-no-conv>Yangi alifbo</a>
-        <a class="r2-card r2-btn" href="/standart/" data-no-conv>Standart</a>
-        <a class="r2-card r2-btn" href="/sifat/" data-no-conv>Sifat</a>
-        <a class="r2-card r2-btn" href="/xavfsizmi/" data-no-conv>Xavfsizmi</a>
-        <a class="r2-card r2-btn" href="/savollar/" data-no-conv>Savollar</a>
-        <a class="r2-card r2-btn" href="/qiyoslash/" data-no-conv>Qiyoslash</a>
-        <a class="r2-card r2-btn" href="/haqida/" data-no-conv>Haqida</a>
+      <div class="r2-eco r2-mt">
+        <a class="r2-card r2-btn r2-btn--start" href="/konvertor/" data-no-conv>Konvertor</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/yangi-alifbo/" data-no-conv>Yangi alifbo</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/standart/" data-no-conv>Standart</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/sifat/" data-no-conv>Sifat</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/xavfsizmi/" data-no-conv>Xavfsizmi</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/savollar/" data-no-conv>Savollar</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/qiyoslash/" data-no-conv>Qiyoslash</a>
+        <a class="r2-card r2-btn r2-btn--start" href="/haqida/" data-no-conv>Haqida</a>
       </div>
     </div>
   </section>
@@ -239,7 +239,7 @@
   <div class="r2-wrap r2-foot__grid">
     <div>
       <a class="r2-logo" href="#top" data-no-conv><svg class="r2-logo__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.95 4.5V19.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12.3" cy="14.8" r="4.7" stroke="currentColor" stroke-width="2" fill="none"/></svg><span>bitg</span></a>
-      <p class="r2-lead" style="font-size:14px;margin-top:10px">Eskicha yozing — yangicha chiqadi. Bepul, ochiq kod.</p>
+      <p class="r2-cardnote">Eskicha yozing — yangicha chiqadi. Bepul, ochiq kod.</p>
     </div>
     <nav aria-label="Dastur"><a href="/yuklab-olish/">Yuklab olish</a><a href="/konvertor/">Konvertor</a><a href="/savollar/">Savollar</a></nav>
     <nav aria-label="Alifbo"><a href="/yangi-alifbo/">Yangi alifbo</a><a href="/standart/">Standart</a><a href="/sifat/">Sifat</a></nav>
