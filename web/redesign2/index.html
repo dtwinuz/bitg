@@ -1,234 +1,292 @@
 <!doctype html>
-<html lang="uz" data-dir="a" data-abc="old">
+<html lang="uz" data-abc="old">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>bitg — eskicha yozing, yangicha chiqadi (redesign2)</title>
-<meta name="description" content="bitg siz yozgan so'zni yangi o'zbek alifbosiga o'zi o'giradi: sh → ş, o' → ö. Inglizcha, havola va kodga tegmaydi. Kompyuter, brauzer, ofis, telefon va AI yordamchilarda. Bepul, ochiq kod, internetsiz.">
+<title>bitg — eskicha yozing, yangicha chiqadi</title>
+<meta name="description" content="bitg siz yozgan so'zni yangi o'zbek alifbosiga o'zi o'giradi: sh → ş, o' → ö. Inglizcha, havola va kodga tegmaydi. Bir lahzada, internetsiz.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#f7f3ea">
+<meta name="theme-color" content="#faf9f5">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="preload" as="font" type="font/woff2" href="/redesign/fonts/serif-latin-ext.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/redesign/fonts/sans-latin.woff2" crossorigin>
 <link rel="stylesheet" href="/redesign2/r2.css?v=__V__">
 <script src="/redesign2/r2.js?v=__V__" type="module"></script>
 </head>
 <body>
 <a class="r2-skip" href="#sinash">Sinov maydoniga o'tish</a>
 
-<header class="r2-top">
+<header class="r2-top" data-top>
   <div class="r2-wrap r2-top__in">
     <a class="r2-logo" href="#top" aria-label="bitg — bosh sahifa">
-      <svg class="r2-logo__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.95 4.5V19.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12.3" cy="14.8" r="4.7" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="11.15" cy="5.8" r="1.5" fill="currentColor"/><circle cx="15.15" cy="5.8" r="1.5" fill="currentColor"/></svg>
+      <img class="r2-logo__m" src="/icon.svg" alt="" width="30" height="30">
       <span data-no-conv>bitg</span>
     </a>
-
-    <div class="r2-tabs" role="tablist" aria-label="Dizayn yo'nalishi" data-dir-tabs>
-      <button class="r2-tab" role="tab" aria-selected="true"  data-dir-btn="a">Birlashish<small>issiq · editorial</small></button>
-      <button class="r2-tab" role="tab" aria-selected="false" data-dir-btn="b">Muddat<small>qora · signal</small></button>
-      <button class="r2-tab" role="tab" aria-selected="false" data-dir-btn="c">Mexanizm<small>texnik · blueprint</small></button>
+    <nav class="r2-nav" aria-label="Asosiy">
+      <a href="#sinash">Sinash</a>
+      <a href="#kontekst">Aqli</a>
+      <a href="#hamma-joyda">Qamrovi</a>
+      <a href="#muddat">Muddat</a>
+      <a href="#yoldagi">Yo'lda</a>
+    </nav>
+    <span class="r2-top__sp"></span>
+    <div class="r2-abc" role="group" aria-label="Sahifa alifbosi" data-no-conv>
+      <button type="button" data-abc-btn="new" aria-pressed="false">Yangi</button>
+      <button type="button" data-abc-btn="old" aria-pressed="true">Eski</button>
     </div>
-
-    <div class="r2-top__end">
-      <div class="r2-abc" role="group" aria-label="Sahifa alifbosi" data-no-conv>
-        <button type="button" data-abc-btn="new" aria-pressed="false">Yangi</button>
-        <button type="button" data-abc-btn="old" aria-pressed="true">Eski</button>
-      </div>
-      <button class="r2-ico" type="button" data-theme-btn aria-label="Mavzu (yorug'/qorong'i)">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
-      </button>
-      <a class="r2-ico" href="https://github.com/dtwinuz/bitg" rel="noopener" aria-label="GitHub manba kodi">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 19c-4 1.2-4-2-5.6-2.4M14.5 21v-3.4c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6 2.9 5 3.2 5 3.2a4.3 4.3 0 0 0-.1 3.2A4.7 4.7 0 0 0 3.5 9.6c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
-      </a>
-    </div>
+    <button class="r2-ico" type="button" data-theme-btn aria-label="Mavzu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.5v2.3M12 19.2v2.3M2.5 12h2.3M19.2 12h2.3M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M5.2 18.8l1.6-1.6M17.2 6.8l1.6-1.6"/></svg>
+    </button>
+    <a class="r2-ico" href="https://github.com/dtwinuz/bitg" rel="noopener" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 19c-4 1.2-4-2-5.6-2.4M14.5 21v-3.4c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6 2.9 5 3.2 5 3.2a4.3 4.3 0 0 0-.1 3.2A4.7 4.7 0 0 0 3.5 9.6c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+    </a>
   </div>
 </header>
 
-<main class="r2-main" id="top">
+<main id="top">
 
-  <!-- 1. HERO -->
-  <section class="r2-hero r2-wrap" aria-labelledby="r2-h1">
-    <div class="r2-hero__grid">
-      <div>
-        <p class="r2-eyebrow"><span class="r2-chip__d r2-dot-accent"></span> O'RQ-1184 qonuni · <b><span data-days>157</span> kundan keyin</b> kuchga kiradi</p>
-        <h1 id="r2-h1" class="r2-display">Eskicha yozing.<em>Yangicha chiqadi.</em></h1>
-        <p class="r2-hero__sub" data-no-conv>So'z tugashi bilan <b class="r2-new">sh → ş</b>, <b class="r2-new">o' → ö</b>. Inglizcha so'z, havola va kodga tegmaydi. Qayta o'rganish shart emas.</p>
-        <div class="r2-cta">
-          <a class="r2-btn r2-btn--pri" href="#ornatish"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><span>Bepul yuklab olish</span></a>
-          <a class="r2-btn" href="#sinash">Brauzerda sinab ko'ring</a>
+  <!-- ===== HERO ===== -->
+  <section class="r2-hero">
+    <div class="r2-hero__glow" aria-hidden="true"></div>
+    <div class="r2-wrap">
+      <p class="r2-eyebrow" data-no-conv><span class="r2-dot"></span> Qonun <b>O'RQ-1184</b> · <b><span data-days>—</span> kun</b> qoldi</p>
+      <h1 class="r2-display">
+        <span class="r2-line">Eskicha yozing.</span>
+        <span class="r2-line"><span class="r2-spec">Yangicha</span> chiqadi.</span>
+      </h1>
+      <p class="r2-hero__sub">So'z tugaydi — yangi alifbo o'zi chiqadi. Siz hech narsani qayta o'rganmaysiz.</p>
+      <div class="r2-cta">
+        <a class="r2-btn r2-btn--pri" href="#ornatish">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>
+          <span>Bepul yuklab olish</span>
+        </a>
+        <a class="r2-btn" href="#sinash">Brauzerda sinash</a>
+      </div>
+      <div class="r2-proof" data-no-conv>
+        <div class="r2-proof__i"><b data-count-to="2.7" data-suffix=" µs">2,7 µs</b><span>bir so'z — tugmalar orasidan ≈37 000× qisqa</span></div>
+        <div class="r2-proof__i"><b data-count-to="98.87" data-suffix=" %">98,87 %</b><span>o'zbekcha gaplar to'g'ri (3 000 ta ochiq sinov)</span></div>
+        <div class="r2-proof__i"><b data-count-to="1.1" data-suffix=" MB">1,1 MB</b><span>xotira · 0 tarmoq so'rovi · internetsiz</span></div>
+      </div>
+
+      <!-- signature: living type specimen -->
+      <div class="r2-stage r2-rev" aria-hidden="true">
+        <div class="r2-stage__bar" data-no-conv>
+          <span class="r2-stage__dot"></span><span class="r2-stage__dot"></span><span class="r2-stage__dot"></span>
+          <span class="r2-stage__ttl">bitg · jonli</span>
         </div>
-        <ul class="r2-facts" data-no-conv>
-          <li><b>2,7 µs</b><span>bir so'zga</span></li>
-          <li><b>98,87 %</b><span>aniqlik</span></li>
-          <li><b>0</b><span>tarmoq so'rovi</span></li>
-          <li><b>1,1 MB</b><span>o'rnatuvchi</span></li>
-        </ul>
-      </div>
-      <div class="r2-stage" data-stage>
-        <canvas data-kb aria-hidden="true"></canvas>
-        <div class="r2-typer" aria-hidden="true" data-no-conv><p class="r2-typer__line" data-typer><span class="r2-caret"></span></p></div>
-        <div class="r2-stage__fallback" data-stage-fallback hidden>3D klaviatura — brauzeringiz WebGL'ni qo'llamaydi. Quyida jonli sinab ko'ring.</div>
+        <div class="r2-stage__body">
+          <p class="r2-specimen" data-specimen data-no-conv>Eskiça yozing. Yangiça çiqadi.</p>
+          <p class="r2-specimen__hint" data-no-conv>
+            <span class="r2-legend"><i class="r2-old"></i>eski imlo</span>
+            <span class="r2-legend"><i class="r2-new"></i>yangi alifbo</span>
+          </p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 2. FUSE -->
-  <section class="r2-sec r2-sec--tint" id="harflar" aria-labelledby="r2-h2a">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Asosi</p>
-      <h2 id="r2-h2a" class="r2-h2">Ikki belgi — <em>bitta harf.</em></h2>
-      <p class="r2-lead">Bosing — qanday birlashishini ko'ring.</p>
-      <ol class="r2-fuse r2-mt" data-fuse data-no-conv>
-        <li data-from="o'" data-to="ö">o'<small>→ ö</small></li>
-        <li data-from="g'" data-to="ğ">g'<small>→ ğ</small></li>
-        <li data-from="sh" data-to="ş">sh<small>→ ş</small></li>
-        <li data-from="ch" data-to="ç">ch<small>→ ç</small></li>
-        <li data-from="'" data-to="ʼ">'<small>→ ʼ</small></li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- 3. PLAYGROUND -->
-  <section class="r2-sec" id="sinash" aria-labelledby="r2-h3">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Jonli</p>
-      <h2 id="r2-h3" class="r2-h2">O'z matningiz bilan <em>sinab ko'ring.</em></h2>
-      <p class="r2-lead">bitg yadrosi (Rust → WASM) brauzeringizda ishlaydi — matn hech qayerga yuborilmaydi.</p>
-      <div class="r2-play r2-mt" data-play>
+  <!-- ===== PLAYGROUND ===== -->
+  <section class="r2-sec r2-sec--tight" id="sinash">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Jonli yadro</p>
+      <h2 class="r2-h2 r2-rev">O'zingiz <em>sinab ko'ring.</em></h2>
+      <p class="r2-lead r2-rev">Rust yadrosi brauzeringizda ishlaydi. Matn hech qayerga yuborilmaydi.</p>
+      <div class="r2-play r2-rev" data-play>
         <div class="r2-seg" role="tablist" aria-label="Yo'nalish" data-no-conv>
           <button role="tab" aria-selected="true" data-mode="0">Eski lotin → yangi</button>
           <button role="tab" aria-selected="false" data-mode="cyr">Kirill → yangi</button>
           <button role="tab" aria-selected="false" data-mode="1">Yangi → eski</button>
         </div>
         <div class="r2-play__io">
-          <textarea data-in spellcheck="false" data-no-conv>Bugun shaharda choy ichdik, keyin check qildim. O'zbekiston tog'lari haqida bitg.uz saytida o'qing.</textarea>
-          <p class="r2-play__out" data-out aria-live="polite" data-no-conv>yadro yuklanmoqda…</p>
+          <div class="r2-field">
+            <div class="r2-field__h" data-no-conv><span>Siz yozasiz</span></div>
+            <textarea data-in spellcheck="false" data-no-conv>Bugun shaharda choy ichdik, keyin "check" qildim. O'zbekiston tog'lari haqida bitg.uz da o'qing.</textarea>
+          </div>
+          <div class="r2-field">
+            <div class="r2-field__h" data-no-conv><span>bitg chiqaradi</span></div>
+            <div class="r2-field__out" data-out aria-live="polite" data-no-conv>yadro yuklanmoqda…</div>
+          </div>
         </div>
-        <div class="r2-chips" aria-label="Misollar" data-no-conv>
-          <button class="r2-chip" data-ex="Please check the schedule, keyin choy ichamiz" data-ex-mode="0">Inglizcha aralash</button>
-          <button class="r2-chip" data-ex="Ўзбекистон шаҳарлари: Тошкент, Самарқанд" data-ex-mode="cyr">Kirill</button>
-          <button class="r2-chip" data-ex="push() va @bitguzbot ga yozing: https://bitg.uz/konvertor/" data-ex-mode="0">Kod va havola</button>
-          <button class="r2-chip" data-ex="Is'hoq ma'lumot yubordi, O`zbekiston g‘alabasi" data-ex-mode="0">Apostrof turlari</button>
+        <div class="r2-exs" aria-label="Misollar" data-no-conv>
+          <button class="r2-ex" data-ex="Please check the schedule, keyin choy ichamiz." data-ex-mode="0">Inglizcha aralash</button>
+          <button class="r2-ex" data-ex="Ўзбекистон шаҳарлари: Тошкент, Самарқанд, Бухоро." data-ex-mode="cyr">Kirill</button>
+          <button class="r2-ex" data-ex="push() ni @bitguzbot ga yuboring: https://bitg.uz/konvertor/" data-ex-mode="0">Kod va havola</button>
+          <button class="r2-ex" data-ex="Is'hoq ma'lumot berdi, O'zbekiston g'alabasi." data-ex-mode="0">Apostrof</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. SMART -->
-  <section class="r2-sec r2-sec--tint" id="aqlli" aria-labelledby="r2-h4">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Farqi</p>
-      <h2 id="r2-h4" class="r2-h2">Oddiy almashtirish emas — <em>tushunadi.</em></h2>
-      <div class="r2-grid r2-grid--cards r2-mt" data-no-conv>
-        <div class="r2-card"><b>Inglizchaga tegmaydi</b><p class="r2-cardnote">Please <span class="r2-new">check</span> the <span class="r2-new">schedule</span> — o'girilmaydi.</p></div>
-        <div class="r2-card"><b>Kod va havola saqlanadi</b><p class="r2-cardnote"><span class="r2-new">push()</span>, <span class="r2-new">@bitguzbot</span>, URL — o'zgarmaydi.</p></div>
-        <div class="r2-card"><b>Apostrof turlari</b><p class="r2-cardnote">Is'hoq → Ishoq, ma'lumot → maʼlumot.</p></div>
-        <div class="r2-card"><b>⌫ bilan qaytadi</b><p class="r2-cardnote">şahar <kbd>⌫</kbd> shahar — o'girishni bekor qiladi.</p></div>
-        <div class="r2-card"><b>Kirill ham</b><p class="r2-cardnote">Ўзбекистон → Özbekiston ⇄ O'zbekiston.</p></div>
-        <div class="r2-card"><b>Noaniq so'zlar</b><p class="r2-cardnote">öçmaydi / oçmaydi — lug'at hal qiladi.</p></div>
+  <!-- ===== CONTEXT (differentiator) ===== -->
+  <section class="r2-sec" id="kontekst">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Nega boshqacha</p>
+      <h2 class="r2-h2 r2-rev">Hammasini emas — <em>faqat kerakli joyni.</em></h2>
+      <p class="r2-lead r2-rev">Oddiy “sh→ş” almashtirish <i>check</i> va <i>shop</i> ni buzadi. bitg so'zni tushunadi.</p>
+      <div class="r2-ctx r2-rev" data-ctx data-no-conv>
+        <p class="r2-ctx__line" data-ctx-line></p>
+        <div class="r2-ctx__tags">
+          <span class="r2-tag r2-tag--new"><i></i>yangi alifboga o'girildi</span>
+          <span class="r2-tag r2-tag--keep"><i></i>inglizcha · havola · kod — tegilmadi</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 5. ECOSYSTEM + roadmap -->
-  <section class="r2-sec" id="hamma-joyda" aria-labelledby="r2-h5">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Qamrov</p>
-      <h2 id="r2-h5" class="r2-h2">Hamma joyda — <em>bir xil yadro.</em></h2>
-      <p class="r2-lead">Qaysi dasturda yozsangiz ham, qaysi platformada bo'lsangiz ham.</p>
-      <div class="r2-eco r2-mt" data-no-conv>
-        <div class="r2-eco__item"><div class="r2-card"><b>Windows</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>jonli</span><p class="r2-cardnote">TSF kiritish usuli, MSI, Ctrl+Shift+Y.</p></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Linux</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>IBus</span> <span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>Fcitx5</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>macOS</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>beta</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Brauzer</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Chrome · Edge</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Telegram</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>@bitguzbot</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Terminal / CLI</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>crates.io</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>MCP server</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>bitg.uz/mcp</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Telefon</b><span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Keyman</span></div></div>
+  <!-- ===== THREE DIFFERENTIATORS ===== -->
+  <section class="r2-sec r2-sec--tight">
+    <div class="r2-wrap">
+      <div class="r2-trio">
+        <div class="r2-feat r2-rev">
+          <div class="r2-feat__ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M15 3.5l4 2-2 4"/></svg></div>
+          <h3>Kontekstni tushunadi</h3>
+          <p>Inglizcha so'z, havola, kod va <kbd>@handle</kbd> o'z holida qoladi. Apostrofning 4 turini ajratadi, <kbd>⌫</kbd> o'girishni qaytaradi.</p>
+        </div>
+        <div class="r2-feat r2-rev">
+          <div class="r2-feat__ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 20h8M12 17v3"/><path d="M7 9h10M7 12h6"/></svg></div>
+          <h3>Hamma joyda</h3>
+          <p>Windows, Linux, brauzer, Telegram, terminal, AI yordamchilar — bitta yadro, bir xil natija.</p>
+        </div>
+        <div class="r2-feat r2-rev">
+          <div class="r2-feat__ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+          <h3>Bir lahzada, oflayn</h3>
+          <p>So'zni 2,7 µs da o'giradi, 1,1 MB joy oladi, bironta tarmoq so'rovi yubormaydi.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 6. AI -->
-  <section class="r2-sec r2-sec--tint" id="ai" aria-labelledby="r2-h6">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">AI yordamchilar</p>
-      <h2 id="r2-h6" class="r2-h2">Taxmin bilan emas — <em>yadro bilan.</em></h2>
-      <p class="r2-lead">Ochiq MCP server (login va kalitsiz) AI yordamchilarga bitg yadrosini beradi.</p>
-      <div class="r2-chips r2-mt" data-no-conv>
-        <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Claude katalogi</span>
-        <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Gemini (MCP)</span>
-        <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Le Chat (MCP)</span>
-        <span class="r2-chip r2-chip--live"><span class="r2-chip__d"></span>Perplexity (MCP)</span>
+  <!-- ===== EVERYWHERE: product mockups (dark) ===== -->
+  <section class="r2-sec r2-ink" id="hamma-joyda">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Qamrovi</p>
+      <h2 class="r2-h2 r2-rev">Qaysi oynada yozsangiz — <em>o'sha yerda.</em></h2>
+      <div class="r2-plats" data-no-conv>
+        <!-- Windows IME -->
+        <div class="r2-mock r2-col-7 r2-rev">
+          <div class="r2-win">
+            <div class="r2-doc">Hujjat: <span class="r2-new">şahar</span> markazida yangi bog'…</div>
+            <div class="r2-ime"><span class="r2-old">shahar</span><span class="r2-ime__arw">→</span><span class="r2-new">şahar</span></div>
+          </div>
+          <span class="r2-mock__chip"><span class="r2-chip r2-chip--live"><i></i>jonli</span></span>
+          <span class="r2-mock__cap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="1.5"/><path d="M3 9h18"/></svg>Windows · har qanday dastur</span>
+        </div>
+        <!-- Terminal -->
+        <div class="r2-mock r2-col-5 r2-rev">
+          <div class="r2-term">
+            <div><span class="r2-p">$</span> echo "o'zbek" | bitg</div>
+            <div class="r2-g">özbek</div>
+            <div><span class="r2-p">$</span> cargo add bitg-core</div>
+          </div>
+          <span class="r2-mock__chip"><span class="r2-chip r2-chip--live"><i></i>crates.io</span></span>
+          <span class="r2-mock__cap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg>CLI · MCP</span>
+        </div>
+        <!-- Telegram -->
+        <div class="r2-mock r2-col-5 r2-rev">
+          <div class="r2-tg">
+            <div class="r2-bub">o'zbek tilida yoz</div>
+            <div class="r2-bub r2-bub--me"><span class="r2-new">özbek tilida yoz</span></div>
+          </div>
+          <span class="r2-mock__chip"><span class="r2-chip r2-chip--live"><i></i>@bitguzbot</span></span>
+          <span class="r2-mock__cap"><svg viewBox="0 0 24 24"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg>Telegram</span>
+        </div>
+        <!-- Browser -->
+        <div class="r2-mock r2-col-7 r2-rev">
+          <div class="r2-brow">
+            <div class="r2-brow__bar"><span class="r2-stage__dot"></span><span class="r2-stage__dot"></span><span class="r2-brow__url">bitg.uz/konvertor</span></div>
+            <div class="r2-brow__body"><span class="r2-new">Toşkent</span> — O'zbekiston poytaxti.</div>
+          </div>
+          <span class="r2-mock__chip"><span class="r2-chip r2-chip--live"><i></i>Chrome · Edge</span></span>
+          <span class="r2-mock__cap"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>Brauzer kengaytmasi</span>
+        </div>
+      </div>
+      <div class="r2-grid" data-no-conv>
+        <div class="r2-card"><b>Linux</b><div class="r2-card__meta"><span class="r2-chip r2-chip--live"><i></i>IBus · apt · pacman</span><span class="r2-chip r2-chip--soon"><i></i>Fcitx5</span></div></div>
+        <div class="r2-card"><b>macOS</b><div class="r2-card__meta"><span class="r2-chip r2-chip--soon"><i></i>beta · brew</span></div></div>
+        <div class="r2-card"><b>Telefon</b><div class="r2-card__meta"><span class="r2-chip r2-chip--live"><i></i>Keyman</span></div></div>
       </div>
     </div>
   </section>
 
-  <!-- 7. TRUST -->
-  <section class="r2-sec" id="ishonch" aria-labelledby="r2-h7">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Ishonch</p>
-      <h2 id="r2-h7" class="r2-h2">Ruxsat so'ramaydi. <em>Ochiq. Tekshirilgan.</em></h2>
-      <div class="r2-stats r2-mt" data-no-conv>
-        <div><b>Gold</b><span>OpenSSF Scorecard</span></div>
-        <div><b>SLSA L3</b><span>ta'minot zanjiri</span></div>
-        <div><b>SHA-256</b><span>+ attestatsiya</span></div>
-        <div><b>0</b><span>tarmoq so'rovi · internetsiz</span></div>
+  <!-- ===== SPEED ===== -->
+  <section class="r2-sec" id="tezlik">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Tezlik</p>
+      <h2 class="r2-h2 r2-rev">Sezmaysiz ham. <em>Shuncha tez.</em></h2>
+      <div class="r2-speed r2-rev" data-speed data-no-conv>
+        <div class="r2-speed__row">
+          <span class="r2-speed__lbl">Tugmalar orasi</span>
+          <div class="r2-speed__track"><div class="r2-speed__fill" data-w="100"><span class="r2-speed__val">≈100 000 µs</span></div></div>
+        </div>
+        <div class="r2-speed__row">
+          <span class="r2-speed__lbl">Ko'z pirpirashi</span>
+          <div class="r2-speed__track"><div class="r2-speed__fill" data-w="34"><span class="r2-speed__val">≈33 000 µs</span></div></div>
+        </div>
+        <div class="r2-speed__row">
+          <span class="r2-speed__lbl">bitg o'girishi</span>
+          <div class="r2-speed__track"><div class="r2-speed__fill r2-speed__fill--bitg" data-w="4"><span class="r2-speed__val">2,7 µs</span></div></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 8. ROADMAP -->
-  <section class="r2-sec r2-sec--tint" id="roadmap" aria-labelledby="r2-h8">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Yo'lda</p>
-      <h2 id="r2-h8" class="r2-h2">Yaqinda <em>keladigan.</em></h2>
-      <div class="r2-eco r2-mt" data-no-conv>
-        <div class="r2-eco__item"><div class="r2-card"><b>Microsoft Store</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>Tez kunda</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Google Docs add-on</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Word add-in</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Hunspell imlo</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>Unicode CLDR</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
-        <div class="r2-eco__item"><div class="r2-card"><b>uz.wikipedia konvertor</b><span class="r2-chip r2-chip--soon"><span class="r2-chip__d"></span>ko'rib chiqilmoqda</span></div></div>
+  <!-- ===== DEADLINE ===== -->
+  <section class="r2-sec r2-sec--tight r2-ink" id="muddat">
+    <div class="r2-wrap r2-center">
+      <p class="r2-kick r2-rev">Muddat</p>
+      <h2 class="r2-h2 r2-rev">Yangi alifbo — <em>2027-yil 22-aprel.</em></h2>
+      <p class="r2-lead r2-rev">O'RQ-1184 qonuni rasman kuchga kiradi. Bugundan tayyorlaning.</p>
+      <div class="r2-count r2-rev" data-count data-no-conv>
+        <div class="r2-count__u"><span class="r2-count__n" data-unit="d">—</span><span class="r2-count__l">kun</span></div>
+        <div class="r2-count__u"><span class="r2-count__n" data-unit="h">—</span><span class="r2-count__l">soat</span></div>
+        <div class="r2-count__u"><span class="r2-count__n" data-unit="m">—</span><span class="r2-count__l">daqiqa</span></div>
+        <div class="r2-count__u"><span class="r2-count__n" data-unit="s">—</span><span class="r2-count__l">soniya</span></div>
       </div>
     </div>
   </section>
 
-  <!-- 9. DEADLINE -->
-  <section class="r2-sec" id="muddat" aria-labelledby="r2-h9">
-    <div class="r2-wrap r2-rev r2-center">
-      <p class="r2-kicker">Muddat</p>
-      <h2 id="r2-h9" class="r2-h2">Qonun <em><span data-days>157</span> kundan keyin.</em></h2>
-      <p class="r2-lead">O'RQ-1184 — yangi o'zbek lotin alifbosi 2027-yil 22-aprelda kuchga kiradi. Bugundan tayyorlaning.</p>
-    </div>
-  </section>
-
-  <!-- 10. INSTALL -->
-  <section class="r2-sec r2-sec--tint" id="ornatish" aria-labelledby="r2-h10">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">O'rnating</p>
-      <h2 id="r2-h10" class="r2-h2">Bir daqiqa, <em>bepul.</em></h2>
-      <div class="r2-grid r2-grid--wide r2-mt">
-        <a class="r2-card r2-btn r2-btn--start" href="/yuklab-olish/" data-no-conv><b>Windows 10 / 11</b></a>
-        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/linux/" data-no-conv><b>Linux</b></a>
-        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/mac/" data-no-conv><b>macOS</b></a>
-        <a class="r2-card r2-btn r2-btn--start" href="/klaviatura/iphone/" data-no-conv><b>Telefon</b></a>
+  <!-- ===== ROADMAP ===== -->
+  <section class="r2-sec" id="yoldagi">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Yo'lda</p>
+      <h2 class="r2-h2 r2-rev">Reja — <em>ochiq.</em></h2>
+      <p class="r2-lead r2-rev">Rejadagi ishlar ham shaffof: holati bilan ko'rsatiladi.</p>
+      <div class="r2-grid r2-rev" data-no-conv>
+        <div class="r2-card"><b>Microsoft Store</b><div class="r2-card__meta"><span class="r2-chip r2-chip--soon"><i></i>Tez kunda</span></div><p class="r2-card__p">Windows'ga bir bosishda o'rnatish.</p></div>
+        <div class="r2-card"><b>Google Docs / Word</b><div class="r2-card__meta"><span class="r2-chip r2-chip--rev"><i></i>ko'rib chiqilmoqda</span></div><p class="r2-card__p">Ofis hujjatlari ichida o'girish.</p></div>
+        <div class="r2-card"><b>Hunspell imlo</b><div class="r2-card__meta"><span class="r2-chip r2-chip--rev"><i></i>ko'rib chiqilmoqda</span></div><p class="r2-card__p">Yangi alifbo uchun imlo tekshiruvi.</p></div>
+        <div class="r2-card"><b>Unicode CLDR</b><div class="r2-card__meta"><span class="r2-chip r2-chip--rev"><i></i>ko'rib chiqilmoqda</span></div><p class="r2-card__p">Standart tartiblash qoidalari.</p></div>
+        <div class="r2-card"><b>uz.wikipedia</b><div class="r2-card__meta"><span class="r2-chip r2-chip--rev"><i></i>ko'rib chiqilmoqda</span></div><p class="r2-card__p">Maqolalarni yangi alifboga o'girish.</p></div>
+        <div class="r2-card"><b>Fcitx5 (Linux)</b><div class="r2-card__meta"><span class="r2-chip r2-chip--soon"><i></i>beta</span></div><p class="r2-card__p">KDE va boshqa muhitlar uchun.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- 11. ALL FEATURES MAP -->
-  <section class="r2-sec" id="xarita" aria-labelledby="r2-h11">
-    <div class="r2-wrap r2-rev">
-      <p class="r2-kicker">Hammasi</p>
-      <h2 id="r2-h11" class="r2-h2">Barcha <em>imkoniyatlar.</em></h2>
-      <div class="r2-eco r2-mt">
-        <a class="r2-card r2-btn r2-btn--start" href="/konvertor/" data-no-conv>Konvertor</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/yangi-alifbo/" data-no-conv>Yangi alifbo</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/standart/" data-no-conv>Standart</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/sifat/" data-no-conv>Sifat</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/xavfsizmi/" data-no-conv>Xavfsizmi</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/savollar/" data-no-conv>Savollar</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/qiyoslash/" data-no-conv>Qiyoslash</a>
-        <a class="r2-card r2-btn r2-btn--start" href="/haqida/" data-no-conv>Haqida</a>
+  <!-- ===== TRUST ===== -->
+  <section class="r2-sec r2-sec--tight" id="ishonch">
+    <div class="r2-wrap">
+      <p class="r2-kick r2-rev">Ishonch</p>
+      <h2 class="r2-h2 r2-rev">Ochiq. Tekshirilgan. <em>Ruxsat so'ramaydi.</em></h2>
+      <div class="r2-trust r2-rev" data-no-conv>
+        <div class="r2-trust__i"><b>Gold</b><span>OpenSSF Scorecard</span></div>
+        <div class="r2-trust__i"><b>SLSA L3</b><span>ta'minot zanjiri</span></div>
+        <div class="r2-trust__i"><b>SHA-256</b><span>+ attestatsiya</span></div>
+        <div class="r2-trust__i"><b>0</b><span>tarmoq so'rovi · internetsiz</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA BAND ===== -->
+  <section class="r2-sec r2-sec--tight" id="ornatish">
+    <div class="r2-wrap">
+      <div class="r2-band r2-ink r2-rev">
+        <div class="r2-band__glow" aria-hidden="true"></div>
+        <p class="r2-kick r2-center">Bepul · ochiq kod</p>
+        <h2 class="r2-h2">Bir daqiqa, <em>tayyor.</em></h2>
+        <div class="r2-cta" data-no-conv>
+          <a class="r2-btn r2-btn--accent" href="/yuklab-olish/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><span>Windows · Linux · macOS</span></a>
+          <a class="r2-btn" href="#sinash">Avval brauzerda sinash</a>
+        </div>
       </div>
     </div>
   </section>
@@ -238,12 +296,12 @@
 <footer class="r2-foot">
   <div class="r2-wrap r2-foot__grid">
     <div>
-      <a class="r2-logo" href="#top" data-no-conv><svg class="r2-logo__mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.95 4.5V19.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="12.3" cy="14.8" r="4.7" stroke="currentColor" stroke-width="2" fill="none"/></svg><span>bitg</span></a>
-      <p class="r2-cardnote">Eskicha yozing — yangicha chiqadi. Bepul, ochiq kod.</p>
+      <a class="r2-logo" href="#top" data-no-conv><img class="r2-logo__m" src="/icon.svg" alt="" width="30" height="30"><span>bitg</span></a>
+      <p class="r2-foot__tag">Eskicha yozing — yangicha chiqadi. Bepul, ochiq kodli (MIT yoki Apache-2.0).</p>
     </div>
-    <nav aria-label="Dastur"><a href="/yuklab-olish/">Yuklab olish</a><a href="/konvertor/">Konvertor</a><a href="/savollar/">Savollar</a></nav>
-    <nav aria-label="Alifbo"><a href="/yangi-alifbo/">Yangi alifbo</a><a href="/standart/">Standart</a><a href="/sifat/">Sifat</a></nav>
-    <nav aria-label="Loyiha"><a href="https://github.com/dtwinuz/bitg" rel="noopener">GitHub</a><a href="/haqida/">Haqida</a><a href="/maxfiylik/">Maxfiylik</a></nav>
+    <nav aria-label="Dastur"><a href="/yuklab-olish/">Yuklab olish</a><a href="/konvertor/">Konvertor</a><a href="/klaviatura/linux/">Linux</a><a href="/klaviatura/mac/">macOS</a></nav>
+    <nav aria-label="Alifbo"><a href="/yangi-alifbo/">Yangi alifbo</a><a href="/standart/">Standart</a><a href="/sifat/">Sifat</a><a href="/qiyoslash/">Qiyoslash</a></nav>
+    <nav aria-label="Loyiha"><a href="https://github.com/dtwinuz/bitg" rel="noopener">GitHub</a><a href="/haqida/">Haqida</a><a href="/savollar/">Savollar</a><a href="/maxfiylik/">Maxfiylik</a></nav>
   </div>
 </footer>
 </body>
