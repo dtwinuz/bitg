@@ -11,6 +11,7 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const root = document.documentElement;
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 root.classList.add('r2-js');
+let KB3D = false;
 
 /* ---------- theme ---------- */
 (() => {
@@ -242,10 +243,12 @@ onSeen($$('[data-speed]'), (box) => {
     toks.forEach((t) => {
       if (t.getAttribute('data-chg') !== '1') return;
       setTimeout(() => {
-        t.textContent = t.getAttribute('data-new');
+        const nw = t.getAttribute('data-new');
+        t.textContent = nw;
         t.classList.remove('r2-old'); t.classList.add('r2-new');
         t.style.transform = 'translateY(-4px) scale(1.02)';
         setTimeout(() => { t.style.transform = ''; }, 360);
+        if (KB3D) { const L = [...new Set([...nw.toLowerCase()].filter((c) => 'öğşç'.includes(c)))]; if (L.length) dispatchEvent(new CustomEvent('bitg:fuse', { detail: { letters: L } })); }
       }, d);
       d += 300;
     });
@@ -302,4 +305,24 @@ onSeen($$('[data-speed]'), (box) => {
   btns.forEach((b) => b.addEventListener('click', () => apply(b.getAttribute('data-abc-btn'))));
   let saved = null; try { saved = localStorage.getItem('r2-abc'); } catch (e) {}
   if (saved === 'new') apply('new');
+})();
+
+/* ---------- 3D second moment: kb3d keyboard (redesign/ bundle qayta ishlatiladi) ---------- */
+(() => {
+  const canvas = $('[data-3d]'); if (!canvas) return;
+  const art = canvas.closest('[data-art]');
+  const fail = () => { if (art) art.classList.add('r2-noart'); };
+  let gl = false; try { gl = !!document.createElement('canvas').getContext('webgl2'); } catch (e) {}
+  if (!gl || RM) { fail(); return; }
+  let started = false;
+  onSeen([canvas], () => {
+    if (started) return; started = true;
+    const fonts = document.fonts ? document.fonts.load('500 64px "r2 Sans"').catch(() => null) : Promise.resolve();
+    import('/redesign/kb3d.js' + (V ? '?v=' + V : ''))
+      .then((m) => fonts.then(() => {
+        const inst = m.start(canvas, { still: false });
+        if (inst === null) fail(); else KB3D = true;
+      }))
+      .catch(fail);
+  }, '500px 0px');
 })();
